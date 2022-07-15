@@ -1,0 +1,227 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+        x:Class="StS_GUI_Avalonia.MainWindow"
+        Title="StS">
+	
+	    <Window.Styles>
+        <Style Selector="TabItem.Header">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+    </Window.Styles>
+	
+	<Grid Margin="5">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="Auto"/>
+		</Grid.RowDefinitions>
+		<DockPanel Grid.Row="0">
+			<Menu DockPanel.Dock="Top">
+				<MenuItem Header="Datei">
+					<MenuItem Header="Schule laden"/>
+					<MenuItem Header="Schule schließen"/>
+					<Separator/>
+					<MenuItem Header="Schule speichern unter"/>
+					<MenuItem Header="Schüle verschlüsselt speichern"/>
+					<MenuItem Header="Verschlüsselte Schule laden"/>
+					<Separator/>
+					<MenuItem Header="Beenden"/>
+				</MenuItem>
+				<MenuItem Header="Daten">
+					<MenuItem Header="CSV laden">
+						<MenuItem Header="Dateien aus Ordner"/>
+						<Separator/>
+						<MenuItem Header="SuS aus Datei"/>
+						<MenuItem Header="LuL aus Datei"/>
+						<MenuItem Header="Kurse aus Datei"/>
+						<Separator/>
+						<MenuItem Header="Mail und Nutzernamen einlesen"/>
+						<MenuItem Header="2. Accounts einlesen"/>
+					</MenuItem>
+					<MenuItem Header="Änderungen einlesen"/>
+					<MenuItem Header="in CSV exportieren"/>
+				</MenuItem>
+				<MenuItem Header="Hilfe">
+					<MenuItem Header="Über"/>
+				</MenuItem>
+			</Menu>
+		</DockPanel>
+
+		<TabControl Grid.Row="1">
+			<TabItem Header="Daten" Classes="Header">
+		<Grid Grid.Row="1" Margin="5">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="Auto"></ColumnDefinition>
+				<ColumnDefinition Width="Auto"></ColumnDefinition>
+			</Grid.ColumnDefinitions>
+					<Grid Grid.Row="0" Grid.Column="0" Margin="5">
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="*"></ColumnDefinition>
+							<ColumnDefinition Width="*"></ColumnDefinition>
+						</Grid.ColumnDefinitions>
+						<Grid.RowDefinitions>
+							<RowDefinition Height="Auto"/>
+							<RowDefinition Height="Auto"/>
+							<RowDefinition Height="Auto"/>
+						</Grid.RowDefinitions>
+						<ComboBox Width="200" VerticalAlignment="Top"
+						  Grid.Row="0" Grid.Column="0"
+						  SelectedIndex="{Binding Path=SelectedIndex, ElementName=TheListBox}">
+							<ComboBoxItem Content="Schüler*in"/>
+							<ComboBoxItem Content="Lehrkräfte"/>
+							<ComboBoxItem Content="Klasse/Kurs"/>
+						</ComboBox>
+						<TextBox Text="" Grid.Row="1" Grid.Column="0"/>
+						<ListBox x:Name="LeftListBox" Grid.Row="2" Grid.Column="0">
+						</ListBox>
+						<ComboBox Width="200" VerticalAlignment="Top"
+						  Grid.Row="0" Grid.Column="1"
+						  SelectedIndex="{Binding Path=SelectedIndex, ElementName=TheListBox}">
+							<ComboBoxItem Content="Schüler*in"/>
+							<ComboBoxItem Content="Lehrkräfte"/>
+							<ComboBoxItem Content="Klasse/Kurs"/>
+						</ComboBox>
+						<TextBox Text="" Grid.Row="1" Grid.Column="1"/>
+						<ListBox x:Name="RightListBox" Grid.Row="2" Grid.Column="1">
+						</ListBox>
+					</Grid>
+					<TabControl Grid.Row="0" Grid.Column="1">
+						<TabItem Header="SuS" Classes="Header">
+							<Grid Margin="5">
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="Auto"></ColumnDefinition>
+									<ColumnDefinition Width="Auto"></ColumnDefinition>
+								</Grid.ColumnDefinitions>
+								<Grid.RowDefinitions>
+									<RowDefinition Height="Auto"/>
+									<RowDefinition Height="Auto"/>
+									<RowDefinition Height="Auto"/>
+									<RowDefinition Height="Auto"/>
+									<RowDefinition Height="Auto"/>
+									<RowDefinition Height="Auto"/>
+									<RowDefinition Height="Auto"/>
+									<RowDefinition Height="Auto"/>
+									<RowDefinition Height="Auto"/>
+								</Grid.RowDefinitions>
+								<TextBlock  Text="ID:" Grid.Column="0" Grid.Row="1"></TextBlock>
+								<TextBox Name="SuSID" Text="Test" Grid.Column="1" Grid.Row="1" Width="150"></TextBox>
+								<TextBlock Text="Vorname:" Grid.Column="0" Grid.Row="2"></TextBlock>
+								<TextBox Name="SuSVorname" Text="Test" Grid.Column="1" Grid.Row="2"></TextBox>
+								<TextBlock Text="Nachname:" Grid.Column="0" Grid.Row="3"></TextBlock>
+								<TextBox Name="SuSnachname" Text="Test" Grid.Column="1" Grid.Row="3"></TextBox>
+								<TextBlock Text="Elternadresse:" Grid.Column="0" Grid.Row="4"></TextBlock>
+								<TextBox Name="SuSElternadresse" Text="Test" Grid.Column="1" Grid.Row="4"></TextBox>
+								<TextBlock Text="AIX-Mailadresse:" Grid.Column="0" Grid.Row="5"></TextBlock>
+								<TextBox Name="SuSAIXMail" Text="Test" Grid.Column="1" Grid.Row="5"></TextBox>
+								<TextBlock Text="Nutzername:" Grid.Column="0" Grid.Row="6"></TextBlock>
+								<TextBox Name="SuSNutzername" Text="Test" Grid.Column="1" Grid.Row="6"></TextBox>
+								<TextBlock Text="Kurse:" Grid.Column="0" Grid.Row="7"></TextBlock>
+								<TextBox Name="SuSKurse" Text="Test" Grid.Column="1" Grid.Row="7"></TextBox>
+								<Button Name="SuSHinzufuegen" Grid.Column="0" Grid.Row="8">Hinzufügen/aktualisieren</Button>
+								<Button Name="SuSloeschen" Grid.Column="1" Grid.Row="8">markierte löschen</Button>
+							</Grid>
+						</TabItem>
+						<TabItem Header="LuL" Classes="Header">
+							<Grid Margin="5">
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="Auto"></ColumnDefinition>
+									<ColumnDefinition Width="Auto"></ColumnDefinition>
+								</Grid.ColumnDefinitions>
+								<Grid.RowDefinitions>
+									<RowDefinition Height="Auto"/>
+									<RowDefinition Height="Auto"/>
+									<RowDefinition Height="Auto"/>
+									<RowDefinition Height="Auto"/>
+									<RowDefinition Height="Auto"/>
+									<RowDefinition Height="Auto"/>
+									<RowDefinition Height="Auto"/>
+									<RowDefinition Height="Auto"/>
+									<RowDefinition Height="Auto"/>
+									<RowDefinition Height="Auto"/>
+								</Grid.RowDefinitions>
+								<TextBlock  Text="ID:" Grid.Column="0" Grid.Row="1"></TextBlock>
+								<TextBox Name="LuLID" Text="Test" Grid.Column="1" Grid.Row="1" Width="150"></TextBox>
+								<TextBlock Text="Vorname:" Grid.Column="0" Grid.Row="2"></TextBlock>
+								<TextBox Name="LuLVorname" Text="Test" Grid.Column="1" Grid.Row="2"></TextBox>
+								<TextBlock Text="Nachname:" Grid.Column="0" Grid.Row="3"></TextBlock>
+								<TextBox Name="LuLnachname" Text="Test" Grid.Column="1" Grid.Row="3"></TextBox>
+								<TextBlock Text="Kürzel:" Grid.Column="0" Grid.Row="4"></TextBlock>
+								<TextBox Name="LuLKuerzel" Text="Test" Grid.Column="1" Grid.Row="4"></TextBox>
+								<TextBlock Text="Mailadresse:" Grid.Column="0" Grid.Row="5"></TextBlock>
+								<TextBox Name="LuLFach" Text="Test" Grid.Column="1" Grid.Row="5"></TextBox>
+								<TextBlock Text="Fächer:" Grid.Column="0" Grid.Row="6"></TextBlock>
+								<TextBox Name="LuLMail" Text="Test" Grid.Column="1" Grid.Row="6"></TextBox>
+								<TextBlock Text="temp. Passwort:" Grid.Column="0" Grid.Row="7"></TextBlock>
+								<TextBox Name="LuLtmpPwd" Text="Test" Grid.Column="1" Grid.Row="7"></TextBox>
+								<TextBlock Text="Kurse:" Grid.Column="0" Grid.Row="8"></TextBlock>
+								<TextBox Name="LuLKurse" Text="Test" Grid.Column="1" Grid.Row="8"></TextBox>
+								<Button Name="LuLHinzufuegen" Grid.Column="0" Grid.Row="9">Hinzufügen/aktualisieren</Button>
+								<Button Name="LuLloeschen" Grid.Column="1" Grid.Row="9">markierte löschen</Button>
+							</Grid>
+						</TabItem>
+						<TabItem Header="Kurse" Classes="Header">
+							<Grid Margin="5">
+								<Grid.RowDefinitions>
+									<RowDefinition Height="Auto"/>
+									<RowDefinition Height="Auto"/>
+									<RowDefinition Height="Auto"/>
+								</Grid.RowDefinitions>
+								<Grid Margin="5" Grid.Row="0">
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition Width="Auto"></ColumnDefinition>
+										<ColumnDefinition Width="Auto"></ColumnDefinition>
+									</Grid.ColumnDefinitions>
+									<Grid.RowDefinitions>
+										<RowDefinition Height="Auto"/>
+										<RowDefinition Height="Auto"/>
+										<RowDefinition Height="Auto"/>
+										<RowDefinition Height="Auto"/>
+										<RowDefinition Height="Auto"/>
+										<RowDefinition Height="Auto"/>
+										<RowDefinition Height="Auto"/>
+										<RowDefinition Height="Auto"/>
+										<RowDefinition Height="Auto"/>
+										<RowDefinition Height="Auto"/>
+										<RowDefinition Height="Auto"/>
+										<RowDefinition Height="Auto"/>
+										<RowDefinition Height="Auto"/>
+									</Grid.RowDefinitions>
+									<TextBlock  Text="Bezeichnung:" Grid.Column="0" Grid.Row="1"></TextBlock>
+									<TextBox Name="Kursbezeichnung" Text="Test" Grid.Column="1" Grid.Row="1" Width="150"></TextBox>
+									<TextBlock Text="Lehrkräfte:" Grid.Column="0" Grid.Row="2"></TextBlock>
+									<TextBox Name="KursLuL" Text="Test" Grid.Column="1" Grid.Row="2"></TextBox>
+									<TextBlock Text="Fach:" Grid.Column="0" Grid.Row="3"></TextBlock>
+									<TextBox Name="KursFach" Text="Test" Grid.Column="1" Grid.Row="3"></TextBox>
+									<TextBlock Text="Suffix:" Grid.Column="0" Grid.Row="4"></TextBlock>
+									<TextBox Name="KursSuffix" Text="Test" Grid.Column="1" Grid.Row="4"></TextBox>
+									<TextBlock Text="Klasse:" Grid.Column="0" Grid.Row="5"></TextBlock>
+									<TextBox Name="KursKlasse" Text="Test" Grid.Column="1" Grid.Row="5"></TextBox>
+									<TextBlock Text="Stufe:" Grid.Column="0" Grid.Row="6"></TextBlock>
+									<TextBox Name="KursStufe" Text="Test" Grid.Column="1" Grid.Row="6"></TextBox>									
+								</Grid>
+								<StackPanel Orientation="Vertical" Grid.Row="1">
+									<CheckBox Name="KursIstKurs">Ist ein Kurs</CheckBox>
+									<CheckBox Name="KursMarkierteSuSEinschreiben">Markierte SuS einschreiben</CheckBox>
+									<CheckBox Name="KursSuSdKlasseEinschreiben">SuS der Klasse einschreiben</CheckBox>
+									<CheckBox Name="KursSuSdStufeEinschreiben">SuS der Stufe einschreiben</CheckBox>
+								</StackPanel>
+								<StackPanel Orientation="Horizontal" Grid.Row="2">
+									<Button Name="KursHinzufuegen">Hinzufügen/aktualisieren</Button>
+									<Button Name="Kursloeschen">markierte löschen</Button>
+								</StackPanel>
+							</Grid>
+						</TabItem>
+					</TabControl>
+		</Grid>
+				</TabItem>
+			<TabItem Header="Export" Classes="Header"></TabItem>
+			<TabItem Header="Fehlersuche" Classes="Header">></TabItem>
+			<TabItem Header="Einstellungen" Classes="Header"></TabItem>
+			<TabItem Header="Log" Classes="Header"></TabItem>
+			<TabItem Header="Sonstiges" Classes="Header"></TabItem>
+			</TabControl>
+	</Grid>
+</Window>
