@@ -255,7 +255,7 @@
 						<Button x:Name="btnExportStufenkurs">Stufenkurse exportieren</Button>
 						<Button x:Name="btnExport5InklPasswort">5er inkl. Passwort exportieren</Button>
 					</StackPanel>
-						
+
 				</Grid>
 			</TabItem>
 			<TabItem Header="Fehlersuche" Classes="Header">
@@ -274,7 +274,41 @@
 					<ListBox x:Name="tbFehlerliste">Test</ListBox>
 				</StackPanel>
 			</TabItem>
-			<TabItem Header="Einstellungen" Classes="Header"></TabItem>
+			<TabItem Header="Einstellungen" Classes="Header">
+				<Grid>
+					<Grid.RowDefinitions>
+						<RowDefinition Height="Auto"/>
+						<RowDefinition Height="Auto"/>
+						<RowDefinition Height="Auto"/>
+						<RowDefinition Height="Auto"/>
+					</Grid.RowDefinitions>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="Auto"></ColumnDefinition>
+						<ColumnDefinition Width="Auto"></ColumnDefinition>
+					</Grid.ColumnDefinitions>
+					<StackPanel Grid.Row="0" Grid.Column="0">
+						<TextBlock Text="Platzhalterdeomain"></TextBlock>
+						<TextBox x:Name="tbSettingMailplatzhalter" Text="Test" Width="150"></TextBox>
+					</StackPanel>
+					<StackPanel Grid.Row="0" Grid.Column="1">
+						<TextBlock Text="Kurssuffix"></TextBlock>
+						<TextBox x:Name="tbSettingKurssuffix" Text="Test" Width="150"></TextBox>
+					</StackPanel>
+					<StackPanel Grid.Row="1" Grid.Column="0">
+						<TextBlock Text="Kursersetzungen"></TextBlock>
+						<TextBox x:Name="tbSettingKursersetzung" Text="Test" Width="150"></TextBox>
+					</StackPanel>
+					<StackPanel Grid.Row="2" Grid.Column="0">
+						<TextBlock Text="Fächerkurzform"></TextBlock>
+						<ListBox x:Name="tbSettingFachkurz">Test</ListBox>
+					</StackPanel>
+					<StackPanel Grid.Row="2" Grid.Column="1">
+						<TextBlock Text="Fächerlangform"></TextBlock>
+						<ListBox x:Name="tbSettingFachlang">Test</ListBox>
+					</StackPanel>
+					<Button x:Name="btnSettingSave" Grid.Row="3" Grid.Column="0">Speichern</Button>
+				</Grid>
+			</TabItem>
 			<TabItem Header="Log" Classes="Header"></TabItem>
 			<TabItem Header="Sonstiges" Classes="Header"></TabItem>
 		</TabControl>
