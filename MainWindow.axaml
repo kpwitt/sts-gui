@@ -309,7 +309,9 @@
 					<Button x:Name="btnSettingSave" Grid.Row="3" Grid.Column="0">Speichern</Button>
 				</Grid>
 			</TabItem>
-			<TabItem Header="Log" Classes="Header">Nicht implementiert</TabItem>
+			<TabItem Header="Log" Classes="Header">
+				<DataGrid x:Name="logDataGrid" AutoGenerateColumns="False"></DataGrid>
+			</TabItem>
 			<TabItem Header="Sonstiges" Classes="Header">Nicht implementiert</TabItem>
 		</TabControl>
 	</Grid>
