@@ -69,7 +69,7 @@
 						</Grid.RowDefinitions>
 						<ComboBox Width="200" VerticalAlignment="Top"
 						  Grid.Row="0" Grid.Column="0"
-					  SelectedIndex="{Binding Path=SelectedIndex, ElementName=TheListBox}" x:Name="cbLeft">
+					  SelectedIndex="{Binding Path=SelectedIndex, ElementName=TheListBox}" x:Name="cboxDataLeft">
 							<ComboBoxItem Content="Schüler*in"/>
 							<ComboBoxItem Content="Lehrkräfte"/>
 							<ComboBoxItem Content="Klasse/Kurs"/>
@@ -79,7 +79,7 @@
 						</ListBox>
 						<ComboBox Width="200" VerticalAlignment="Top"
 						  Grid.Row="0" Grid.Column="1"
-					  SelectedIndex="{Binding Path=SelectedIndex, ElementName=TheListBox}" x:Name="cbRight">
+					  SelectedIndex="{Binding Path=SelectedIndex, ElementName=TheListBox}" x:Name="cboxDataRigth">
 							<ComboBoxItem Content="Schüler*in"/>
 							<ComboBoxItem Content="Lehrkräfte"/>
 							<ComboBoxItem Content="Klasse/Kurs"/>
@@ -107,19 +107,19 @@
 									<RowDefinition Height="Auto"/>
 								</Grid.RowDefinitions>
 								<TextBlock  Text="ID:" Grid.Column="0" Grid.Row="1"></TextBlock>
-								<TextBox x:Name="SuSID" Text="Test" Grid.Column="1" Grid.Row="1" Width="150"></TextBox>
+								<TextBox x:Name="tbSuSID" Text="Test" Grid.Column="1" Grid.Row="1" Width="150"></TextBox>
 								<TextBlock Text="Vorname:" Grid.Column="0" Grid.Row="2"></TextBlock>
-								<TextBox x:Name="SuSVorname" Text="Test" Grid.Column="1" Grid.Row="2"></TextBox>
+								<TextBox x:Name="tbSuSVorname" Text="Test" Grid.Column="1" Grid.Row="2"></TextBox>
 								<TextBlock Text="Nachname:" Grid.Column="0" Grid.Row="3"></TextBlock>
-								<TextBox x:Name="SuSnachname" Text="Test" Grid.Column="1" Grid.Row="3"></TextBox>
+								<TextBox x:Name="tbSuSnachname" Text="Test" Grid.Column="1" Grid.Row="3"></TextBox>
 								<TextBlock Text="Elternadresse:" Grid.Column="0" Grid.Row="4"></TextBlock>
-								<TextBox x:Name="SuSElternadresse" Text="Test" Grid.Column="1" Grid.Row="4"></TextBox>
+								<TextBox x:Name="tbSuSElternadresse" Text="Test" Grid.Column="1" Grid.Row="4"></TextBox>
 								<TextBlock Text="AIX-Mailadresse:" Grid.Column="0" Grid.Row="5"></TextBlock>
-								<TextBox x:Name="SuSAIXMail" Text="Test" Grid.Column="1" Grid.Row="5"></TextBox>
+								<TextBox x:Name="tbSuSAIXMail" Text="Test" Grid.Column="1" Grid.Row="5"></TextBox>
 								<TextBlock Text="Nutzername:" Grid.Column="0" Grid.Row="6"></TextBlock>
-								<TextBox x:Name="SuSNutzername" Text="Test" Grid.Column="1" Grid.Row="6"></TextBox>
+								<TextBox x:Name="tbSuSNutzername" Text="Test" Grid.Column="1" Grid.Row="6"></TextBox>
 								<TextBlock Text="Kurse:" Grid.Column="0" Grid.Row="7"></TextBlock>
-								<TextBox x:Name="SuSKurse" Text="Test" Grid.Column="1" Grid.Row="7"></TextBox>
+								<TextBox x:Name="tbSuSKurse" Text="Test" Grid.Column="1" Grid.Row="7"></TextBox>
 								<Button x:Name="btnSuSAdd" Grid.Column="0" Grid.Row="8">Hinzufügen/aktualisieren</Button>
 								<Button x:Name="btnSuSDel" Grid.Column="1" Grid.Row="8" Margin="5">markierte löschen</Button>
 							</Grid>
@@ -143,21 +143,21 @@
 									<RowDefinition Height="Auto"/>
 								</Grid.RowDefinitions>
 								<TextBlock Text="ID:" Grid.Column="0" Grid.Row="1"></TextBlock>
-								<TextBox x:Name="LuLID" Text="Test" Grid.Column="1" Grid.Row="1" Width="150"></TextBox>
+								<TextBox x:Name="tbLuLID" Text="Test" Grid.Column="1" Grid.Row="1" Width="150"></TextBox>
 								<TextBlock Text="Vorname:" Grid.Column="0" Grid.Row="2"></TextBlock>
-								<TextBox x:Name="LuLVorname" Text="Test" Grid.Column="1" Grid.Row="2"></TextBox>
+								<TextBox x:Name="tbLuLVorname" Text="Test" Grid.Column="1" Grid.Row="2"></TextBox>
 								<TextBlock Text="Nachname:" Grid.Column="0" Grid.Row="3"></TextBlock>
-								<TextBox x:Name="LuLnachname" Text="Test" Grid.Column="1" Grid.Row="3"></TextBox>
+								<TextBox x:Name="tbLuLnachname" Text="Test" Grid.Column="1" Grid.Row="3"></TextBox>
 								<TextBlock Text="Kürzel:" Grid.Column="0" Grid.Row="4"></TextBlock>
-								<TextBox x:Name="LuLKuerzel" Text="Test" Grid.Column="1" Grid.Row="4"></TextBox>
+								<TextBox x:Name="tbLuLKuerzel" Text="Test" Grid.Column="1" Grid.Row="4"></TextBox>
 								<TextBlock Text="Mailadresse:" Grid.Column="0" Grid.Row="5"></TextBlock>
-								<TextBox x:Name="LuLFach" Text="Test" Grid.Column="1" Grid.Row="5"></TextBox>
+								<TextBox x:Name="tbLuLFach" Text="Test" Grid.Column="1" Grid.Row="5"></TextBox>
 								<TextBlock Text="Fächer:" Grid.Column="0" Grid.Row="6"></TextBlock>
-								<TextBox x:Name="LuLMail" Text="Test" Grid.Column="1" Grid.Row="6"></TextBox>
+								<TextBox x:Name="tbLuLMail" Text="Test" Grid.Column="1" Grid.Row="6"></TextBox>
 								<TextBlock Text="temp. Passwort:" Grid.Column="0" Grid.Row="7"></TextBlock>
-								<TextBox x:Name="LuLtmpPwd" Text="Test" Grid.Column="1" Grid.Row="7"></TextBox>
+								<TextBox x:Name="tbLuLtmpPwd" Text="Test" Grid.Column="1" Grid.Row="7"></TextBox>
 								<TextBlock Text="Kurse:" Grid.Column="0" Grid.Row="8"></TextBlock>
-								<TextBox x:Name="LuLKurse" Text="Test" Grid.Column="1" Grid.Row="8"></TextBox>
+								<TextBox x:Name="tbLuLKurse" Text="Test" Grid.Column="1" Grid.Row="8"></TextBox>
 								<Button x:Name="btnLuLAdd" Grid.Column="0" Grid.Row="9">Hinzufügen/aktualisieren</Button>
 								<Button x:Name="btnLuLDel" Grid.Column="1" Grid.Row="9" Margin="5">markierte löschen</Button>
 							</Grid>
@@ -190,17 +190,17 @@
 										<RowDefinition Height="Auto"/>
 									</Grid.RowDefinitions>
 									<TextBlock Text="Bezeichnung:" Grid.Column="0" Grid.Row="1"></TextBlock>
-									<TextBox x:Name="Kursbezeichnung" Text="Test" Grid.Column="1" Grid.Row="1" Width="150"></TextBox>
+									<TextBox x:Name="tbKursbezeichnung" Text="Test" Grid.Column="1" Grid.Row="1" Width="150"></TextBox>
 									<TextBlock Text="Lehrkräfte:" Grid.Column="0" Grid.Row="2"></TextBlock>
-									<TextBox x:Name="KursLuL" Text="Test" Grid.Column="1" Grid.Row="2"></TextBox>
+									<TextBox x:Name="tbKursLuL" Text="Test" Grid.Column="1" Grid.Row="2"></TextBox>
 									<TextBlock Text="Fach:" Grid.Column="0" Grid.Row="3"></TextBlock>
-									<TextBox x:Name="KursFach" Text="Test" Grid.Column="1" Grid.Row="3"></TextBox>
+									<TextBox x:Name="tbKursFach" Text="Test" Grid.Column="1" Grid.Row="3"></TextBox>
 									<TextBlock Text="Suffix:" Grid.Column="0" Grid.Row="4"></TextBlock>
-									<TextBox x:Name="KursSuffix" Text="Test" Grid.Column="1" Grid.Row="4"></TextBox>
+									<TextBox x:Name="tbKursSuffix" Text="Test" Grid.Column="1" Grid.Row="4"></TextBox>
 									<TextBlock Text="Klasse:" Grid.Column="0" Grid.Row="5"></TextBlock>
-									<TextBox x:Name="KursKlasse" Text="Test" Grid.Column="1" Grid.Row="5"></TextBox>
+									<TextBox x:Name="tbKursKlasse" Text="Test" Grid.Column="1" Grid.Row="5"></TextBox>
 									<TextBlock Text="Stufe:" Grid.Column="0" Grid.Row="6"></TextBlock>
-									<TextBox x:Name="KursStufe" Text="Test" Grid.Column="1" Grid.Row="6"></TextBox>
+									<TextBox x:Name="tbKursStufe" Text="Test" Grid.Column="1" Grid.Row="6"></TextBox>
 								</Grid>
 								<StackPanel Orientation="Vertical" Grid.Row="1">
 									<CheckBox x:Name="cbKursIstKurs">Ist ein Kurs</CheckBox>
@@ -271,7 +271,7 @@
 						<Button x:Name="btnFehlerSuche">Suche</Button>
 						<Button x:Name="btnFehlerExport">Export</Button>
 					</WrapPanel>
-					<ListBox x:Name="tbFehlerliste">Test</ListBox>
+					<ListBox x:Name="lbFehlerliste">Test</ListBox>
 				</StackPanel>
 			</TabItem>
 			<TabItem Header="Einstellungen" Classes="Header">
@@ -300,11 +300,11 @@
 					</StackPanel>
 					<StackPanel Grid.Row="2" Grid.Column="0">
 						<TextBlock Text="Fächerkurzform"></TextBlock>
-						<ListBox x:Name="tbSettingFachkurz">Test</ListBox>
+						<ListBox x:Name="lbSettingFachkurz">Test</ListBox>
 					</StackPanel>
 					<StackPanel Grid.Row="2" Grid.Column="1">
 						<TextBlock Text="Fächerlangform"></TextBlock>
-						<ListBox x:Name="tbSettingFachlang">Test</ListBox>
+						<ListBox x:Name="lbSettingFachlang">Test</ListBox>
 					</StackPanel>
 					<Button x:Name="btnSettingSave" Grid.Row="3" Grid.Column="0">Speichern</Button>
 				</Grid>
