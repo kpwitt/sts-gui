@@ -25,6 +25,7 @@ namespace StS_GUI_Avalonia
             sfd1 = new SaveFileDialog();
             var assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
             this.Icon = new WindowIcon(assets.Open(new Uri("avares://StS-GUI-Avalonia/gfx/school-building.ico")));
+            //GUI und Methoden verknüpfen
             this.FindControl<MenuItem>("mnuSchuleLaden").Click += OnMnuSchoolLoad; 
         }
 
