@@ -3,16 +3,18 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
-        x:Class="StS_GUI_Avalonia.MainWindow"
+        x:Class="StS_GUI_Avalonia.MainWindow" 
+		TransparencyLevelHint="AcrylicBlur"
+        Background="Transparent"
         Title="StS">
-	
-	    <Window.Styles>
-        <Style Selector="TabItem.Header">
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-        </Style>
-    </Window.Styles>
-	
+
+	<Window.Styles>
+		<Style Selector="TabItem.Header">
+			<Setter Property="FontSize" Value="14"/>
+			<Setter Property="FontWeight" Value="Bold"/>
+		</Style>
+	</Window.Styles>
+
 	<Grid Margin="5">
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto"/>
@@ -21,42 +23,42 @@
 		<DockPanel Grid.Row="0">
 			<Menu DockPanel.Dock="Top">
 				<MenuItem Header="Datei">
-					<MenuItem Header="Schule laden"/>
-					<MenuItem Header="Schule schließen"/>
+					<MenuItem Header="Schule laden" x:Name="mnuSchuleLaden"/>
+					<MenuItem Header="Schule schließen" x:Name="mnuSchuleSpeichern"/>
 					<Separator/>
-					<MenuItem Header="Schule speichern unter"/>
-					<MenuItem Header="Schüle verschlüsselt speichern"/>
-					<MenuItem Header="Verschlüsselte Schule laden"/>
+					<MenuItem Header="Schule speichern unter" x:Name="mnuSchuleSpeichernUnter"/>
+					<MenuItem Header="Schüle verschlüsselt speichern" x:Name="mnuSchuleVersSpeichern"/>
+					<MenuItem Header="Verschlüsselte Schule laden" x:Name="mnuVersSchuleLaden"/>
 					<Separator/>
-					<MenuItem Header="Beenden"/>
+					<MenuItem Header="Beenden"  x:Name="mnuExit"/>
 				</MenuItem>
 				<MenuItem Header="Daten">
 					<MenuItem Header="CSV laden">
-						<MenuItem Header="Dateien aus Ordner"/>
+						<MenuItem Header="Dateien aus Ordner"  x:Name="mnuLoadFolder"/>
 						<Separator/>
-						<MenuItem Header="SuS aus Datei"/>
-						<MenuItem Header="LuL aus Datei"/>
-						<MenuItem Header="Kurse aus Datei"/>
+						<MenuItem Header="SuS aus Datei" x:Name="mnuLoadSuSFromFile"/>
+						<MenuItem Header="LuL aus Datei" x:Name="mnuLoadLuLFromFile"/>
+						<MenuItem Header="Kurse aus Datei" x:Name="mnuLoadKurseFromFile"/>
 						<Separator/>
-						<MenuItem Header="Mail und Nutzernamen einlesen"/>
-						<MenuItem Header="2. Accounts einlesen"/>
+						<MenuItem Header="Mail und Nutzernamen einlesen" x:Name="mnuLoadUsernamesMail"/>
+						<MenuItem Header="2. Accounts einlesen" x:Name="mnuLoadZweitaccounts"/>
 					</MenuItem>
-					<MenuItem Header="Änderungen einlesen"/>
-					<MenuItem Header="in CSV exportieren"/>
+					<MenuItem Header="Änderungen einlesen" x:Name="mnuReadDiffs"/>
+					<MenuItem Header="in CSV exportieren" x:Name="mnuExportToCSV"/>
 				</MenuItem>
 				<MenuItem Header="Hilfe">
-					<MenuItem Header="Über"/>
+					<MenuItem Header="Über" x:Name="mnuAbout"/>
 				</MenuItem>
 			</Menu>
 		</DockPanel>
 
 		<TabControl Grid.Row="1">
 			<TabItem Header="Daten" Classes="Header">
-		<Grid Grid.Row="1" Margin="5">
-			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="Auto"></ColumnDefinition>
-				<ColumnDefinition Width="Auto"></ColumnDefinition>
-			</Grid.ColumnDefinitions>
+				<Grid Grid.Row="1" Margin="5">
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="Auto"></ColumnDefinition>
+						<ColumnDefinition Width="Auto"></ColumnDefinition>
+					</Grid.ColumnDefinitions>
 					<Grid Grid.Row="0" Grid.Column="0" Margin="5">
 						<Grid.ColumnDefinitions>
 							<ColumnDefinition Width="*"></ColumnDefinition>
@@ -200,7 +202,7 @@
 									<TextBlock Text="Klasse:" Grid.Column="0" Grid.Row="5"></TextBlock>
 									<TextBox Name="KursKlasse" Text="Test" Grid.Column="1" Grid.Row="5"></TextBox>
 									<TextBlock Text="Stufe:" Grid.Column="0" Grid.Row="6"></TextBlock>
-									<TextBox Name="KursStufe" Text="Test" Grid.Column="1" Grid.Row="6"></TextBox>									
+									<TextBox Name="KursStufe" Text="Test" Grid.Column="1" Grid.Row="6"></TextBox>
 								</Grid>
 								<StackPanel Orientation="Vertical" Grid.Row="1">
 									<CheckBox Name="KursIstKurs">Ist ein Kurs</CheckBox>
@@ -215,13 +217,13 @@
 							</Grid>
 						</TabItem>
 					</TabControl>
-		</Grid>
-				</TabItem>
+				</Grid>
+			</TabItem>
 			<TabItem Header="Export" Classes="Header"></TabItem>
-			<TabItem Header="Fehlersuche" Classes="Header">></TabItem>
+			<TabItem Header="Fehlersuche" Classes="Header"></TabItem>
 			<TabItem Header="Einstellungen" Classes="Header"></TabItem>
 			<TabItem Header="Log" Classes="Header"></TabItem>
 			<TabItem Header="Sonstiges" Classes="Header"></TabItem>
-			</TabControl>
+		</TabControl>
 	</Grid>
 </Window>
