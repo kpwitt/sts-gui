@@ -53,6 +53,7 @@ namespace StS_GUI_Avalonia
             this.FindControl<TextBox>("tbSuSAIXMail").KeyUp += OnTbsusaixmailClick;
             this.FindControl<TextBox>("tbSuSNutzername").KeyUp += OnTbsusnutzernameClick;
             this.FindControl<TextBox>("tbSuSKurse").KeyUp += OnTbsuskurseClick;
+            this.FindControl<CheckBox>("cbSuSZweitaccount").Click += OnCbSuSZweitaccountClick;
             this.FindControl<Button>("btnSuSAdd").Click += OnBtnsusaddClick;
             this.FindControl<Button>("btnSuSDel").Click += OnBtnsusdelClick;
             this.FindControl<TextBox>("tbLuLID").KeyUp += OnTblulidClick;
@@ -371,6 +372,9 @@ namespace StS_GUI_Avalonia
         {
         }
         public void OnBtnsettingsaveClick(object? sender, RoutedEventArgs e)
+        {
+        }
+        public void OnCbSuSZweitaccountClick(object? sender, RoutedEventArgs e)
         {
         }
     }
