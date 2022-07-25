@@ -69,23 +69,23 @@
 						</Grid.RowDefinitions>
 						<ComboBox Width="200" VerticalAlignment="Top"
 						  Grid.Row="0" Grid.Column="0"
-					  SelectedIndex="{Binding Path=SelectedIndex, ElementName=TheListBox}" x:Name="cboxDataLeft">
+					  SelectedIndex="{Binding Path=SelectedIndex, ElementName=LeftItem}" x:Name="cboxDataLeft">
 							<ComboBoxItem Content="Schüler*in"/>
 							<ComboBoxItem Content="Lehrkräfte"/>
 							<ComboBoxItem Content="Klasse/Kurs"/>
 						</ComboBox>
 						<TextBox Text="" Grid.Row="1" Grid.Column="0" x:Name="tbLeftSearch"/>
-						<ListBox x:Name="LeftListBox" Grid.Row="2" Grid.Column="0">
+						<ListBox x:Name="LeftListBox" Items="{Binding leftItems}" Selection="{Binding Selection}" SelectionMode="Multiple" Grid.Row="2" Grid.Column="0">
 						</ListBox>
 						<ComboBox Width="200" VerticalAlignment="Top"
 						  Grid.Row="0" Grid.Column="1"
-					  SelectedIndex="{Binding Path=SelectedIndex, ElementName=TheListBox}" x:Name="cboxDataRigth">
+					  SelectedIndex="{Binding Path=SelectedIndex, ElementName=RightItem}" x:Name="cboxDataRigth">
 							<ComboBoxItem Content="Schüler*in"/>
 							<ComboBoxItem Content="Lehrkräfte"/>
 							<ComboBoxItem Content="Klasse/Kurs"/>
 						</ComboBox>
 						<TextBox Text="" Grid.Row="1" Grid.Column="1" x:Name="tbRightSearch"/>
-						<ListBox x:Name="RightListBox" Grid.Row="2" Grid.Column="1">
+						<ListBox x:Name="RightListBox"  Items="{Binding rightItems}" Selection="{Binding Selection}" SelectionMode="Multiple" Grid.Row="2" Grid.Column="1">
 						</ListBox>
 					</Grid>
 					<TabControl Grid.Row="0" Grid.Column="1">
