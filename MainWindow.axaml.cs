@@ -21,9 +21,9 @@ namespace StS_GUI_Avalonia
 #if DEBUG
             this.AttachDevTools();
 #endif
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 1000; i++)
             {
-                leftItems.Add(new ListBoxItem { Content = "Links"+i });
+                leftItems.Add(new ListBoxItem { Content = "Links" + i });
                 rightItems.Add(new ListBoxItem { Content = "Rechts" + i });
             }
             myschool = new SchulDB(":memory:");
@@ -116,7 +116,7 @@ namespace StS_GUI_Avalonia
             this.FindControl<ListBox>("lbSettingFachlang").KeyUp += OnTbsettingfachlangClick;
             this.FindControl<Button>("btnSettingSave").Click += OnBtnsettingsaveClick;
             this.FindControl<ListBox>("LeftListBox").Items = leftItems;
-            this.FindControl<ListBox>("LeftListBox").SelectionMode=SelectionMode.Multiple;
+            this.FindControl<ListBox>("LeftListBox").SelectionMode = SelectionMode.Multiple;
             this.FindControl<ListBox>("LeftListBox").SelectionChanged += OnLeftlistboxSelectionChanged;
             this.FindControl<ListBox>("RightListBox").Items = rightItems;
             this.FindControl<ListBox>("RightListBox").SelectionMode = SelectionMode.Multiple;
@@ -125,10 +125,11 @@ namespace StS_GUI_Avalonia
 
         private void OnLeftlistboxSelectionChanged(object? sender, SelectionChangedEventArgs e)
         {
-            if (sender !=null&&sender.GetType().Equals(this.FindControl<ListBox>("LeftListBox"))){
+            if (sender != null && sender.GetType().Equals(this.FindControl<ListBox>("LeftListBox")))
+            {
                 var leftbox = (ListBox)sender;
-            Debug.WriteLine(leftbox.SelectedItems.Count);
-                
+                Debug.WriteLine(leftbox.SelectedItems.Count);
+
             }
         }
 
@@ -159,7 +160,7 @@ namespace StS_GUI_Avalonia
             sfd1.DefaultExtension = "sqlite";
 
             var SettingsFileName = await sfd1.ShowAsync(this);
-           Debug.WriteLine(SettingsFileName);
+            Debug.WriteLine(SettingsFileName);
         }
         public void OnMnuschulespeichernClick(object? sender, RoutedEventArgs e)
         {

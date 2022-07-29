@@ -75,7 +75,7 @@
 							<ComboBoxItem Content="Klasse/Kurs"/>
 						</ComboBox>
 						<TextBox Text="" Grid.Row="1" Grid.Column="0" x:Name="tbLeftSearch"/>
-						<ListBox x:Name="LeftListBox" Items="{Binding leftItems}" Selection="{Binding Selection}" SelectionMode="Multiple" Grid.Row="2" Grid.Column="0">
+						<ListBox x:Name="LeftListBox" VirtualizationMode="None" Height="500" Items="{Binding leftItems}" Selection="{Binding Selection}" SelectionMode="Multiple" Grid.Row="2" Grid.Column="0">
 						</ListBox>
 						<ComboBox Width="200" VerticalAlignment="Top"
 						  Grid.Row="0" Grid.Column="1"
@@ -85,7 +85,7 @@
 							<ComboBoxItem Content="Klasse/Kurs"/>
 						</ComboBox>
 						<TextBox Text="" Grid.Row="1" Grid.Column="1" x:Name="tbRightSearch"/>
-						<ListBox x:Name="RightListBox"  Items="{Binding rightItems}" Selection="{Binding Selection}" SelectionMode="Multiple" Grid.Row="2" Grid.Column="1">
+						<ListBox x:Name="RightListBox" VirtualizationMode="None" Height="500" Items="{Binding rightItems}" Selection="{Binding Selection}" SelectionMode="Multiple" Grid.Row="2" Grid.Column="1">
 						</ListBox>
 					</Grid>
 					<TabControl Grid.Row="0" Grid.Column="1">
@@ -273,7 +273,7 @@
 						<Button x:Name="btnFehlerSuche">Suche</Button>
 						<Button x:Name="btnFehlerExport">Export</Button>
 					</WrapPanel>
-					<ListBox x:Name="lbFehlerliste">Test</ListBox>
+					<ListBox x:Name="lbFehlerliste" VirtualizationMode="None">Test</ListBox>
 				</StackPanel>
 			</TabItem>
 			<TabItem Header="Einstellungen" Classes="Header">
@@ -302,11 +302,11 @@
 					</StackPanel>
 					<StackPanel Grid.Row="2" Grid.Column="0">
 						<TextBlock Text="Fächerkurzform"></TextBlock>
-						<ListBox x:Name="lbSettingFachkurz">Test</ListBox>
+						<ListBox x:Name="lbSettingFachkurz" VirtualizationMode="None">Test</ListBox>
 					</StackPanel>
 					<StackPanel Grid.Row="2" Grid.Column="1">
 						<TextBlock Text="Fächerlangform"></TextBlock>
-						<ListBox x:Name="lbSettingFachlang">Test</ListBox>
+						<ListBox x:Name="lbSettingFachlang" VirtualizationMode="None">Test</ListBox>
 					</StackPanel>
 					<Button x:Name="btnSettingSave" Grid.Row="3" Grid.Column="0">Speichern</Button>
 				</Grid>
