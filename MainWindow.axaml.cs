@@ -6,6 +6,7 @@ using SDB;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace StS_GUI_Avalonia
 {
@@ -32,6 +33,8 @@ namespace StS_GUI_Avalonia
         private MenuItem guimnuReadDiffs;
         private MenuItem guimnuExportToCSV;
         private MenuItem guimnuAbout;
+        private ComboBox guicboxDataLeft;
+        private ComboBox guicboxDataRight;
         private TextBox guitbLeftSearch;
         private ListBox guiLeftListBox;
         private TextBox guitbRightSearch;
@@ -39,7 +42,9 @@ namespace StS_GUI_Avalonia
         private TextBox guitbSuSID;
         private TextBox guitbSuSVorname;
         private TextBox guitbSuSnachname;
+        private TextBox guitbSuSKlasse;
         private TextBox guitbSuSElternadresse;
+        private TextBox guitbSuSZweitadresse;
         private TextBox guitbSuSAIXMail;
         private TextBox guitbSuSNutzername;
         private TextBox guitbSuSKurse;
@@ -141,10 +146,14 @@ namespace StS_GUI_Avalonia
             guiLeftListBox = this.FindControl<ListBox>("LeftListBox");
             guitbRightSearch = this.FindControl<TextBox>("tbRightSearch");
             guiRightListBox = this.FindControl<ListBox>("RightListBox");
+            guicboxDataLeft = this.FindControl<ComboBox>("cboxDataLeft");
+            guicboxDataRight = this.FindControl<ComboBox>("cboxDataRight");
             guitbSuSID = this.FindControl<TextBox>("tbSuSID");
             guitbSuSVorname = this.FindControl<TextBox>("tbSuSVorname");
             guitbSuSnachname = this.FindControl<TextBox>("tbSuSnachname");
+            guitbSuSKlasse = this.FindControl<TextBox>("tbSuSKlasse");
             guitbSuSElternadresse = this.FindControl<TextBox>("tbSuSElternadresse");
+            guitbSuSZweitadresse = this.FindControl<TextBox>("tbSuSZweitadresse");
             guitbSuSAIXMail = this.FindControl<TextBox>("tbSuSAIXMail");
             guitbSuSNutzername = this.FindControl<TextBox>("tbSuSNutzername");
             guitbSuSKurse = this.FindControl<TextBox>("tbSuSKurse");
@@ -223,7 +232,7 @@ namespace StS_GUI_Avalonia
             this.FindControl<MenuItem>("mnuAbout").Click += OnMnuaboutClick;
             this.FindControl<ComboBox>("cboxDataLeft").KeyUp += OnCbleftClick;
             this.FindControl<TextBox>("tbLeftSearch").KeyUp += OnTbleftsearchClick;
-            this.FindControl<ComboBox>("cboxDataRigth").KeyUp += OnCbrightClick;
+            this.FindControl<ComboBox>("cboxDataRight").KeyUp += OnCbrightClick;
             this.FindControl<TextBox>("tbRightSearch").KeyUp += OnTbrightsearchClick;
             this.FindControl<TextBox>("tbSuSID").KeyUp += OnTbsusidClick;
             this.FindControl<TextBox>("tbSuSVorname").KeyUp += OnTbsusvornameClick;
@@ -361,7 +370,7 @@ namespace StS_GUI_Avalonia
             SetupOpenDialog(ofd, "Lade Datenbankdatei", new String[] { "sqlite" }, new String[] { "Datenbankdatei" });
 
             var SettingsFileName = await ofd.ShowAsync(this);
-            if(SettingsFileName != null && SettingsFileName.Length > 0)
+            if (SettingsFileName != null && SettingsFileName.Length > 0)
             {
                 var tbSetMail = this.FindControl<TextBox>("tbSettingMailplatzhalter");
                 var tbFachErs = this.FindControl<TextBox>("tbSettingKursersetzung");
@@ -390,14 +399,13 @@ namespace StS_GUI_Avalonia
                 }
                 SucheInhalt();
             }
-            Debug.WriteLine(SettingsFileName[0]);
         }
         private void SucheInhalt()
         {
             try
             {
                 var lbInhalt = this.FindControl<ListBox>("RightListBox");
-                IoadInhaltData();
+                LoadInhaltData();
                 List<string> tlist = new();
                 foreach (string searchitem in guitbLeftSearch.Text.ToLower().Split(';'))
                 {
@@ -439,7 +447,7 @@ namespace StS_GUI_Avalonia
                     leftItems.Clear();
                     foreach (string k in myschool.GetKursListe())
                     {
-                        leftItems.Add(new ListBoxItem { Content = k.Split(';')[0]});
+                        leftItems.Add(new ListBoxItem { Content = k.Split(';')[0] });
                     }
                 }
                 else if (this.FindControl<ComboBox>("cboxDataLeft").SelectedIndex == 1)//sus
@@ -452,7 +460,7 @@ namespace StS_GUI_Avalonia
                     leftItems.Clear();
                     foreach (string s in myschool.GetSchuelerListe())
                     {
-                        leftItems.Add(new ListBoxItem { Content = s.Split(';')[1] + ", " + s.Split(';')[2] + "; " + s.Split(';')[0] }); 
+                        leftItems.Add(new ListBoxItem { Content = s.Split(';')[1] + ", " + s.Split(';')[2] + "; " + s.Split(';')[0] });
                     }
                 }
                 else if (this.FindControl<ComboBox>("cboxDataLeft").SelectedIndex == 2)//lul
@@ -482,117 +490,192 @@ namespace StS_GUI_Avalonia
             }
         }
 
-        private void IoadInhaltData()
+        private void LoadInhaltData()
         {
             try
             {
-                //lulv.Text = "";
-                //luln.Text = "";
-                //lulid.Text = "";
-                //lulkrz.Text = "";
-                //lulmail.Text = "";
-                //lulfak.Text = "";
-                //lulkurse.Text = "";
-                //lulpwemp.Text = "";
-                //susv.Text = "";
-                //susn.Text = "";
-                //susid.Text = "";
-                //susmail.Text = "";
-                //susklasse.Text = "";
-                //sususer.Text = "";
-                //tbsusaixmail.Text = "";
-                //tbsuszweitmail.Text = "";
-                //tbextrakurse.Text = "";
-                //if (cbInhalt.SelectedIndex > -1 && lbTyp.Items.Count > 0 && cbInhalt.SelectedIndex != cbTyp.SelectedIndex && lbTyp.SelectedItems.Count > 0)
-                //{
-                //    if (cbTyp.SelectedIndex == 0)//Kurse -> Teilnehmer ausgeben
-                //    {
-                //        lbInhalt.Items.Clear();
-                //        string k = myschool.GetKurs(lbTyp.SelectedItem.ToString());
-                //        foreach (int susid in myschool.GetSuSAusKurs(k.Split(';')[0]))
-                //        {
-                //            string[] s = myschool.GetSchueler(susid).Split(';');
-                //            lbInhalt.Items.Add(s[0] + "; " + s[1] + ", " + s[2]);
-                //        }
-                //        foreach (int lid in myschool.GetLuLAusKurs(k.Split(';')[0]))
-                //        {
-                //            string[] l = myschool.GetLehrer(lid).Split(';');
-                //            lbInhalt.Items.Add(l[4].ToUpper() + "; " + l[1] + ", " + l[2]);
-                //        }
-                //        LoadKursData(lbTyp);
-                //    }
-                //    else if (cbTyp.SelectedIndex == 1 && cbInhalt.SelectedIndex == 0) //SuS + Kurse
-                //    {
-                //        lbInhalt.Items.Clear();
-                //        int susid = Convert.ToInt32(lbTyp.SelectedItem.ToString().Split(';')[1].Trim());
-                //        if (myschool.GetSchueler(susid) != null)
-                //        {
-                //            foreach (string k in myschool.GetKursVonSuS(susid))
-                //            {
-                //                lbInhalt.Items.Add(k);
-                //            }
-                //        }
-                //        LoadUserData(susid);
-                //    }
-                //    else if (cbTyp.SelectedIndex == 1 && cbInhalt.SelectedIndex == 2)//sus + LuL
-                //    {
-                //        lbInhalt.Items.Clear();
-                //        int susid = Convert.ToInt32(lbTyp.SelectedItem.ToString().Split(';')[1].Trim());
-                //        List<int> llist = myschool.GetLuLvonSuS(susid).Distinct().ToList();
-                //        if (myschool.GetLuLvonSuS(susid) != null)
-                //        {
-                //            //KL-Kurs ausfiltern?
-                //            foreach (int lul in llist)
-                //            {
-                //                string[] l = myschool.GetLehrer(lul).Split(';');
-                //                if (lbInhalt.Items.IndexOf(l[4].ToUpper() + "; " + l[1] + ", " + l[2]) == -1)
-                //                {
-                //                    lbInhalt.Items.Add(l[4].ToUpper() + "; " + l[1] + ", " + l[2]);
-                //                }
-                //            }
-                //        }
-                //        LoadUserData(susid);
-                //    }
-                //    else if (cbTyp.SelectedIndex == 2 && cbInhalt.SelectedIndex == 0)//LuL und Kurse
-                //    {
-                //        lbInhalt.Items.Clear();
-                //        string l = myschool.GetLehrer(lbTyp.SelectedItem.ToString().Split(';')[0].Trim());
-                //        int lulid = Convert.ToInt32(l.Split(';')[0]);
-                //        List<string> llist = myschool.GetKursVonLuL(lulid);
-                //        if (llist != null)
-                //        {
-                //            foreach (string k in llist)
-                //            {
-                //                lbInhalt.Items.Add(k.Split(';')[0]);
-                //            }
-                //            LoadUserData(lulid);
-                //        }
-                //    }
-                //    else if (cbTyp.SelectedIndex == 2 && cbInhalt.SelectedIndex == 1)//LuL und SuS
-                //    {
-                //        lbInhalt.Items.Clear();
-                //        string l = myschool.GetLehrer(lbTyp.SelectedItem.ToString().Split(';')[0].Trim());
-                //        int lulid = Convert.ToInt32(l.Split(';')[0]);
-                //        List<int> llist = myschool.GetSuSVonLuL(lulid);
-                //        if (llist != null)
-                //        {
-                //            foreach (int sus in llist)
-                //            {
-                //                string[] s = myschool.GetSchueler(sus).Split(';');
-                //                if (lbInhalt.Items.IndexOf(s[0] + "; " + s[1] + ", " + s[2]) == -1)
-                //                {
-                //                    lbInhalt.Items.Add(s[0] + "; " + s[1] + ", " + s[2]);
-                //                }
-                //            }
-                //        }
-                //        LoadUserData(lulid);
-                //    }
-                //}
-                //else
-                //{
-                //    cbInhalt.SelectedIndex = (cbTyp.SelectedIndex + 1) % 3;
-                //}
-                //lbInhalt.Sorted = true;
+                guitbLuLVorname.Text = "";
+                guitbLuLnachname.Text = "";
+                guitbLuLID.Text = "";
+                guitbLuLKuerzel.Text = "";
+                guitbLuLMail.Text = "";
+                guitbLuLFach.Text = "";
+                guitbLuLKurse.Text = "";
+                guitbLuLtmpPwd.Text = "";
+                guitbSuSVorname.Text = "";
+                guitbSuSnachname.Text = "";
+                guitbSuSID.Text = "";
+                guitbSuSAIXMail.Text = "";
+                guitbSuSKlasse.Text = "";
+                guitbSuSNutzername.Text = "";
+                guitbSuSAIXMail.Text = "";
+                guitbSuSElternadresse.Text = "";
+
+                if (guicboxDataLeft.SelectedIndex > -1 && rightItems.Count > 0 && cboxDataLeft.SelectedIndex != guicboxDataRight.SelectedIndex && guiRightListBox.SelectedItems.Count > 0)
+                {
+                    if (guicboxDataRight.SelectedIndex == 0)//Kurse -> Teilnehmer ausgeben
+                    {
+                        leftItems.Clear();
+                        string k = myschool.GetKurs(guicboxDataRight.SelectedItem.ToString());
+                        foreach (int susid in myschool.GetSuSAusKurs(k.Split(';')[0]))
+                        {
+                            string[] s = myschool.GetSchueler(susid).Split(';');
+                            leftItems.Add(new ListBoxItem { Content = s[0] + "; " + s[1] + ", " + s[2] });
+                        }
+                        foreach (int lid in myschool.GetLuLAusKurs(k.Split(';')[0]))
+                        {
+                            string[] l = myschool.GetLehrer(lid).Split(';');
+                            leftItems.Add(new ListBoxItem { Content = l[4].ToUpper() + "; " + l[1] + ", " + l[2] });
+                        }
+                        LoadKursData(guiRightListBox);
+                    }
+                    else if (guicboxDataRight.SelectedIndex == 1 && cboxDataLeft.SelectedIndex == 0) //SuS + Kurse
+                    {
+                        leftItems.Clear();
+                        int susid = Convert.ToInt32(guicboxDataRight.SelectedItem.ToString().Split(';')[1].Trim());
+                        if (myschool.GetSchueler(susid) != null)
+                        {
+                            foreach (string k in myschool.GetKursVonSuS(susid))
+                            {
+                                leftItems.Add(new ListBoxItem { Content = k });
+                            }
+                        }
+                        LoadUserData(susid);
+                    }
+                    else if (guicboxDataRight.SelectedIndex == 1 && cboxDataLeft.SelectedIndex == 2)//sus + LuL
+                    {
+                        leftItems.Clear();
+                        int susid = Convert.ToInt32(guicboxDataRight.SelectedItem.ToString().Split(';')[1].Trim());
+                        List<int> llist = myschool.GetLuLvonSuS(susid).Distinct().ToList();
+                        if (myschool.GetLuLvonSuS(susid) != null)
+                        {
+                            //KL-Kurs ausfiltern?
+                            foreach (int lul in llist)
+                            {
+                                string[] l = myschool.GetLehrer(lul).Split(';');
+                                    leftItems.Add(new ListBoxItem { Content = l[4].ToUpper() + "; " + l[1] + ", " + l[2] });
+                                
+                            }
+                        }
+                        LoadUserData(susid);
+                    }
+                    else if (guicboxDataRight.SelectedIndex == 2 && cboxDataLeft.SelectedIndex == 0)//LuL und Kurse
+                    {
+                        leftItems.Clear();
+                        string l = myschool.GetLehrer(guicboxDataRight.SelectedItem.ToString().Split(';')[0].Trim());
+                        int lulid = Convert.ToInt32(l.Split(';')[0]);
+                        List<string> llist = myschool.GetKursVonLuL(lulid);
+                        if (llist != null)
+                        {
+                            foreach (string k in llist)
+                            {
+                                leftItems.Add(new ListBoxItem { Content = k.Split(';')[0] });
+                            }
+                            LoadUserData(lulid);
+                        }
+                    }
+                    else if (guicboxDataRight.SelectedIndex == 2 && cboxDataLeft.SelectedIndex == 1)//LuL und SuS
+                    {
+                        leftItems.Clear();
+                        string l = myschool.GetLehrer(guicboxDataRight.SelectedItem.ToString().Split(';')[0].Trim());
+                        int lulid = Convert.ToInt32(l.Split(';')[0]);
+                        List<int> llist = myschool.GetSuSVonLuL(lulid);
+                        if (llist != null)
+                        {
+                            foreach (int sus in llist)
+                            {
+                                string[] s = myschool.GetSchueler(sus).Split(';');
+
+                                    leftItems.Add(new ListBoxItem { Content = s[0] + "; " + s[1] + ", " + s[2] });
+                                
+                            }
+                        }
+                        LoadUserData(lulid);
+                    }
+                }
+                else
+                {
+                    guicboxDataLeft.SelectedIndex = (guicboxDataRight.SelectedIndex + 1) % 3;
+                }
+                leftItems.Sort();
+            }
+            catch (Exception ex)
+            {
+#if DEBUG
+                myschool.AddLogMessage("Debug", ex.StackTrace + ";" + ex.Message);
+#endif
+                myschool.AddLogMessage("Fehler", "Fehler beim laden und anzeigen der Daten " + ex.Message);
+            }
+        }
+
+        private void LoadUserData(int id)
+        {
+            try
+            {
+                if (id < 50000)
+                {
+                    string[] lehrer = myschool.GetLehrer(id).Split(';');
+                    guitbLuLVorname.Text = lehrer[2];
+                    guitbLuLnachname.Text = lehrer[1];
+                    guitbLuLID.Text = lehrer[0];
+                    guitbLuLKuerzel.Text = lehrer[4].ToUpper();
+                    guitbLuLMail.Text = lehrer[3];
+                    guitbLuLFach.Text = lehrer[5];
+                    guitbLuLtmpPwd.Text = lehrer[6];
+                    guitbLuLKurse.Text = "";
+                    foreach (string k in myschool.GetKursVonLuL(Convert.ToInt32(lehrer[0])))
+                    {
+                        guitbLuLKurse.Text += k.Split(';')[0] + ",";
+                    }
+                    guitbLuLKurse.Text = guitbLuLKurse.Text.TrimEnd(',');
+                }
+                else if (id >= 50000)
+                {
+                    string[] schueler = myschool.GetSchueler(id).Split(';');
+                    guitbSuSVorname.Text = schueler[2];
+                    guitbSuSnachname.Text = schueler[1];
+                    guitbSuSID.Text = schueler[0];
+                    guitbSuSElternadresse.Text = schueler[3];
+                    guitbSuSKlasse.Text = schueler[4];
+                    guitbSuSNutzername.Text = schueler[5];
+                    tbSuSAIXMail.Text = schueler[6];
+                    cbSuSZweitaccount.IsChecked = schueler[7] == "1";
+                    guitbSuSZweitadresse.Text = schueler[8];
+                    guitbSuSKurse.Text = "";
+                    foreach (string kl in myschool.GetKursVonSuS(Convert.ToInt32(schueler[0])))
+                    {
+                        guitbSuSKurse.Text += kl.Split(';')[0] + ",";
+                    }
+                    guitbSuSKurse.Text = guitbSuSKurse.Text.TrimEnd(',');
+                }
+            }
+            catch (Exception ex)
+            {
+#if DEBUG
+                myschool.AddLogMessage("Debug", ex.StackTrace + ";" + ex.Message);
+#endif
+                myschool.AddLogMessage("Fehler", "Fehler beim laden und anzeigen der Daten " + ex.Message);
+            }
+        }
+        private void LoadKursData(ListBox send)
+        {
+            try
+            {
+                string[] k = myschool.GetKurs(send.SelectedItems.Cast<string>().ToArray()[0]).Split(';');
+                guitbKursbezeichnung.Text = k[0];
+                guitbKursFach.Text = k[1];
+                guitbKursKlasse.Text = k[2];
+                List<int> llist = myschool.GetLuLAusKurs(k[0]);
+                String strllist = "";
+                foreach (int lid in llist)
+                {
+                    string[] l = myschool.GetLehrer(lid).Split(';');
+                    strllist += l[4].ToUpper() + ";";
+                }
+                guitbKursLuL.Text = strllist.TrimEnd(';');
+                guitbKursStufe.Text = k[3];
+                guitbKursSuffix.Text = k[4];
+                guicbKursIstKurs.IsChecked = Convert.ToBoolean((Convert.ToInt32(k[5]) + 1) % 2);
             }
             catch (Exception ex)
             {
@@ -647,7 +730,7 @@ namespace StS_GUI_Avalonia
         public void OnMnuexporttocsvClick(object? sender, RoutedEventArgs e)
         {
         }
-       
+
         public void OnMnuaboutClick(object? sender, RoutedEventArgs e)
         {
         }
@@ -666,7 +749,7 @@ namespace StS_GUI_Avalonia
         public void OnTbrightsearchClick(object? sender, RoutedEventArgs e)
         {
         }
-        public void OnCboxdatarigthClick(object? sender, RoutedEventArgs e)
+        public void OncboxDataRightClick(object? sender, RoutedEventArgs e)
         {
         }
         public void OnTbsusidClick(object? sender, RoutedEventArgs e)

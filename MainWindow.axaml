@@ -68,8 +68,8 @@
 							<RowDefinition Height="Auto"/>
 						</Grid.RowDefinitions>
 						<ComboBox Width="200" VerticalAlignment="Top"
-						  Grid.Row="0" Grid.Column="0"
-					  SelectedIndex="{Binding Path=SelectedIndex, ElementName=LeftItem}" x:Name="cboxDataLeft">
+							Grid.Row="0" Grid.Column="0"
+							SelectedIndex="{Binding Path=SelectedIndex, ElementName=LeftItem}" x:Name="cboxDataLeft">
 							<ComboBoxItem Content="Schüler*in"/>
 							<ComboBoxItem Content="Lehrkräfte"/>
 							<ComboBoxItem Content="Klasse/Kurs"/>
@@ -78,8 +78,8 @@
 						<ListBox x:Name="LeftListBox" VirtualizationMode="None" Height="500" Items="{Binding leftItems}" Selection="{Binding Selection}" SelectionMode="Multiple" Grid.Row="2" Grid.Column="0">
 						</ListBox>
 						<ComboBox Width="200" VerticalAlignment="Top"
-						  Grid.Row="0" Grid.Column="1"
-					  SelectedIndex="{Binding Path=SelectedIndex, ElementName=RightItem}" x:Name="cboxDataRigth">
+							Grid.Row="0" Grid.Column="1"
+							SelectedIndex="{Binding Path=SelectedIndex, ElementName=RightItem}" x:Name="cboxDataRight">
 							<ComboBoxItem Content="Schüler*in"/>
 							<ComboBoxItem Content="Lehrkräfte"/>
 							<ComboBoxItem Content="Klasse/Kurs"/>
@@ -106,6 +106,8 @@
 									<RowDefinition Height="Auto"/>
 									<RowDefinition Height="Auto"/>
 									<RowDefinition Height="Auto"/>
+									<RowDefinition Height="Auto"/>
+									<RowDefinition Height="Auto"/>
 								</Grid.RowDefinitions>
 								<TextBlock  Text="ID:" Grid.Column="0" Grid.Row="1"></TextBlock>
 								<TextBox x:Name="tbSuSID" Grid.Column="1" Grid.Row="1" Width="150"></TextBox>
@@ -113,17 +115,21 @@
 								<TextBox x:Name="tbSuSVorname" Grid.Column="1" Grid.Row="2"></TextBox>
 								<TextBlock Text="Nachname:" Grid.Column="0" Grid.Row="3"></TextBlock>
 								<TextBox x:Name="tbSuSnachname" Grid.Column="1" Grid.Row="3"></TextBox>
-								<TextBlock Text="Elternadresse:" Grid.Column="0" Grid.Row="4"></TextBlock>
-								<TextBox x:Name="tbSuSElternadresse" Grid.Column="1" Grid.Row="4"></TextBox>
-								<TextBlock Text="AIX-Mailadresse:" Grid.Column="0" Grid.Row="5"></TextBlock>
-								<TextBox x:Name="tbSuSAIXMail" Grid.Column="1" Grid.Row="5"></TextBox>
-								<TextBlock Text="Nutzername:" Grid.Column="0" Grid.Row="6"></TextBlock>
-								<TextBox x:Name="tbSuSNutzername" Grid.Column="1" Grid.Row="6"></TextBox>
-								<TextBlock Text="Kurse:" Grid.Column="0" Grid.Row="7"></TextBlock>
-								<TextBox x:Name="tbSuSKurse" Grid.Column="1" Grid.Row="7"></TextBox>
-								<CheckBox x:Name="cbSuSZweitaccount" Grid.Column="0" Grid.Row="8">Zweitaccount</CheckBox>
-								<Button x:Name="btnSuSAdd" Grid.Column="0" Grid.Row="9">Hinzufügen/aktualisieren</Button>
-								<Button x:Name="btnSuSDel" Grid.Column="1" Grid.Row="9" Margin="5">markierte löschen</Button>
+								<TextBlock Text="Klasse:" Grid.Column="0" Grid.Row="4"></TextBlock>
+								<TextBox x:Name="tbSuSKlasse" Grid.Column="1" Grid.Row="4"></TextBox>
+								<TextBlock Text="Elternadresse:" Grid.Column="0" Grid.Row="5"></TextBlock>
+								<TextBox x:Name="tbSuSElternadresse" Grid.Column="1" Grid.Row="5"></TextBox>
+								<TextBlock Text="weitere Adressen:" Grid.Column="0" Grid.Row="6"></TextBlock>
+								<TextBox x:Name="tbSuSZweitadresse" Grid.Column="1" Grid.Row="6"></TextBox>
+								<TextBlock Text="AIX-Mailadresse:" Grid.Column="0" Grid.Row="7"></TextBlock>
+								<TextBox x:Name="tbSuSAIXMail" Grid.Column="1" Grid.Row="7"></TextBox>
+								<TextBlock Text="Nutzername:" Grid.Column="0" Grid.Row="8"></TextBlock>
+								<TextBox x:Name="tbSuSNutzername" Grid.Column="1" Grid.Row="8"></TextBox>
+								<TextBlock Text="Kurse:" Grid.Column="0" Grid.Row="9"></TextBlock>
+								<TextBox x:Name="tbSuSKurse" Grid.Column="1" Grid.Row="9"></TextBox>
+								<CheckBox x:Name="cbSuSZweitaccount" Grid.Column="0" Grid.Row="10">Zweitaccount</CheckBox>
+								<Button x:Name="btnSuSAdd" Grid.Column="0" Grid.Row="11">Hinzufügen/aktualisieren</Button>
+								<Button x:Name="btnSuSDel" Grid.Column="1" Grid.Row="11" Margin="5">markierte löschen</Button>
 							</Grid>
 						</TabItem>
 						<TabItem Header="LuL" Classes="Header">
