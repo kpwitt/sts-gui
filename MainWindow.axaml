@@ -19,7 +19,7 @@
 			<RowDefinition Height="Auto"/>
 		</Grid.RowDefinitions>
 		<DockPanel Grid.Row="0">
-			<Menu DockPanel.Dock="Top">
+			<Menu DockPanel.Dock="Top"><!-- Menuleiste -->
 				<MenuItem Header="Datei">
 					<MenuItem Header="Schule laden" x:Name="mnuSchuleLaden"/>
 					<MenuItem Header="Schule schließen" x:Name="mnuSchuleSpeichern"/>
@@ -51,13 +51,13 @@
 		</DockPanel>
 
 		<TabControl Grid.Row="1">
-			<TabItem Header="Daten" Classes="Header">
-				<Grid Grid.Row="1" Margin="5">
+			<TabItem Header="Daten" Classes="Header"> <!-- Daten-Tab -->
+				<Grid Grid.Row="1">
 					<Grid.ColumnDefinitions>
 						<ColumnDefinition Width="Auto"></ColumnDefinition>
 						<ColumnDefinition Width="Auto"></ColumnDefinition>
 					</Grid.ColumnDefinitions>
-					<Grid Grid.Row="0" Grid.Column="0" Margin="5">
+					<Grid Grid.Row="0" Grid.Column="0">
 						<Grid.ColumnDefinitions>
 							<ColumnDefinition Width="*"></ColumnDefinition>
 							<ColumnDefinition Width="*"></ColumnDefinition>
@@ -69,27 +69,27 @@
 						</Grid.RowDefinitions>
 						<ComboBox Width="200" VerticalAlignment="Top"
 							Grid.Row="0" Grid.Column="0"
-							SelectedIndex="{Binding Path=SelectedIndex, ElementName=LeftItem}" x:Name="cboxDataLeft">
+							x:Name="cboxDataLeft">
 							<ComboBoxItem Content="Schüler*in"/>
 							<ComboBoxItem Content="Lehrkräfte"/>
 							<ComboBoxItem Content="Klasse/Kurs"/>
 						</ComboBox>
 						<TextBox Text="" Grid.Row="1" Grid.Column="0" x:Name="tbLeftSearch"/>
-						<ListBox x:Name="LeftListBox" VirtualizationMode="None" Height="500" Items="{Binding leftItems}" Selection="{Binding Selection}" SelectionMode="Multiple" Grid.Row="2" Grid.Column="0">
+						<ListBox x:Name="LeftListBox" Height="500" SelectionMode="Multiple" Grid.Row="2" Grid.Column="0">
 						</ListBox>
 						<ComboBox Width="200" VerticalAlignment="Top"
 							Grid.Row="0" Grid.Column="1"
-							SelectedIndex="{Binding Path=SelectedIndex, ElementName=RightItem}" x:Name="cboxDataRight">
+							x:Name="cboxDataRight">
 							<ComboBoxItem Content="Schüler*in"/>
 							<ComboBoxItem Content="Lehrkräfte"/>
 							<ComboBoxItem Content="Klasse/Kurs"/>
 						</ComboBox>
 						<TextBox Text="" Grid.Row="1" Grid.Column="1" x:Name="tbRightSearch"/>
-						<ListBox x:Name="RightListBox" VirtualizationMode="None" Height="500" Items="{Binding rightItems}" Selection="{Binding Selection}" SelectionMode="Multiple" Grid.Row="2" Grid.Column="1">
+						<ListBox x:Name="RightListBox" SelectionMode="Multiple" Grid.Row="2" Grid.Column="1">
 						</ListBox>
 					</Grid>
 					<TabControl Grid.Row="0" Grid.Column="1">
-						<TabItem Header="SuS" Classes="Header">
+						<TabItem Header="SuS" Classes="Header"> <!--Daten-SuS-Tab-->
 							<Grid Margin="5">
 								<Grid.ColumnDefinitions>
 									<ColumnDefinition Width="Auto"></ColumnDefinition>
@@ -132,7 +132,7 @@
 								<Button x:Name="btnSuSDel" Grid.Column="1" Grid.Row="11" Margin="5">markierte löschen</Button>
 							</Grid>
 						</TabItem>
-						<TabItem Header="LuL" Classes="Header">
+						<TabItem Header="LuL" Classes="Header"><!--Daten-LuL-Tab-->
 							<Grid Margin="5">
 								<Grid.ColumnDefinitions>
 									<ColumnDefinition Width="Auto"></ColumnDefinition>
@@ -170,7 +170,7 @@
 								<Button x:Name="btnLuLDel" Grid.Column="1" Grid.Row="9" Margin="5">markierte löschen</Button>
 							</Grid>
 						</TabItem>
-						<TabItem Header="Kurse" Classes="Header">
+						<TabItem Header="Kurse" Classes="Header"> <!--Daten-Kurs-Tab-->
 							<Grid Margin="5">
 								<Grid.RowDefinitions>
 									<RowDefinition Height="Auto"/>
@@ -225,7 +225,7 @@
 					</TabControl>
 				</Grid>
 			</TabItem>
-			<TabItem Header="Export" Classes="Header">
+			<TabItem Header="Export" Classes="Header"><!--Export-Tab-->
 				<Grid Margin="5">
 					<Grid.RowDefinitions>
 						<RowDefinition Height="Auto"/>
@@ -266,7 +266,7 @@
 
 				</Grid>
 			</TabItem>
-			<TabItem Header="Fehlersuche" Classes="Header">
+			<TabItem Header="Fehlersuche" Classes="Header"> <!--Fehlersuche-Tab-->
 				<StackPanel>
 					<TextBlock Text="Fehlersuche"></TextBlock>
 					<WrapPanel Orientation="Horizontal">
@@ -282,7 +282,7 @@
 					<ListBox x:Name="lbFehlerliste" VirtualizationMode="None">Test</ListBox>
 				</StackPanel>
 			</TabItem>
-			<TabItem Header="Einstellungen" Classes="Header">
+			<TabItem Header="Einstellungen" Classes="Header"> <!--Einstellungen-Tab-->
 				<Grid>
 					<Grid.RowDefinitions>
 						<RowDefinition Height="Auto"/>
@@ -317,10 +317,10 @@
 					<Button x:Name="btnSettingSave" Grid.Row="3" Grid.Column="0">Speichern</Button>
 				</Grid>
 			</TabItem>
-			<TabItem Header="Log" Classes="Header">
+			<TabItem Header="Log" Classes="Header"> <!--Log-Tab-->
 				<DataGrid x:Name="logDataGrid" AutoGenerateColumns="False"></DataGrid>
 			</TabItem>
-			<TabItem Header="Sonstiges" Classes="Header">Nicht implementiert</TabItem>
+			<TabItem Header="Sonstiges" Classes="Header">Nicht implementiert</TabItem> <!--Sonstiges-Tab-->
 		</TabControl>
 	</Grid>
 </Window>
