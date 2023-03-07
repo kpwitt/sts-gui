@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Threading.Tasks;
 
 namespace StS_GUI_Avalonia
 {
@@ -31,14 +32,13 @@ namespace StS_GUI_Avalonia
         /// Creates a random salt that will be used to encrypt your file. This method is required on FileEncrypt.
         /// </summary>
         /// <returns></returns>
-        public static byte[] GenerateRandomSalt() {
-            byte[] data = new byte[32];
+        private static byte[] GenerateRandomSalt() {
+            var data = new byte[32];
 
-            using (RandomNumberGenerator rng = RandomNumberGenerator.Create()) {
-                for (int i = 0; i < 10; i++) {
-                    // Fill the buffer with the generated data
-                    rng.GetBytes(data);
-                }
+            using RandomNumberGenerator rng = RandomNumberGenerator.Create();
+            for (var i = 0; i < 10; i++) {
+                // Fill the buffer with the generated data
+                rng.GetBytes(data);
             }
 
             return data;
@@ -51,13 +51,13 @@ namespace StS_GUI_Avalonia
         /// <param name="outputFile"></param>
         /// <param name="password"></param>
         private static void FileDecrypt(string inputFile, string outputFile, string password) {
-            byte[] passwordBytes = System.Text.Encoding.UTF8.GetBytes(password);
-            byte[] salt = new byte[32];
+            var passwordBytes = System.Text.Encoding.UTF8.GetBytes(password);
+            var salt = new byte[32];
 
             FileStream fsCrypt = new(inputFile, FileMode.Open);
             fsCrypt.Read(salt, 0, salt.Length);
 
-            Aes AES = Aes.Create();
+            var AES = Aes.Create();
             AES.KeySize = 256;
             AES.BlockSize = 128;
             var key = new Rfc2898DeriveBytes(passwordBytes, salt, 50000);
@@ -70,16 +70,17 @@ namespace StS_GUI_Avalonia
 
             FileStream fsOut = new(outputFile, FileMode.Create);
 
-            int read;
-            byte[] buffer = new byte[1048576];
+            var buffer = new byte[1048576];
 
-            try {
+            try
+            {
+                int read;
                 while ((read = cs.Read(buffer, 0, buffer.Length)) > 0) {
                     fsOut.Write(buffer, 0, read);
                 }
             }
-            catch (CryptographicException ex_CryptographicException) {
-                Console.WriteLine("CryptographicException error: " + ex_CryptographicException.Message);
+            catch (CryptographicException exCryptographicException) {
+                Console.WriteLine("CryptographicException error: " + exCryptographicException.Message);
             }
             catch (Exception ex) {
                 Console.WriteLine("Error: " + ex.Message);
@@ -113,10 +114,10 @@ namespace StS_GUI_Avalonia
             FileStream fsCrypt = new(outputFile, FileMode.Create);
 
             //convert password string to byte arrray
-            byte[] passwordBytes = System.Text.Encoding.UTF8.GetBytes(password);
+            var passwordBytes = System.Text.Encoding.UTF8.GetBytes(password);
 
             //Set Rijndael symmetric encryption algorithm
-            Aes AES = Aes.Create();
+            var AES = Aes.Create();
             AES.KeySize = 256;
             AES.BlockSize = 128;
             AES.Padding = PaddingMode.PKCS7;
@@ -138,10 +139,10 @@ namespace StS_GUI_Avalonia
             FileStream fsIn = new(inputFile, FileMode.Open);
 
             //create a buffer (1mb) so only this amount will allocate in the memory and not the whole file
-            byte[] buffer = new byte[1048576];
-            int read;
+            var buffer = new byte[1048576];
 
             try {
+                int read;
                 while ((read = fsIn.Read(buffer, 0, buffer.Length)) > 0) {
                     cs.Write(buffer, 0, read);
                 }
@@ -158,69 +159,47 @@ namespace StS_GUI_Avalonia
             }
         }
        private void SetupSaveDialog(SaveFileDialog sfd, string dialogtitle, string[] extensions, string[] extensionsanames)
-        {
-            if (extensions.Length == extensionsanames.Length)
-            {
-                sfd.DefaultExtension = extensions[0];
-                sfd.Title = dialogtitle;
-                List<FileDialogFilter> Filters = new();
-                for (int i = 0; i < extensions.Length; i++)
-                {
-                    FileDialogFilter filter = new();
-                    List<string> extension = new();
-                    extension.Add(extensions[i]);
-                    filter.Extensions = extension;
-                    filter.Name = extensionsanames[i];
-                    Filters.Add(filter);
-                }
-                sfd.Filters = Filters;
-            }
-        }
+       {
+           if (extensions.Length != extensionsanames.Length) return;
+           sfd.DefaultExtension = extensions[0];
+           sfd.Title = dialogtitle;
+           List<FileDialogFilter> filters = new();
+           for (var i = 0; i < extensions.Length; i++)
+           {
+               FileDialogFilter filter = new();
+               List<string> extension = new() { extensions[i] };
+               filter.Extensions = extension;
+               filter.Name = extensionsanames[i];
+               filters.Add(filter);
+           }
+           sfd.Filters = filters;
+       }
 
         private void SetupOpenDialog(OpenFileDialog ofd, string dialogtitle, string[] extensions, string[] extensionsanames)
         {
-            if (extensions.Length == extensionsanames.Length)
+            if (extensions.Length != extensionsanames.Length) return;
+            ofd.Title = dialogtitle;
+            List<FileDialogFilter> filters = new();
+            for (int i = 0; i < extensions.Length; i++)
             {
-                ofd.Title = dialogtitle;
-                List<FileDialogFilter> Filters = new();
-                for (int i = 0; i < extensions.Length; i++)
-                {
-                    FileDialogFilter filter = new();
-                    List<string> extension = new();
-                    extension.Add(extensions[i]);
-                    filter.Extensions = extension;
-                    filter.Name = extensionsanames[i];
-                    Filters.Add(filter);
-                }
-                ofd.Filters = Filters;
+                FileDialogFilter filter = new();
+                List<string> extension = new() { extensions[i] };
+                filter.Extensions = extension;
+                filter.Name = extensionsanames[i];
+                filters.Add(filter);
             }
-        }
-
-
-        private void OnLeftlistboxSelectionChanged(object? sender, SelectionChangedEventArgs e)
-        {
-            if (sender != null && sender.GetType().Equals(this.FindControl<ListBox>("LeftListBox")))
-            {
-                var leftbox = (ListBox)sender;
-                Debug.WriteLine(leftbox.SelectedItems.Count);
-
-            }
-        }
-
-        private void OnRigthlistboxSelectionChanged(object? sender, SelectionChangedEventArgs e)
-        {
-            if (sender != null && sender.GetType().Equals(this.FindControl<ListBox>("RightListBox")))
-            {
-                var rightbox = (ListBox)sender;
-                Debug.WriteLine(rightbox.SelectedItems.Count);
-            }
+            ofd.Filters = filters;
         }
 
         public async void OnMnuSchoolLoadClick(object? sender, RoutedEventArgs e)
         {
-            SetupOpenDialog(gofd, "Lade Datenbankdatei", new String[] { "sqlite" }, new String[] { "Datenbankdatei" });
-
-            
+            SetupOpenDialog(gofd, "Lade Datenbankdatei", new[] { "sqlite" }, new[] { "Datenbankdatei" });
+            var respath = await gofd.ShowAsync(this);
+            if (respath!=null&&respath.Length > 0)
+            {
+                myschool = new SchulDB(respath[0]);
+            }
+            await initData();
         }
        
 
@@ -229,8 +208,7 @@ namespace StS_GUI_Avalonia
         }
         public async void OnMnuschulespeichernunterClick(object? sender, RoutedEventArgs e)
         {
-            SetupSaveDialog(gsfd, "Lade Datenbankdatei", new String[] { "sqlite" }, new String[] { "Datenbankdatei" });
-
+            SetupSaveDialog(gsfd, "Lade Datenbankdatei", new[] { "sqlite" }, new[] { "Datenbankdatei" });
         }
         public void OnMnuschuleversspeichernClick(object? sender, RoutedEventArgs e)
         {
@@ -473,6 +451,100 @@ namespace StS_GUI_Avalonia
         }
         public void OnCbSuSZweitaccountClick(object? sender, RoutedEventArgs e)
         {
+        }
+
+        private void CboxDataLeft_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
+        {
+            var cbox = this.GetControl<ComboBox>("CboxDataLeft");
+            var leftlist = this.GetControl<ListBox>("LeftListBox");
+            if (cbox == null||leftlist==null) return;
+            switch (cbox.SelectedIndex)
+            {
+                //s=0;l==1;k==2
+                case 0:
+                    var slist = myschool.GetSchuelerListe().Result.Select(s => s.Nachname + "," + s.Vorname + ";" + s.ID).ToList();
+                    leftlist.Items = slist;
+                    break;
+                case 1:
+                    var llist = myschool.GetLehrerListe().Result.Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).ToList();
+                    leftlist.Items = llist;
+                    break;
+                case 2:
+                    List<string> klist = myschool.GetKursBezListe().Result.ToList();
+                    leftlist.Items = klist;
+                    break;
+                default:
+                    return;
+            }
+
+        }
+
+        private void CboxDataRight_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
+        {
+            var cbox = this.GetControl<ComboBox>("CboxDataRight");
+            var rightlist = this.GetControl<ListBox>("RightListBox");
+            if (cbox == null||rightlist==null) return;
+            switch (cbox.SelectedIndex)
+            {
+                //s=0;l==1;k==2
+                case 0:
+                    var slist = myschool.GetSchuelerListe().Result.Select(s => s.Nachname + "," + s.Vorname + ";" + s.ID).ToList();
+                    rightlist.Items = slist;
+                    break;
+                case 1:
+                    List<string> llist = myschool.GetLehrerListe().Result.Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).ToList();
+
+                    rightlist.Items = llist;
+                    break;
+                case 2:
+                    List<string> klist = myschool.GetKursBezListe().Result.ToList();
+
+                    rightlist.Items = klist;
+                    break;
+            }
+        }
+
+        private async Task initData()
+        {
+            var cbox = this.GetControl<ComboBox>("CboxDataLeft");
+            var leftlist = this.GetControl<ListBox>("LeftListBox");
+            var rightlist = this.GetControl<ListBox>("RightListBox");
+            if (cbox == null||leftlist==null||rightlist==null) return;
+            switch (cbox.SelectedIndex)
+            {
+                //s=0;l==1;k==2
+                case 0:
+                    var slist = myschool.GetSchuelerListe().Result.Select(s => s.Nachname + "," + s.Vorname + ";" + s.ID).ToList();
+                    leftlist.Items = slist;
+                    break;
+                case 1:
+                    var llist = myschool.GetLehrerListe().Result.Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).ToList();
+                    leftlist.Items = llist;
+                    break;
+                case 2:
+                    var klist = myschool.GetKursBezListe().Result.ToList();
+
+                    leftlist.Items = klist;
+                    break;
+            }
+            cbox = this.GetControl<ComboBox>("CboxDataRight");
+            if (cbox == null) return;
+            switch (cbox.SelectedIndex)
+            {
+                //s=0;l==1;k==2
+                case 0:
+                    var slist = myschool.GetSchuelerListe().Result.Select(s => s.Nachname + "," + s.Vorname + ";" + s.ID).ToList();
+                    rightlist.Items = slist;
+                    break;
+                case 1:
+                    var llist = myschool.GetLehrerListe().Result.Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).ToList();
+                    rightlist.Items = llist;
+                    break;
+                case 2:
+                    var klist = myschool.GetKursBezListe().Result.ToList();
+                    rightlist.Items = klist;
+                    break;
+            }
         }
     }
 }

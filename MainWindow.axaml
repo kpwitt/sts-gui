@@ -21,14 +21,14 @@
 		<DockPanel Grid.Row="0">
 			<Menu DockPanel.Dock="Top"><!-- Menuleiste -->
 				<MenuItem Header="Datei">
-					<MenuItem Header="Schule laden" x:Name="mnuSchuleLaden"/>
+					<MenuItem Header="Schule laden" x:Name="mnuSchuleLaden" Click="OnMnuSchoolLoadClick"/>
 					<MenuItem Header="Schule schließen" x:Name="mnuSchuleSpeichern"/>
 					<Separator/>
 					<MenuItem Header="Schule speichern unter" x:Name="mnuSchuleSpeichernUnter"/>
 					<MenuItem Header="Schüle verschlüsselt speichern" x:Name="mnuSchuleVersSpeichern"/>
 					<MenuItem Header="Verschlüsselte Schule laden" x:Name="mnuVersSchuleLaden"/>
 					<Separator/>
-					<MenuItem Header="Beenden"  x:Name="mnuExit"/>
+					<MenuItem Header="Beenden"  x:Name="mnuExit" Click="OnMnuexitClick"/>
 				</MenuItem>
 				<MenuItem Header="Daten">
 					<MenuItem Header="CSV laden">
@@ -69,17 +69,19 @@
 						</Grid.RowDefinitions>
 						<ComboBox Width="200" VerticalAlignment="Top"
 							Grid.Row="0" Grid.Column="0"
-							x:Name="cboxDataLeft">
+							x:Name="CboxDataLeft"
+							SelectionChanged="CboxDataLeft_OnSelectionChanged">
 							<ComboBoxItem Content="Schüler*in"/>
 							<ComboBoxItem Content="Lehrkräfte"/>
 							<ComboBoxItem Content="Klasse/Kurs"/>
 						</ComboBox>
 						<TextBox Text="" Grid.Row="1" Grid.Column="0" x:Name="tbLeftSearch"/>
-						<ListBox x:Name="LeftListBox" Height="500" SelectionMode="Multiple" Grid.Row="2" Grid.Column="0">
+						<ListBox x:Name="LeftListBox" SelectionMode="Multiple" Grid.Row="2" Grid.Column="0">
 						</ListBox>
 						<ComboBox Width="200" VerticalAlignment="Top"
 							Grid.Row="0" Grid.Column="1"
-							x:Name="cboxDataRight">
+							x:Name="CboxDataRight"
+							SelectionChanged="CboxDataRight_OnSelectionChanged">
 							<ComboBoxItem Content="Schüler*in"/>
 							<ComboBoxItem Content="Lehrkräfte"/>
 							<ComboBoxItem Content="Klasse/Kurs"/>
