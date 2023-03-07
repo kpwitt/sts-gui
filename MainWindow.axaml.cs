@@ -199,7 +199,7 @@ namespace StS_GUI_Avalonia
             {
                 myschool = new SchulDB(respath[0]);
             }
-            await initData();
+            initData();
         }
        
 
@@ -504,46 +504,14 @@ namespace StS_GUI_Avalonia
             }
         }
 
-        private async Task initData()
+        private void initData()
         {
-            var cbox = this.GetControl<ComboBox>("CboxDataLeft");
-            var leftlist = this.GetControl<ListBox>("LeftListBox");
-            var rightlist = this.GetControl<ListBox>("RightListBox");
-            if (cbox == null||leftlist==null||rightlist==null) return;
-            switch (cbox.SelectedIndex)
+            var cboxl = this.GetControl<ComboBox>("CboxDataLeft");
+            var cboxr = this.GetControl<ComboBox>("CboxDataRight");
+            if (cboxl != null && cboxr != null)
             {
-                //s=0;l==1;k==2
-                case 0:
-                    var slist = myschool.GetSchuelerListe().Result.Select(s => s.Nachname + "," + s.Vorname + ";" + s.ID).ToList();
-                    leftlist.Items = slist;
-                    break;
-                case 1:
-                    var llist = myschool.GetLehrerListe().Result.Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).ToList();
-                    leftlist.Items = llist;
-                    break;
-                case 2:
-                    var klist = myschool.GetKursBezListe().Result.ToList();
-
-                    leftlist.Items = klist;
-                    break;
-            }
-            cbox = this.GetControl<ComboBox>("CboxDataRight");
-            if (cbox == null) return;
-            switch (cbox.SelectedIndex)
-            {
-                //s=0;l==1;k==2
-                case 0:
-                    var slist = myschool.GetSchuelerListe().Result.Select(s => s.Nachname + "," + s.Vorname + ";" + s.ID).ToList();
-                    rightlist.Items = slist;
-                    break;
-                case 1:
-                    var llist = myschool.GetLehrerListe().Result.Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).ToList();
-                    rightlist.Items = llist;
-                    break;
-                case 2:
-                    var klist = myschool.GetKursBezListe().Result.ToList();
-                    rightlist.Items = klist;
-                    break;
+                cboxl.SelectedIndex = 0;
+                cboxr.SelectedIndex = 1;
             }
         }
     }
