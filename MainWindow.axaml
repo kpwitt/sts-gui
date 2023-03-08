@@ -6,323 +6,325 @@
         x:Class="StS_GUI_Avalonia.MainWindow"
         Title="StS">
 
-	<Window.Styles>
-		<Style Selector="TabItem.Header">
-			<Setter Property="FontSize" Value="14"/>
-			<Setter Property="FontWeight" Value="Bold"/>
-		</Style>
-	</Window.Styles>
+    <Window.Styles>
+        <Style Selector="TabItem.Header">
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="FontWeight" Value="Bold" />
+        </Style>
+    </Window.Styles>
 
-	<Grid Margin="5">
-		<Grid.RowDefinitions>
-			<RowDefinition Height="Auto"/>
-			<RowDefinition Height="Auto"/>
-		</Grid.RowDefinitions>
-		<DockPanel Grid.Row="0">
-			<Menu DockPanel.Dock="Top"><!-- Menuleiste -->
-				<MenuItem Header="Datei">
-					<MenuItem Header="Schule laden" x:Name="mnuSchuleLaden" Click="OnMnuSchoolLoadClick"/>
-					<MenuItem Header="Schule schließen" x:Name="mnuSchuleSpeichern"/>
-					<Separator/>
-					<MenuItem Header="Schule speichern unter" x:Name="mnuSchuleSpeichernUnter"/>
-					<MenuItem Header="Schüle verschlüsselt speichern" x:Name="mnuSchuleVersSpeichern"/>
-					<MenuItem Header="Verschlüsselte Schule laden" x:Name="mnuVersSchuleLaden"/>
-					<Separator/>
-					<MenuItem Header="Beenden"  x:Name="mnuExit" Click="OnMnuexitClick"/>
-				</MenuItem>
-				<MenuItem Header="Daten">
-					<MenuItem Header="CSV laden">
-						<MenuItem Header="Dateien aus Ordner"  x:Name="mnuLoadFolder"/>
-						<Separator/>
-						<MenuItem Header="SuS aus Datei" x:Name="mnuLoadSuSFromFile"/>
-						<MenuItem Header="LuL aus Datei" x:Name="mnuLoadLuLFromFile"/>
-						<MenuItem Header="Kurse aus Datei" x:Name="mnuLoadKurseFromFile"/>
-						<Separator/>
-						<MenuItem Header="Mail und Nutzernamen einlesen" x:Name="mnuLoadUsernamesMail"/>
-						<MenuItem Header="2. Accounts einlesen" x:Name="mnuLoadZweitaccounts"/>
-					</MenuItem>
-					<MenuItem Header="Änderungen einlesen" x:Name="mnuReadDiffs"/>
-					<MenuItem Header="in CSV exportieren" x:Name="mnuExportToCSV"/>
-				</MenuItem>			
-				<MenuItem Header="Hilfe">
-					<MenuItem Header="Über" x:Name="mnuAbout"/>
-				</MenuItem>
-			</Menu>
-		</DockPanel>
+    <Grid Margin="5">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <DockPanel Grid.Row="0">
+            <Menu DockPanel.Dock="Top"><!-- Menuleiste -->
+                <MenuItem Header="Datei">
+                    <MenuItem Header="Schule laden" x:Name="mnuSchuleLaden" Click="OnMnuSchoolLoadClick" />
+                    <MenuItem Header="Schule schließen" x:Name="mnuSchuleSpeichern" />
+                    <Separator />
+                    <MenuItem Header="Schule speichern unter" x:Name="mnuSchuleSpeichernUnter" />
+                    <MenuItem Header="Schüle verschlüsselt speichern" x:Name="mnuSchuleVersSpeichern" />
+                    <MenuItem Header="Verschlüsselte Schule laden" x:Name="mnuVersSchuleLaden" />
+                    <Separator />
+                    <MenuItem Header="Beenden" x:Name="mnuExit" Click="OnMnuexitClick" />
+                </MenuItem>
+                <MenuItem Header="Daten">
+                    <MenuItem Header="CSV laden">
+                        <MenuItem Header="Dateien aus Ordner" x:Name="mnuLoadFolder" />
+                        <Separator />
+                        <MenuItem Header="SuS aus Datei" x:Name="mnuLoadSuSFromFile" />
+                        <MenuItem Header="LuL aus Datei" x:Name="mnuLoadLuLFromFile" />
+                        <MenuItem Header="Kurse aus Datei" x:Name="mnuLoadKurseFromFile" />
+                        <Separator />
+                        <MenuItem Header="Mail und Nutzernamen einlesen" x:Name="mnuLoadUsernamesMail" />
+                        <MenuItem Header="2. Accounts einlesen" x:Name="mnuLoadZweitaccounts" />
+                    </MenuItem>
+                    <MenuItem Header="Änderungen einlesen" x:Name="mnuReadDiffs" />
+                    <MenuItem Header="in CSV exportieren" x:Name="mnuExportToCSV" />
+                </MenuItem>
+                <MenuItem Header="Hilfe">
+                    <MenuItem Header="Über" x:Name="mnuAbout" />
+                </MenuItem>
+            </Menu>
+        </DockPanel>
 
-		<TabControl Grid.Row="1">
-			<TabItem Header="Daten" Classes="Header"> <!-- Daten-Tab -->
-				<Grid Grid.Row="1">
-					<Grid.ColumnDefinitions>
-						<ColumnDefinition Width="Auto"></ColumnDefinition>
-						<ColumnDefinition Width="Auto"></ColumnDefinition>
-					</Grid.ColumnDefinitions>
-					<Grid Grid.Row="0" Grid.Column="0">
-						<Grid.ColumnDefinitions>
-							<ColumnDefinition Width="*"></ColumnDefinition>
-							<ColumnDefinition Width="*"></ColumnDefinition>
-						</Grid.ColumnDefinitions>
-						<Grid.RowDefinitions>
-							<RowDefinition Height="Auto"/>
-							<RowDefinition Height="Auto"/>
-							<RowDefinition Height="Auto"/>
-						</Grid.RowDefinitions>
-						<ComboBox Width="200" VerticalAlignment="Top"
-							Grid.Row="0" Grid.Column="0"
-							x:Name="CboxDataLeft"
-							SelectionChanged="CboxDataLeft_OnSelectionChanged">
-							<ComboBoxItem Content="Schüler*in"/>
-							<ComboBoxItem Content="Lehrkräfte"/>
-							<ComboBoxItem Content="Klasse/Kurs"/>
-						</ComboBox>
-						<TextBox Text="" Grid.Row="1" Grid.Column="0" x:Name="tbLeftSearch"/>
-						<ListBox x:Name="LeftListBox" SelectionMode="Multiple" Grid.Row="2" Grid.Column="0">
-						</ListBox>
-						<ComboBox Width="200" VerticalAlignment="Top"
-							Grid.Row="0" Grid.Column="1"
-							x:Name="CboxDataRight"
-							SelectionChanged="CboxDataRight_OnSelectionChanged">
-							<ComboBoxItem Content="Schüler*in"/>
-							<ComboBoxItem Content="Lehrkräfte"/>
-							<ComboBoxItem Content="Klasse/Kurs"/>
-						</ComboBox>
-						<TextBox Text="" Grid.Row="1" Grid.Column="1" x:Name="tbRightSearch"/>
-						<ListBox x:Name="RightListBox" SelectionMode="Multiple" Grid.Row="2" Grid.Column="1">
-						</ListBox>
-					</Grid>
-					<TabControl Grid.Row="0" Grid.Column="1">
-						<TabItem Header="SuS" Classes="Header"> <!--Daten-SuS-Tab-->
-							<Grid Margin="5">
-								<Grid.ColumnDefinitions>
-									<ColumnDefinition Width="Auto"></ColumnDefinition>
-									<ColumnDefinition Width="Auto"></ColumnDefinition>
-								</Grid.ColumnDefinitions>
-								<Grid.RowDefinitions>
-									<RowDefinition Height="Auto"/>
-									<RowDefinition Height="Auto"/>
-									<RowDefinition Height="Auto"/>
-									<RowDefinition Height="Auto"/>
-									<RowDefinition Height="Auto"/>
-									<RowDefinition Height="Auto"/>
-									<RowDefinition Height="Auto"/>
-									<RowDefinition Height="Auto"/>
-									<RowDefinition Height="Auto"/>
-									<RowDefinition Height="Auto"/>
-									<RowDefinition Height="Auto"/>
-									<RowDefinition Height="Auto"/>
-								</Grid.RowDefinitions>
-								<TextBlock  Text="ID:" Grid.Column="0" Grid.Row="1"></TextBlock>
-								<TextBox x:Name="tbSuSID" Grid.Column="1" Grid.Row="1" Width="150"></TextBox>
-								<TextBlock Text="Vorname:" Grid.Column="0" Grid.Row="2"></TextBlock>
-								<TextBox x:Name="tbSuSVorname" Grid.Column="1" Grid.Row="2"></TextBox>
-								<TextBlock Text="Nachname:" Grid.Column="0" Grid.Row="3"></TextBlock>
-								<TextBox x:Name="tbSuSnachname" Grid.Column="1" Grid.Row="3"></TextBox>
-								<TextBlock Text="Klasse:" Grid.Column="0" Grid.Row="4"></TextBlock>
-								<TextBox x:Name="tbSuSKlasse" Grid.Column="1" Grid.Row="4"></TextBox>
-								<TextBlock Text="Elternadresse:" Grid.Column="0" Grid.Row="5"></TextBlock>
-								<TextBox x:Name="tbSuSElternadresse" Grid.Column="1" Grid.Row="5"></TextBox>
-								<TextBlock Text="weitere Adressen:" Grid.Column="0" Grid.Row="6"></TextBlock>
-								<TextBox x:Name="tbSuSZweitadresse" Grid.Column="1" Grid.Row="6"></TextBox>
-								<TextBlock Text="AIX-Mailadresse:" Grid.Column="0" Grid.Row="7"></TextBlock>
-								<TextBox x:Name="tbSuSAIXMail" Grid.Column="1" Grid.Row="7"></TextBox>
-								<TextBlock Text="Nutzername:" Grid.Column="0" Grid.Row="8"></TextBlock>
-								<TextBox x:Name="tbSuSNutzername" Grid.Column="1" Grid.Row="8"></TextBox>
-								<TextBlock Text="Kurse:" Grid.Column="0" Grid.Row="9"></TextBlock>
-								<TextBox x:Name="tbSuSKurse" Grid.Column="1" Grid.Row="9"></TextBox>
-								<CheckBox x:Name="cbSuSZweitaccount" Grid.Column="0" Grid.Row="10">Zweitaccount</CheckBox>
-								<Button x:Name="btnSuSAdd" Grid.Column="0" Grid.Row="11">Hinzufügen/aktualisieren</Button>
-								<Button x:Name="btnSuSDel" Grid.Column="1" Grid.Row="11" Margin="5">markierte löschen</Button>
-							</Grid>
-						</TabItem>
-						<TabItem Header="LuL" Classes="Header"><!--Daten-LuL-Tab-->
-							<Grid Margin="5">
-								<Grid.ColumnDefinitions>
-									<ColumnDefinition Width="Auto"></ColumnDefinition>
-									<ColumnDefinition Width="Auto"></ColumnDefinition>
-								</Grid.ColumnDefinitions>
-								<Grid.RowDefinitions>
-									<RowDefinition Height="Auto"/>
-									<RowDefinition Height="Auto"/>
-									<RowDefinition Height="Auto"/>
-									<RowDefinition Height="Auto"/>
-									<RowDefinition Height="Auto"/>
-									<RowDefinition Height="Auto"/>
-									<RowDefinition Height="Auto"/>
-									<RowDefinition Height="Auto"/>
-									<RowDefinition Height="Auto"/>
-									<RowDefinition Height="Auto"/>
-								</Grid.RowDefinitions>
-								<TextBlock Text="ID:" Grid.Column="0" Grid.Row="1"></TextBlock>
-								<TextBox x:Name="tbLuLID" Grid.Column="1" Grid.Row="1" Width="150"></TextBox>
-								<TextBlock Text="Vorname:" Grid.Column="0" Grid.Row="2"></TextBlock>
-								<TextBox x:Name="tbLuLVorname" Grid.Column="1" Grid.Row="2"></TextBox>
-								<TextBlock Text="Nachname:" Grid.Column="0" Grid.Row="3"></TextBlock>
-								<TextBox x:Name="tbLuLnachname" Grid.Column="1" Grid.Row="3"></TextBox>
-								<TextBlock Text="Kürzel:" Grid.Column="0" Grid.Row="4"></TextBlock>
-								<TextBox x:Name="tbLuLKuerzel" Grid.Column="1" Grid.Row="4"></TextBox>
-								<TextBlock Text="Mailadresse:" Grid.Column="0" Grid.Row="5"></TextBlock>
-								<TextBox x:Name="tbLuLFach" Grid.Column="1" Grid.Row="5"></TextBox>
-								<TextBlock Text="Fächer:" Grid.Column="0" Grid.Row="6"></TextBlock>
-								<TextBox x:Name="tbLuLMail" Grid.Column="1" Grid.Row="6"></TextBox>
-								<TextBlock Text="temp. Passwort:" Grid.Column="0" Grid.Row="7"></TextBlock>
-								<TextBox x:Name="tbLuLtmpPwd" Grid.Column="1" Grid.Row="7"></TextBox>
-								<TextBlock Text="Kurse:" Grid.Column="0" Grid.Row="8"></TextBlock>
-								<TextBox x:Name="tbLuLKurse" Grid.Column="1" Grid.Row="8"></TextBox>
-								<Button x:Name="btnLuLAdd" Grid.Column="0" Grid.Row="9">Hinzufügen/aktualisieren</Button>
-								<Button x:Name="btnLuLDel" Grid.Column="1" Grid.Row="9" Margin="5">markierte löschen</Button>
-							</Grid>
-						</TabItem>
-						<TabItem Header="Kurse" Classes="Header"> <!--Daten-Kurs-Tab-->
-							<Grid Margin="5">
-								<Grid.RowDefinitions>
-									<RowDefinition Height="Auto"/>
-									<RowDefinition Height="Auto"/>
-									<RowDefinition Height="Auto"/>
-								</Grid.RowDefinitions>
-								<Grid Margin="5" Grid.Row="0">
-									<Grid.ColumnDefinitions>
-										<ColumnDefinition Width="Auto"></ColumnDefinition>
-										<ColumnDefinition Width="Auto"></ColumnDefinition>
-									</Grid.ColumnDefinitions>
-									<Grid.RowDefinitions>
-										<RowDefinition Height="Auto"/>
-										<RowDefinition Height="Auto"/>
-										<RowDefinition Height="Auto"/>
-										<RowDefinition Height="Auto"/>
-										<RowDefinition Height="Auto"/>
-										<RowDefinition Height="Auto"/>
-										<RowDefinition Height="Auto"/>
-										<RowDefinition Height="Auto"/>
-										<RowDefinition Height="Auto"/>
-										<RowDefinition Height="Auto"/>
-										<RowDefinition Height="Auto"/>
-										<RowDefinition Height="Auto"/>
-										<RowDefinition Height="Auto"/>
-									</Grid.RowDefinitions>
-									<TextBlock Text="Bezeichnung:" Grid.Column="0" Grid.Row="1"></TextBlock>
-									<TextBox x:Name="tbKursbezeichnung" Grid.Column="1" Grid.Row="1" Width="150"></TextBox>
-									<TextBlock Text="Lehrkräfte:" Grid.Column="0" Grid.Row="2"></TextBlock>
-									<TextBox x:Name="tbKursLuL" Grid.Column="1" Grid.Row="2"></TextBox>
-									<TextBlock Text="Fach:" Grid.Column="0" Grid.Row="3"></TextBlock>
-									<TextBox x:Name="tbKursFach" Grid.Column="1" Grid.Row="3"></TextBox>
-									<TextBlock Text="Suffix:" Grid.Column="0" Grid.Row="4"></TextBlock>
-									<TextBox x:Name="tbKursSuffix" Grid.Column="1" Grid.Row="4"></TextBox>
-									<TextBlock Text="Klasse:" Grid.Column="0" Grid.Row="5"></TextBlock>
-									<TextBox x:Name="tbKursKlasse" Grid.Column="1" Grid.Row="5"></TextBox>
-									<TextBlock Text="Stufe:" Grid.Column="0" Grid.Row="6"></TextBlock>
-									<TextBox x:Name="tbKursStufe" Grid.Column="1" Grid.Row="6"></TextBox>
-								</Grid>
-								<StackPanel Orientation="Vertical" Grid.Row="1">
-									<CheckBox x:Name="cbKursIstKurs">Ist ein Kurs</CheckBox>
-									<CheckBox x:Name="cbKursMarkierteSuSEinschreiben">Markierte SuS einschreiben</CheckBox>
-									<CheckBox x:Name="cbKursSuSdKlasseEinschreiben">SuS der Klasse einschreiben</CheckBox>
-									<CheckBox x:Name="cbKursSuSdStufeEinschreiben">SuS der Stufe einschreiben</CheckBox>
-								</StackPanel>
-								<StackPanel Orientation="Horizontal" Grid.Row="2">
-									<Button x:Name="btnKurseAdd">Hinzufügen/aktualisieren</Button>
-									<Button x:Name="btnKurseDel" Margin="5">markierte löschen</Button>
-								</StackPanel>
-							</Grid>
-						</TabItem>
-					</TabControl>
-				</Grid>
-			</TabItem>
-			<TabItem Header="Export" Classes="Header"><!--Export-Tab-->
-				<Grid Margin="5">
-					<Grid.RowDefinitions>
-						<RowDefinition Height="Auto"/>
-						<RowDefinition Height="Auto"/>
-					</Grid.RowDefinitions>
-					<Grid Margin="5" Grid.Row="0">
-						<Grid.ColumnDefinitions>
-							<ColumnDefinition Width="Auto"></ColumnDefinition>
-							<ColumnDefinition Width="Auto"></ColumnDefinition>
-						</Grid.ColumnDefinitions>
-						<StackPanel Grid.Column="0" HorizontalAlignment="Left">
-							<CheckBox x:Name="cbSuS">SuS</CheckBox>
-							<CheckBox x:Name="cbLuL">LuL</CheckBox>
-							<CheckBox x:Name="cbKurs">Kurse</CheckBox>
-							<CheckBox x:Name="cbEltern">Eltern</CheckBox>
-							<CheckBox x:Name="cbMoodle" IsChecked="True">Moodle</CheckBox>
-							<CheckBox x:Name="cbAIX" IsChecked="True">AIX"</CheckBox>
-							<CheckBox x:Name="cbLog">Log</CheckBox>
-							<CheckBox x:Name="cbExportwithPasswort">Mit Anfangspasswort</CheckBox>
-							<Button x:Name="btnExport">Exportieren</Button>
-						</StackPanel>
-						<StackPanel Grid.Column="1" HorizontalAlignment="Left">
-							<TextBlock Text="VorlagenKurs KL:"></TextBlock>
-							<TextBox x:Name="tbExportKl"></TextBox>
-							<TextBlock Text="VorlagenKurs Fachunterricht:"></TextBlock>
-							<TextBox x:Name="tbExportF"></TextBox>
-							<CheckBox x:Name="cbExportVorlagenkurse">Vorlagenkurse verwenden</CheckBox>
-						</StackPanel>
-					</Grid>
-					<StackPanel Grid.Row="1" HorizontalAlignment="Left">
-						<TextBlock Text="Spezielles" FontStyle="Italic"></TextBlock>
-						<TextBlock Text="Stufenkurse"></TextBlock>
-						<TextBox x:Name="tbExportStufenkurse" Width="250"></TextBox>
-						<CheckBox x:Name="cbExportStufen">Alle Stufen in eine Datei exportieren</CheckBox>
-						<Button x:Name="btnExportStufenkurs">Stufenkurse exportieren</Button>
-						<Button x:Name="btnExport5InklPasswort">5er inkl. Passwort exportieren</Button>
-					</StackPanel>
+        <TabControl Grid.Row="1">
+            <TabItem Header="Daten" Classes="Header"> <!-- Daten-Tab -->
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Grid Grid.Row="0" Grid.Column="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <ComboBox Width="250" VerticalAlignment="Top"
+                                  Grid.Row="0" Grid.Column="0"
+                                  x:Name="CboxDataLeft"
+                                  SelectionChanged="CboxDataLeft_OnSelectionChanged">
+                            <ComboBoxItem Content="Schüler*in" />
+                            <ComboBoxItem Content="Lehrkräfte" />
+                            <ComboBoxItem Content="Klasse/Kurs" />
+                        </ComboBox>
+                        <TextBox Text="" Grid.Row="1" Grid.Column="0" x:Name="tbLeftSearch" />
+                        <ListBox x:Name="LeftListBox" SelectionMode="Multiple" Grid.Row="2" Grid.Column="0"
+                                 SelectionChanged="LeftListBox_OnSelectionChanged">
+                        </ListBox>
+                        <ComboBox Width="250" VerticalAlignment="Top"
+                                  Grid.Row="0" Grid.Column="1"
+                                  x:Name="CboxDataRight"
+                                  SelectionChanged="CboxDataRight_OnSelectionChanged">
+                            <ComboBoxItem Content="Schüler*in" />
+                            <ComboBoxItem Content="Lehrkräfte" />
+                            <ComboBoxItem Content="Klasse/Kurs" />
+                        </ComboBox>
+                        <TextBox Text="" Grid.Row="1" Grid.Column="1" x:Name="tbRightSearch" />
+                        <ListBox x:Name="RightListBox" SelectionMode="Multiple" Grid.Row="2"
+                                 Grid.Column="1" SelectionChanged="RightListBox_OnSelectionChanged">
+                        </ListBox>
+                    </Grid>
+                    <TabControl Grid.Row="0" Grid.Column="1">
+                        <TabItem Header="SuS" Classes="Header"> <!--Daten-SuS-Tab-->
+                            <Grid Margin="5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="ID:" Grid.Column="0" Grid.Row="1"></TextBlock>
+                                <TextBox x:Name="tbSuSID" Grid.Column="1" Grid.Row="1" Width="150"></TextBox>
+                                <TextBlock Text="Vorname:" Grid.Column="0" Grid.Row="2"></TextBlock>
+                                <TextBox x:Name="tbSuSVorname" Grid.Column="1" Grid.Row="2"></TextBox>
+                                <TextBlock Text="Nachname:" Grid.Column="0" Grid.Row="3"></TextBlock>
+                                <TextBox x:Name="tbSuSnachname" Grid.Column="1" Grid.Row="3"></TextBox>
+                                <TextBlock Text="Klasse:" Grid.Column="0" Grid.Row="4"></TextBlock>
+                                <TextBox x:Name="tbSuSKlasse" Grid.Column="1" Grid.Row="4"></TextBox>
+                                <TextBlock Text="Elternadresse:" Grid.Column="0" Grid.Row="5"></TextBlock>
+                                <TextBox x:Name="tbSuSElternadresse" Grid.Column="1" Grid.Row="5"></TextBox>
+                                <TextBlock Text="weitere Adressen:" Grid.Column="0" Grid.Row="6"></TextBlock>
+                                <TextBox x:Name="tbSuSZweitadresse" Grid.Column="1" Grid.Row="6"></TextBox>
+                                <TextBlock Text="AIX-Mailadresse:" Grid.Column="0" Grid.Row="7"></TextBlock>
+                                <TextBox x:Name="tbSuSAIXMail" Grid.Column="1" Grid.Row="7"></TextBox>
+                                <TextBlock Text="Nutzername:" Grid.Column="0" Grid.Row="8"></TextBlock>
+                                <TextBox x:Name="tbSuSNutzername" Grid.Column="1" Grid.Row="8"></TextBox>
+                                <TextBlock Text="Kurse:" Grid.Column="0" Grid.Row="9"></TextBlock>
+                                <TextBox x:Name="tbSuSKurse" Grid.Column="1" Grid.Row="9"></TextBox>
+                                <CheckBox x:Name="cbSuSZweitaccount" Grid.Column="0" Grid.Row="10">Zweitaccount</CheckBox>
+                                <Button x:Name="btnSuSAdd" Grid.Column="0" Grid.Row="11">Hinzufügen/aktualisieren</Button>
+                                <Button x:Name="btnSuSDel" Grid.Column="1" Grid.Row="11" Margin="5">markierte löschen</Button>
+                            </Grid>
+                        </TabItem>
+                        <TabItem Header="LuL" Classes="Header"><!--Daten-LuL-Tab-->
+                            <Grid Margin="5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="ID:" Grid.Column="0" Grid.Row="1"></TextBlock>
+                                <TextBox x:Name="tbLuLID" Grid.Column="1" Grid.Row="1" Width="150"></TextBox>
+                                <TextBlock Text="Vorname:" Grid.Column="0" Grid.Row="2"></TextBlock>
+                                <TextBox x:Name="tbLuLVorname" Grid.Column="1" Grid.Row="2"></TextBox>
+                                <TextBlock Text="Nachname:" Grid.Column="0" Grid.Row="3"></TextBlock>
+                                <TextBox x:Name="tbLuLnachname" Grid.Column="1" Grid.Row="3"></TextBox>
+                                <TextBlock Text="Kürzel:" Grid.Column="0" Grid.Row="4"></TextBlock>
+                                <TextBox x:Name="tbLuLKuerzel" Grid.Column="1" Grid.Row="4"></TextBox>
+                                <TextBlock Text="Mailadresse:" Grid.Column="0" Grid.Row="5"></TextBlock>
+                                <TextBox x:Name="tbLuLFach" Grid.Column="1" Grid.Row="5"></TextBox>
+                                <TextBlock Text="Fächer:" Grid.Column="0" Grid.Row="6"></TextBlock>
+                                <TextBox x:Name="tbLuLMail" Grid.Column="1" Grid.Row="6"></TextBox>
+                                <TextBlock Text="temp. Passwort:" Grid.Column="0" Grid.Row="7"></TextBlock>
+                                <TextBox x:Name="tbLuLtmpPwd" Grid.Column="1" Grid.Row="7"></TextBox>
+                                <TextBlock Text="Kurse:" Grid.Column="0" Grid.Row="8"></TextBlock>
+                                <TextBox x:Name="tbLuLKurse" Grid.Column="1" Grid.Row="8"></TextBox>
+                                <Button x:Name="btnLuLAdd" Grid.Column="0" Grid.Row="9">Hinzufügen/aktualisieren</Button>
+                                <Button x:Name="btnLuLDel" Grid.Column="1" Grid.Row="9" Margin="5">markierte löschen</Button>
+                            </Grid>
+                        </TabItem>
+                        <TabItem Header="Kurse" Classes="Header"> <!--Daten-Kurs-Tab-->
+                            <Grid Margin="5">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <Grid Margin="5" Grid.Row="0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Text="Bezeichnung:" Grid.Column="0" Grid.Row="1"></TextBlock>
+                                    <TextBox x:Name="tbKursbezeichnung" Grid.Column="1" Grid.Row="1" Width="150"></TextBox>
+                                    <TextBlock Text="Lehrkräfte:" Grid.Column="0" Grid.Row="2"></TextBlock>
+                                    <TextBox x:Name="tbKursLuL" Grid.Column="1" Grid.Row="2"></TextBox>
+                                    <TextBlock Text="Fach:" Grid.Column="0" Grid.Row="3"></TextBlock>
+                                    <TextBox x:Name="tbKursFach" Grid.Column="1" Grid.Row="3"></TextBox>
+                                    <TextBlock Text="Suffix:" Grid.Column="0" Grid.Row="4"></TextBlock>
+                                    <TextBox x:Name="tbKursSuffix" Grid.Column="1" Grid.Row="4"></TextBox>
+                                    <TextBlock Text="Klasse:" Grid.Column="0" Grid.Row="5"></TextBlock>
+                                    <TextBox x:Name="tbKursKlasse" Grid.Column="1" Grid.Row="5"></TextBox>
+                                    <TextBlock Text="Stufe:" Grid.Column="0" Grid.Row="6"></TextBlock>
+                                    <TextBox x:Name="tbKursStufe" Grid.Column="1" Grid.Row="6"></TextBox>
+                                </Grid>
+                                <StackPanel Orientation="Vertical" Grid.Row="1">
+                                    <CheckBox x:Name="cbKursIstKurs">Ist ein Kurs</CheckBox>
+                                    <CheckBox x:Name="cbKursMarkierteSuSEinschreiben">Markierte SuS einschreiben</CheckBox>
+                                    <CheckBox x:Name="cbKursSuSdKlasseEinschreiben">SuS der Klasse einschreiben</CheckBox>
+                                    <CheckBox x:Name="cbKursSuSdStufeEinschreiben">SuS der Stufe einschreiben</CheckBox>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Grid.Row="2">
+                                    <Button x:Name="btnKurseAdd">Hinzufügen/aktualisieren</Button>
+                                    <Button x:Name="btnKurseDel" Margin="5">markierte löschen</Button>
+                                </StackPanel>
+                            </Grid>
+                        </TabItem>
+                    </TabControl>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Export" Classes="Header"><!--Export-Tab-->
+                <Grid Margin="5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid Margin="5" Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" HorizontalAlignment="Left">
+                            <CheckBox x:Name="cbSuS">SuS</CheckBox>
+                            <CheckBox x:Name="cbLuL">LuL</CheckBox>
+                            <CheckBox x:Name="cbKurs">Kurse</CheckBox>
+                            <CheckBox x:Name="cbEltern">Eltern</CheckBox>
+                            <CheckBox x:Name="cbMoodle" IsChecked="True">Moodle</CheckBox>
+                            <CheckBox x:Name="cbAIX" IsChecked="True">AIX"</CheckBox>
+                            <CheckBox x:Name="cbLog">Log</CheckBox>
+                            <CheckBox x:Name="cbExportwithPasswort">Mit Anfangspasswort</CheckBox>
+                            <Button x:Name="btnExport">Exportieren</Button>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" HorizontalAlignment="Left">
+                            <TextBlock Text="VorlagenKurs KL:"></TextBlock>
+                            <TextBox x:Name="tbExportKl"></TextBox>
+                            <TextBlock Text="VorlagenKurs Fachunterricht:"></TextBlock>
+                            <TextBox x:Name="tbExportF"></TextBox>
+                            <CheckBox x:Name="cbExportVorlagenkurse">Vorlagenkurse verwenden</CheckBox>
+                        </StackPanel>
+                    </Grid>
+                    <StackPanel Grid.Row="1" HorizontalAlignment="Left">
+                        <TextBlock Text="Spezielles" FontStyle="Italic"></TextBlock>
+                        <TextBlock Text="Stufenkurse"></TextBlock>
+                        <TextBox x:Name="tbExportStufenkurse" Width="250"></TextBox>
+                        <CheckBox x:Name="cbExportStufen">Alle Stufen in eine Datei exportieren</CheckBox>
+                        <Button x:Name="btnExportStufenkurs">Stufenkurse exportieren</Button>
+                        <Button x:Name="btnExport5InklPasswort">5er inkl. Passwort exportieren</Button>
+                    </StackPanel>
 
-				</Grid>
-			</TabItem>
-			<TabItem Header="Fehlersuche" Classes="Header"> <!--Fehlersuche-Tab-->
-				<StackPanel>
-					<TextBlock Text="Fehlersuche"></TextBlock>
-					<WrapPanel Orientation="Horizontal">
-						<CheckBox x:Name="cbFehlerSuSoK" Margin="5">SuS ohne Kurse</CheckBox>
-						<CheckBox x:Name="cbFehlerLuLoK" Margin="5">LuL ohne Kurse</CheckBox>
-						<CheckBox x:Name="cbFehlerLeereKurse" Margin="5">Kurse ohne SuS/LuL</CheckBox>
-						<CheckBox x:Name="cbFehlerSuS" Margin="5">SuS Fehler</CheckBox>
-						<CheckBox x:Name="cbFehlerLuL" Margin="5">LuL Fehler</CheckBox>
-						<CheckBox x:Name="cbFehlerKurse" Margin="5">unvollständige Kurse</CheckBox>
-						<Button x:Name="btnFehlerSuche">Suche</Button>
-						<Button x:Name="btnFehlerExport">Export</Button>
-					</WrapPanel>
-					<ListBox x:Name="lbFehlerliste" VirtualizationMode="None">Test</ListBox>
-				</StackPanel>
-			</TabItem>
-			<TabItem Header="Einstellungen" Classes="Header"> <!--Einstellungen-Tab-->
-				<Grid>
-					<Grid.RowDefinitions>
-						<RowDefinition Height="Auto"/>
-						<RowDefinition Height="Auto"/>
-						<RowDefinition Height="Auto"/>
-						<RowDefinition Height="Auto"/>
-					</Grid.RowDefinitions>
-					<Grid.ColumnDefinitions>
-						<ColumnDefinition Width="Auto"></ColumnDefinition>
-						<ColumnDefinition Width="Auto"></ColumnDefinition>
-					</Grid.ColumnDefinitions>
-					<StackPanel Grid.Row="0" Grid.Column="0">
-						<TextBlock Text="Platzhalterdeomain"></TextBlock>
-						<TextBox x:Name="tbSettingMailplatzhalter" Width="150"></TextBox>
-					</StackPanel>
-					<StackPanel Grid.Row="0" Grid.Column="1">
-						<TextBlock Text="Kurssuffix"></TextBlock>
-						<TextBox x:Name="tbSettingKurssuffix" Width="150"></TextBox>
-					</StackPanel>
-					<StackPanel Grid.Row="1" Grid.Column="0">
-						<TextBlock Text="Kursersetzungen"></TextBlock>
-						<TextBox x:Name="tbSettingKursersetzung" Width="150"></TextBox>
-					</StackPanel>
-					<StackPanel Grid.Row="2" Grid.Column="0">
-						<TextBlock Text="Fächerkurzform"></TextBlock>
-						<ListBox x:Name="lbSettingFachkurz" VirtualizationMode="None">Test</ListBox>
-					</StackPanel>
-					<StackPanel Grid.Row="2" Grid.Column="1">
-						<TextBlock Text="Fächerlangform"></TextBlock>
-						<ListBox x:Name="lbSettingFachlang" VirtualizationMode="None">Test</ListBox>
-					</StackPanel>
-					<Button x:Name="btnSettingSave" Grid.Row="3" Grid.Column="0">Speichern</Button>
-				</Grid>
-			</TabItem>
-			<TabItem Header="Log" Classes="Header"> <!--Log-Tab-->
-				<DataGrid x:Name="logDataGrid" AutoGenerateColumns="False"></DataGrid>
-			</TabItem>
-			<TabItem Header="Sonstiges" Classes="Header">Nicht implementiert</TabItem> <!--Sonstiges-Tab-->
-		</TabControl>
-	</Grid>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Fehlersuche" Classes="Header"> <!--Fehlersuche-Tab-->
+                <StackPanel>
+                    <TextBlock Text="Fehlersuche"></TextBlock>
+                    <WrapPanel Orientation="Horizontal">
+                        <CheckBox x:Name="cbFehlerSuSoK" Margin="5">SuS ohne Kurse</CheckBox>
+                        <CheckBox x:Name="cbFehlerLuLoK" Margin="5">LuL ohne Kurse</CheckBox>
+                        <CheckBox x:Name="cbFehlerLeereKurse" Margin="5">Kurse ohne SuS/LuL</CheckBox>
+                        <CheckBox x:Name="cbFehlerSuS" Margin="5">SuS Fehler</CheckBox>
+                        <CheckBox x:Name="cbFehlerLuL" Margin="5">LuL Fehler</CheckBox>
+                        <CheckBox x:Name="cbFehlerKurse" Margin="5">unvollständige Kurse</CheckBox>
+                        <Button x:Name="btnFehlerSuche">Suche</Button>
+                        <Button x:Name="btnFehlerExport">Export</Button>
+                    </WrapPanel>
+                    <ListBox x:Name="lbFehlerliste" VirtualizationMode="None">Test</ListBox>
+                </StackPanel>
+            </TabItem>
+            <TabItem Header="Einstellungen" Classes="Header"> <!--Einstellungen-Tab-->
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Row="0" Grid.Column="0">
+                        <TextBlock Text="Platzhalterdeomain"></TextBlock>
+                        <TextBox x:Name="tbSettingMailplatzhalter" Width="150"></TextBox>
+                    </StackPanel>
+                    <StackPanel Grid.Row="0" Grid.Column="1">
+                        <TextBlock Text="Kurssuffix"></TextBlock>
+                        <TextBox x:Name="tbSettingKurssuffix" Width="150"></TextBox>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.Column="0">
+                        <TextBlock Text="Kursersetzungen"></TextBlock>
+                        <TextBox x:Name="tbSettingKursersetzung" Width="150"></TextBox>
+                    </StackPanel>
+                    <StackPanel Grid.Row="2" Grid.Column="0">
+                        <TextBlock Text="Fächerkurzform"></TextBlock>
+                        <ListBox x:Name="lbSettingFachkurz" VirtualizationMode="None">Test</ListBox>
+                    </StackPanel>
+                    <StackPanel Grid.Row="2" Grid.Column="1">
+                        <TextBlock Text="Fächerlangform"></TextBlock>
+                        <ListBox x:Name="lbSettingFachlang" VirtualizationMode="None">Test</ListBox>
+                    </StackPanel>
+                    <Button x:Name="btnSettingSave" Grid.Row="3" Grid.Column="0">Speichern</Button>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Log" Classes="Header"> <!--Log-Tab-->
+                <DataGrid x:Name="logDataGrid" AutoGenerateColumns="False"></DataGrid>
+            </TabItem>
+            <TabItem Header="Sonstiges" Classes="Header">Nicht implementiert</TabItem> <!--Sonstiges-Tab-->
+        </TabControl>
+    </Grid>
 </Window>
