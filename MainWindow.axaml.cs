@@ -5,9 +5,11 @@ using SDB;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Threading.Tasks;
 
 namespace StS_GUI_Avalonia
 {
@@ -179,7 +181,7 @@ namespace StS_GUI_Avalonia
             if (extensions.Length != extensionsanames.Length) return;
             ofd.Title = dialogtitle;
             List<FileDialogFilter> filters = new();
-            for (int i = 0; i < extensions.Length; i++)
+            for (var i = 0; i < extensions.Length; i++)
             {
                 FileDialogFilter filter = new();
                 List<string> extension = new() { extensions[i] };
@@ -216,8 +218,25 @@ namespace StS_GUI_Avalonia
 
         public async void OnMnuschulespeichernunterClick(object? sender, RoutedEventArgs e)
         {
-            SetupSaveDialog(globalOpenSaveDialog, "Lade Datenbankdatei", new[] { "sqlite" },
+            SetupSaveDialog(globalOpenSaveDialog, "Datenbankdatei speichern unter...", new[] { "sqlite" },
                 new[] { "Datenbankdatei" });
+            var saveDBFile = async () =>
+            {
+                var filepath = await globalOpenSaveDialog.ShowAsync(this);
+                if (filepath == null) return;
+                var tempDB = new SchulDB(filepath);
+                var res = await tempDB.Import(myschool);
+                if (res!=0)
+                {
+                    Debug.WriteLine("Task failed");
+                }
+                else
+                {
+                    myschool = tempDB;
+                    Debug.WriteLine("Saving done");
+                }
+            };
+            await Task.Run(saveDBFile);
         }
 
         public void OnMnuschuleversspeichernClick(object? sender, RoutedEventArgs e)
@@ -233,9 +252,25 @@ namespace StS_GUI_Avalonia
             this.Close();
         }
 
-        public void OnMnuloadfolderClick(object? sender, RoutedEventArgs e)
+        public async void OnMnuloadfolderClick(object? sender, RoutedEventArgs e)
         {
+            var readFileTask = async () =>
+            {
             SetupOpenFolderDialog(globalOpenFolderDialog, "Bitte den Ordner mit den Dateien auswählen");
+                var path = await globalOpenFileDialog.ShowAsync(this);
+                if (path == null) return;
+                FileInfo t = new(path[0]);
+                var folder = t.Directory;
+                if (File.Exists(folder + "/sus.csv") && File.Exists(folder + "/lul.csv") &&
+                    File.Exists(folder + "/kurse.csv"))
+                {
+                    await myschool.SusEinlesen(folder + "/sus.csv");
+                    await myschool.LulEinlesen(folder + "/lul.csv");
+                    await myschool.KurseEinlesen(folder + "/kurse.csv");
+                    Debug.WriteLine("Done importing");
+                }
+            };
+            await Task.Run(readFileTask);
         }
 
         public void OnMnuloadsusfromfileClick(object? sender, RoutedEventArgs e)
@@ -318,12 +353,17 @@ namespace StS_GUI_Avalonia
         {
             var rightlist = this.GetControl<ListBox>("RightListBox");
             rightlist.Items = new List<string>();
-            OnDataChanged();
+            OnLeftDataChanged(true);
         }
 
         private void CboxDataRight_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
         {
-            OnDataChanged();
+            OnRightDataChanged();
+        }
+
+        private void OnRightDataChanged()
+        {
+           
         }
 
         private void InitData()
@@ -343,15 +383,15 @@ namespace StS_GUI_Avalonia
 
         private void LeftListBox_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
         {
-            OnDataChanged();
+            OnLeftDataChanged(false);
         }
 
         private void RightListBox_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
         {
-            OnDataChanged();
+            OnRightDataChanged();
         }
 
-        private void OnDataChanged()
+        private void OnLeftDataChanged(bool changedCB)
         {
             var leftlist = this.GetControl<ListBox>("LeftListBox");
             var rightlist = this.GetControl<ListBox>("RightListBox");
@@ -368,7 +408,7 @@ namespace StS_GUI_Avalonia
                         cboxr.SelectedIndex = 1;
                     }
 
-                    if (leftlist.SelectedItems.Count < 1)
+                    if (leftlist.SelectedItems.Count < 1||leftlist.SelectedItems == null||changedCB)
                     {
                         var slist = myschool.GetSchuelerListe().Result.Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID)).Distinct().ToList();;
                         slist.Sort(Comparer<string>.Default);
@@ -406,7 +446,7 @@ namespace StS_GUI_Avalonia
                     {
                         cboxr.SelectedIndex = 2;
                     }
-                    if (leftlist.SelectedItems.Count < 1)
+                    if (leftlist.SelectedItems.Count < 1||leftlist.SelectedItems == null||changedCB)
                     {
                         var lullist = myschool.GetLehrerListe().Result.Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).Distinct().ToList();
                         lullist.Sort(Comparer<string>.Default);
@@ -447,7 +487,7 @@ namespace StS_GUI_Avalonia
                     {
                         cboxr.SelectedIndex = 0;
                     }
-                    if (leftlist.SelectedItems.Count < 1)
+                    if (leftlist.SelectedItems.Count < 1||leftlist.SelectedItems == null||changedCB)
                     {
                         var klist = myschool.GetKursListe().Result.Select(k => (k.Bezeichnung)).Distinct().ToList();
                         klist.Sort(Comparer<string>.Default);

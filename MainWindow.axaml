@@ -24,7 +24,7 @@
                     <MenuItem Header="Schule laden" x:Name="mnuSchuleLaden" Click="OnMnuSchoolLoadClick" />
                     <MenuItem Header="Schule schließen" x:Name="mnuSchuleSpeichern" />
                     <Separator />
-                    <MenuItem Header="Schule speichern unter" x:Name="mnuSchuleSpeichernUnter" />
+                    <MenuItem Header="Schule speichern unter" x:Name="mnuSchuleSpeichernUnter" Click="OnMnuschulespeichernunterClick"/>
                     <MenuItem Header="Schüle verschlüsselt speichern" x:Name="mnuSchuleVersSpeichern" />
                     <MenuItem Header="Verschlüsselte Schule laden" x:Name="mnuVersSchuleLaden" />
                     <Separator />
@@ -32,7 +32,7 @@
                 </MenuItem>
                 <MenuItem Header="Daten">
                     <MenuItem Header="CSV laden">
-                        <MenuItem Header="Dateien aus Ordner" x:Name="mnuLoadFolder" />
+                        <MenuItem Header="Dateien aus Ordner" x:Name="mnuLoadFolder" Click="OnMnuloadfolderClick"/>
                         <Separator />
                         <MenuItem Header="SuS aus Datei" x:Name="mnuLoadSuSFromFile" />
                         <MenuItem Header="LuL aus Datei" x:Name="mnuLoadLuLFromFile" />
@@ -64,21 +64,29 @@
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
-                        <ComboBox Width="250" VerticalAlignment="Top"
-                                  Grid.Row="0" Grid.Column="0"
-                                  x:Name="CboxDataLeft"
-                                  SelectionChanged="CboxDataLeft_OnSelectionChanged">
+                        <DockPanel Grid.Row="0" Grid.Column="0">
+                            <Grid DockPanel.Dock="Top">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <ComboBox Width="250" VerticalAlignment="Top"
+                                          Grid.Row="0" Grid.Column="0"
+                                          x:Name="CboxDataLeft"
+                                          SelectionChanged="CboxDataLeft_OnSelectionChanged">
                             <ComboBoxItem Content="Schüler*in" />
                             <ComboBoxItem Content="Lehrkräfte" />
                             <ComboBoxItem Content="Klasse/Kurs" />
                         </ComboBox>
                         <TextBox Text="" Grid.Row="1" Grid.Column="0" x:Name="tbLeftSearch" />
-                        <ListBox x:Name="LeftListBox" SelectionMode="Multiple" Grid.Row="2" Grid.Column="0"
-                                 SelectionChanged="LeftListBox_OnSelectionChanged">
+                    </Grid>
+                        <ListBox DockPanel.Dock="Bottom" x:Name="LeftListBox" SelectionMode="Multiple" SelectionChanged="LeftListBox_OnSelectionChanged">
                         </ListBox>
+                        </DockPanel>
                         <ComboBox Width="250" VerticalAlignment="Top"
                                   Grid.Row="0" Grid.Column="1"
                                   x:Name="CboxDataRight"
@@ -88,9 +96,10 @@
                             <ComboBoxItem Content="Klasse/Kurs" />
                         </ComboBox>
                         <TextBox Text="" Grid.Row="1" Grid.Column="1" x:Name="tbRightSearch" />
-                        <ListBox x:Name="RightListBox" SelectionMode="Multiple" Grid.Row="2"
-                                 Grid.Column="1" SelectionChanged="RightListBox_OnSelectionChanged">
-                        </ListBox>
+                        <DockPanel Grid.Row="2"
+                            Grid.Column="1"><ListBox x:Name="RightListBox" SelectionMode="Multiple" SelectionChanged="RightListBox_OnSelectionChanged">
+                        </ListBox></DockPanel>
+                        
                     </Grid>
                     <TabControl Grid.Row="0" Grid.Column="1">
                         <TabItem Header="SuS" Classes="Header"> <!--Daten-SuS-Tab-->
