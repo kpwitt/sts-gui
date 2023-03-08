@@ -316,12 +316,14 @@ namespace StS_GUI_Avalonia
 
         private void CboxDataLeft_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
         {
-            leftDataChanged();
+            var rightlist = this.GetControl<ListBox>("RightListBox");
+            rightlist.Items = new List<string>();
+            OnDataChanged();
         }
 
         private void CboxDataRight_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
         {
-            rightDataChanged();
+            OnDataChanged();
         }
 
         private void InitData()
@@ -341,22 +343,22 @@ namespace StS_GUI_Avalonia
 
         private void LeftListBox_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
         {
-            leftDataChanged();
+            OnDataChanged();
         }
 
         private void RightListBox_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
         {
-            rightDataChanged();
+            OnDataChanged();
         }
 
-        private void leftDataChanged()
+        private void OnDataChanged()
         {
             var leftlist = this.GetControl<ListBox>("LeftListBox");
             var rightlist = this.GetControl<ListBox>("RightListBox");
             var cboxl = this.GetControl<ComboBox>("CboxDataLeft");
             var cboxr = this.GetControl<ComboBox>("CboxDataRight");
             if (leftlist == null || rightlist == null || cboxl == null || cboxr == null) return;
-            if (leftlist.SelectedItems == null || leftlist.SelectedItems.Count < 1) return;
+            if (leftlist.SelectedItems == null) return;
             switch (cboxl.SelectedIndex)
             {
                 //s=0;l==1;k==2
@@ -364,61 +366,123 @@ namespace StS_GUI_Avalonia
                     if (cboxr.SelectedIndex == 0)
                     {
                         cboxr.SelectedIndex = 1;
-                    };
-                    var sid = leftlist.SelectedItems[0].ToString().Split(';')[1];
-                    var sus = myschool.GetSchueler(Convert.ToInt32(sid)).Result;
-                    if (sus.ID == 0) return;
-                    switch (cboxr.SelectedIndex)
+                    }
+
+                    if (leftlist.SelectedItems.Count < 1)
                     {
-                        case 1:
+                        var slist = myschool.GetSchuelerListe().Result.Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID)).Distinct().ToList();;
+                        slist.Sort(Comparer<string>.Default);
+                        leftlist.Items = slist;
+                        rightlist.Items = new List<string>();
+                    }
+                    else
+                    {
+                        var sid = leftlist.SelectedItems[0].ToString().Split(';')[1];
+                        var sus = myschool.GetSchueler(Convert.ToInt32(sid)).Result;
+                        if (sus.ID == 0) return;
+                        switch (cboxr.SelectedIndex)
                         {
-                            var rlist = myschool.GetLuLvonSuS(sus.ID).Result
-                                .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).Distinct().ToList();
-                            rlist.Sort(Comparer<string>.Default);
-                            rightlist.Items = rlist;
-                            break;
-                        }
-                        case 2:
-                        {
-                            var rlist = myschool.GetKursVonSuS(sus.ID).Result.Select(k=>(k.Bezeichnung)).Distinct().ToList();
-                            rightlist.Items = rlist;
-                            break;
+                            case 1:
+                            {
+                                var rlist = myschool.GetLuLvonSuS(sus.ID).Result
+                                    .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).Distinct().ToList();
+                                rlist.Sort(Comparer<string>.Default);
+                                rightlist.Items = rlist;
+                                break;
+                            }
+                            case 2:
+                            {
+                                var rlist = myschool.GetKursVonSuS(sus.ID).Result.Select(k => (k.Bezeichnung))
+                                    .Distinct()
+                                    .ToList();
+                                rightlist.Items = rlist;
+                                break;
+                            }
                         }
                     }
                     break;
                 case 1:
                     if (cboxr.SelectedIndex == 1)
                     {
-                       cboxr.SelectedIndex = 2;
-                    };
-                    var lulkrz = leftlist.SelectedItems[0].ToString().Split(';')[0];
-                    if (lulkrz == "") return;
-                    var lul = myschool.GetLehrer(lulkrz).Result;
-                    switch (cboxr.SelectedIndex)
-                    {
-                        case 0:
-                            var rlist = myschool.GetSuSVonLuL(lul.ID).Result
-                                .Select(s => (s.Nachname + ", " + s.Vorname + ";" + s.ID)).Distinct().ToList();
-                            rightlist.Items = rlist;
-                            break;
-                        case 2:
-                            break;
+                        cboxr.SelectedIndex = 2;
                     }
+                    if (leftlist.SelectedItems.Count < 1)
+                    {
+                        var lullist = myschool.GetLehrerListe().Result.Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).Distinct().ToList();
+                        lullist.Sort(Comparer<string>.Default);
+                        leftlist.Items = lullist;
+                        rightlist.Items = new List<string>();
+                    }
+                    else
+                    {
+                        var lulkrz = leftlist.SelectedItems[0].ToString().Split(';')[0];
+                        if (lulkrz == "") return;
+                        var lul = myschool.GetLehrer(lulkrz).Result;
+                        switch (cboxr.SelectedIndex)
+                        {
+                            case 0:
+                            {
+                                var rlist = myschool.GetSuSVonLuL(lul.ID).Result
+                                    .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID)).Distinct().ToList();
+                                rlist.Sort(Comparer<string>.Default);
+                                rightlist.Items = rlist;
+
+                                break;
+                            }
+                            case 2:
+                            {
+                                var rlist = myschool.GetKursVonLuL(lul.ID).Result.Select(k => (k.Bezeichnung))
+                                    .Distinct()
+                                    .ToList();
+                                rlist.Sort(Comparer<string>.Default);
+                                rightlist.Items = rlist;
+                                break;
+                            }
+                        }
+                    }
+
                     break;
                 case 2:
                     if (cboxr.SelectedIndex == 2)
                     {
                         cboxr.SelectedIndex = 0;
-                    };
+                    }
+                    if (leftlist.SelectedItems.Count < 1)
+                    {
+                        var klist = myschool.GetKursListe().Result.Select(k => (k.Bezeichnung)).Distinct().ToList();
+                        klist.Sort(Comparer<string>.Default);
+                        leftlist.Items = klist;
+                        rightlist.Items = new List<string>();
+                    }
+                    else
+                    {
+                        var kurzbez = leftlist.SelectedItems[0].ToString();
+                        if (kurzbez == "") return;
+                        var kurs = myschool.GetKurs(kurzbez).Result;
+                        switch (cboxr.SelectedIndex)
+                        {
+                            case 0:
+                            {
+                                var rlist = myschool.GetSuSAusKurs(kurs.Bezeichnung).Result
+                                    .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID)).Distinct().ToList();
+                                rlist.Sort(Comparer<string>.Default);
+                                rightlist.Items = rlist;
+                                break;
+                            }
+                            case 1:
+                            {
+                                var rlist = myschool.GetLuLAusKurs(kurs.Bezeichnung).Result
+                                    .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).Distinct().ToList();
+                                rlist.Sort(Comparer<string>.Default);
+                                rightlist.Items = rlist;
+                                break;
+                            }
+                        }
+                    }
                     break;
                 default:
                     break;
             }
-        }
-
-        private void rightDataChanged()
-        {
-            
         }
     }
 }
