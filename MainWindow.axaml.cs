@@ -2,9 +2,9 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using SDB;
+using SchulStructs;
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -212,13 +212,10 @@ namespace StS_GUI_Avalonia
         }
 
 
-        public void OnMnuschulespeichernClick(object? sender, RoutedEventArgs e)
+        public async void OnMnuschulespeichernClick(object? sender, RoutedEventArgs e)
         {
-        }
-
-        public async void OnMnuschulespeichernunterClick(object? sender, RoutedEventArgs e)
-        {
-            SetupSaveDialog(globalOpenSaveDialog, "Datenbankdatei speichern unter...", new[] { "sqlite" },
+            if (myschool.GetFilePath().Result != ":memory:") return;
+            SetupOpenFileDialog(globalOpenFileDialog, "Bitte einen Dateipfad angeben...", new[] { "sqlite" },
                 new[] { "Datenbankdatei" });
             var saveDBFile = async () =>
             {
@@ -226,7 +223,7 @@ namespace StS_GUI_Avalonia
                 if (filepath == null) return;
                 var tempDB = new SchulDB(filepath);
                 var res = await tempDB.Import(myschool);
-                if (res!=0)
+                if (res != 0)
                 {
                     Debug.WriteLine("Task failed");
                 }
@@ -239,7 +236,30 @@ namespace StS_GUI_Avalonia
             await Task.Run(saveDBFile);
         }
 
-        public void OnMnuschuleversspeichernClick(object? sender, RoutedEventArgs e)
+        public async void OnMnuschulespeichernunterClick(object? sender, RoutedEventArgs e)
+        {
+            SetupSaveDialog(globalOpenSaveDialog, "Datenbankdatei speichern unter...", new[] { "sqlite" },
+                new[] { "Datenbankdatei" });
+            var saveDBFile = async () =>
+            {
+                var filepath = await globalOpenSaveDialog.ShowAsync(this);
+                if (filepath == null) return;
+                var tempDB = new SchulDB(filepath);
+                var res = await tempDB.Import(myschool);
+                if (res != 0)
+                {
+                    Debug.WriteLine("Task failed");
+                }
+                else
+                {
+                    myschool = tempDB;
+                    Debug.WriteLine("Saving done");
+                }
+            };
+            await Task.Run(saveDBFile);
+        }
+
+        public async void OnMnuschuleversspeichernClick(object? sender, RoutedEventArgs e)
         {
         }
 
@@ -256,7 +276,7 @@ namespace StS_GUI_Avalonia
         {
             var readFileTask = async () =>
             {
-            SetupOpenFolderDialog(globalOpenFolderDialog, "Bitte den Ordner mit den Dateien auswählen");
+                SetupOpenFolderDialog(globalOpenFolderDialog, "Bitte den Ordner mit den Dateien auswählen");
                 var path = await globalOpenFileDialog.ShowAsync(this);
                 if (path == null) return;
                 FileInfo t = new(path[0]);
@@ -358,12 +378,11 @@ namespace StS_GUI_Avalonia
 
         private void CboxDataRight_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
         {
-            OnRightDataChanged();
+            OnRightDataChanged(true);
         }
 
-        private void OnRightDataChanged()
+        private void OnRightDataChanged(bool changedCB)
         {
-           
         }
 
         private void InitData()
@@ -388,7 +407,7 @@ namespace StS_GUI_Avalonia
 
         private void RightListBox_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
         {
-            OnRightDataChanged();
+            OnRightDataChanged(false);
         }
 
         private void OnLeftDataChanged(bool changedCB)
@@ -408,9 +427,11 @@ namespace StS_GUI_Avalonia
                         cboxr.SelectedIndex = 1;
                     }
 
-                    if (leftlist.SelectedItems.Count < 1||leftlist.SelectedItems == null||changedCB)
+                    if (leftlist.SelectedItems.Count < 1 || leftlist.SelectedItems == null || changedCB)
                     {
-                        var slist = myschool.GetSchuelerListe().Result.Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID)).Distinct().ToList();;
+                        var slist = myschool.GetSchuelerListe().Result
+                            .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID)).Distinct().ToList();
+                        ;
                         slist.Sort(Comparer<string>.Default);
                         leftlist.Items = slist;
                         rightlist.Items = new List<string>();
@@ -419,6 +440,7 @@ namespace StS_GUI_Avalonia
                     {
                         var sid = leftlist.SelectedItems[0].ToString().Split(';')[1];
                         var sus = myschool.GetSchueler(Convert.ToInt32(sid)).Result;
+                        loadSuSData(sus);
                         if (sus.ID == 0) return;
                         switch (cboxr.SelectedIndex)
                         {
@@ -440,15 +462,18 @@ namespace StS_GUI_Avalonia
                             }
                         }
                     }
+
                     break;
                 case 1:
                     if (cboxr.SelectedIndex == 1)
                     {
                         cboxr.SelectedIndex = 2;
                     }
-                    if (leftlist.SelectedItems.Count < 1||leftlist.SelectedItems == null||changedCB)
+
+                    if (leftlist.SelectedItems.Count < 1 || leftlist.SelectedItems == null || changedCB)
                     {
-                        var lullist = myschool.GetLehrerListe().Result.Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).Distinct().ToList();
+                        var lullist = myschool.GetLehrerListe().Result
+                            .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).Distinct().ToList();
                         lullist.Sort(Comparer<string>.Default);
                         leftlist.Items = lullist;
                         rightlist.Items = new List<string>();
@@ -487,7 +512,8 @@ namespace StS_GUI_Avalonia
                     {
                         cboxr.SelectedIndex = 0;
                     }
-                    if (leftlist.SelectedItems.Count < 1||leftlist.SelectedItems == null||changedCB)
+
+                    if (leftlist.SelectedItems.Count < 1 || leftlist.SelectedItems == null || changedCB)
                     {
                         var klist = myschool.GetKursListe().Result.Select(k => (k.Bezeichnung)).Distinct().ToList();
                         klist.Sort(Comparer<string>.Default);
@@ -519,10 +545,37 @@ namespace StS_GUI_Avalonia
                             }
                         }
                     }
+
                     break;
                 default:
                     break;
             }
+        }
+
+        private void loadSuSData(SuS s)
+        {
+            if (s.ID is 0 or < 50000) return;
+            var tbSuSID = this.GetControl<TextBox>("tbSuSID");
+            var tbSuSVorname = this.GetControl<TextBox>("tbSuSVorname");
+            var tbSuSnachname = this.GetControl<TextBox>("tbSuSnachname");
+            var tbSuSKlasse = this.GetControl<TextBox>("tbSuSKlasse");
+            var tbSuSElternadresse = this.GetControl<TextBox>("tbSuSElternadresse");
+            var tbSuSZweitadresse = this.GetControl<TextBox>("tbSuSZweitadresse");
+            var tbSuSAIXMail = this.GetControl<TextBox>("tbSuSAIXMail");
+            var tbSuSNutzername = this.GetControl<TextBox>("tbSuSNutzername");
+            var tbSuSKurse = this.GetControl<TextBox>("tbSuSKurse");
+            var cbSuSZweitaccount = this.GetControl<CheckBox>("cbSuSZweitaccount");
+            tbSuSID.Text = s.ID + "";
+            tbSuSVorname.Text = s.Vorname;
+            tbSuSnachname.Text = s.Nachname;
+            tbSuSKlasse.Text = s.Klasse;
+            tbSuSNutzername.Text = s.Nutzername;
+            tbSuSAIXMail.Text = s.Aixmail;
+            tbSuSElternadresse.Text = s.Mail;
+            tbSuSZweitadresse.Text = s.Zweitmail;
+            tbSuSKurse.Text = myschool.GetKursVonSuS(s.ID).Result
+                .Aggregate("", (current, kurs) => current + (kurs.Bezeichnung + ",")).TrimEnd(',');
+            cbSuSZweitaccount.IsChecked = s.Zweitaccount;
         }
     }
 }
