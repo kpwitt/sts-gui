@@ -5,7 +5,6 @@ using SDB;
 using SchulStructs;
 using System;
 using System.Collections.Generic;
-using System.Data.Entity.Core.Mapping;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
