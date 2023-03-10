@@ -6,13 +6,10 @@
     <!--Avalonia doesen't support TrimMode=link currently,but we are working on that https://github.com/AvaloniaUI/Avalonia/issues/6892 -->
     <TrimMode>copyused</TrimMode>
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
-    <ApplicationIcon>gfx\school-building.ico</ApplicationIcon>
+    <ApplicationIcon>Assets\gfx\school-building.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <None Remove=".gitignore" />
-  </ItemGroup>
-  <ItemGroup>
-    <AvaloniaResource Include="gfx\school-building.ico" />
   </ItemGroup>
   <ItemGroup>
     <!--This helps with theme dll-s trimming.
@@ -33,6 +30,10 @@
     <ProjectReference Include="..\sts-lib\SchulDB.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Assets" />
     <Folder Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\gfx\school-building.ico" />
   </ItemGroup>
 </Project>
