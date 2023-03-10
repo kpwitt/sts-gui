@@ -36,13 +36,12 @@ namespace StS_GUI_Avalonia
         private static byte[] GenerateRandomSalt()
         {
             var data = new byte[32];
-            using RandomNumberGenerator rng = RandomNumberGenerator.Create();
+            using var rng = RandomNumberGenerator.Create();
             for (var i = 0; i < 10; i++)
             {
                 // Fill the buffer with the generated data
                 rng.GetBytes(data);
             }
-
             return data;
         }
 
@@ -111,7 +110,7 @@ namespace StS_GUI_Avalonia
         {
             //http://stackoverflow.com/questions/27645527/aes-encryption-on-large-files
             //generate random salt
-            byte[] salt = GenerateRandomSalt();
+            var salt = GenerateRandomSalt();
             //create output file name
             FileStream fsCrypt = new(outputFile, FileMode.Create);
             //convert password string to byte arrray
