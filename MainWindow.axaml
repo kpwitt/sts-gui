@@ -4,6 +4,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
         x:Class="StS_GUI_Avalonia.MainWindow"
+        Icon="/Assets/gfx/school-building.ico"
         Title="StS">
 
     <Window.Styles>
@@ -18,12 +19,12 @@
             <Menu DockPanel.Dock="Top"><!-- Menuleiste -->
                 <MenuItem Header="Datei">
                     <MenuItem Header="Schule laden" x:Name="mnuSchuleLaden" Click="OnMnuSchoolLoadClick"/>
-                    <MenuItem Header="Schule schließen" x:Name="mnuSchuleSpeichern" Click="OnMnuschulespeichernClick"/>
+                    <MenuItem Header="Schule schließen" x:Name="mnuSchuleSpeichern" Click="OnMnuschuleschließenClick"/>
                     <Separator />
                     <MenuItem Header="Schule speichern unter" x:Name="mnuSchuleSpeichernUnter"
                               Click="OnMnuschulespeichernunterClick" />
-                    <MenuItem Header="Schüle verschlüsselt speichern" x:Name="mnuSchuleVersSpeichern" />
-                    <MenuItem Header="Verschlüsselte Schule laden" x:Name="mnuVersSchuleLaden" />
+                    <MenuItem Header="Schüle verschlüsselt speichern" x:Name="mnuSchuleVersSpeichern" Click="OnMnuschuleversspeichernClick"/>
+                    <MenuItem Header="Verschlüsselte Schule laden" x:Name="mnuVersSchuleLaden" Click="OnMnuversschuleladenClick"/>
                     <Separator />
                     <MenuItem Header="Beenden" x:Name="mnuExit" Click="OnMnuexitClick"/>
                 </MenuItem>
@@ -46,7 +47,6 @@
                 </MenuItem>
             </Menu>
         </DockPanel>
-
         <TabControl Grid.Row="1" VerticalAlignment="Stretch">
             <TabItem Header="Daten" Classes="Header"> <!-- Daten-Tab -->
                 <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto" VerticalAlignment="Stretch">
