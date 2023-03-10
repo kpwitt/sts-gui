@@ -421,7 +421,62 @@ namespace StS_GUI_Avalonia
         {
             var rightlist = this.GetControl<ListBox>("RightListBox");
             rightlist.Items = new List<string>();
+            clearTextFields();
             OnLeftDataChanged(true);
+        }
+
+        private void clearTextFields()
+        {
+            var tbSuSID = this.GetControl<TextBox>("tbSuSID");
+            var tbSuSVorname = this.GetControl<TextBox>("tbSuSVorname");
+            var tbSuSnachname = this.GetControl<TextBox>("tbSuSnachname");
+            var tbSuSKlasse = this.GetControl<TextBox>("tbSuSKlasse");
+            var tbSuSElternadresse = this.GetControl<TextBox>("tbSuSElternadresse");
+            var tbSuSZweitadresse = this.GetControl<TextBox>("tbSuSZweitadresse");
+            var tbSuSAIXMail = this.GetControl<TextBox>("tbSuSAIXMail");
+            var tbSuSNutzername = this.GetControl<TextBox>("tbSuSNutzername");
+            var tbSuSKurse = this.GetControl<TextBox>("tbSuSKurse");
+            var cbSuSZweitaccount = this.GetControl<CheckBox>("cbSuSZweitaccount");
+            var tbLuLID = this.GetControl<TextBox>("tbLuLID");
+            var tbLuLVorname = this.GetControl<TextBox>("tbLuLVorname");
+            var tbLuLnachname = this.GetControl<TextBox>("tbLuLnachname");
+            var tbLuLKuerzel = this.GetControl<TextBox>("tbLuLKuerzel");
+            var tbLuLFach = this.GetControl<TextBox>("tbLuLFach");
+            var tbLuLMail = this.GetControl<TextBox>("tbLuLMail");
+            var tbLuLtmpPwd = this.GetControl<TextBox>("tbLuLtmpPwd");
+            var tbLuLKurse = this.GetControl<TextBox>("tbLuLKurse");
+            var tbKursbezeichnung = this.GetControl<TextBox>("tbKursbezeichnung");
+            var tbKursLuL = this.GetControl<TextBox>("tbKursLuL");
+            var tbKursFach = this.GetControl<TextBox>("tbKursFach");
+            var tbKursSuffix = this.GetControl<TextBox>("tbKursSuffix");
+            var tbKursKlasse = this.GetControl<TextBox>("tbKursKlasse");
+            var tbKursStufe = this.GetControl<TextBox>("tbKursStufe");
+            var cbKursIstKurs = this.GetControl<CheckBox>("cbKursIstKurs");
+            tbSuSID.Text = "";
+            tbSuSVorname.Text = "";
+            tbSuSnachname.Text = "";
+            tbSuSKlasse.Text = "";
+            tbSuSNutzername.Text = "";
+            tbSuSAIXMail.Text = "";
+            tbSuSElternadresse.Text = "";
+            tbSuSZweitadresse.Text = "";
+            tbSuSKurse.Text = "";
+            cbSuSZweitaccount.IsChecked = false;
+            tbLuLID.Text = "";
+            tbLuLVorname.Text = "";
+            tbLuLnachname.Text = "";
+            tbLuLKuerzel.Text = "";
+            tbLuLFach.Text = "";
+            tbLuLMail.Text = "";
+            tbLuLtmpPwd.Text = "";
+            tbLuLKurse.Text = "";
+            tbKursbezeichnung.Text = "";
+            tbKursLuL.Text = "";
+            tbKursFach.Text = "";
+            tbKursSuffix.Text = "";
+            tbKursKlasse.Text = "";
+            tbKursStufe.Text = "";
+            cbKursIstKurs.IsChecked = false;
         }
 
         private void CboxDataRight_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
@@ -433,6 +488,7 @@ namespace StS_GUI_Avalonia
 
         private void LeftListBox_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
         {
+            clearTextFields();
             OnLeftDataChanged(false);
         }
 
