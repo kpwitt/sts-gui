@@ -212,9 +212,17 @@ namespace StS_GUI_Avalonia
         }
 
 
-        public async void OnMnuschulespeichernClick(object? sender, RoutedEventArgs e)
+        public async void OnMnuschuleschließenClick(object? sender, RoutedEventArgs e)
         {
-            if (myschool.GetFilePath().Result != ":memory:") return;
+            if (myschool.GetFilePath().Result != ":memory:")
+            {
+                var leftlist = this.GetControl<ListBox>("LeftListBox");
+                var rightlist = this.GetControl<ListBox>("RightListBox");
+                leftlist.Items = new List<string>();
+                rightlist.Items = new List<string>();
+                clearTextFields();
+                return;
+            }
             SetupOpenFileDialog(globalOpenFileDialog, "Bitte einen Dateipfad angeben...", new[] { "sqlite" },
                 new[] { "Datenbankdatei" });
             var saveDBFile = async () =>
