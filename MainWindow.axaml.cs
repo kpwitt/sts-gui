@@ -203,7 +203,7 @@ namespace StS_GUI_Avalonia
             SetupOpenFileDialog(globalOpenFileDialog, "Lade Datenbankdatei", new[] { "sqlite" },
                 new[] { "Datenbankdatei" });
             var respath = await globalOpenFileDialog.ShowAsync(this);
-            if (respath != null && respath.Length > 0)
+            if (respath is { Length: > 0 })
             {
                 myschool = new SchulDB(respath[0]);
             }
@@ -404,53 +404,24 @@ namespace StS_GUI_Avalonia
 
         private void InitData()
         {
-            var cboxl = this.GetControl<ComboBox>("CboxDataLeft");
-            var cboxr = this.GetControl<ComboBox>("CboxDataRight");
-            var leftlist = this.GetControl<ListBox>("LeftListBox");
-            if (cboxl == null || cboxr == null) return;
-            cboxl.SelectedIndex = 0;
-            cboxr.SelectedIndex = 1;
+            if (CboxDataLeft == null || CboxDataRight == null) return;
+            CboxDataLeft.SelectedIndex = 0;
+            CboxDataRight.SelectedIndex = 1;
             var llist = myschool.GetSchuelerListe().Result.Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID))
                 .ToList();
             llist.Sort(Comparer<string>.Default);
-            leftlist.Items = llist;
+            LeftListBox.Items = llist;
         }
 
         private void CboxDataLeft_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
         {
-            var rightlist = this.GetControl<ListBox>("RightListBox");
-            rightlist.Items = new List<string>();
+            RightListBox.Items = new List<string>();
             clearTextFields();
             OnLeftDataChanged(true);
         }
 
         private void clearTextFields()
         {
-            var tbSuSID = this.GetControl<TextBox>("tbSuSID");
-            var tbSuSVorname = this.GetControl<TextBox>("tbSuSVorname");
-            var tbSuSnachname = this.GetControl<TextBox>("tbSuSnachname");
-            var tbSuSKlasse = this.GetControl<TextBox>("tbSuSKlasse");
-            var tbSuSElternadresse = this.GetControl<TextBox>("tbSuSElternadresse");
-            var tbSuSZweitadresse = this.GetControl<TextBox>("tbSuSZweitadresse");
-            var tbSuSAIXMail = this.GetControl<TextBox>("tbSuSAIXMail");
-            var tbSuSNutzername = this.GetControl<TextBox>("tbSuSNutzername");
-            var tbSuSKurse = this.GetControl<TextBox>("tbSuSKurse");
-            var cbSuSZweitaccount = this.GetControl<CheckBox>("cbSuSZweitaccount");
-            var tbLuLID = this.GetControl<TextBox>("tbLuLID");
-            var tbLuLVorname = this.GetControl<TextBox>("tbLuLVorname");
-            var tbLuLnachname = this.GetControl<TextBox>("tbLuLnachname");
-            var tbLuLKuerzel = this.GetControl<TextBox>("tbLuLKuerzel");
-            var tbLuLFach = this.GetControl<TextBox>("tbLuLFach");
-            var tbLuLMail = this.GetControl<TextBox>("tbLuLMail");
-            var tbLuLtmpPwd = this.GetControl<TextBox>("tbLuLtmpPwd");
-            var tbLuLKurse = this.GetControl<TextBox>("tbLuLKurse");
-            var tbKursbezeichnung = this.GetControl<TextBox>("tbKursbezeichnung");
-            var tbKursLuL = this.GetControl<TextBox>("tbKursLuL");
-            var tbKursFach = this.GetControl<TextBox>("tbKursFach");
-            var tbKursSuffix = this.GetControl<TextBox>("tbKursSuffix");
-            var tbKursKlasse = this.GetControl<TextBox>("tbKursKlasse");
-            var tbKursStufe = this.GetControl<TextBox>("tbKursStufe");
-            var cbKursIstKurs = this.GetControl<CheckBox>("cbKursIstKurs");
             tbSuSID.Text = "";
             tbSuSVorname.Text = "";
             tbSuSnachname.Text = "";
@@ -480,8 +451,7 @@ namespace StS_GUI_Avalonia
 
         private void CboxDataRight_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
         {
-            var rightlist = this.GetControl<ListBox>("RightListBox");
-            rightlist.Items = new List<string>();
+            RightListBox.Items = new List<string>();
             OnRightDataChanged(true);
         }
 
@@ -498,43 +468,39 @@ namespace StS_GUI_Avalonia
 
         private void OnLeftDataChanged(bool changedCB)
         {
-            var leftlist = this.GetControl<ListBox>("LeftListBox");
-            var rightlist = this.GetControl<ListBox>("RightListBox");
-            var cboxl = this.GetControl<ComboBox>("CboxDataLeft");
-            var cboxr = this.GetControl<ComboBox>("CboxDataRight");
-            if (leftlist == null || rightlist == null || cboxl == null || cboxr == null) return;
-            if (leftlist.SelectedItems == null) return;
-            switch (cboxl.SelectedIndex)
+            if (LeftListBox == null || RightListBox == null || CboxDataLeft == null || CboxDataRight == null) return;
+            if (LeftListBox.SelectedItems == null) return;
+            switch (CboxDataLeft.SelectedIndex)
             {
                 //s=0;l==1;k==2
                 case 0:
-                    if (cboxr.SelectedIndex == 0)
+                    if (CboxDataRight.SelectedIndex == 0)
                     {
-                        cboxr.SelectedIndex = 1;
+                        CboxDataRight.SelectedIndex = 1;
                     }
 
-                    if (leftlist.SelectedItems.Count < 1 || leftlist.SelectedItems == null || changedCB)
+                    if (LeftListBox.SelectedItems.Count < 1 || LeftListBox.SelectedItems == null || changedCB)
                     {
                         var slist = myschool.GetSchuelerListe().Result
                             .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID)).Distinct().ToList();
                         slist.Sort(Comparer<string>.Default);
-                        leftlist.Items = slist;
-                        rightlist.Items = new List<string>();
+                        LeftListBox.Items = slist;
+                        RightListBox.Items = new List<string>();
                     }
                     else
                     {
-                        var sid = leftlist.SelectedItems[0].ToString().Split(';')[1];
+                        var sid = LeftListBox.SelectedItems[0].ToString().Split(';')[1];
                         var sus = myschool.GetSchueler(Convert.ToInt32(sid)).Result;
                         loadSuSData(sus);
                         if (sus.ID == 0) return;
-                        switch (cboxr.SelectedIndex)
+                        switch (CboxDataRight.SelectedIndex)
                         {
                             case 1:
                             {
                                 var rlist = myschool.GetLuLvonSuS(sus.ID).Result
                                     .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).Distinct().ToList();
                                 rlist.Sort(Comparer<string>.Default);
-                                rightlist.Items = rlist;
+                                RightListBox.Items = rlist;
                                 break;
                             }
                             case 2:
@@ -542,7 +508,7 @@ namespace StS_GUI_Avalonia
                                 var rlist = myschool.GetKursVonSuS(sus.ID).Result.Select(k => (k.Bezeichnung))
                                     .Distinct()
                                     .ToList();
-                                rightlist.Items = rlist;
+                                RightListBox.Items = rlist;
                                 break;
                             }
                         }
@@ -550,33 +516,33 @@ namespace StS_GUI_Avalonia
 
                     break;
                 case 1:
-                    if (cboxr.SelectedIndex == 1)
+                    if (CboxDataRight.SelectedIndex == 1)
                     {
-                        cboxr.SelectedIndex = 2;
+                        CboxDataRight.SelectedIndex = 2;
                     }
 
-                    if (leftlist.SelectedItems.Count < 1 || leftlist.SelectedItems == null || changedCB)
+                    if (LeftListBox.SelectedItems.Count < 1 || LeftListBox.SelectedItems == null || changedCB)
                     {
                         var lullist = myschool.GetLehrerListe().Result
                             .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).Distinct().ToList();
                         lullist.Sort(Comparer<string>.Default);
-                        leftlist.Items = lullist;
-                        rightlist.Items = new List<string>();
+                        LeftListBox.Items = lullist;
+                        RightListBox.Items = new List<string>();
                     }
                     else
                     {
-                        var lulkrz = leftlist.SelectedItems[0].ToString().Split(';')[0];
+                        var lulkrz = LeftListBox.SelectedItems[0].ToString().Split(';')[0];
                         if (lulkrz == "") return;
                         var lul = myschool.GetLehrer(lulkrz).Result;
                         loadLuLData(lul);
-                        switch (cboxr.SelectedIndex)
+                        switch (CboxDataRight.SelectedIndex)
                         {
                             case 0:
                             {
                                 var rlist = myschool.GetSuSVonLuL(lul.ID).Result
                                     .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID)).Distinct().ToList();
                                 rlist.Sort(Comparer<string>.Default);
-                                rightlist.Items = rlist;
+                                RightListBox.Items = rlist;
 
                                 break;
                             }
@@ -586,7 +552,7 @@ namespace StS_GUI_Avalonia
                                     .Distinct()
                                     .ToList();
                                 rlist.Sort(Comparer<string>.Default);
-                                rightlist.Items = rlist;
+                                RightListBox.Items = rlist;
                                 break;
                             }
                         }
@@ -594,31 +560,31 @@ namespace StS_GUI_Avalonia
 
                     break;
                 case 2:
-                    if (cboxr.SelectedIndex == 2)
+                    if (CboxDataRight.SelectedIndex == 2)
                     {
-                        cboxr.SelectedIndex = 0;
+                        CboxDataRight.SelectedIndex = 0;
                     }
 
-                    if (leftlist.SelectedItems.Count < 1 || leftlist.SelectedItems == null || changedCB)
+                    if (LeftListBox.SelectedItems.Count < 1 || LeftListBox.SelectedItems == null || changedCB)
                     {
                         var klist = myschool.GetKursListe().Result.Select(k => (k.Bezeichnung)).Distinct().ToList();
                         klist.Sort(Comparer<string>.Default);
-                        leftlist.Items = klist;
-                        rightlist.Items = new List<string>();
+                        LeftListBox.Items = klist;
+                        RightListBox.Items = new List<string>();
                     }
                     else
                     {
-                        var kurzbez = leftlist.SelectedItems[0].ToString();
+                        var kurzbez = LeftListBox.SelectedItems[0].ToString();
                         if (kurzbez == "") return;
                         var kurs = myschool.GetKurs(kurzbez).Result;
-                        switch (cboxr.SelectedIndex)
+                        switch (CboxDataRight.SelectedIndex)
                         {
                             case 0:
                             {
                                 var rlist = myschool.GetSuSAusKurs(kurs.Bezeichnung).Result
                                     .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID)).Distinct().ToList();
                                 rlist.Sort(Comparer<string>.Default);
-                                rightlist.Items = rlist;
+                                RightListBox.Items = rlist;
                                 break;
                             }
                             case 1:
@@ -626,7 +592,7 @@ namespace StS_GUI_Avalonia
                                 var rlist = myschool.GetLuLAusKurs(kurs.Bezeichnung).Result
                                     .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).Distinct().ToList();
                                 rlist.Sort(Comparer<string>.Default);
-                                rightlist.Items = rlist;
+                                RightListBox.Items = rlist;
                                 break;
                             }
                         }
@@ -640,29 +606,25 @@ namespace StS_GUI_Avalonia
 
         private void OnRightDataChanged(bool changedCB)
         {
-            var leftlist = this.GetControl<ListBox>("LeftListBox");
-            var rightlist = this.GetControl<ListBox>("RightListBox");
-            var cboxl = this.GetControl<ComboBox>("CboxDataLeft");
-            var cboxr = this.GetControl<ComboBox>("CboxDataRight");
-            if (leftlist == null || rightlist == null || cboxl == null || cboxr == null) return;
-            if (rightlist.SelectedItems == null) return;
-            switch (cboxr.SelectedIndex)
+            if (LeftListBox == null || RightListBox == null || CboxDataLeft == null || CboxDataRight == null) return;
+            if (RightListBox.SelectedItems == null) return;
+            switch (CboxDataRight.SelectedIndex)
             {
                 //s=0;l==1;k==2
                 case 0:
-                    if (cboxl.SelectedIndex == 0 || leftlist.SelectedItems.Count < 1 ||
-                        leftlist.SelectedItems == null) return;
-                    switch (cboxl.SelectedIndex)
+                    if (CboxDataLeft.SelectedIndex == 0 || LeftListBox.SelectedItems.Count < 1 ||
+                        LeftListBox.SelectedItems == null) return;
+                    switch (CboxDataLeft.SelectedIndex)
                     {
                         case 1:
                         {
-                            var lulkrz = leftlist.SelectedItems[0].ToString().Split(';')[0];
+                            var lulkrz = LeftListBox.SelectedItems[0].ToString().Split(';')[0];
                             if (lulkrz == "") return;
                             var lul = myschool.GetLehrer(lulkrz).Result;
                             loadLuLData(lul);
-                            if (rightlist.SelectedItems.Count > 0)
+                            if (RightListBox.SelectedItems.Count > 0)
                             {
-                                var sid = rightlist.SelectedItems[0].ToString().Split(';')[1];
+                                var sid = RightListBox.SelectedItems[0].ToString().Split(';')[1];
                                 var sus = myschool.GetSchueler(Convert.ToInt32(sid)).Result;
                                 if (sus.ID == 0) return;
                                 loadSuSData(sus);
@@ -671,18 +633,18 @@ namespace StS_GUI_Avalonia
                             var rlist = myschool.GetSuSVonLuL(lul.ID).Result
                                 .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID)).Distinct().ToList();
                             rlist.Sort(Comparer<string>.Default);
-                            rightlist.Items = rlist;
+                            RightListBox.Items = rlist;
                             break;
                         }
                         case 2:
                         {
-                            var kurzbez = leftlist.SelectedItems[0].ToString();
+                            var kurzbez = LeftListBox.SelectedItems[0].ToString();
                             if (kurzbez == "") return;
                             var kurs = myschool.GetKurs(kurzbez).Result;
                             loadKursData(kurs);
-                            if (rightlist.SelectedItems.Count > 0)
+                            if (RightListBox.SelectedItems.Count > 0)
                             {
-                                var sid = rightlist.SelectedItems[0].ToString().Split(';')[1];
+                                var sid = RightListBox.SelectedItems[0].ToString().Split(';')[1];
                                 var sus = myschool.GetSchueler(Convert.ToInt32(sid)).Result;
                                 if (sus.ID == 0) return;
                                 loadSuSData(sus);
@@ -691,26 +653,26 @@ namespace StS_GUI_Avalonia
                             var rlist = myschool.GetSuSAusKurs(kurs.Bezeichnung).Result
                                 .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID)).Distinct().ToList();
                             rlist.Sort(Comparer<string>.Default);
-                            rightlist.Items = rlist;
+                            RightListBox.Items = rlist;
                             break;
                         }
                     }
 
                     break;
                 case 1:
-                    if (cboxl.SelectedIndex == 1 || leftlist.SelectedItems.Count < 1 ||
-                        leftlist.SelectedItems == null) return;
-                    switch (cboxl.SelectedIndex)
+                    if (CboxDataLeft.SelectedIndex == 1 || LeftListBox.SelectedItems.Count < 1 ||
+                        LeftListBox.SelectedItems == null) return;
+                    switch (CboxDataLeft.SelectedIndex)
                     {
                         case 0:
                         {
-                            var sid = leftlist.SelectedItems[0].ToString().Split(';')[1];
+                            var sid = LeftListBox.SelectedItems[0].ToString().Split(';')[1];
                             var sus = myschool.GetSchueler(Convert.ToInt32(sid)).Result;
                             if (sus.ID == 0) return;
                             loadSuSData(sus);
-                            if (rightlist.SelectedItems.Count > 0)
+                            if (RightListBox.SelectedItems.Count > 0)
                             {
-                                var lulkrz = rightlist.SelectedItems[0].ToString().Split(';')[0];
+                                var lulkrz = RightListBox.SelectedItems[0].ToString().Split(';')[0];
                                 if (lulkrz == "") return;
                                 var lul = myschool.GetLehrer(lulkrz).Result;
                                 loadLuLData(lul);
@@ -719,18 +681,18 @@ namespace StS_GUI_Avalonia
                             var rlist = myschool.GetLuLvonSuS(sus.ID).Result
                                 .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).Distinct().ToList();
                             rlist.Sort(Comparer<string>.Default);
-                            rightlist.Items = rlist;
+                            RightListBox.Items = rlist;
                             break;
                         }
                         case 2:
                         {
-                            var kurzbez = leftlist.SelectedItems[0].ToString();
+                            var kurzbez = LeftListBox.SelectedItems[0].ToString();
                             if (kurzbez == "") return;
                             var kurs = myschool.GetKurs(kurzbez).Result;
                             loadKursData(kurs);
-                            if (rightlist.SelectedItems.Count > 0)
+                            if (RightListBox.SelectedItems.Count > 0)
                             {
-                                var lulkrz = rightlist.SelectedItems[0].ToString().Split(';')[0];
+                                var lulkrz = RightListBox.SelectedItems[0].ToString().Split(';')[0];
                                 if (lulkrz == "") return;
                                 var lul = myschool.GetLehrer(lulkrz).Result;
                                 loadLuLData(lul);
@@ -739,26 +701,26 @@ namespace StS_GUI_Avalonia
                             var rlist = myschool.GetLuLAusKurs(kurs.Bezeichnung).Result
                                 .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).Distinct().ToList();
                             rlist.Sort(Comparer<string>.Default);
-                            rightlist.Items = rlist;
+                            RightListBox.Items = rlist;
                             break;
                         }
                     }
 
                     break;
                 case 2:
-                    if (cboxl.SelectedIndex == 2 || leftlist.SelectedItems.Count < 1 ||
-                        leftlist.SelectedItems == null) return;
-                    switch (cboxl.SelectedIndex)
+                    if (CboxDataLeft.SelectedIndex == 2 || LeftListBox.SelectedItems.Count < 1 ||
+                        LeftListBox.SelectedItems == null) return;
+                    switch (CboxDataLeft.SelectedIndex)
                     {
                         case 0:
                         {
-                            var sid = leftlist.SelectedItems[0].ToString().Split(';')[1];
+                            var sid = LeftListBox.SelectedItems[0].ToString().Split(';')[1];
                             var sus = myschool.GetSchueler(Convert.ToInt32(sid)).Result;
                             if (sus.ID == 0) return;
                             loadSuSData(sus);
-                            if (rightlist.SelectedItems.Count > 0)
+                            if (RightListBox.SelectedItems.Count > 0)
                             {
-                                var kurzbez = rightlist.SelectedItems[0].ToString();
+                                var kurzbez = RightListBox.SelectedItems[0].ToString();
                                 if (kurzbez == "") return;
                                 var kurs = myschool.GetKurs(kurzbez).Result;
                                 loadKursData(kurs);
@@ -767,18 +729,18 @@ namespace StS_GUI_Avalonia
                             var rlist = myschool.GetKursVonSuS(sus.ID).Result.Select(k => (k.Bezeichnung))
                                 .Distinct()
                                 .ToList();
-                            rightlist.Items = rlist;
+                            RightListBox.Items = rlist;
                             break;
                         }
                         case 1:
                         {
-                            var lulkrz = leftlist.SelectedItems[0].ToString().Split(';')[0];
+                            var lulkrz = LeftListBox.SelectedItems[0].ToString().Split(';')[0];
                             if (lulkrz == "") return;
                             var lul = myschool.GetLehrer(lulkrz).Result;
                             loadLuLData(lul);
-                            if (rightlist.SelectedItems.Count > 0)
+                            if (RightListBox.SelectedItems.Count > 0)
                             {
-                                var kurzbez = rightlist.SelectedItems[0].ToString();
+                                var kurzbez = RightListBox.SelectedItems[0].ToString();
                                 if (kurzbez == "") return;
                                 var kurs = myschool.GetKurs(kurzbez).Result;
                                 loadKursData(kurs);
@@ -788,7 +750,7 @@ namespace StS_GUI_Avalonia
                                 .Distinct()
                                 .ToList();
                             rlist.Sort(Comparer<string>.Default);
-                            rightlist.Items = rlist;
+                            RightListBox.Items = rlist;
                             break;
                         }
                     }
@@ -800,16 +762,6 @@ namespace StS_GUI_Avalonia
         private void loadSuSData(SuS s)
         {
             if (s.ID is 0 or < 50000) return;
-            var tbSuSID = this.GetControl<TextBox>("tbSuSID");
-            var tbSuSVorname = this.GetControl<TextBox>("tbSuSVorname");
-            var tbSuSnachname = this.GetControl<TextBox>("tbSuSnachname");
-            var tbSuSKlasse = this.GetControl<TextBox>("tbSuSKlasse");
-            var tbSuSElternadresse = this.GetControl<TextBox>("tbSuSElternadresse");
-            var tbSuSZweitadresse = this.GetControl<TextBox>("tbSuSZweitadresse");
-            var tbSuSAIXMail = this.GetControl<TextBox>("tbSuSAIXMail");
-            var tbSuSNutzername = this.GetControl<TextBox>("tbSuSNutzername");
-            var tbSuSKurse = this.GetControl<TextBox>("tbSuSKurse");
-            var cbSuSZweitaccount = this.GetControl<CheckBox>("cbSuSZweitaccount");
             tbSuSID.Text = s.ID + "";
             tbSuSVorname.Text = s.Vorname;
             tbSuSnachname.Text = s.Nachname;
@@ -826,14 +778,6 @@ namespace StS_GUI_Avalonia
         private void loadLuLData(LuL l)
         {
             if (l.ID is 0 or > 1500) return;
-            var tbLuLID = this.GetControl<TextBox>("tbLuLID");
-            var tbLuLVorname = this.GetControl<TextBox>("tbLuLVorname");
-            var tbLuLnachname = this.GetControl<TextBox>("tbLuLnachname");
-            var tbLuLKuerzel = this.GetControl<TextBox>("tbLuLKuerzel");
-            var tbLuLFach = this.GetControl<TextBox>("tbLuLFach");
-            var tbLuLMail = this.GetControl<TextBox>("tbLuLMail");
-            var tbLuLtmpPwd = this.GetControl<TextBox>("tbLuLtmpPwd");
-            var tbLuLKurse = this.GetControl<TextBox>("tbLuLKurse");
             tbLuLID.Text = l.ID + "";
             tbLuLVorname.Text = l.Vorname;
             tbLuLnachname.Text = l.Nachname;
@@ -848,13 +792,6 @@ namespace StS_GUI_Avalonia
         private void loadKursData(Kurs k)
         {
             if (k.Bezeichnung == "") return;
-            var tbKursbezeichnung = this.GetControl<TextBox>("tbKursbezeichnung");
-            var tbKursLuL = this.GetControl<TextBox>("tbKursLuL");
-            var tbKursFach = this.GetControl<TextBox>("tbKursFach");
-            var tbKursSuffix = this.GetControl<TextBox>("tbKursSuffix");
-            var tbKursKlasse = this.GetControl<TextBox>("tbKursKlasse");
-            var tbKursStufe = this.GetControl<TextBox>("tbKursStufe");
-            var cbKursIstKurs = this.GetControl<CheckBox>("cbKursIstKurs");
             tbKursbezeichnung.Text = k.Bezeichnung;
             tbKursLuL.Text = myschool.GetLuLAusKurs(k.Bezeichnung).Result
                 .Aggregate("",(current,lul)=>current+(lul.Kuerzel+";")).TrimEnd(';');
