@@ -301,7 +301,8 @@ namespace StS_GUI_Avalonia
 
         public void OnMnuexitClick(object? sender, RoutedEventArgs e)
         {
-            this.Close();
+            myschool.Dispose();
+            Close();
         }
 
         public async void OnMnuloadfolderClick(object? sender, RoutedEventArgs e)
