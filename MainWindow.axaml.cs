@@ -269,10 +269,34 @@ namespace StS_GUI_Avalonia
 
         public async void OnMnuschuleversspeichernClick(object? sender, RoutedEventArgs e)
         {
+            SetupSaveDialog(globalOpenSaveDialog, "Datenbankdatei verschlüsselt speichern unter...", new[] { "aes" },
+                new[] { "verschlüsselte Datenbankdatei" });
+            if (myschool.GetFilePath().Result == ":memory:") return;
+            var saveDBFile = async () =>
+            {
+                var filepath = await globalOpenSaveDialog.ShowAsync(this);
+                if (filepath == null) return;
+                FileEncrypt(myschool.GetFilePath().Result,filepath,"TODO!");
+            };
+            await Task.Run(saveDBFile);
         }
 
-        public void OnMnuversschuleladenClick(object? sender, RoutedEventArgs e)
+        public async void OnMnuversschuleladenClick(object? sender, RoutedEventArgs e)
         {
+            SetupOpenFileDialog(globalOpenFileDialog, "Lade verschlüsselte Datenbankdatei", new[] { "aes" },
+                new[] { "verschlüsselte Datenbankdatei" });
+            var respath = await globalOpenFileDialog.ShowAsync(this);
+            if (respath is not { Length: > 0 }) return;
+            SetupSaveDialog(globalOpenSaveDialog, "Datenbankdatei speichern unter...", new[] { "sqlite" },
+                new[] { "Datenbankdatei" });
+            var saveDBFile = async () =>
+            {
+                var filepath = await globalOpenSaveDialog.ShowAsync(this);
+                if (filepath == null) return; 
+                FileDecrypt(respath[0],filepath, "TODO!");
+                myschool = new SchulDB(filepath);                
+            };
+            await Task.Run(saveDBFile);
         }
 
         public void OnMnuexitClick(object? sender, RoutedEventArgs e)
