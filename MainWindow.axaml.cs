@@ -407,7 +407,6 @@ namespace StS_GUI_Avalonia
             var cboxl = this.GetControl<ComboBox>("CboxDataLeft");
             var cboxr = this.GetControl<ComboBox>("CboxDataRight");
             var leftlist = this.GetControl<ListBox>("LeftListBox");
-            var rightlist = this.GetControl<ListBox>("RightListBox");
             if (cboxl == null || cboxr == null) return;
             cboxl.SelectedIndex = 0;
             cboxr.SelectedIndex = 1;
@@ -668,7 +667,6 @@ namespace StS_GUI_Avalonia
                                 if (sus.ID == 0) return;
                                 loadSuSData(sus);
                             }
-
                             if (!changedCB) return;
                             var rlist = myschool.GetSuSVonLuL(lul.ID).Result
                                 .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID)).Distinct().ToList();
@@ -689,7 +687,6 @@ namespace StS_GUI_Avalonia
                                 if (sus.ID == 0) return;
                                 loadSuSData(sus);
                             }
-
                             if (!changedCB) return;
                             var rlist = myschool.GetSuSAusKurs(kurs.Bezeichnung).Result
                                 .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID)).Distinct().ToList();
@@ -718,7 +715,6 @@ namespace StS_GUI_Avalonia
                                 var lul = myschool.GetLehrer(lulkrz).Result;
                                 loadLuLData(lul);
                             }
-
                             if (!changedCB) return;
                             var rlist = myschool.GetLuLvonSuS(sus.ID).Result
                                 .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).Distinct().ToList();
@@ -739,7 +735,6 @@ namespace StS_GUI_Avalonia
                                 var lul = myschool.GetLehrer(lulkrz).Result;
                                 loadLuLData(lul);
                             }
-
                             if (!changedCB) return;
                             var rlist = myschool.GetLuLAusKurs(kurs.Bezeichnung).Result
                                 .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).Distinct().ToList();
@@ -768,7 +763,6 @@ namespace StS_GUI_Avalonia
                                 var kurs = myschool.GetKurs(kurzbez).Result;
                                 loadKursData(kurs);
                             }
-
                             if (!changedCB) return;
                             var rlist = myschool.GetKursVonSuS(sus.ID).Result.Select(k => (k.Bezeichnung))
                                 .Distinct()
@@ -789,7 +783,6 @@ namespace StS_GUI_Avalonia
                                 var kurs = myschool.GetKurs(kurzbez).Result;
                                 loadKursData(kurs);
                             }
-
                             if (!changedCB) return;
                             var rlist = myschool.GetKursVonLuL(lul.ID).Result.Select(k => (k.Bezeichnung))
                                 .Distinct()
