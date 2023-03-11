@@ -42,6 +42,7 @@ namespace StS_GUI_Avalonia
                 // Fill the buffer with the generated data
                 rng.GetBytes(data);
             }
+
             return data;
         }
 
@@ -179,6 +180,7 @@ namespace StS_GUI_Avalonia
         {
             if (extensions.Length != extensionsanames.Length) return;
             ofd.Title = dialogtitle;
+            ofd.AllowMultiple = false;
             List<FileDialogFilter> filters = new();
             for (var i = 0; i < extensions.Length; i++)
             {
@@ -222,6 +224,7 @@ namespace StS_GUI_Avalonia
                 clearTextFields();
                 return;
             }
+
             SetupOpenFileDialog(globalOpenFileDialog, "Bitte einen Dateipfad angeben...", new[] { "sqlite" },
                 new[] { "Datenbankdatei" });
             var saveDBFile = async () =>
@@ -275,7 +278,7 @@ namespace StS_GUI_Avalonia
             {
                 var filepath = await globalOpenSaveDialog.ShowAsync(this);
                 if (filepath == null) return;
-                FileEncrypt(myschool.GetFilePath().Result,filepath,"TODO!");
+                FileEncrypt(myschool.GetFilePath().Result, filepath, "TODO!");
             };
             await Task.Run(saveDBFile);
         }
@@ -291,9 +294,9 @@ namespace StS_GUI_Avalonia
             var saveDBFile = async () =>
             {
                 var filepath = await globalOpenSaveDialog.ShowAsync(this);
-                if (filepath == null) return; 
-                FileDecrypt(respath[0],filepath, "TODO!");
-                myschool = new SchulDB(filepath);                
+                if (filepath == null) return;
+                FileDecrypt(respath[0], filepath, "TODO!");
+                myschool = new SchulDB(filepath);
             };
             await Task.Run(saveDBFile);
         }
@@ -325,79 +328,191 @@ namespace StS_GUI_Avalonia
             await Task.Run(readFileTask);
         }
 
-        public void OnMnuloadsusfromfileClick(object? sender, RoutedEventArgs e)
+        public async void OnMnuloadsusfromfileClick(object? sender, RoutedEventArgs e)
+        {
+            SetupOpenFileDialog(globalOpenFileDialog, "Lade Schüler:innendaten", new[] { "csv", "*" },
+                new[] { "CSV-Datei", "Alle-Dateien" });
+            var respath = await globalOpenFileDialog.ShowAsync(this);
+            if (respath is { Length: > 0 })
+            {
+                await myschool.SusEinlesen(respath[0]);
+            }
+        }
+
+        public async void OnMnuloadlulfromfileClick(object? sender, RoutedEventArgs e)
+        {
+            SetupOpenFileDialog(globalOpenFileDialog, "Lade Lehrer:innendaten", new[] { "csv", "*" },
+                new[] { "CSV-Datei", "Alle-Dateien" });
+            var respath = await globalOpenFileDialog.ShowAsync(this);
+            if (respath is { Length: > 0 })
+            {
+                await myschool.LulEinlesen(respath[0]);
+            }
+        }
+
+        public async void OnMnuloadkursefromfileClick(object? sender, RoutedEventArgs e)
+        {
+            SetupOpenFileDialog(globalOpenFileDialog, "Lade Kursdaten", new[] { "csv", "*" },
+                new[] { "CSV-Datei", "Alle-Dateien" });
+            var respath = await globalOpenFileDialog.ShowAsync(this);
+            if (respath is { Length: > 0 })
+            {
+                await myschool.KurseEinlesen(respath[0]);
+            }
+        }
+
+        public async void OnMnuloadusernamesmailClick(object? sender, RoutedEventArgs e)
+        {
+            SetupOpenFileDialog(globalOpenFileDialog, "Lade Nutzernamen & Mailadressen", new[] { "csv", "*" },
+                new[] { "CSV-Datei", "Alle-Dateien" });
+            var respath = await globalOpenFileDialog.ShowAsync(this);
+            if (respath is { Length: > 0 })
+            {
+                await myschool.IdsEinlesen(respath[0]);
+            }
+        }
+
+        public async void OnMnuloadzweitaccountsClick(object? sender, RoutedEventArgs e)
+        {
+            SetupOpenFileDialog(globalOpenFileDialog, "Lade Zweitaccountdaten", new[] { "csv", "*" },
+                new[] { "CSV-Datei", "Alle-Dateien" });
+            var respath = await globalOpenFileDialog.ShowAsync(this);
+            if (respath is { Length: > 0 })
+            {
+                await myschool.ZweitAccountsEinlesen(respath[0]);
+            }
+        }
+
+        public async void OnMnuexporttocsvClick(object? sender, RoutedEventArgs e)
+        {
+            var readFileTask = async () =>
+            {
+                SetupOpenFolderDialog(globalOpenFolderDialog, "Bitte den Ordner mit den Dateien auswählen");
+                var path = await globalOpenFileDialog.ShowAsync(this);
+                if (path == null) return;
+                FileInfo t = new(path[0]);
+                var folder = t.Directory;
+                if (folder == null) return;
+                if (!File.Exists(folder + "/sus.csv") && !File.Exists(folder + "/lul.csv") &&
+                    !File.Exists(folder + "/kurse.csv"))
+                {
+                    await myschool.DumpDataToCSVs(folder.Name);
+                }
+            };
+            await Task.Run(readFileTask);
+        }
+
+        public async void OnMnuaboutClick(object? sender, RoutedEventArgs e)
         {
         }
 
-        public void OnMnuloadlulfromfileClick(object? sender, RoutedEventArgs e)
+        public async void OnBtnsusaddClick(object? sender, RoutedEventArgs e)
+        {
+            var susid = tbSuSID.Text;
+            var susvname = tbSuSVorname.Text;
+            var susnname = tbSuSnachname.Text;
+            var susklasse = tbSuSKlasse.Text;
+            var susnutzername = tbSuSNutzername.Text;
+            var susaximail = tbSuSAIXMail.Text;
+            var suselternadresse = tbSuSElternadresse.Text;
+            var suszweitadresse = tbSuSZweitadresse.Text;
+            var susHatZweitaccount = cbSuSZweitaccount.IsChecked;
+            List<string> suskurse = new(tbSuSKurse.Text.Split(','));
+            if (susid == null || susvname == null || susnname is null || susklasse == null ||
+                susnutzername == null || susaximail == null || suselternadresse == null || suszweitadresse == null ||
+                susHatZweitaccount == null) return;
+            var sid = Convert.ToInt32(susid);
+            var sus = myschool.GetSchueler(sid).Result;
+            if (sus.ID == 0)
+            {
+                await myschool.AddSchueler(sid, susvname, susnname, suselternadresse, susklasse, susnutzername,
+                    susaximail, susHatZweitaccount == false ? 0 : 1, suszweitadresse);
+                foreach (var kursbez in suskurse)
+                {
+                    await myschool.AddStoK(sid, kursbez);
+                }
+            }
+            else
+            {
+                await myschool.UpdateSchueler(sid, susvname, susnname, suselternadresse, susklasse, susnutzername,
+                    susaximail, susHatZweitaccount == false ? 0 : 1, suszweitadresse);
+                var alteKurse = myschool.GetKursVonSuS(sid).Result;
+                foreach (var kurs in alteKurse)
+                {
+                    if (!suskurse.Contains(kurs.Bezeichnung))
+                    {
+                        await myschool.RemoveSfromK(sid, kurs.Bezeichnung);
+                    }
+                }
+
+                if (suskurse.Count > 0)
+                {
+                    foreach (var kurs in suskurse)
+                    {
+                        await myschool.AddStoK(sid, kurs);
+                    }
+                }
+            }
+        }
+
+        public async void OnBtnsusdelClick(object? sender, RoutedEventArgs e)
+        {
+            var susid = tbSuSID.Text;
+            var sid = Convert.ToInt32(susid);
+            if (myschool.GetSchueler(sid).Result.ID == 0) return;
+            var templist = LeftListBox.Items.Cast<string>().ToList();
+            templist.Remove(tbSuSnachname.Text + "," + tbSuSVorname.Text + ";" + susid);
+            foreach (var kbez in tbSuSKurse.Text.Split(','))
+            {
+                await myschool.RemoveSfromK(sid, kbez);
+            }
+
+            await myschool.RemoveS(sid);
+            LeftListBox.Items = templist;
+        }
+
+        public async void OnbtnsuseinschreibenClick(object? sender, RoutedEventArgs e)
+        {
+            var susid = tbSuSID.Text;
+            var sid = Convert.ToInt32(susid);
+            var susklasse = tbSuSKlasse.Text;
+            if (susklasse == "" || sid == 0) return;
+            await myschool.AddStoKlassenKurse(await myschool.GetSchueler(sid), susklasse);
+        }
+
+        public async void OnBtnluladdClick(object? sender, RoutedEventArgs e)
         {
         }
 
-        public void OnMnuloadkursefromfileClick(object? sender, RoutedEventArgs e)
+        public async void OnBtnluldelClick(object? sender, RoutedEventArgs e)
         {
         }
 
-        public void OnMnuloadusernamesmailClick(object? sender, RoutedEventArgs e)
+        public async void OnBtnkurseaddClick(object? sender, RoutedEventArgs e)
         {
         }
 
-        public void OnMnuloadzweitaccountsClick(object? sender, RoutedEventArgs e)
+        public async void OnBtnkursedelClick(object? sender, RoutedEventArgs e)
         {
         }
 
-        public void OnMnureaddiffsClick(object? sender, RoutedEventArgs e)
+        public async void OnBtnexportClick(object? sender, RoutedEventArgs e)
         {
         }
 
-        public void OnMnuexporttocsvClick(object? sender, RoutedEventArgs e)
+        public async void OnBtnexportstufenkursClick(object? sender, RoutedEventArgs e)
         {
         }
 
-        public void OnMnuaboutClick(object? sender, RoutedEventArgs e)
+        public async void OnBtnfehlersucheClick(object? sender, RoutedEventArgs e)
         {
         }
 
-        public void OnBtnsusaddClick(object? sender, RoutedEventArgs e)
+        public async void OnBtnfehlerexportClick(object? sender, RoutedEventArgs e)
         {
         }
 
-        public void OnBtnsusdelClick(object? sender, RoutedEventArgs e)
-        {
-        }
-
-        public void OnBtnluladdClick(object? sender, RoutedEventArgs e)
-        {
-        }
-
-        public void OnBtnluldelClick(object? sender, RoutedEventArgs e)
-        {
-        }
-
-        public void OnBtnkurseaddClick(object? sender, RoutedEventArgs e)
-        {
-        }
-
-        public void OnBtnkursedelClick(object? sender, RoutedEventArgs e)
-        {
-        }
-
-        public void OnBtnexportClick(object? sender, RoutedEventArgs e)
-        {
-        }
-
-        public void OnBtnexportstufenkursClick(object? sender, RoutedEventArgs e)
-        {
-        }
-
-        public void OnBtnfehlersucheClick(object? sender, RoutedEventArgs e)
-        {
-        }
-
-        public void OnBtnfehlerexportClick(object? sender, RoutedEventArgs e)
-        {
-        }
-
-        public void OnBtnsettingsaveClick(object? sender, RoutedEventArgs e)
+        public async void OnBtnsettingsaveClick(object? sender, RoutedEventArgs e)
         {
         }
 
@@ -598,8 +713,6 @@ namespace StS_GUI_Avalonia
                     }
 
                     break;
-                default:
-                    break;
             }
         }
 
@@ -628,6 +741,7 @@ namespace StS_GUI_Avalonia
                                 if (sus.ID == 0) return;
                                 loadSuSData(sus);
                             }
+
                             if (!changedCB) return;
                             var rlist = myschool.GetSuSVonLuL(lul.ID).Result
                                 .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID)).Distinct().ToList();
@@ -648,6 +762,7 @@ namespace StS_GUI_Avalonia
                                 if (sus.ID == 0) return;
                                 loadSuSData(sus);
                             }
+
                             if (!changedCB) return;
                             var rlist = myschool.GetSuSAusKurs(kurs.Bezeichnung).Result
                                 .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID)).Distinct().ToList();
@@ -676,6 +791,7 @@ namespace StS_GUI_Avalonia
                                 var lul = myschool.GetLehrer(lulkrz).Result;
                                 loadLuLData(lul);
                             }
+
                             if (!changedCB) return;
                             var rlist = myschool.GetLuLvonSuS(sus.ID).Result
                                 .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).Distinct().ToList();
@@ -696,6 +812,7 @@ namespace StS_GUI_Avalonia
                                 var lul = myschool.GetLehrer(lulkrz).Result;
                                 loadLuLData(lul);
                             }
+
                             if (!changedCB) return;
                             var rlist = myschool.GetLuLAusKurs(kurs.Bezeichnung).Result
                                 .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).Distinct().ToList();
@@ -724,6 +841,7 @@ namespace StS_GUI_Avalonia
                                 var kurs = myschool.GetKurs(kurzbez).Result;
                                 loadKursData(kurs);
                             }
+
                             if (!changedCB) return;
                             var rlist = myschool.GetKursVonSuS(sus.ID).Result.Select(k => (k.Bezeichnung))
                                 .Distinct()
@@ -744,6 +862,7 @@ namespace StS_GUI_Avalonia
                                 var kurs = myschool.GetKurs(kurzbez).Result;
                                 loadKursData(kurs);
                             }
+
                             if (!changedCB) return;
                             var rlist = myschool.GetKursVonLuL(lul.ID).Result.Select(k => (k.Bezeichnung))
                                 .Distinct()
@@ -793,7 +912,7 @@ namespace StS_GUI_Avalonia
             if (k.Bezeichnung == "") return;
             tbKursbezeichnung.Text = k.Bezeichnung;
             tbKursLuL.Text = myschool.GetLuLAusKurs(k.Bezeichnung).Result
-                .Aggregate("",(current,lul)=>current+(lul.Kuerzel+";")).TrimEnd(';');
+                .Aggregate("", (current, lul) => current + (lul.Kuerzel + ";")).TrimEnd(';');
             tbKursFach.Text = k.Fach;
             tbKursSuffix.Text = k.Suffix;
             tbKursKlasse.Text = k.Klasse;
