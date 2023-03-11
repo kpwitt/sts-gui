@@ -417,7 +417,7 @@ namespace StS_GUI_Avalonia
             var suselternadresse = tbSuSElternadresse.Text;
             var suszweitadresse = tbSuSZweitadresse.Text;
             var susHatZweitaccount = cbSuSZweitaccount.IsChecked;
-            List<string> suskurse = new(tbSuSKurse.Text.Split(','));
+            var suskurse = tbSuSKurse.Text.Split(',').ToList();
             if (susid == null || susvname == null || susnname is null || susklasse == null ||
                 susnutzername == null || susaximail == null || suselternadresse == null || suszweitadresse == null ||
                 susHatZweitaccount == null) return;
@@ -425,7 +425,7 @@ namespace StS_GUI_Avalonia
             var sus = myschool.GetSchueler(sid).Result;
             if (sus.ID == 0)
             {
-                await myschool.AddSchueler(sid, susvname, susnname, suselternadresse, susklasse, susnutzername,
+                await myschool.AddSchuelerIn(sid, susvname, susnname, suselternadresse, susklasse, susnutzername,
                     susaximail, susHatZweitaccount == false ? 0 : 1, suszweitadresse);
                 foreach (var kursbez in suskurse)
                 {
@@ -437,12 +437,9 @@ namespace StS_GUI_Avalonia
                 await myschool.UpdateSchueler(sid, susvname, susnname, suselternadresse, susklasse, susnutzername,
                     susaximail, susHatZweitaccount == false ? 0 : 1, suszweitadresse);
                 var alteKurse = myschool.GetKursVonSuS(sid).Result;
-                foreach (var kurs in alteKurse)
+                foreach (var kurs in alteKurse.Where(kurs => !suskurse.Contains(kurs.Bezeichnung)))
                 {
-                    if (!suskurse.Contains(kurs.Bezeichnung))
-                    {
-                        await myschool.RemoveSfromK(sid, kurs.Bezeichnung);
-                    }
+                    await myschool.RemoveSfromK(sid, kurs.Bezeichnung);
                 }
 
                 if (suskurse.Count > 0)
@@ -460,15 +457,25 @@ namespace StS_GUI_Avalonia
             var susid = tbSuSID.Text;
             var sid = Convert.ToInt32(susid);
             if (myschool.GetSchueler(sid).Result.ID == 0) return;
-            var templist = LeftListBox.Items.Cast<string>().ToList();
-            templist.Remove(tbSuSnachname.Text + "," + tbSuSVorname.Text + ";" + susid);
-            foreach (var kbez in tbSuSKurse.Text.Split(','))
+            ListBox source = new();
+            if (CboxDataLeft.SelectedIndex == 0)
             {
-                await myschool.RemoveSfromK(sid, kbez);
+                source = LeftListBox;
+            }
+            else if (CboxDataRight.SelectedIndex == 0)
+            {
+                source = RightListBox;
+            }
+            else
+            {
+                await myschool.RemoveS(sid);
+                return;
             }
 
+            var templist = source.Items.Cast<string>().ToList();
+            templist.Remove(tbSuSnachname.Text + "," + tbSuSVorname.Text + ";" + susid);
             await myschool.RemoveS(sid);
-            LeftListBox.Items = templist;
+            source.Items = templist;
         }
 
         public async void OnbtnsuseinschreibenClick(object? sender, RoutedEventArgs e)
@@ -482,10 +489,63 @@ namespace StS_GUI_Avalonia
 
         public async void OnBtnluladdClick(object? sender, RoutedEventArgs e)
         {
+            var lulid = tbLuLID.Text;
+            var lulvname = tbLuLVorname.Text;
+            var lulnname = tbLuLnachname.Text;
+            var lulkrz = tbLuLKuerzel.Text;
+            var lulfakultas = tbLuLFach.Text;
+            var lulmail = tbLuLMail.Text;
+            var lulpwtemp = tbLuLtmpPwd.Text;
+            var lulkurse = tbLuLKurse.Text.Split(',').ToList();
+            if (lulid == null || lulvname == null || lulnname == null || lulkrz == null || lulfakultas == null ||
+                lulmail == null || lulpwtemp == null) return;
+            var lid = Convert.ToInt32(lulid);
+            if (myschool.GetLehrkraft(lid).Result.ID == 0)
+            {
+                await myschool.Addlehrkraft(lid, lulvname, lulnname, lulkrz, lulmail, lulfakultas);
+            }
+            else
+            {
+                await myschool.UpdateLehrkraft(lid, lulvname, lulnname, lulkrz, lulmail, lulfakultas, lulpwtemp);
+                var alteKurse = myschool.GetKursVonLuL(lid).Result;
+                foreach (var kurs in alteKurse.Where(kurs => !lulkurse.Contains(kurs.Bezeichnung)))
+                {
+                    await myschool.RemoveLfromK(lid, kurs.Bezeichnung);
+                }
+
+                if (lulkurse.Count > 0)
+                {
+                    foreach (var kurs in lulkurse)
+                    {
+                        await myschool.AddLtoK(lid, kurs);
+                    }
+                }
+            }
         }
 
         public async void OnBtnluldelClick(object? sender, RoutedEventArgs e)
         {
+            var lulid = tbLuLID.Text;
+            var lid = Convert.ToInt32(lulid);
+            ListBox source = new();
+            if (CboxDataLeft.SelectedIndex == 1)
+            {
+                source = LeftListBox;
+            }
+            else if (CboxDataRight.SelectedIndex == 1)
+            {
+                source = RightListBox;
+            }
+            else
+            {
+                await myschool.RemoveL(lid);
+                return;
+            }
+
+            var templist = source.Items.Cast<string>().ToList();
+            templist.Remove(tbLuLKuerzel + ";" + tbLuLnachname + "," + tbLuLVorname);
+            await myschool.RemoveL(lid);
+            source.Items = templist;
         }
 
         public async void OnBtnkurseaddClick(object? sender, RoutedEventArgs e)
@@ -647,7 +707,7 @@ namespace StS_GUI_Avalonia
                     {
                         var lulkrz = LeftListBox.SelectedItems[0].ToString().Split(';')[0];
                         if (lulkrz == "") return;
-                        var lul = myschool.GetLehrer(lulkrz).Result;
+                        var lul = myschool.GetLehrkraft(lulkrz).Result;
                         loadLuLData(lul);
                         switch (CboxDataRight.SelectedIndex)
                         {
@@ -732,7 +792,7 @@ namespace StS_GUI_Avalonia
                         {
                             var lulkrz = LeftListBox.SelectedItems[0].ToString().Split(';')[0];
                             if (lulkrz == "") return;
-                            var lul = myschool.GetLehrer(lulkrz).Result;
+                            var lul = myschool.GetLehrkraft(lulkrz).Result;
                             loadLuLData(lul);
                             if (RightListBox.SelectedItems.Count > 0)
                             {
@@ -788,7 +848,7 @@ namespace StS_GUI_Avalonia
                             {
                                 var lulkrz = RightListBox.SelectedItems[0].ToString().Split(';')[0];
                                 if (lulkrz == "") return;
-                                var lul = myschool.GetLehrer(lulkrz).Result;
+                                var lul = myschool.GetLehrkraft(lulkrz).Result;
                                 loadLuLData(lul);
                             }
 
@@ -809,7 +869,7 @@ namespace StS_GUI_Avalonia
                             {
                                 var lulkrz = RightListBox.SelectedItems[0].ToString().Split(';')[0];
                                 if (lulkrz == "") return;
-                                var lul = myschool.GetLehrer(lulkrz).Result;
+                                var lul = myschool.GetLehrkraft(lulkrz).Result;
                                 loadLuLData(lul);
                             }
 
@@ -853,7 +913,7 @@ namespace StS_GUI_Avalonia
                         {
                             var lulkrz = LeftListBox.SelectedItems[0].ToString().Split(';')[0];
                             if (lulkrz == "") return;
-                            var lul = myschool.GetLehrer(lulkrz).Result;
+                            var lul = myschool.GetLehrkraft(lulkrz).Result;
                             loadLuLData(lul);
                             if (RightListBox.SelectedItems.Count > 0)
                             {
