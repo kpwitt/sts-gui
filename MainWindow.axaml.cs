@@ -221,7 +221,7 @@ namespace StS_GUI_Avalonia
                 var rightlist = this.GetControl<ListBox>("RightListBox");
                 leftlist.Items = new List<string>();
                 rightlist.Items = new List<string>();
-                clearTextFields();
+                ClearTextFields();
                 return;
             }
 
@@ -457,7 +457,7 @@ namespace StS_GUI_Avalonia
             var susid = tbSuSID.Text;
             var sid = Convert.ToInt32(susid);
             if (myschool.GetSchueler(sid).Result.ID == 0) return;
-            ListBox source = new();
+            ListBox source;
             if (CboxDataLeft.SelectedIndex == 0)
             {
                 source = LeftListBox;
@@ -590,11 +590,41 @@ namespace StS_GUI_Avalonia
         private void CboxDataLeft_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
         {
             RightListBox.Items = new List<string>();
-            clearTextFields();
+            ClearTextFields();
             OnLeftDataChanged(true);
         }
 
-        private void clearTextFields()
+        private void ClearTextFields()
+        {
+            ClearSuSTextFields();
+            ClearLuLTextFields();
+            ClearKursTextFields();
+        }
+
+        private void ClearKursTextFields()
+        {
+            tbKursbezeichnung.Text = "";
+            tbKursLuL.Text = "";
+            tbKursFach.Text = "";
+            tbKursSuffix.Text = "";
+            tbKursKlasse.Text = "";
+            tbKursStufe.Text = "";
+            cbKursIstKurs.IsChecked = false;
+        }
+
+        private void ClearLuLTextFields()
+        {
+            tbLuLID.Text = "";
+            tbLuLVorname.Text = "";
+            tbLuLnachname.Text = "";
+            tbLuLKuerzel.Text = "";
+            tbLuLFach.Text = "";
+            tbLuLMail.Text = "";
+            tbLuLtmpPwd.Text = "";
+            tbLuLKurse.Text = "";
+        }
+
+        private void ClearSuSTextFields()
         {
             tbSuSID.Text = "";
             tbSuSVorname.Text = "";
@@ -606,21 +636,6 @@ namespace StS_GUI_Avalonia
             tbSuSZweitadresse.Text = "";
             tbSuSKurse.Text = "";
             cbSuSZweitaccount.IsChecked = false;
-            tbLuLID.Text = "";
-            tbLuLVorname.Text = "";
-            tbLuLnachname.Text = "";
-            tbLuLKuerzel.Text = "";
-            tbLuLFach.Text = "";
-            tbLuLMail.Text = "";
-            tbLuLtmpPwd.Text = "";
-            tbLuLKurse.Text = "";
-            tbKursbezeichnung.Text = "";
-            tbKursLuL.Text = "";
-            tbKursFach.Text = "";
-            tbKursSuffix.Text = "";
-            tbKursKlasse.Text = "";
-            tbKursStufe.Text = "";
-            cbKursIstKurs.IsChecked = false;
         }
 
         private void CboxDataRight_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
@@ -631,7 +646,7 @@ namespace StS_GUI_Avalonia
 
         private void LeftListBox_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
         {
-            clearTextFields();
+            ClearTextFields();
             OnLeftDataChanged(false);
         }
 
