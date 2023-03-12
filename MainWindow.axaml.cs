@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
+using System.Timers;
 
 namespace StS_GUI_Avalonia
 {
@@ -18,6 +19,8 @@ namespace StS_GUI_Avalonia
         private SaveFileDialog globalOpenSaveDialog = new();
         private OpenFileDialog globalOpenFileDialog = new();
         private OpenFolderDialog globalOpenFolderDialog = new();
+        private Timer leftInputTimer = new();
+        private Timer rightInputTimer = new();
         private SchulDB myschool = new(":memory:");
 
         public MainWindow()
