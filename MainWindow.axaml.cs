@@ -425,8 +425,7 @@ namespace StS_GUI_Avalonia
                 susnutzername == null || susaximail == null || suselternadresse == null || suszweitadresse == null ||
                 susHatZweitaccount == null) return;
             var sid = Convert.ToInt32(susid);
-            var sus = myschool.GetSchueler(sid).Result;
-            if (sus.ID == 0)
+            if (await myschool.GibtEsSchueler(sid))
             {
                 await myschool.AddSchuelerIn(sid, susvname, susnname, suselternadresse, susklasse, susnutzername,
                     susaximail, susHatZweitaccount == false ? 0 : 1, suszweitadresse);
@@ -503,7 +502,7 @@ namespace StS_GUI_Avalonia
             if (lulid == null || lulvname == null || lulnname == null || lulkrz == null || lulfakultas == null ||
                 lulmail == null || lulpwtemp == null) return;
             var lid = Convert.ToInt32(lulid);
-            if (myschool.GetLehrkraft(lid).Result.ID == 0)
+            if (await myschool.GibtEsLehrkraft(lid))
             {
                 await myschool.Addlehrkraft(lid, lulvname, lulnname, lulkrz, lulmail, lulfakultas);
             }
