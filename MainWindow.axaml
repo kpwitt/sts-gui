@@ -221,10 +221,10 @@
                             <CheckBox x:Name="cbFehlerSuS" Margin="5">SuS Fehler</CheckBox>
                             <CheckBox x:Name="cbFehlerLuL" Margin="5">LuL Fehler</CheckBox>
                             <CheckBox x:Name="cbFehlerKurse" Margin="5">unvollständige Kurse</CheckBox>
-                            <Button x:Name="btnFehlerSuche">Suche</Button>
+                            <Button x:Name="btnFehlerSuche" Click="BtnFehlerSuche_OnClick">Suche</Button>
                             <Button x:Name="btnFehlerExport">Export</Button>
                         </WrapPanel>
-                        <ListBox x:Name="lbFehlerliste" VirtualizationMode="None">Test</ListBox>
+                        <ListBox x:Name="lbFehlerliste" MaxHeight="750" SelectionMode="Multiple" VerticalAlignment="Stretch"></ListBox>
                     </StackPanel>
                 </TabItem>
                 <TabItem Header="Einstellungen" Classes="Header"> <!--Einstellungen-Tab-->

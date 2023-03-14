@@ -1087,5 +1087,111 @@ namespace StS_GUI_Avalonia
 
             await Dispatcher.UIThread.InvokeAsync(readFileTask);
         }
+
+        private void BtnFehlerSuche_OnClick(object? sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var ergebnisliste = new List<string>();
+                lbFehlerliste.Items = ergebnisliste;
+                if (cbFehlerLeereKurse.IsChecked.Value)
+                {
+                    foreach (var k in myschool.GetKursListe().Result)
+                    {
+                        if (myschool.GetSuSAusKurs(k.Bezeichnung).Result.Count == 0)
+                        {
+                            ergebnisliste.Add(k + " ohne SuS");
+                        }
+
+                        if (myschool.GetLuLAusKurs(k.Bezeichnung).Result.Count == 0)
+                        {
+                            ergebnisliste.Add(k + " ohne LuL");
+                        }
+                    }
+                }
+
+                if (cbFehlerSuSoK.IsChecked.Value)
+                {
+                    foreach (var sus in myschool.GetSchuelerListe().Result)
+                    {
+                        if (myschool.GetKursVonSuS(Convert.ToInt32(sus.ID)).Result.Count == 0)
+                        {
+                            ergebnisliste.Add(sus.Nachname + ", " + sus.Vorname + ";" + sus.ID + ";ohne Kurs");
+                        }
+                    }
+                }
+
+                if (cbFehlerLuLoK.IsChecked.Value)
+                {
+                    foreach (var lul in myschool.GetLehrerListe().Result)
+                    {
+                        if (myschool.GetKursVonLuL(Convert.ToInt32(lul.ID)).Result.Count == 0)
+                        {
+                            ergebnisliste.Add(lul.Nachname + ", " + lul.Vorname + ";" + lul.ID + ";ohne Kurs");
+                        }
+                    }
+                }
+
+                if (cbFehlerLuL.IsChecked.Value)
+                {
+                    foreach (var lul in myschool.GetLehrerListe().Result)
+                    {
+                        if (lul.Fakultas.Contains("NV"))
+                        {
+                            ergebnisliste.Add(lul.Nachname + ", " + lul.Vorname + ";" + lul.ID +
+                                              ";mit fehlerhafter Fakultas");
+                        }
+                    }
+                }
+
+                if (cbFehlerKurse.IsChecked.Value)
+                {
+                    foreach (var kurs in myschool.GetKursListe().Result)
+                    {
+                        if (kurs.Fach.Length == 0 || kurs.Fach.Equals("---"))
+                        {
+                            ergebnisliste.Add(kurs.Bezeichnung + " mit fehlerhaftem Fach");
+                        }
+                    }
+                }
+
+                if (cbFehlerSuS.IsChecked.Value)
+                {
+                    foreach (var sus in myschool.GetSchuelerListe().Result)
+                    {
+                        if (sus.Nutzername.Equals(""))
+                        {
+                            ergebnisliste.Add(sus.Nachname + ", " + sus.Vorname + ";Klasse " + sus.Klasse + ";" +
+                                              sus.ID + ";ohne Nutzernamen");
+                        }
+
+                        if (sus.Aixmail.Contains(myschool.GetSettings().Result[0].Split(';')[1]))
+                        {
+                            ergebnisliste.Add(sus.Nachname + ", " + sus.Vorname + ";Klasse " + sus.Klasse + ";" +
+                                              sus.ID + ";ohne gültige Mailadresse");
+                        }
+
+                        if (sus is { Zweitaccount: true, Zweitmail: "" })
+                        {
+                            ergebnisliste.Add(sus.Nachname + ", " + sus.Vorname + ";Klasse " + sus.Klasse + ";" +
+                                              sus.ID + ";ohne gültige Zweitmailadresse");
+                        }
+                    }
+                }
+
+                if (ergebnisliste.Count == 0)
+                {
+                    ergebnisliste.Add("Keine Fehler gefunden!");
+                }
+                lbFehlerliste.Items = ergebnisliste;
+            }
+            catch (Exception ex)
+            {
+#if DEBUG
+                _ = myschool.AddLogMessage("Debug", ex.StackTrace + ";" + ex.Message);
+#endif
+                _ = myschool.AddLogMessage("Fehler", "Fehler bei der Fehlersuche " + ex.Message);
+            }
+        }
     }
 }
