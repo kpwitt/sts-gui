@@ -1,0 +1,15 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        SizeToContent="WidthAndHeight"
+        x:Class="StS_GUI_Avalonia.AboutDialog"
+        CanResize="False"
+        Title="Über">
+    <DockPanel VerticalAlignment="Stretch" x:Name="TopPanel">
+    <Label DockPanel.Dock="Top">
+        SchildToSchule     
+Version 0.4
+         
+    </Label>
+    <Button HorizontalAlignment="Right" Click="Button_OnClick"> OK</Button>
+    </DockPanel>
+</Window>

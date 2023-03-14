@@ -407,6 +407,11 @@ namespace StS_GUI_Avalonia
 
         public async void OnMnuaboutClick(object? sender, RoutedEventArgs e)
         {
+            var about = new AboutDialog
+            {
+                ShowInTaskbar = false
+            };
+            await about.ShowDialog(this);
         }
 
         public async void OnBtnsusaddClick(object? sender, RoutedEventArgs e)
