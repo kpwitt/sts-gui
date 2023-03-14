@@ -14,6 +14,7 @@ using System.Timers;
 using Avalonia.Threading;
 using MessageBox.Avalonia.DTO;
 using MessageBox.Avalonia.Enums;
+using MessageBox.Avalonia.Models;
 
 namespace StS_GUI_Avalonia
 {
@@ -1006,7 +1007,14 @@ namespace StS_GUI_Avalonia
                 !cbAIX.IsChecked.Value)
             {
                 var errorNoSystemDialog = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
-                    "Fehler bei der Auswahl", "Bitte wählen Sie entweder Moodle und/oder AIX als Zielsystem");
+                    new MessageBoxStandardParams
+                    {
+                        ButtonDefinitions = ButtonEnum.Ok,
+                        ContentTitle = "Kein Zielsystem ausgewählt",
+                        ContentMessage =
+                            "Bitte wählen Sie entweder Moodle und/oder AIX als Zielsystem!",
+                        Icon = MessageBox.Avalonia.Enums.Icon.Error
+                    });
                 await errorNoSystemDialog.Show();
                 return;
             }
@@ -1025,9 +1033,10 @@ namespace StS_GUI_Avalonia
                         new MessageBoxStandardParams
                         {
                             ButtonDefinitions = ButtonEnum.YesNo,
-                            ContentTitle = "title",
-                            ContentHeader = "header",
-                            ContentMessage = "Message",
+                            ContentTitle = "Dateien gefunden",
+                            ContentHeader = "Überschreiben?",
+                            ContentMessage =
+                                "Im Ordner existieren schon eine/mehrere Exportdateien.\nSollen diese überschrieben werden?",
                             Icon = MessageBox.Avalonia.Enums.Icon.Question
                         });
                     var dialogResult = await overwriteFilesDialog.ShowDialog(this);
@@ -1039,7 +1048,39 @@ namespace StS_GUI_Avalonia
                     };
                 }
 
-                var res = await myschool.ExportCSV(folder, "all", "all", false, expandFiles, new[] { "", "" },
+                var whattoexport = "";
+                var destsys = "";
+                if (cbSuS.IsChecked.Value)
+                {
+                    whattoexport += "s";
+                }
+
+                if (cbLuL.IsChecked.Value)
+                {
+                    whattoexport += "l";
+                }
+
+                if (cbKurs.IsChecked.Value)
+                {
+                    whattoexport += "k";
+                }
+
+                if (cbEltern.IsChecked.Value)
+                {
+                    whattoexport += "e";
+                }
+
+                if (cbMoodle.IsChecked.Value)
+                {
+                    destsys += "m";
+                }
+
+                if (cbAIX.IsChecked.Value)
+                {
+                    destsys += "a";
+                }
+
+                var res = await myschool.ExportCSV(folder, destsys, whattoexport, false, expandFiles, new[] { "", "" },
                     await myschool.GetSchuelerIDListe(), await myschool.GetLehrerIDListe(),
                     await myschool.GetKursBezListe());
             };
