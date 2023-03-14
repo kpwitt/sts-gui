@@ -11,6 +11,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Timers;
+using Avalonia.Threading;
 using MessageBox.Avalonia.DTO;
 using MessageBox.Avalonia.Enums;
 
@@ -1023,7 +1024,7 @@ namespace StS_GUI_Avalonia
                     var overwriteFilesDialog = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
                         new MessageBoxStandardParams
                         {
-                            ButtonDefinitions = MessageBox.Avalonia.Enums.ButtonEnum.YesNo,
+                            ButtonDefinitions = ButtonEnum.YesNo,
                             ContentTitle = "title",
                             ContentHeader = "header",
                             ContentMessage = "Message",
@@ -1038,13 +1039,12 @@ namespace StS_GUI_Avalonia
                     };
                 }
 
-                var res = await myschool.ExportCSV(folder, "all", "all", false, expandFiles, new[] { "","" },
-                        await myschool.GetSchuelerIDListe(), await myschool.GetLehrerIDListe(),
-                        await myschool.GetKursBezListe());
-                }
+                var res = await myschool.ExportCSV(folder, "all", "all", false, expandFiles, new[] { "", "" },
+                    await myschool.GetSchuelerIDListe(), await myschool.GetLehrerIDListe(),
+                    await myschool.GetKursBezListe());
+            };
 
-                ;
-                await Task.Run(readFileTask);
-            }
+            await Dispatcher.UIThread.InvokeAsync(readFileTask);
         }
     }
+}
