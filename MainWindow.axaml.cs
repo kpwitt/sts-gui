@@ -11,6 +11,8 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Timers;
+using MessageBox.Avalonia.DTO;
+using MessageBox.Avalonia.Enums;
 
 namespace StS_GUI_Avalonia
 {
@@ -197,7 +199,7 @@ namespace StS_GUI_Avalonia
             ofd.Filters = filters;
         }
 
-        private void SetupOpenFolderDialog(OpenFolderDialog ofd, string dialogtitle)
+        private void SetupOpenFolderDialog(SystemDialog ofd, string dialogtitle)
         {
             ofd.Title = dialogtitle;
         }
@@ -315,10 +317,8 @@ namespace StS_GUI_Avalonia
             var readFileTask = async () =>
             {
                 SetupOpenFolderDialog(globalOpenFolderDialog, "Bitte den Ordner mit den Dateien auswählen");
-                var path = await globalOpenFileDialog.ShowAsync(this);
-                if (path == null) return;
-                FileInfo t = new(path[0]);
-                var folder = t.Directory;
+                var folder = await globalOpenFolderDialog.ShowAsync(this);
+                if (folder == null) return;
                 if (File.Exists(folder + "/sus.csv") && File.Exists(folder + "/lul.csv") &&
                     File.Exists(folder + "/kurse.csv"))
                 {
@@ -391,15 +391,12 @@ namespace StS_GUI_Avalonia
             var readFileTask = async () =>
             {
                 SetupOpenFolderDialog(globalOpenFolderDialog, "Bitte den Ordner mit den Dateien auswählen");
-                var path = await globalOpenFileDialog.ShowAsync(this);
-                if (path == null) return;
-                FileInfo t = new(path[0]);
-                var folder = t.Directory;
+                var folder = await globalOpenFolderDialog.ShowAsync(this);
                 if (folder == null) return;
                 if (!File.Exists(folder + "/sus.csv") && !File.Exists(folder + "/lul.csv") &&
                     !File.Exists(folder + "/kurse.csv"))
                 {
-                    await myschool.DumpDataToCSVs(folder.Name);
+                    await myschool.DumpDataToCSVs(folder);
                 }
             };
             await Task.Run(readFileTask);
@@ -1001,5 +998,53 @@ namespace StS_GUI_Avalonia
             tbKursStufe.Text = k.Stufe;
             cbKursIstKurs.IsChecked = k.Istkurs;
         }
+
+        private async void BtnExport_OnClick(object? sender, RoutedEventArgs e)
+        {
+            if (cbMoodle.IsChecked != null && !cbMoodle.IsChecked.Value && cbAIX.IsChecked != null &&
+                !cbAIX.IsChecked.Value)
+            {
+                var errorNoSystemDialog = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                    "Fehler bei der Auswahl", "Bitte wählen Sie entweder Moodle und/oder AIX als Zielsystem");
+                await errorNoSystemDialog.Show();
+                return;
+            }
+
+            var readFileTask = async () =>
+            {
+                SetupOpenFolderDialog(globalOpenFolderDialog, "Bitte den Ordner zum Speichern angeben");
+                var folder = await globalOpenFolderDialog.ShowAsync(this);
+                if (folder == null) return;
+                var expandFiles = false;
+                if (File.Exists(folder + "/aix_sus.csv") || File.Exists(folder + "/aix_lul.csv") ||
+                    File.Exists(folder + "/mdl_einschreibungen.csv") || File.Exists(folder + "/mdl_kurse.csv") ||
+                    File.Exists(folder + "/mdl_nutzer.csv"))
+                {
+                    var overwriteFilesDialog = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                        new MessageBoxStandardParams
+                        {
+                            ButtonDefinitions = MessageBox.Avalonia.Enums.ButtonEnum.YesNo,
+                            ContentTitle = "title",
+                            ContentHeader = "header",
+                            ContentMessage = "Message",
+                            Icon = MessageBox.Avalonia.Enums.Icon.Question
+                        });
+                    var dialogResult = await overwriteFilesDialog.ShowDialog(this);
+                    expandFiles = dialogResult switch
+                    {
+                        ButtonResult.Yes => true,
+                        ButtonResult.No => false,
+                        _ => false
+                    };
+                }
+
+                var res = await myschool.ExportCSV(folder, "all", "all", false, expandFiles, new[] { "","" },
+                        await myschool.GetSchuelerIDListe(), await myschool.GetLehrerIDListe(),
+                        await myschool.GetKursBezListe());
+                }
+
+                ;
+                await Task.Run(readFileTask);
+            }
+        }
     }
-}

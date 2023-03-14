@@ -190,7 +190,7 @@
                                 <CheckBox x:Name="cbAIX" IsChecked="True">AIX"</CheckBox>
                                 <CheckBox x:Name="cbLog">Log</CheckBox>
                                 <CheckBox x:Name="cbExportwithPasswort">Mit Anfangspasswort</CheckBox>
-                                <Button x:Name="btnExport">Exportieren</Button>
+                                <Button x:Name="btnExport" Click="BtnExport_OnClick">Exportieren</Button>
                             </StackPanel>
                             <StackPanel Grid.Column="1" HorizontalAlignment="Left">
                                 <TextBlock Text="VorlagenKurs KL:"></TextBlock>
