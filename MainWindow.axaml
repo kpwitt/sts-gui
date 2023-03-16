@@ -15,40 +15,40 @@
         <Grid Margin="5" DockPanel.Dock="Top" RowDefinitions="Auto,Auto,Auto" VerticalAlignment="Stretch">
             <DockPanel Grid.Row="0">
                 <Menu DockPanel.Dock="Top"><!-- Menuleiste -->
-                    <MenuItem Header="Datei">
-                        <MenuItem Header="Schule laden" x:Name="mnuSchuleLaden" Click="OnMnuSchoolLoadClick" />
-                        <MenuItem Header="Schule schließen" x:Name="mnuSchuleSpeichern"
+                    <MenuItem Header="_Datei">
+                        <MenuItem Header="Schule _laden" x:Name="mnuSchuleLaden" Click="OnMnuSchoolLoadClick" />
+                        <MenuItem Header="Schule _schließen" x:Name="mnuSchuleSpeichern"
                                   Click="OnMnuschuleschließenClick" />
                         <Separator />
-                        <MenuItem Header="Schule speichern unter" x:Name="mnuSchuleSpeichernUnter"
+                        <MenuItem Header="Schule speichern _unter" x:Name="mnuSchuleSpeichernUnter"
                                   Click="OnMnuschulespeichernunterClick" />
-                        <MenuItem Header="Schüle verschlüsselt speichern" x:Name="mnuSchuleVersSpeichern"
+                        <MenuItem Header="Schüle _verschlüsselt speichern" x:Name="mnuSchuleVersSpeichern"
                                   Click="OnMnuschuleversspeichernClick" />
                         <MenuItem Header="Verschlüsselte Schule laden" x:Name="mnuVersSchuleLaden"
                                   Click="OnMnuversschuleladenClick" />
                         <Separator />
-                        <MenuItem Header="Beenden" x:Name="mnuExit" Click="OnMnuexitClick" />
+                        <MenuItem Header="_Beenden" x:Name="mnuExit" Click="OnMnuexitClick" />
                     </MenuItem>
-                    <MenuItem Header="Daten">
+                    <MenuItem Header="D_aten">
                         <MenuItem Header="CSV laden">
-                            <MenuItem Header="Dateien aus Ordner" x:Name="mnuLoadFolder" Click="OnMnuloadfolderClick" />
+                            <MenuItem Header="_Dateien aus Ordner" x:Name="mnuLoadFolder" Click="OnMnuloadfolderClick" />
                             <Separator />
-                            <MenuItem Header="SuS aus Datei" x:Name="mnuLoadSuSFromFile"
+                            <MenuItem Header="_SuS aus Datei" x:Name="mnuLoadSuSFromFile"
                                       Click="OnMnuloadsusfromfileClick" />
-                            <MenuItem Header="LuL aus Datei" x:Name="mnuLoadLuLFromFile"
+                            <MenuItem Header="_LuL aus Datei" x:Name="mnuLoadLuLFromFile"
                                       Click="OnMnuloadlulfromfileClick" />
-                            <MenuItem Header="Kurse aus Datei" x:Name="mnuLoadKurseFromFile"
+                            <MenuItem Header="_Kurse aus Datei" x:Name="mnuLoadKurseFromFile"
                                       Click="OnMnuloadkursefromfileClick" />
                             <Separator />
-                            <MenuItem Header="Mail und Nutzernamen einlesen" x:Name="mnuLoadUsernamesMail"
+                            <MenuItem Header="_Mail und Nutzernamen einlesen" x:Name="mnuLoadUsernamesMail"
                                       Click="OnMnuloadusernamesmailClick" />
-                            <MenuItem Header="2. Accounts einlesen" x:Name="mnuLoadZweitaccounts"
+                            <MenuItem Header="_2. Accounts einlesen" x:Name="mnuLoadZweitaccounts"
                                       Click="OnMnuloadzweitaccountsClick" />
                         </MenuItem>
-                        <MenuItem Header="Änderungen einlesen" x:Name="mnuReadDiffs" IsVisible="False" />
-                        <MenuItem Header="in CSV exportieren" x:Name="mnuExportToCSV" Click="OnMnuexporttocsvClick" />
+                        <MenuItem Header="Änderungen _einlesen" x:Name="mnuReadDiffs" IsVisible="False" />
+                        <MenuItem Header="In CSV exportieren" x:Name="mnuExportToCSV" Click="OnMnuexporttocsvClick" />
                     </MenuItem>
-                    <MenuItem Header="Hilfe">
+                    <MenuItem Header="_Hilfe">
                         <MenuItem Header="Über" x:Name="mnuAbout" Click="OnMnuaboutClick"/>
                     </MenuItem>
                 </Menu>
@@ -85,6 +85,8 @@
                                 </Grid>
                                 <ListBox MaxHeight="750" x:Name="RightListBox" SelectionMode="Multiple"
                                          SelectionChanged="RightListBox_OnSelectionChanged" VerticalAlignment="Stretch">
+                                    <ContextMenu IsVisible="False">
+                                    </ContextMenu>
                                 </ListBox>
                             </DockPanel>
 
