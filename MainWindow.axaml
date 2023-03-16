@@ -212,7 +212,8 @@
                     </Grid>
                 </TabItem>
                 <TabItem Header="Fehlersuche" Classes="Header"> <!--Fehlersuche-Tab-->
-                    <StackPanel>
+                    <DockPanel>
+                    <StackPanel DockPanel.Dock="Top">
                         <TextBlock Text="Fehlersuche"></TextBlock>
                         <WrapPanel Orientation="Horizontal">
                             <CheckBox x:Name="cbFehlerSuSoK" Margin="5">SuS ohne Kurse</CheckBox>
@@ -222,10 +223,11 @@
                             <CheckBox x:Name="cbFehlerLuL" Margin="5">LuL Fehler</CheckBox>
                             <CheckBox x:Name="cbFehlerKurse" Margin="5">unvollständige Kurse</CheckBox>
                             <Button x:Name="btnFehlerSuche" Click="BtnFehlerSuche_OnClick">Suche</Button>
-                            <Button x:Name="btnFehlerExport">Export</Button>
+                            <Button x:Name="btnFehlerExport" Click="BtnFehlerExport_OnClick">Export</Button>
                         </WrapPanel>
-                        <ListBox x:Name="lbFehlerliste" MaxHeight="750" SelectionMode="Multiple" VerticalAlignment="Stretch"></ListBox>
                     </StackPanel>
+                        <ListBox DockPanel.Dock="Bottom" x:Name="lbFehlerliste" Height="750" SelectionMode="Multiple" VerticalAlignment="Stretch"></ListBox>
+                    </DockPanel>
                 </TabItem>
                 <TabItem Header="Einstellungen" Classes="Header"> <!--Einstellungen-Tab-->
                     <Grid RowDefinitions="Auto,Auto,Auto,Auto" ColumnDefinitions="Auto,Auto">

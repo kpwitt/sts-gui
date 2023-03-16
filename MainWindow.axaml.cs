@@ -9,12 +9,12 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
 using Avalonia.Threading;
 using MessageBox.Avalonia.DTO;
 using MessageBox.Avalonia.Enums;
-using MessageBox.Avalonia.Models;
 
 namespace StS_GUI_Avalonia
 {
@@ -240,14 +240,9 @@ namespace StS_GUI_Avalonia
                 if (filepath == null) return;
                 var tempDB = new SchulDB(filepath);
                 var res = await tempDB.Import(myschool);
-                if (res != 0)
-                {
-                    Debug.WriteLine("Task failed");
-                }
-                else
+                if (res == 0)
                 {
                     myschool = tempDB;
-                    Debug.WriteLine("Saving done");
                 }
             };
             await Task.Run(saveDBFile);
@@ -686,7 +681,7 @@ namespace StS_GUI_Avalonia
                     {
                         var sid = LeftListBox.SelectedItems[0].ToString().Split(';')[1];
                         var sus = myschool.GetSchueler(Convert.ToInt32(sid)).Result;
-                        loadSuSData(sus);
+                        LoadSuSData(sus);
                         if (sus.ID == 0) return;
                         switch (CboxDataRight.SelectedIndex)
                         {
@@ -729,7 +724,7 @@ namespace StS_GUI_Avalonia
                         var lulkrz = LeftListBox.SelectedItems[0].ToString().Split(';')[0];
                         if (lulkrz == "") return;
                         var lul = myschool.GetLehrkraft(lulkrz).Result;
-                        loadLuLData(lul);
+                        LoadLuLData(lul);
                         switch (CboxDataRight.SelectedIndex)
                         {
                             case 0:
@@ -814,13 +809,13 @@ namespace StS_GUI_Avalonia
                             var lulkrz = LeftListBox.SelectedItems[0].ToString().Split(';')[0];
                             if (lulkrz == "") return;
                             var lul = myschool.GetLehrkraft(lulkrz).Result;
-                            loadLuLData(lul);
+                            LoadLuLData(lul);
                             if (RightListBox.SelectedItems.Count > 0)
                             {
                                 var sid = RightListBox.SelectedItems[0].ToString().Split(';')[1];
                                 var sus = myschool.GetSchueler(Convert.ToInt32(sid)).Result;
                                 if (sus.ID == 0) return;
-                                loadSuSData(sus);
+                                LoadSuSData(sus);
                             }
 
                             if (!changedCB) return;
@@ -835,13 +830,13 @@ namespace StS_GUI_Avalonia
                             var kurzbez = LeftListBox.SelectedItems[0].ToString();
                             if (kurzbez == "") return;
                             var kurs = myschool.GetKurs(kurzbez).Result;
-                            loadKursData(kurs);
+                            LoadKursData(kurs);
                             if (RightListBox.SelectedItems.Count > 0)
                             {
                                 var sid = RightListBox.SelectedItems[0].ToString().Split(';')[1];
                                 var sus = myschool.GetSchueler(Convert.ToInt32(sid)).Result;
                                 if (sus.ID == 0) return;
-                                loadSuSData(sus);
+                                LoadSuSData(sus);
                             }
 
                             if (!changedCB) return;
@@ -864,13 +859,13 @@ namespace StS_GUI_Avalonia
                             var sid = LeftListBox.SelectedItems[0].ToString().Split(';')[1];
                             var sus = myschool.GetSchueler(Convert.ToInt32(sid)).Result;
                             if (sus.ID == 0) return;
-                            loadSuSData(sus);
+                            LoadSuSData(sus);
                             if (RightListBox.SelectedItems.Count > 0)
                             {
                                 var lulkrz = RightListBox.SelectedItems[0].ToString().Split(';')[0];
                                 if (lulkrz == "") return;
                                 var lul = myschool.GetLehrkraft(lulkrz).Result;
-                                loadLuLData(lul);
+                                LoadLuLData(lul);
                             }
 
                             if (!changedCB) return;
@@ -885,13 +880,13 @@ namespace StS_GUI_Avalonia
                             var kurzbez = LeftListBox.SelectedItems[0].ToString();
                             if (kurzbez == "") return;
                             var kurs = myschool.GetKurs(kurzbez).Result;
-                            loadKursData(kurs);
+                            LoadKursData(kurs);
                             if (RightListBox.SelectedItems.Count > 0)
                             {
                                 var lulkrz = RightListBox.SelectedItems[0].ToString().Split(';')[0];
                                 if (lulkrz == "") return;
                                 var lul = myschool.GetLehrkraft(lulkrz).Result;
-                                loadLuLData(lul);
+                                LoadLuLData(lul);
                             }
 
                             if (!changedCB) return;
@@ -914,13 +909,13 @@ namespace StS_GUI_Avalonia
                             var sid = LeftListBox.SelectedItems[0].ToString().Split(';')[1];
                             var sus = myschool.GetSchueler(Convert.ToInt32(sid)).Result;
                             if (sus.ID == 0) return;
-                            loadSuSData(sus);
+                            LoadSuSData(sus);
                             if (RightListBox.SelectedItems.Count > 0)
                             {
                                 var kurzbez = RightListBox.SelectedItems[0].ToString();
                                 if (kurzbez == "") return;
                                 var kurs = myschool.GetKurs(kurzbez).Result;
-                                loadKursData(kurs);
+                                LoadKursData(kurs);
                             }
 
                             if (!changedCB) return;
@@ -935,13 +930,13 @@ namespace StS_GUI_Avalonia
                             var lulkrz = LeftListBox.SelectedItems[0].ToString().Split(';')[0];
                             if (lulkrz == "") return;
                             var lul = myschool.GetLehrkraft(lulkrz).Result;
-                            loadLuLData(lul);
+                            LoadLuLData(lul);
                             if (RightListBox.SelectedItems.Count > 0)
                             {
                                 var kurzbez = RightListBox.SelectedItems[0].ToString();
                                 if (kurzbez == "") return;
                                 var kurs = myschool.GetKurs(kurzbez).Result;
-                                loadKursData(kurs);
+                                LoadKursData(kurs);
                             }
 
                             if (!changedCB) return;
@@ -958,7 +953,7 @@ namespace StS_GUI_Avalonia
             }
         }
 
-        private void loadSuSData(SuS s)
+        private void LoadSuSData(SuS s)
         {
             if (s.ID is 0 or < 50000) return;
             tbSuSID.Text = s.ID + "";
@@ -974,7 +969,7 @@ namespace StS_GUI_Avalonia
             cbSuSZweitaccount.IsChecked = s.Zweitaccount;
         }
 
-        private void loadLuLData(LuL l)
+        private void LoadLuLData(LuL l)
         {
             if (l.ID is 0 or > 1500) return;
             tbLuLID.Text = l.ID + "";
@@ -988,7 +983,7 @@ namespace StS_GUI_Avalonia
                 .Aggregate("", (current, kurs) => current + (kurs.Bezeichnung + ",")).TrimEnd(',');
         }
 
-        private void loadKursData(Kurs k)
+        private void LoadKursData(Kurs k)
         {
             if (k.Bezeichnung == "") return;
             tbKursbezeichnung.Text = k.Bezeichnung;
@@ -1088,37 +1083,30 @@ namespace StS_GUI_Avalonia
             await Dispatcher.UIThread.InvokeAsync(readFileTask);
         }
 
-        private void BtnFehlerSuche_OnClick(object? sender, RoutedEventArgs e)
+        private async void BtnFehlerSuche_OnClick(object? sender, RoutedEventArgs e)
         {
             try
             {
                 var ergebnisliste = new List<string>();
-                lbFehlerliste.Items = ergebnisliste;
                 if (cbFehlerLeereKurse.IsChecked.Value)
                 {
                     foreach (var k in myschool.GetKursListe().Result)
                     {
                         if (myschool.GetSuSAusKurs(k.Bezeichnung).Result.Count == 0)
                         {
-                            ergebnisliste.Add(k + " ohne SuS");
+                            ergebnisliste.Add(k.Bezeichnung + " ohne SuS");
                         }
 
                         if (myschool.GetLuLAusKurs(k.Bezeichnung).Result.Count == 0)
                         {
-                            ergebnisliste.Add(k + " ohne LuL");
+                            ergebnisliste.Add(k.Bezeichnung + " ohne LuL");
                         }
                     }
                 }
 
                 if (cbFehlerSuSoK.IsChecked.Value)
                 {
-                    foreach (var sus in myschool.GetSchuelerListe().Result)
-                    {
-                        if (myschool.GetKursVonSuS(Convert.ToInt32(sus.ID)).Result.Count == 0)
-                        {
-                            ergebnisliste.Add(sus.Nachname + ", " + sus.Vorname + ";" + sus.ID + ";ohne Kurs");
-                        }
-                    }
+                    ergebnisliste.AddRange(from sus in myschool.GetSchuelerListe().Result where myschool.GetKursVonSuS(Convert.ToInt32(sus.ID)).Result.Count == 0 select sus.Nachname + ", " + sus.Vorname + ";" + sus.ID + ";ohne Kurs");
                 }
 
                 if (cbFehlerLuLoK.IsChecked.Value)
@@ -1134,25 +1122,12 @@ namespace StS_GUI_Avalonia
 
                 if (cbFehlerLuL.IsChecked.Value)
                 {
-                    foreach (var lul in myschool.GetLehrerListe().Result)
-                    {
-                        if (lul.Fakultas.Contains("NV"))
-                        {
-                            ergebnisliste.Add(lul.Nachname + ", " + lul.Vorname + ";" + lul.ID +
-                                              ";mit fehlerhafter Fakultas");
-                        }
-                    }
+                    ergebnisliste.AddRange(from lul in myschool.GetLehrerListe().Result where lul.Fakultas.Contains("NV") select lul.Nachname + ", " + lul.Vorname + ";" + lul.ID + ";mit fehlerhafter Fakultas");
                 }
 
                 if (cbFehlerKurse.IsChecked.Value)
                 {
-                    foreach (var kurs in myschool.GetKursListe().Result)
-                    {
-                        if (kurs.Fach.Length == 0 || kurs.Fach.Equals("---"))
-                        {
-                            ergebnisliste.Add(kurs.Bezeichnung + " mit fehlerhaftem Fach");
-                        }
-                    }
+                    ergebnisliste.AddRange(from kurs in myschool.GetKursListe().Result where kurs.Fach.Length == 0 || kurs.Fach.Equals("---") select kurs.Bezeichnung + " mit fehlerhaftem Fach");
                 }
 
                 if (cbFehlerSuS.IsChecked.Value)
@@ -1192,6 +1167,20 @@ namespace StS_GUI_Avalonia
 #endif
                 _ = myschool.AddLogMessage("Fehler", "Fehler bei der Fehlersuche " + ex.Message);
             }
+        }
+
+        private async void BtnFehlerExport_OnClick(object? sender, RoutedEventArgs e)
+        {
+            SetupSaveDialog(globalOpenSaveDialog,"Speichern unter...", new []{"csv"},new []{"CSV-Datei"});
+            var saveDBFile = async () =>
+            {
+                var filepath = await globalOpenSaveDialog.ShowAsync(this);
+                if (filepath == null) return;
+
+                await File.WriteAllLinesAsync(filepath,lbFehlerliste.Items.Cast<string>(),Encoding.UTF8);
+
+            };
+            await Task.Run(saveDBFile);
         }
     }
 }
