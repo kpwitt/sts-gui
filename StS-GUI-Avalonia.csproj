@@ -31,10 +31,12 @@
     <ProjectReference Include="..\sts-lib\SchulDB.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Assets" />
+    <Folder Include="Assets\**" />
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
     <AvaloniaResource Include="Assets\gfx\school-building.ico" />
+    <AvaloniaResource Include="Assets\gfx\reload.png" />
+    <AvaloniaResource Include="Assets\gfx\delete.png" />
   </ItemGroup>
 </Project>
