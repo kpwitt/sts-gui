@@ -233,7 +233,7 @@
                 <TabItem Header="Einstellungen" Classes="Header"> <!--Einstellungen-Tab-->
                     <Grid RowDefinitions="Auto,Auto,Auto,Auto" ColumnDefinitions="Auto,Auto">
                         <StackPanel Grid.Row="0" Grid.Column="0">
-                            <TextBlock Text="Platzhalterdeomain"></TextBlock>
+                            <TextBlock Text="Platzhalterdomain"></TextBlock>
                             <TextBox x:Name="tbSettingMailplatzhalter" Width="150"></TextBox>
                         </StackPanel>
                         <StackPanel Grid.Row="0" Grid.Column="1">
@@ -246,13 +246,13 @@
                         </StackPanel>
                         <StackPanel Grid.Row="2" Grid.Column="0">
                             <TextBlock Text="Fächerkurzform"></TextBlock>
-                            <ListBox x:Name="lbSettingFachkurz" VirtualizationMode="None">Test</ListBox>
+                            <TextBox x:Name="tbSettingFachkurz" ></TextBox>
                         </StackPanel>
                         <StackPanel Grid.Row="2" Grid.Column="1">
                             <TextBlock Text="Fächerlangform"></TextBlock>
-                            <ListBox x:Name="lbSettingFachlang" VirtualizationMode="None">Test</ListBox>
+                            <TextBox x:Name="tbSettingFachlang" ></TextBox>
                         </StackPanel>
-                        <Button x:Name="btnSettingSave" Grid.Row="3" Grid.Column="0">Speichern</Button>
+                        <Button x:Name="btnSettingSave" Grid.Row="3" Grid.Column="0" Click="BtnSettingSave_OnClick">Speichern</Button>
                     </Grid>
                 </TabItem>
                 <TabItem Header="Log" Classes="Header"> <!--Log-Tab-->

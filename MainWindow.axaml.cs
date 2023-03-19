@@ -33,6 +33,20 @@ namespace StS_GUI_Avalonia
 #if DEBUG
             this.AttachDevTools();
 #endif
+            var settings = myschool.GetSettings().Result;
+            tbSettingMailplatzhalter.Text = settings[0].Split(';')[1];
+            tbSettingKursersetzung.Text = settings[1].Split(';')[1];
+            tbSettingKurssuffix.Text = settings[2].Split(';')[1];
+            var kurzfach = myschool.GetFachersatz().Result.Select(t => t.Split(';')[0]);
+            foreach (var fachk in kurzfach)
+            {
+                tbSettingFachkurz.Text += fachk+'\n';
+            }
+            var langfach = myschool.GetFachersatz().Result.Select(t => t.Split(';')[1]);
+            foreach (var fachl in langfach)
+            {
+                tbSettingFachlang.Text += fachl+'\n';
+            }
         }
 
         //quelle: https://ourcodeworld.com/articles/read/471/how-to-encrypt-and-decrypt-files-using-the-aes-encryption-algorithm-in-c-sharp
@@ -1234,6 +1248,12 @@ namespace StS_GUI_Avalonia
                         new List<int>(), new List<string>());
             };
             await Task.Run(readFileTask);
+        }
+
+        private async void BtnSettingSave_OnClick(object? sender, RoutedEventArgs e)
+        {
+            await myschool.SetSettings(tbSettingMailplatzhalter.Text, tbSettingKursersetzung.Text,
+                tbSettingFachkurz.Text.Split('\n'), tbSettingFachlang.Text.Split('\n'), tbSettingKurssuffix.Text);
         }
     }
 }
