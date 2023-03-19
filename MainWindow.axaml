@@ -49,7 +49,7 @@
                         <MenuItem Header="In CSV exportieren" x:Name="mnuExportToCSV" Click="OnMnuexporttocsvClick" />
                     </MenuItem>
                     <MenuItem Header="_Hilfe">
-                        <MenuItem Header="Über" x:Name="mnuAbout" Click="OnMnuaboutClick"/>
+                        <MenuItem Header="Über" x:Name="mnuAbout" Click="OnMnuaboutClick" />
                     </MenuItem>
                 </Menu>
             </DockPanel>
@@ -145,7 +145,10 @@
                                     <TextBlock Text="Kurse:" Grid.Column="0" Grid.Row="8"></TextBlock>
                                     <TextBox x:Name="tbLuLKurse" Grid.Column="1" Grid.Row="8"></TextBox>
                                     <Button x:Name="btnLuLAdd" Grid.Column="0" Grid.Row="9" Click="OnBtnluladdClick">Hinzufügen/aktualisieren</Button>
-                                    <Button x:Name="btnLuLDel" Grid.Column="1" Grid.Row="9" Margin="5" Click="OnBtnluldelClick">markierte löschen</Button>
+                                    <Button x:Name="btnLuLDel" Grid.Column="1" Grid.Row="9" Margin="5"
+                                            Click="OnBtnluldelClick">
+                                        markierte löschen
+                                    </Button>
                                 </Grid>
                             </TabItem>
                             <TabItem Header="Kurse" Classes="Header"> <!--Daten-Kurs-Tab-->
@@ -214,20 +217,22 @@
                 </TabItem>
                 <TabItem Header="Fehlersuche" Classes="Header"> <!--Fehlersuche-Tab-->
                     <DockPanel>
-                    <StackPanel DockPanel.Dock="Top">
-                        <TextBlock Text="Fehlersuche"></TextBlock>
-                        <WrapPanel Orientation="Horizontal">
-                            <CheckBox x:Name="cbFehlerSuSoK" Margin="5">SuS ohne Kurse</CheckBox>
-                            <CheckBox x:Name="cbFehlerLuLoK" Margin="5">LuL ohne Kurse</CheckBox>
-                            <CheckBox x:Name="cbFehlerLeereKurse" Margin="5">Kurse ohne SuS/LuL</CheckBox>
-                            <CheckBox x:Name="cbFehlerSuS" Margin="5">SuS Fehler</CheckBox>
-                            <CheckBox x:Name="cbFehlerLuL" Margin="5">LuL Fehler</CheckBox>
-                            <CheckBox x:Name="cbFehlerKurse" Margin="5">unvollständige Kurse</CheckBox>
-                            <Button x:Name="btnFehlerSuche" Click="BtnFehlerSuche_OnClick">Suche</Button>
-                            <Button x:Name="btnFehlerExport" Click="BtnFehlerExport_OnClick">Export</Button>
-                        </WrapPanel>
-                    </StackPanel>
-                        <ListBox DockPanel.Dock="Bottom" x:Name="lbFehlerliste" Height="750" SelectionMode="Multiple" VerticalAlignment="Stretch"></ListBox>
+                        <StackPanel DockPanel.Dock="Top">
+                            <TextBlock Text="Fehlersuche"></TextBlock>
+                            <WrapPanel Orientation="Horizontal">
+                                <CheckBox x:Name="cbFehlerSuSoK" Margin="5">SuS ohne Kurse</CheckBox>
+                                <CheckBox x:Name="cbFehlerLuLoK" Margin="5">LuL ohne Kurse</CheckBox>
+                                <CheckBox x:Name="cbFehlerLeereKurse" Margin="5">Kurse ohne SuS/LuL</CheckBox>
+                                <CheckBox x:Name="cbFehlerSuS" Margin="5">SuS Fehler</CheckBox>
+                                <CheckBox x:Name="cbFehlerLuL" Margin="5">LuL Fehler</CheckBox>
+                                <CheckBox x:Name="cbFehlerKurse" Margin="5">unvollständige Kurse</CheckBox>
+                                <Button x:Name="btnFehlerSuche" Click="BtnFehlerSuche_OnClick">Suche</Button>
+                                <Button x:Name="btnFehlerExport" Click="BtnFehlerExport_OnClick">Export</Button>
+                            </WrapPanel>
+                        </StackPanel>
+                        <ListBox DockPanel.Dock="Bottom" x:Name="lbFehlerliste" Height="750" SelectionMode="Multiple"
+                                 VerticalAlignment="Stretch">
+                        </ListBox>
                     </DockPanel>
                 </TabItem>
                 <TabItem Header="Einstellungen" Classes="Header"> <!--Einstellungen-Tab-->
@@ -246,17 +251,31 @@
                         </StackPanel>
                         <StackPanel Grid.Row="2" Grid.Column="0">
                             <TextBlock Text="Fächerkurzform"></TextBlock>
-                            <TextBox x:Name="tbSettingFachkurz" ></TextBox>
+                            <TextBox x:Name="tbSettingFachkurz"></TextBox>
                         </StackPanel>
                         <StackPanel Grid.Row="2" Grid.Column="1">
                             <TextBlock Text="Fächerlangform"></TextBlock>
-                            <TextBox x:Name="tbSettingFachlang" ></TextBox>
+                            <TextBox x:Name="tbSettingFachlang"></TextBox>
                         </StackPanel>
                         <Button x:Name="btnSettingSave" Grid.Row="3" Grid.Column="0" Click="BtnSettingSave_OnClick">Speichern</Button>
                     </Grid>
                 </TabItem>
                 <TabItem Header="Log" Classes="Header"> <!--Log-Tab-->
-                    <DataGrid x:Name="logDataGrid" AutoGenerateColumns="False"></DataGrid>
+                    <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="Auto">
+                        <StackPanel Orientation="Horizontal">
+                            <Button x:Name="btnLogReload" Click="BtnLogReload_OnClick">
+                                <Panel>
+                                    <Image Source="/Assets/gfx/reload.png"/>
+                                </Panel>
+                            </Button>
+                            <Button x:Name="btnLogDelete" Click="BtnLogDelete_OnClick">
+                                <Panel>
+                                    <Image Source="/Assets/gfx/delete.png"/>
+                                </Panel>
+                            </Button>
+                        </StackPanel>
+                        <DataGrid x:Name="logDataGrid" MaxHeight="750"></DataGrid>
+                    </Grid>
                 </TabItem>
                 <TabItem Header="Sonstiges" Classes="Header">Nicht implementiert</TabItem> <!--Sonstiges-Tab-->
             </TabControl>
