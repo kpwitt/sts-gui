@@ -1075,7 +1075,14 @@ namespace StS_GUI_Avalonia
                     destsys += "a";
                 }
 
-                var res = await myschool.ExportCSV(folder, destsys, whattoexport, false, expandFiles, new[] { "", "" },
+                var kursvorlagen = new[] { "", "" };
+                if (cbExportVorlagenkurse.IsChecked.Value)
+                {
+                    kursvorlagen[0] = tbExportKl.Text;
+                    kursvorlagen[1] = tbExportF.Text;
+                }
+
+                var res = await myschool.ExportCSV(folder, destsys, whattoexport, cbExportwithPasswort.IsChecked.Value, expandFiles, kursvorlagen,
                     await myschool.GetSchuelerIDListe(), await myschool.GetLehrerIDListe(),
                     await myschool.GetKursBezListe());
             };
@@ -1181,6 +1188,52 @@ namespace StS_GUI_Avalonia
 
             };
             await Task.Run(saveDBFile);
+        }
+
+        private async void BtnExportStufenkurs_OnClick(object? sender, RoutedEventArgs e)
+        {
+            if (tbExportStufenkurse.Text == "") return;
+            var readFileTask = async () =>
+                {
+                    SetupOpenFolderDialog(globalOpenFolderDialog, "Bitte den Ordner für die Dateien auswählen");
+                    var folder = await globalOpenFolderDialog.ShowAsync(this);
+                    if (folder == null) return;
+                    if (!tbExportStufenkurse.Text.Contains(';'))
+                    {
+                        await myschool.ExportCSV(folder, "all", "s", false, false, new[] { "", "" },
+                            myschool.GetSusAusStufe(tbExportStufenkurse.Text).Result.Select(s => s.ID).ToList(),
+                            new List<int>(), new List<string>());
+                    }
+                    else
+                    {
+                        var suslist = new List<int>();
+                        var stufen = tbExportStufenkurse.Text.Split(';');
+                        foreach (var stufe in stufen)
+                        {
+                            suslist.AddRange(myschool.GetSusAusStufe(stufe).Result.Select(s => s.ID).ToList());
+                        }
+                        await myschool.ExportCSV(folder, "all", "s", false, false, new[] { "", "" },
+                            suslist,
+                            new List<int>(), new List<string>());
+                    }
+
+
+                };
+                await Task.Run(readFileTask);
+        }
+
+        private async void BtnExport5InklPasswort_OnClick(object? sender, RoutedEventArgs e)
+        {
+            var readFileTask = async () =>
+            {
+                SetupOpenFolderDialog(globalOpenFolderDialog, "Bitte den Ordner für die Dateien auswählen");
+                var folder = await globalOpenFolderDialog.ShowAsync(this);
+                if (folder == null) return;
+                await myschool.ExportCSV(folder, "all", "s", false, false, new[] { "", "" },
+                        myschool.GetSusAusStufe("5").Result.Select(s => s.ID).ToList(),
+                        new List<int>(), new List<string>());
+            };
+            await Task.Run(readFileTask);
         }
     }
 }

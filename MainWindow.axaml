@@ -189,7 +189,7 @@
                                 <CheckBox x:Name="cbKurs">Kurse</CheckBox>
                                 <CheckBox x:Name="cbEltern">Eltern</CheckBox>
                                 <CheckBox x:Name="cbMoodle" IsChecked="True">Moodle</CheckBox>
-                                <CheckBox x:Name="cbAIX" IsChecked="True">AIX"</CheckBox>
+                                <CheckBox x:Name="cbAIX" IsChecked="True">AIX</CheckBox>
                                 <CheckBox x:Name="cbLog">Log</CheckBox>
                                 <CheckBox x:Name="cbExportwithPasswort">Mit Anfangspasswort</CheckBox>
                                 <Button x:Name="btnExport" Click="BtnExport_OnClick">Exportieren</Button>
@@ -206,9 +206,8 @@
                             <TextBlock Text="Spezielles" FontStyle="Italic"></TextBlock>
                             <TextBlock Text="Stufenkurse"></TextBlock>
                             <TextBox x:Name="tbExportStufenkurse" Width="250"></TextBox>
-                            <CheckBox x:Name="cbExportStufen">Alle Stufen in eine Datei exportieren</CheckBox>
-                            <Button x:Name="btnExportStufenkurs">Stufenkurse exportieren</Button>
-                            <Button x:Name="btnExport5InklPasswort">5er inkl. Passwort exportieren</Button>
+                            <Button x:Name="btnExportStufenkurs" Click="BtnExportStufenkurs_OnClick">Stufenkurse exportieren</Button>
+                            <Button x:Name="btnExport5InklPasswort" Click="BtnExport5InklPasswort_OnClick">5er inkl. Passwort exportieren</Button>
                         </StackPanel>
 
                     </Grid>
