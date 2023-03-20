@@ -5,7 +5,6 @@ using SDB;
 using SchulStructs;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -1265,8 +1264,10 @@ namespace StS_GUI_Avalonia
 
         private async void BtnLogReload_OnClick(object? sender, RoutedEventArgs e)
         {
-            logDataGrid.AutoGenerateColumns = true;
-            logDataGrid.Items = myschool.GetLog().Result.Select(message=>message.Split('\t'));
+            var items = await myschool.GetLog();
+            logDataGrid.Items = items.Select(message => message.Split('\t')).ToArray();;
+            
+            
         }
     }
 }

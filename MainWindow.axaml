@@ -262,19 +262,32 @@
                 </TabItem>
                 <TabItem Header="Log" Classes="Header"> <!--Log-Tab-->
                     <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="Auto">
-                        <StackPanel Orientation="Horizontal">
+                        <StackPanel Grid.Row="0" Orientation="Horizontal">
                             <Button x:Name="btnLogReload" Click="BtnLogReload_OnClick">
                                 <Panel>
-                                    <Image Source="/Assets/gfx/reload.png"/>
+                                    <Image Source="/Assets/gfx/reload.png" />
                                 </Panel>
                             </Button>
                             <Button x:Name="btnLogDelete" Click="BtnLogDelete_OnClick">
                                 <Panel>
-                                    <Image Source="/Assets/gfx/delete.png"/>
+                                    <Image Source="/Assets/gfx/delete.png" />
                                 </Panel>
                             </Button>
                         </StackPanel>
-                        <DataGrid x:Name="logDataGrid" MaxHeight="750"></DataGrid>
+                        <DataGrid Grid.Row="1" x:Name="logDataGrid" MaxHeight="750" AutoGenerateColumns="False">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Log-Stufe"></DataGridTextColumn>
+                                <DataGridTextColumn Header="Datum"></DataGridTextColumn>
+                                <DataGridTextColumn Header="Nachricht"></DataGridTextColumn>
+                                <DataGridTextColumn Header="Nachricht1"></DataGridTextColumn>
+                                <DataGridTextColumn Header="Nachricht2"></DataGridTextColumn>
+                                <DataGridTextColumn Header="Nachricht3"></DataGridTextColumn>
+                                <DataGridTextColumn Header="Nachricht4"></DataGridTextColumn>
+                                <DataGridTextColumn Header="Nachricht5"></DataGridTextColumn>
+                                <DataGridTextColumn Header="Nachricht6"></DataGridTextColumn>
+                                <DataGridTextColumn Header="Nachricht7"></DataGridTextColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
                     </Grid>
                 </TabItem>
                 <TabItem Header="Sonstiges" Classes="Header">Nicht implementiert</TabItem> <!--Sonstiges-Tab-->
