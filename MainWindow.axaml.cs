@@ -1258,16 +1258,14 @@ namespace StS_GUI_Avalonia
 
         private async void BtnLogDelete_OnClick(object? sender, RoutedEventArgs e)
         {
-            logDataGrid.Items=new List<string>();
+            lbLogDisplay.Items=new List<string>();
             await myschool.LoescheLog();
         }
 
         private async void BtnLogReload_OnClick(object? sender, RoutedEventArgs e)
         {
             var items = await myschool.GetLog();
-            logDataGrid.Items = items.Select(message => message.Split('\t')).ToArray();;
-            
-            
+            lbLogDisplay.Items = items.Select(message => message.Replace('\t',' ').TrimEnd('\t')).ToList();
         }
     }
 }

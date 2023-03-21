@@ -274,20 +274,7 @@
                                 </Panel>
                             </Button>
                         </StackPanel>
-                        <DataGrid Grid.Row="1" x:Name="logDataGrid" MaxHeight="750" AutoGenerateColumns="False">
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="Log-Stufe"></DataGridTextColumn>
-                                <DataGridTextColumn Header="Datum"></DataGridTextColumn>
-                                <DataGridTextColumn Header="Nachricht"></DataGridTextColumn>
-                                <DataGridTextColumn Header="Nachricht1"></DataGridTextColumn>
-                                <DataGridTextColumn Header="Nachricht2"></DataGridTextColumn>
-                                <DataGridTextColumn Header="Nachricht3"></DataGridTextColumn>
-                                <DataGridTextColumn Header="Nachricht4"></DataGridTextColumn>
-                                <DataGridTextColumn Header="Nachricht5"></DataGridTextColumn>
-                                <DataGridTextColumn Header="Nachricht6"></DataGridTextColumn>
-                                <DataGridTextColumn Header="Nachricht7"></DataGridTextColumn>
-                            </DataGrid.Columns>
-                        </DataGrid>
+                        <ListBox Grid.Row="1" x:Name="lbLogDisplay" MaxHeight="750"></ListBox>
                     </Grid>
                 </TabItem>
                 <TabItem Header="Sonstiges" Classes="Header">Nicht implementiert</TabItem> <!--Sonstiges-Tab-->
