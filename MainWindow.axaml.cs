@@ -563,34 +563,6 @@ namespace StS_GUI_Avalonia
             source.Items = templist;
         }
 
-        public async void OnBtnkurseaddClick(object? sender, RoutedEventArgs e)
-        {
-        }
-
-        public async void OnBtnkursedelClick(object? sender, RoutedEventArgs e)
-        {
-        }
-
-        public async void OnBtnexportClick(object? sender, RoutedEventArgs e)
-        {
-        }
-
-        public async void OnBtnexportstufenkursClick(object? sender, RoutedEventArgs e)
-        {
-        }
-
-        public async void OnBtnfehlersucheClick(object? sender, RoutedEventArgs e)
-        {
-        }
-
-        public async void OnBtnfehlerexportClick(object? sender, RoutedEventArgs e)
-        {
-        }
-
-        public async void OnBtnsettingsaveClick(object? sender, RoutedEventArgs e)
-        {
-        }
-
         private void InitData()
         {
             if (CboxDataLeft == null || CboxDataRight == null) return;
