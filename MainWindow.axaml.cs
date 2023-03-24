@@ -40,12 +40,13 @@ namespace StS_GUI_Avalonia
             var kurzfach = myschool.GetFachersatz().Result.Select(t => t.Split(';')[0]);
             foreach (var fachk in kurzfach)
             {
-                tbSettingFachkurz.Text += fachk+'\n';
+                tbSettingFachkurz.Text += fachk + '\n';
             }
+
             var langfach = myschool.GetFachersatz().Result.Select(t => t.Split(';')[1]);
             foreach (var fachl in langfach)
             {
-                tbSettingFachlang.Text += fachl+'\n';
+                tbSettingFachlang.Text += fachl + '\n';
             }
         }
 
@@ -753,6 +754,7 @@ namespace StS_GUI_Avalonia
                         var kurzbez = LeftListBox.SelectedItems[0].ToString();
                         if (kurzbez == "") return;
                         var kurs = myschool.GetKurs(kurzbez).Result;
+                        LoadKursData(kurs);
                         switch (CboxDataRight.SelectedIndex)
                         {
                             case 0:
@@ -1068,7 +1070,8 @@ namespace StS_GUI_Avalonia
                     kursvorlagen[1] = tbExportF.Text;
                 }
 
-                var res = await myschool.ExportCSV(folder, destsys, whattoexport, cbExportwithPasswort.IsChecked.Value, expandFiles, kursvorlagen,
+                var res = await myschool.ExportCSV(folder, destsys, whattoexport, cbExportwithPasswort.IsChecked.Value,
+                    expandFiles, kursvorlagen,
                     await myschool.GetSchuelerIDListe(), await myschool.GetLehrerIDListe(),
                     await myschool.GetKursBezListe());
             };
@@ -1099,7 +1102,9 @@ namespace StS_GUI_Avalonia
 
                 if (cbFehlerSuSoK.IsChecked.Value)
                 {
-                    ergebnisliste.AddRange(from sus in myschool.GetSchuelerListe().Result where myschool.GetKursVonSuS(Convert.ToInt32(sus.ID)).Result.Count == 0 select sus.Nachname + ", " + sus.Vorname + ";" + sus.ID + ";ohne Kurs");
+                    ergebnisliste.AddRange(from sus in myschool.GetSchuelerListe().Result
+                        where myschool.GetKursVonSuS(Convert.ToInt32(sus.ID)).Result.Count == 0
+                        select sus.Nachname + ", " + sus.Vorname + ";" + sus.ID + ";ohne Kurs");
                 }
 
                 if (cbFehlerLuLoK.IsChecked.Value)
@@ -1115,12 +1120,16 @@ namespace StS_GUI_Avalonia
 
                 if (cbFehlerLuL.IsChecked.Value)
                 {
-                    ergebnisliste.AddRange(from lul in myschool.GetLehrerListe().Result where lul.Fakultas.Contains("NV") select lul.Nachname + ", " + lul.Vorname + ";" + lul.ID + ";mit fehlerhafter Fakultas");
+                    ergebnisliste.AddRange(from lul in myschool.GetLehrerListe().Result
+                        where lul.Fakultas.Contains("NV")
+                        select lul.Nachname + ", " + lul.Vorname + ";" + lul.ID + ";mit fehlerhafter Fakultas");
                 }
 
                 if (cbFehlerKurse.IsChecked.Value)
                 {
-                    ergebnisliste.AddRange(from kurs in myschool.GetKursListe().Result where kurs.Fach.Length == 0 || kurs.Fach.Equals("---") select kurs.Bezeichnung + " mit fehlerhaftem Fach");
+                    ergebnisliste.AddRange(from kurs in myschool.GetKursListe().Result
+                        where kurs.Fach.Length == 0 || kurs.Fach.Equals("---")
+                        select kurs.Bezeichnung + " mit fehlerhaftem Fach");
                 }
 
                 if (cbFehlerSuS.IsChecked.Value)
@@ -1151,6 +1160,7 @@ namespace StS_GUI_Avalonia
                 {
                     ergebnisliste.Add("Keine Fehler gefunden!");
                 }
+
                 lbFehlerliste.Items = ergebnisliste;
             }
             catch (Exception ex)
@@ -1164,14 +1174,13 @@ namespace StS_GUI_Avalonia
 
         private async void BtnFehlerExport_OnClick(object? sender, RoutedEventArgs e)
         {
-            SetupSaveDialog(globalOpenSaveDialog,"Speichern unter...", new []{"csv"},new []{"CSV-Datei"});
+            SetupSaveDialog(globalOpenSaveDialog, "Speichern unter...", new[] { "csv" }, new[] { "CSV-Datei" });
             var saveDBFile = async () =>
             {
                 var filepath = await globalOpenSaveDialog.ShowAsync(this);
                 if (filepath == null) return;
 
-                await File.WriteAllLinesAsync(filepath,lbFehlerliste.Items.Cast<string>(),Encoding.UTF8);
-
+                await File.WriteAllLinesAsync(filepath, lbFehlerliste.Items.Cast<string>(), Encoding.UTF8);
             };
             await Task.Run(saveDBFile);
         }
@@ -1180,32 +1189,31 @@ namespace StS_GUI_Avalonia
         {
             if (tbExportStufenkurse.Text == "") return;
             var readFileTask = async () =>
+            {
+                SetupOpenFolderDialog(globalOpenFolderDialog, "Bitte den Ordner für die Dateien auswählen");
+                var folder = await globalOpenFolderDialog.ShowAsync(this);
+                if (folder == null) return;
+                if (!tbExportStufenkurse.Text.Contains(';'))
                 {
-                    SetupOpenFolderDialog(globalOpenFolderDialog, "Bitte den Ordner für die Dateien auswählen");
-                    var folder = await globalOpenFolderDialog.ShowAsync(this);
-                    if (folder == null) return;
-                    if (!tbExportStufenkurse.Text.Contains(';'))
+                    await myschool.ExportCSV(folder, "all", "s", false, false, new[] { "", "" },
+                        myschool.GetSusAusStufe(tbExportStufenkurse.Text).Result.Select(s => s.ID).ToList(),
+                        new List<int>(), new List<string>());
+                }
+                else
+                {
+                    var suslist = new List<int>();
+                    var stufen = tbExportStufenkurse.Text.Split(';');
+                    foreach (var stufe in stufen)
                     {
-                        await myschool.ExportCSV(folder, "all", "s", false, false, new[] { "", "" },
-                            myschool.GetSusAusStufe(tbExportStufenkurse.Text).Result.Select(s => s.ID).ToList(),
-                            new List<int>(), new List<string>());
-                    }
-                    else
-                    {
-                        var suslist = new List<int>();
-                        var stufen = tbExportStufenkurse.Text.Split(';');
-                        foreach (var stufe in stufen)
-                        {
-                            suslist.AddRange(myschool.GetSusAusStufe(stufe).Result.Select(s => s.ID).ToList());
-                        }
-                        await myschool.ExportCSV(folder, "all", "s", false, false, new[] { "", "" },
-                            suslist,
-                            new List<int>(), new List<string>());
+                        suslist.AddRange(myschool.GetSusAusStufe(stufe).Result.Select(s => s.ID).ToList());
                     }
 
-
-                };
-                await Task.Run(readFileTask);
+                    await myschool.ExportCSV(folder, "all", "s", false, false, new[] { "", "" },
+                        suslist,
+                        new List<int>(), new List<string>());
+                }
+            };
+            await Task.Run(readFileTask);
         }
 
         private async void BtnExport5InklPasswort_OnClick(object? sender, RoutedEventArgs e)
@@ -1216,8 +1224,8 @@ namespace StS_GUI_Avalonia
                 var folder = await globalOpenFolderDialog.ShowAsync(this);
                 if (folder == null) return;
                 await myschool.ExportCSV(folder, "all", "s", false, false, new[] { "", "" },
-                        myschool.GetSusAusStufe("5").Result.Select(s => s.ID).ToList(),
-                        new List<int>(), new List<string>());
+                    myschool.GetSusAusStufe("5").Result.Select(s => s.ID).ToList(),
+                    new List<int>(), new List<string>());
             };
             await Task.Run(readFileTask);
         }
@@ -1230,14 +1238,78 @@ namespace StS_GUI_Avalonia
 
         private async void BtnLogDelete_OnClick(object? sender, RoutedEventArgs e)
         {
-            lbLogDisplay.Items=new List<string>();
+            lbLogDisplay.Items = new List<string>();
             await myschool.LoescheLog();
         }
 
         private async void BtnLogReload_OnClick(object? sender, RoutedEventArgs e)
         {
             var items = await myschool.GetLog();
-            lbLogDisplay.Items = items.Select(message => message.Replace('\t',' ').TrimEnd('\t')).ToList();
+            lbLogDisplay.Items = items.Select(message => message.Replace('\t', ' ').TrimEnd('\t')).ToList();
+        }
+
+        private async void BtnKurseAdd_OnClick(object? sender, RoutedEventArgs e)
+        {
+            var kursbez = tbKursbezeichnung.Text;
+            var lehrkraefte = tbKursLuL.Text;
+            var kursfach = tbKursFach.Text;
+            var kurssuffix = tbKursSuffix.Text == "" ? tbSettingKurssuffix.Text : tbKursSuffix.Text;
+            var kursklasse = tbKursKlasse.Text;
+            var kursstufe = tbKursStufe.Text;
+            var istKurs = cbKursIstKurs.IsChecked.Value;
+            if (await myschool.GibtEsKurs(kursbez))
+            {
+                await myschool.UpdateKurs(kursbez, kursfach, kursklasse, kursstufe, kurssuffix,
+                    Convert.ToInt32(istKurs));
+                List<LuL> tList = new();
+                foreach (var lehrkraft in lehrkraefte.Split((';')))
+                {
+                    tList.Add(await myschool.GetLehrkraft(lehrkraft));
+                }
+
+                var tListAusKurs = await myschool.GetLuLAusKurs(kursbez);
+                foreach (var lehrkraft in tListAusKurs.Where(lehrkraft => !tList.Contains(lehrkraft)))
+                {
+                    await myschool.RemoveLfromK(lehrkraft, await myschool.GetKurs(kursbez));
+                }
+
+                foreach (var lehrkraft in tList)
+                {
+                    await myschool.AddLtoK(lehrkraft, await myschool.GetKurs(kursbez));
+                }
+            }
+            else
+            {
+                await myschool.AddKurs(kursbez, kursfach, kursklasse, kursstufe, kurssuffix, Convert.ToInt32(istKurs));
+            }
+
+            foreach (var lehrkraft in lehrkraefte.Split((';')))
+            {
+                await myschool.AddLtoK(await myschool.GetLehrkraft(lehrkraft), await myschool.GetKurs(kursbez));
+            }
+
+            if (cbKursSuSdKlasseEinschreiben.IsChecked.Value)
+            {
+                foreach (var sus in await myschool.GetSuSAusKlasse(kursklasse))
+                {
+                    await myschool.AddStoK(sus, await myschool.GetKurs(kursbez));
+                }
+            }
+
+            if (!cbKursSuSdStufeEinschreiben.IsChecked.Value) return;
+            {
+                foreach (var sus in await myschool.GetSusAusStufe(kursklasse))
+                {
+                    await myschool.AddStoK(sus, await myschool.GetKurs(kursbez));
+                }
+            }
+        }
+
+        private async void BtnKurseDel_OnClick(object? sender, RoutedEventArgs e)
+        {
+            var kursbez = tbKursbezeichnung.Text;
+            await myschool.RemoveK(kursbez);
+            OnLeftDataChanged(true);
         }
     }
 }

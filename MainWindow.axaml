@@ -196,8 +196,8 @@
                                         <CheckBox x:Name="cbKursSuSdStufeEinschreiben">SuS der Stufe einschreiben</CheckBox>
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal" Grid.Row="2">
-                                        <Button x:Name="btnKurseAdd">Hinzufügen/aktualisieren</Button>
-                                        <Button x:Name="btnKurseDel" Margin="5">markierte löschen</Button>
+                                        <Button x:Name="btnKurseAdd" Click="BtnKurseAdd_OnClick">Hinzufügen/aktualisieren</Button>
+                                        <Button x:Name="btnKurseDel" Margin="5" Click="BtnKurseDel_OnClick">markierte löschen</Button>
                                     </StackPanel>
                                 </Grid>
                             </TabItem>
