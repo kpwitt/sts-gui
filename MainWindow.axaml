@@ -87,7 +87,7 @@
                                     <ComboBoxItem Content="Lehrkräfte" />
                                     <ComboBoxItem Content="Klasse/Kurs" />
                                 </ComboBox>
-                                <TextBox Text="" Grid.Row="1" Grid.Column="0" x:Name="tbLeftSearch" />
+                                <TextBox Text="" Grid.Row="1" Grid.Column="0" x:Name="tbLeftSearch" KeyUp="TbLeftSearch_OnKeyUp"/>
                                 <ListBox Grid.Row="2" MaxHeight="750" x:Name="LeftListBox" SelectionMode="Multiple"
                                          SelectionChanged="LeftListBox_OnSelectionChanged" VerticalAlignment="Stretch">
                                 </ListBox>
@@ -102,7 +102,7 @@
                                         <ComboBoxItem Content="Lehrkräfte" />
                                         <ComboBoxItem Content="Klasse/Kurs" />
                                     </ComboBox>
-                                    <TextBox Text="" Grid.Row="1" Grid.Column="1" x:Name="tbRightSearch" />
+                                    <TextBox Text="" Grid.Row="1" Grid.Column="1" x:Name="tbRightSearch" KeyUp="TbRightSearch_OnKeyUp"/>
                                 </Grid>
                                 <ListBox MaxHeight="750" x:Name="RightListBox" SelectionMode="Multiple"
                                          SelectionChanged="RightListBox_OnSelectionChanged" VerticalAlignment="Stretch">

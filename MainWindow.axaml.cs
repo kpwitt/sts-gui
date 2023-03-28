@@ -12,6 +12,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
+using Avalonia.Input;
 using Avalonia.Threading;
 using MessageBox.Avalonia.DTO;
 using MessageBox.Avalonia.Enums;
@@ -23,8 +24,8 @@ namespace StS_GUI_Avalonia
         private SaveFileDialog globalOpenSaveDialog = new();
         private OpenFileDialog globalOpenFileDialog = new();
         private OpenFolderDialog globalOpenFolderDialog = new();
-        private Timer leftInputTimer = new();
-        private Timer rightInputTimer = new();
+        private Timer leftInputTimer = new(350);
+        private Timer rightInputTimer = new(350);
         private SchulDB myschool = new(":memory:");
 
         public MainWindow()
@@ -48,6 +49,9 @@ namespace StS_GUI_Avalonia
             {
                 tbSettingFachlang.Text += fachl + '\n';
             }
+            
+            leftInputTimer.Elapsed += OnLeftTimedEvent;
+            rightInputTimer.Elapsed += OnRightTimedEvent;
         }
 
         //quelle: https://ourcodeworld.com/articles/read/471/how-to-encrypt-and-decrypt-files-using-the-aes-encryption-algorithm-in-c-sharp
@@ -1310,6 +1314,40 @@ namespace StS_GUI_Avalonia
             var kursbez = tbKursbezeichnung.Text;
             await myschool.RemoveK(kursbez);
             OnLeftDataChanged(true);
+        }
+        
+        private async void OnLeftTimedEvent(object? source, ElapsedEventArgs e)
+        {
+            var updateLeftList = () =>
+            {
+                LeftListBox.Items = LeftListBox.Items.Cast<string>()
+                    .Where(listitem => listitem.ToLower().Contains(tbLeftSearch.Text.ToLower()));
+            };
+            await Dispatcher.UIThread.InvokeAsync(updateLeftList);
+            leftInputTimer.Enabled = false;
+        }
+        
+        private async void OnRightTimedEvent(object? source, ElapsedEventArgs e)
+        {
+            var updateRightList = () =>
+            {
+                RightListBox.Items = RightListBox.Items.Cast<string>()
+                    .Where(listitem => listitem.ToLower().Contains(tbRightSearch.Text.ToLower()));
+            };
+            await Dispatcher.UIThread.InvokeAsync(updateRightList);
+            rightInputTimer.Enabled = false;
+        }
+
+        private void TbLeftSearch_OnKeyUp(object? sender, KeyEventArgs e)
+        {
+            leftInputTimer.Enabled = true;
+            leftInputTimer.Start();
+        }
+
+        private void TbRightSearch_OnKeyUp(object? sender, KeyEventArgs e)
+        {
+            rightInputTimer.Enabled = true;
+            rightInputTimer.Start();
         }
     }
 }
