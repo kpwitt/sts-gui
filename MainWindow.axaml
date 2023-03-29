@@ -3,7 +3,7 @@
         SizeToContent="WidthAndHeight"
         x:Class="StS_GUI_Avalonia.MainWindow"
         Icon="/Assets/gfx/school-building.ico"
-        Title="StS">
+        Title="SchildToSchule">
 
     <Window.Styles>
         <Style Selector="TabItem.Header">

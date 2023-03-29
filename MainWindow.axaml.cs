@@ -13,6 +13,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
 using Avalonia.Input;
+using Avalonia.LogicalTree;
 using Avalonia.Threading;
 using MessageBox.Avalonia.DTO;
 using MessageBox.Avalonia.Enums;
@@ -279,6 +280,7 @@ namespace StS_GUI_Avalonia
             if (respath is { Length: > 0 })
             {
                 myschool = new SchulDB(respath[0]);
+                Title = "SchildToSchule - " + await myschool.GetFilePath();
             }
 
             InitData();
@@ -293,6 +295,7 @@ namespace StS_GUI_Avalonia
                 var rightlist = this.GetControl<ListBox>("RightListBox");
                 leftlist.Items = new List<string>();
                 rightlist.Items = new List<string>();
+                Title = "SchildToSchule";
                 ClearTextFields();
                 return;
             }
