@@ -27,6 +27,7 @@ namespace StS_GUI_Avalonia
         private Timer leftInputTimer = new(350);
         private Timer rightInputTimer = new(350);
         private SchulDB myschool = new(":memory:");
+        private ContextMenu leftContext = new();
 
         public MainWindow()
         {
@@ -52,7 +53,52 @@ namespace StS_GUI_Avalonia
             
             leftInputTimer.Elapsed += OnLeftTimedEvent;
             rightInputTimer.Elapsed += OnRightTimedEvent;
+
+            List<Control> leftContextItems = new();
+            var cbMAnfangsPassword = new CheckBox
+            {
+                Name = "cbMnuLeftContextAnfangsPasswort",
+                Content = "Mit Anfangspasswort"
+            };
+            var cbMEltern = new CheckBox
+            {
+                Name = "cbMnuLeftContextEltern",
+                Content = "Eltern mitexportieren"
+            };
+            var cbMLLGIntern= new CheckBox
+            {
+                Name = "cbMnuLeftContextLLGIntern",
+                Content = "LLG-Intern"
+            };
+            var mnuItemMPasswordGenerieren = new MenuItem
+            {
+                Name = "mnuItemMPasswordGenerieren",
+                Header = "neues temp. Passwort geneieren"
+            };
+            mnuItemMPasswordGenerieren.Click += OnMnuPasswordGenClick;
+            var mnuItemMSerienbrief = new MenuItem
+            {
+                Name = "mnuItemMSerienbrief",
+                Header = "Serienbrief-CSV exportieren"
+            };
+            mnuItemMSerienbrief.Click += OnMnuSerienbriefClick;
+            var mnuItemMExport = new MenuItem
+            {
+                Name = "mnuItemMExport",
+                Header = "markierte Elemente exportieren"
+            };
+            mnuItemMExport.Click += OnMnuExportClick;
+            leftContextItems.Add(cbMAnfangsPassword);
+            leftContextItems.Add(cbMEltern);
+            leftContextItems.Add(cbMLLGIntern);
+            leftContextItems.Add(mnuItemMSerienbrief);
+            leftContextItems.Add(mnuItemMPasswordGenerieren);
+            leftContextItems.Add(mnuItemMExport);
+            leftContext.Items = leftContextItems;
+            LeftListBox.ContextMenu = leftContext;
         }
+
+        
 
         //quelle: https://ourcodeworld.com/articles/read/471/how-to-encrypt-and-decrypt-files-using-the-aes-encryption-algorithm-in-c-sharp
         /// <summary>
@@ -1348,6 +1394,21 @@ namespace StS_GUI_Avalonia
         {
             rightInputTimer.Enabled = true;
             rightInputTimer.Start();
+        }
+
+        private void OnMnuSerienbriefClick(object? sender, RoutedEventArgs e)
+        {
+            
+        }
+        
+        private void OnMnuPasswordGenClick(object? sender, RoutedEventArgs e)
+        {
+            
+        }
+        
+        private void OnMnuExportClick(object? sender, RoutedEventArgs e)
+        {
+            
         }
     }
 }
