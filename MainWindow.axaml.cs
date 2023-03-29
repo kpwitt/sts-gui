@@ -1409,9 +1409,88 @@ namespace StS_GUI_Avalonia
             
         }
         
-        private void OnMnuExportClick(object? sender, RoutedEventArgs e)
+        private async void OnMnuExportClick(object? sender, RoutedEventArgs e)
         {
-            
+            var readFileTask = async () =>
+            {
+                SetupOpenFolderDialog(globalOpenFolderDialog, "Bitte den Ordner zum Speichern angeben");
+                var folder = await globalOpenFolderDialog.ShowAsync(this);
+                if (folder == null) return;
+                var expandFiles = false;
+                if (File.Exists(folder + "/aix_sus.csv") || File.Exists(folder + "/aix_lul.csv") ||
+                    File.Exists(folder + "/mdl_einschreibungen.csv") || File.Exists(folder + "/mdl_kurse.csv") ||
+                    File.Exists(folder + "/mdl_nutzer.csv"))
+                {
+                    var overwriteFilesDialog = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                        new MessageBoxStandardParams
+                        {
+                            ButtonDefinitions = ButtonEnum.YesNo,
+                            ContentTitle = "Dateien gefunden",
+                            ContentHeader = "Überschreiben?",
+                            ContentMessage =
+                                "Im Ordner existieren schon eine/mehrere Exportdateien.\nSollen diese überschrieben werden?",
+                            Icon = MessageBox.Avalonia.Enums.Icon.Question
+                        });
+                    var dialogResult = await overwriteFilesDialog.ShowDialog(this);
+                    expandFiles = dialogResult switch
+                    {
+                        ButtonResult.Yes => true,
+                        ButtonResult.No => false,
+                        _ => false
+                    };
+                }
+
+                List<SuS> suslist = new();
+                List<LuL> lullist = new();
+                List<Kurs> kurslist = new();
+                var whattoexport = "";
+                const string destsys = "all";
+                switch (CboxDataLeft.SelectedIndex)
+                {
+                    case 0:
+                        whattoexport += "s";
+                        foreach (string suseintrag in LeftListBox.SelectedItems)
+                        {
+                            suslist.Add(await myschool.GetSchueler(Convert.ToInt32(suseintrag.Split(';')[1])));
+                        }
+                        break;
+                    case 1:
+                        whattoexport += "l";
+                        var isllginternChecked = ((CheckBox)LeftListBox.ContextMenu.Items.Cast<Control>().Where(c=>c.Name=="cbMnuLeftContextLLGIntern").ToList().First()).IsChecked;
+                        if (isllginternChecked != null && isllginternChecked.Value) whattoexport += "e";
+                        foreach (string luleintrag in LeftListBox.SelectedItems)
+                        {
+                            lullist.Add(await myschool.GetLehrkraft(luleintrag.Split(';')[0]));
+                        }
+                        break;
+                    case 2:
+                        whattoexport += "k";
+                        foreach (string kurseintrag in LeftListBox.SelectedItems)
+                        {
+                            kurslist.Add(await myschool.GetKurs(kurseintrag));
+                        }
+                        break;
+                    default:
+                        return;
+                }
+
+                var isElternChecked = ((CheckBox)LeftListBox.ContextMenu.Items.Cast<Control>().Where(c=>c.Name=="cbMnuLeftContextEltern").ToList().First()).IsChecked;
+                if (isElternChecked != null && isElternChecked.Value) whattoexport += "e";
+                var kursvorlagen = new[] { "", "" };
+                if (cbExportVorlagenkurse.IsChecked.Value)
+                {
+                    kursvorlagen[0] = tbExportKl.Text;
+                    kursvorlagen[1] = tbExportF.Text;
+                }
+
+                var isAnfangsPasswortChecked = ((CheckBox)LeftListBox.ContextMenu.Items.Cast<Control>().Where(c=>c.Name=="cbMnuLeftContextAnfangsPasswort").ToList().First()).IsChecked;
+                var res = await myschool.ExportCSV(folder, destsys, whattoexport, isAnfangsPasswortChecked != null && isAnfangsPasswortChecked.Value,
+                    expandFiles, kursvorlagen,
+                    suslist.Select(s=>s.ID).Distinct().ToList(), lullist.Select(l=>l.ID).Distinct().ToList(),
+                    kurslist.Select(k=>k.Bezeichnung).Distinct().ToList());
+            };
+
+            await Dispatcher.UIThread.InvokeAsync(readFileTask);
         }
     }
 }
