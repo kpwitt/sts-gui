@@ -1404,8 +1404,14 @@ namespace StS_GUI_Avalonia
             
         }
         
-        private void OnMnuPasswordGenClick(object? sender, RoutedEventArgs e)
+        private async void OnMnuPasswordGenClick(object? sender, RoutedEventArgs e)
         {
+            if (CboxDataLeft.SelectedIndex != 1) return;
+            foreach (string luleintrag in LeftListBox.SelectedItems)
+            {
+                var lul = await myschool.GetLehrkraft(luleintrag.Split(';')[0]);
+                myschool.SetTPwd(lul.ID, SchulDB.GeneratePasswort(8));
+            }
             
         }
         
