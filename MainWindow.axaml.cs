@@ -1398,9 +1398,38 @@ namespace StS_GUI_Avalonia
             rightInputTimer.Start();
         }
 
-        private void OnMnuSerienbriefClick(object? sender, RoutedEventArgs e)
+        private async void OnMnuSerienbriefClick(object? sender, RoutedEventArgs e)
         {
-            
+            var readFileTask = async () =>
+            {
+                SetupSaveFileDialog(globalSaveFileDialog, "Serienbriefdatei...", new[] { "csv" },
+                    new[] { "CSV-Datei" });
+                var folder = await globalOpenFolderDialog.ShowAsync(this);
+                if (folder == null) return;
+                List<string> susausgabe = new() { "Vorname;Nachname;Anmeldename;Kennwort;E-Mail;Klasse" };
+                switch (CboxDataLeft.SelectedIndex)
+                {
+                    case 0:
+                        susausgabe.AddRange(LeftListBox.SelectedItems.Cast<string>().ToList()
+                            .Select(sus => myschool.GetSchueler(Convert.ToInt32(sus.Split(';')[1])).Result).Select(s =>
+                                s.Vorname + ";" + s.Nachname + ";" + s.Nutzername + ";" + "Klasse" + s.Klasse +
+                                DateTime.Now.Year + "!;" + s.Aixmail + ";" + s.Klasse));
+                        await File.WriteAllLinesAsync(folder, susausgabe.Distinct().ToList(), Encoding.UTF8);
+                        break;
+                    case 2:
+                        foreach (string kursbez in LeftListBox.SelectedItems)
+                        {
+                            susausgabe.AddRange(myschool.GetSuSAusKurs(kursbez).Result.Distinct().Select(s =>
+                                s.Vorname + ";" + s.Nachname + ";" + s.Nutzername + ";" + "Klasse" + s.Klasse +
+                                DateTime.Now.Year + "!;" + s.Aixmail + ";" + s.Klasse));
+                        }
+
+                        await File.WriteAllLinesAsync(folder, susausgabe.Distinct().ToList(), Encoding.UTF8);
+                        break;
+                    default: return;
+                }
+            };
+            await Task.Run(readFileTask);
         }
 
         private async void OnMnuPasswordGenClick(object? sender, RoutedEventArgs e)
