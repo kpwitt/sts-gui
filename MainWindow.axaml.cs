@@ -508,7 +508,7 @@ namespace StS_GUI_Avalonia
                     await myschool.RemoveSfromK(sid, kurs.Bezeichnung);
                 }
 
-                if (suskurse.Count > 0)
+                if (suskurse.Count <= 0) return;
                 {
                     foreach (var kurs in suskurse)
                     {
@@ -579,7 +579,7 @@ namespace StS_GUI_Avalonia
                     await myschool.RemoveLfromK(lid, kurs.Bezeichnung);
                 }
 
-                if (lulkurse.Count > 0)
+                if (lulkurse.Count <= 0) return;
                 {
                     foreach (var kurs in lulkurse)
                     {
