@@ -13,7 +13,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
 using Avalonia.Input;
-using Avalonia.LogicalTree;
 using Avalonia.Threading;
 using MessageBox.Avalonia.DTO;
 using MessageBox.Avalonia.Enums;
