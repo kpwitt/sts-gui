@@ -21,7 +21,7 @@ namespace StS_GUI_Avalonia
 {
     public partial class MainWindow : Window
     {
-        private SaveFileDialog globalOpenSaveDialog = new();
+        private SaveFileDialog globalSaveFileDialog = new();
         private OpenFileDialog globalOpenFileDialog = new();
         private OpenFolderDialog globalOpenFolderDialog = new();
         private Timer leftInputTimer = new(350);
@@ -228,7 +228,7 @@ namespace StS_GUI_Avalonia
             }
         }
 
-        private void SetupSaveDialog(SaveFileDialog sfd, string dialogtitle, string[] extensions,
+        private void SetupSaveFileDialog(SaveFileDialog sfd, string dialogtitle, string[] extensions,
             string[] extensionsanames)
         {
             if (extensions.Length != extensionsanames.Length) return;
