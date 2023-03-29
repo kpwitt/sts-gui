@@ -50,7 +50,7 @@ namespace StS_GUI_Avalonia
             {
                 tbSettingFachlang.Text += fachl + '\n';
             }
-            
+
             leftInputTimer.Elapsed += OnLeftTimedEvent;
             rightInputTimer.Elapsed += OnRightTimedEvent;
 
@@ -65,7 +65,7 @@ namespace StS_GUI_Avalonia
                 Name = "cbMnuLeftContextEltern",
                 Content = "Eltern mitexportieren"
             };
-            var cbMLLGIntern= new CheckBox
+            var cbMLLGIntern = new CheckBox
             {
                 Name = "cbMnuLeftContextLLGIntern",
                 Content = "LLG-Intern"
@@ -98,7 +98,6 @@ namespace StS_GUI_Avalonia
             LeftListBox.ContextMenu = leftContext;
         }
 
-        
 
         //quelle: https://ourcodeworld.com/articles/read/471/how-to-encrypt-and-decrypt-files-using-the-aes-encryption-algorithm-in-c-sharp
         /// <summary>
@@ -299,11 +298,11 @@ namespace StS_GUI_Avalonia
                 return;
             }
 
-            SetupOpenFileDialog(globalOpenFileDialog, "Bitte einen Dateipfad angeben...", new[] { "sqlite" },
+            SetupSaveFileDialog(globalSaveFileDialog, "Bitte einen Dateipfad angeben...", new[] { "sqlite" },
                 new[] { "Datenbankdatei" });
             var saveDBFile = async () =>
             {
-                var filepath = await globalOpenSaveDialog.ShowAsync(this);
+                var filepath = await globalSaveFileDialog.ShowAsync(this);
                 if (filepath == null) return;
                 var tempDB = new SchulDB(filepath);
                 var res = await tempDB.Import(myschool);
@@ -317,11 +316,11 @@ namespace StS_GUI_Avalonia
 
         public async void OnMnuschulespeichernunterClick(object? sender, RoutedEventArgs e)
         {
-            SetupSaveDialog(globalOpenSaveDialog, "Datenbankdatei speichern unter...", new[] { "sqlite" },
+            SetupSaveFileDialog(globalSaveFileDialog, "Datenbankdatei speichern unter...", new[] { "sqlite" },
                 new[] { "Datenbankdatei" });
             var saveDBFile = async () =>
             {
-                var filepath = await globalOpenSaveDialog.ShowAsync(this);
+                var filepath = await globalSaveFileDialog.ShowAsync(this);
                 if (filepath == null) return;
                 var tempDB = new SchulDB(filepath);
                 var res = await tempDB.Import(myschool);
@@ -340,12 +339,13 @@ namespace StS_GUI_Avalonia
 
         public async void OnMnuschuleversspeichernClick(object? sender, RoutedEventArgs e)
         {
-            SetupSaveDialog(globalOpenSaveDialog, "Datenbankdatei verschlüsselt speichern unter...", new[] { "aes" },
+            SetupSaveFileDialog(globalSaveFileDialog, "Datenbankdatei verschlüsselt speichern unter...",
+                new[] { "aes" },
                 new[] { "verschlüsselte Datenbankdatei" });
             if (myschool.GetFilePath().Result == ":memory:") return;
             var saveDBFile = async () =>
             {
-                var filepath = await globalOpenSaveDialog.ShowAsync(this);
+                var filepath = await globalSaveFileDialog.ShowAsync(this);
                 if (filepath == null) return;
                 FileEncrypt(myschool.GetFilePath().Result, filepath, "TODO!");
             };
@@ -358,11 +358,11 @@ namespace StS_GUI_Avalonia
                 new[] { "verschlüsselte Datenbankdatei" });
             var respath = await globalOpenFileDialog.ShowAsync(this);
             if (respath is not { Length: > 0 }) return;
-            SetupSaveDialog(globalOpenSaveDialog, "Datenbankdatei speichern unter...", new[] { "sqlite" },
+            SetupSaveFileDialog(globalSaveFileDialog, "Datenbankdatei speichern unter...", new[] { "sqlite" },
                 new[] { "Datenbankdatei" });
             var saveDBFile = async () =>
             {
-                var filepath = await globalOpenSaveDialog.ShowAsync(this);
+                var filepath = await globalSaveFileDialog.ShowAsync(this);
                 if (filepath == null) return;
                 FileDecrypt(respath[0], filepath, "TODO!");
                 myschool = new SchulDB(filepath);
@@ -1226,10 +1226,10 @@ namespace StS_GUI_Avalonia
 
         private async void BtnFehlerExport_OnClick(object? sender, RoutedEventArgs e)
         {
-            SetupSaveDialog(globalOpenSaveDialog, "Speichern unter...", new[] { "csv" }, new[] { "CSV-Datei" });
+            SetupSaveFileDialog(globalSaveFileDialog, "Speichern unter...", new[] { "csv" }, new[] { "CSV-Datei" });
             var saveDBFile = async () =>
             {
-                var filepath = await globalOpenSaveDialog.ShowAsync(this);
+                var filepath = await globalSaveFileDialog.ShowAsync(this);
                 if (filepath == null) return;
 
                 await File.WriteAllLinesAsync(filepath, lbFehlerliste.Items.Cast<string>(), Encoding.UTF8);
@@ -1363,7 +1363,7 @@ namespace StS_GUI_Avalonia
             await myschool.RemoveK(kursbez);
             OnLeftDataChanged(true);
         }
-        
+
         private async void OnLeftTimedEvent(object? source, ElapsedEventArgs e)
         {
             var updateLeftList = () =>
@@ -1374,7 +1374,7 @@ namespace StS_GUI_Avalonia
             await Dispatcher.UIThread.InvokeAsync(updateLeftList);
             leftInputTimer.Enabled = false;
         }
-        
+
         private async void OnRightTimedEvent(object? source, ElapsedEventArgs e)
         {
             var updateRightList = () =>
@@ -1402,7 +1402,7 @@ namespace StS_GUI_Avalonia
         {
             
         }
-        
+
         private async void OnMnuPasswordGenClick(object? sender, RoutedEventArgs e)
         {
             if (CboxDataLeft.SelectedIndex != 1) return;
@@ -1413,7 +1413,7 @@ namespace StS_GUI_Avalonia
             }
             
         }
-        
+
         private async void OnMnuExportClick(object? sender, RoutedEventArgs e)
         {
             var readFileTask = async () =>
@@ -1458,15 +1458,18 @@ namespace StS_GUI_Avalonia
                         {
                             suslist.Add(await myschool.GetSchueler(Convert.ToInt32(suseintrag.Split(';')[1])));
                         }
+
                         break;
                     case 1:
                         whattoexport += "l";
-                        var isllginternChecked = ((CheckBox)LeftListBox.ContextMenu.Items.Cast<Control>().Where(c=>c.Name=="cbMnuLeftContextLLGIntern").ToList().First()).IsChecked;
+                        var isllginternChecked = ((CheckBox)LeftListBox.ContextMenu.Items.Cast<Control>()
+                            .Where(c => c.Name == "cbMnuLeftContextLLGIntern").ToList().First()).IsChecked;
                         if (isllginternChecked != null && isllginternChecked.Value) whattoexport += "e";
                         foreach (string luleintrag in LeftListBox.SelectedItems)
                         {
                             lullist.Add(await myschool.GetLehrkraft(luleintrag.Split(';')[0]));
                         }
+
                         break;
                     case 2:
                         whattoexport += "k";
@@ -1474,12 +1477,14 @@ namespace StS_GUI_Avalonia
                         {
                             kurslist.Add(await myschool.GetKurs(kurseintrag));
                         }
+
                         break;
                     default:
                         return;
                 }
 
-                var isElternChecked = ((CheckBox)LeftListBox.ContextMenu.Items.Cast<Control>().Where(c=>c.Name=="cbMnuLeftContextEltern").ToList().First()).IsChecked;
+                var isElternChecked = ((CheckBox)LeftListBox.ContextMenu.Items.Cast<Control>()
+                    .Where(c => c.Name == "cbMnuLeftContextEltern").ToList().First()).IsChecked;
                 if (isElternChecked != null && isElternChecked.Value) whattoexport += "e";
                 var kursvorlagen = new[] { "", "" };
                 if (cbExportVorlagenkurse.IsChecked.Value)
@@ -1488,11 +1493,13 @@ namespace StS_GUI_Avalonia
                     kursvorlagen[1] = tbExportF.Text;
                 }
 
-                var isAnfangsPasswortChecked = ((CheckBox)LeftListBox.ContextMenu.Items.Cast<Control>().Where(c=>c.Name=="cbMnuLeftContextAnfangsPasswort").ToList().First()).IsChecked;
-                var res = await myschool.ExportCSV(folder, destsys, whattoexport, isAnfangsPasswortChecked != null && isAnfangsPasswortChecked.Value,
+                var isAnfangsPasswortChecked = ((CheckBox)LeftListBox.ContextMenu.Items.Cast<Control>()
+                    .Where(c => c.Name == "cbMnuLeftContextAnfangsPasswort").ToList().First()).IsChecked;
+                var res = await myschool.ExportCSV(folder, destsys, whattoexport,
+                    isAnfangsPasswortChecked != null && isAnfangsPasswortChecked.Value,
                     expandFiles, kursvorlagen,
-                    suslist.Select(s=>s.ID).Distinct().ToList(), lullist.Select(l=>l.ID).Distinct().ToList(),
-                    kurslist.Select(k=>k.Bezeichnung).Distinct().ToList());
+                    suslist.Select(s => s.ID).Distinct().ToList(), lullist.Select(l => l.ID).Distinct().ToList(),
+                    kurslist.Select(k => k.Bezeichnung).Distinct().ToList());
             };
 
             await Dispatcher.UIThread.InvokeAsync(readFileTask);
