@@ -359,7 +359,8 @@ namespace StS_GUI_Avalonia
             var suskurse = tbSuSKurse.Text.Split(',').ToList();
             if (susid == null || susvname == null || susnname is null || susklasse == null ||
                 susnutzername == null || susaximail == null || suselternadresse == null || suszweitadresse == null ||
-                susHatZweitaccount == null) return;
+                susHatZweitaccount == null || susid == "" || susvname == "" || susnname is "" || susklasse == "" ||
+                suselternadresse == "") return;
             var sid = Convert.ToInt32(susid);
             if (await myschool.GibtEsSchueler(sid))
             {
@@ -436,7 +437,9 @@ namespace StS_GUI_Avalonia
             var lulpwtemp = tbLuLtmpPwd.Text;
             var lulkurse = tbLuLKurse.Text.Split(',').ToList();
             if (lulid == null || lulvname == null || lulnname == null || lulkrz == null || lulfakultas == null ||
-                lulmail == null || lulpwtemp == null) return;
+                lulmail == null || lulpwtemp == null || lulid == "" || lulvname == "" || lulnname == "" ||
+                lulkrz == "" || lulfakultas == "" ||
+                lulmail == "") return;
             var lid = Convert.ToInt32(lulid);
             if (await myschool.GibtEsLehrkraft(lid))
             {
@@ -1177,6 +1180,8 @@ namespace StS_GUI_Avalonia
             var kursklasse = tbKursKlasse.Text;
             var kursstufe = tbKursStufe.Text;
             var istKurs = cbKursIstKurs.IsChecked != null && cbKursIstKurs.IsChecked.Value;
+            if (kursbez == null || lehrkraefte == null || kursfach == null || kursklasse == null || kursstufe == null ||
+                kursbez == "" || lehrkraefte == "" || kursfach == "" || kursklasse == "" || kursstufe == "") return;
             if (await myschool.GibtEsKurs(kursbez))
             {
                 await myschool.UpdateKurs(kursbez, kursfach, kursklasse, kursstufe, kurssuffix,
