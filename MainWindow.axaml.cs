@@ -1000,7 +1000,32 @@ namespace StS_GUI_Avalonia
                     expandFiles, kursvorlagen,
                     await myschool.GetSchuelerIDListe(), await myschool.GetLehrerIDListe(),
                     await myschool.GetKursBezListe());
-                //check return Value
+                if (res == 1)
+                {
+                    var successExportDialog = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                        new MessageBoxStandardParams
+                        {
+                            ButtonDefinitions = ButtonEnum.Ok,
+                            ContentTitle = "Export erfolgreich",
+                            ContentMessage =
+                                "Der Expport war erfolgreich",
+                            Icon = MessageBox.Avalonia.Enums.Icon.Info
+                        });
+                    await successExportDialog.Show();
+                }
+                else
+                {
+                    var failedExportDialog = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                        new MessageBoxStandardParams
+                        {
+                            ButtonDefinitions = ButtonEnum.Ok,
+                            ContentTitle = "Export fehlgeschlagen",
+                            ContentMessage =
+                                "Export war nicht erfolgreiche. Bitte im Log nachschauen",
+                            Icon = MessageBox.Avalonia.Enums.Icon.Error
+                        });
+                    await failedExportDialog.Show(); 
+                }
             };
 
             await Dispatcher.UIThread.InvokeAsync(readFileTask);
