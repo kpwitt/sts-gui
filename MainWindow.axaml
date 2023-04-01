@@ -65,6 +65,8 @@
                                       Click="OnMnuloadusernamesmailClick" />
                             <MenuItem Header="_2. Accounts einlesen" x:Name="mnuLoadZweitaccounts"
                                       Click="OnMnuloadzweitaccountsClick" />
+                            <MenuItem Header="_Elternamiladressen einlesen" x:Name="mnuLoadElternMails"
+                                      Click="MnuLoadElternMails_OnClick" />
                         </MenuItem>
                         <MenuItem Header="Änderungen _einlesen" x:Name="mnuReadDiffs" IsVisible="False" />
                         <MenuItem Header="In CSV exportieren" x:Name="mnuExportToCSV" Click="OnMnuexporttocsvClick" />

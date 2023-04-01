@@ -1444,5 +1444,16 @@ namespace StS_GUI_Avalonia
 
             await Dispatcher.UIThread.InvokeAsync(readFileTask);
         }
+
+        private async void MnuLoadElternMails_OnClick(object? sender, RoutedEventArgs e)
+        {
+            SetupOpenFileDialog(globalOpenFileDialog, "Lade Elternmailadressen", new[] { "csv", "*" },
+                new[] { "CSV-Datei", "Alle-Dateien" });
+            var respath = await globalOpenFileDialog.ShowAsync(this);
+            if (respath is { Length: > 0 })
+            {
+                await myschool.ElternEinlesen(respath[0]);
+            }
+        }
     }
 }
