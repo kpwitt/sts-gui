@@ -5,8 +5,6 @@ using Avalonia.Input;
 using Avalonia.Threading;
 using MessageBox.Avalonia.DTO;
 using MessageBox.Avalonia.Enums;
-using SDB;
-using SchulStructs;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -16,6 +14,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
+using SchulDB;
 
 namespace StS_GUI_Avalonia
 {
@@ -26,7 +25,7 @@ namespace StS_GUI_Avalonia
         private OpenFolderDialog globalOpenFolderDialog = new();
         private Timer leftInputTimer = new(350);
         private Timer rightInputTimer = new(350);
-        private SchulDB myschool = new(":memory:");
+        private Schuldatenbank myschool = new(":memory:");
         private ContextMenu leftContext = new();
 
         public MainWindow()
@@ -148,7 +147,7 @@ namespace StS_GUI_Avalonia
             var respath = await globalOpenFileDialog.ShowAsync(this);
             if (respath is { Length: > 0 })
             {
-                myschool = new SchulDB(respath[0]);
+                myschool = new Schuldatenbank(respath[0]);
                 Title = "SchildToSchule - " + await myschool.GetFilePath();
             }
 
@@ -175,7 +174,7 @@ namespace StS_GUI_Avalonia
             {
                 var filepath = await globalSaveFileDialog.ShowAsync(this);
                 if (filepath == null) return;
-                var tempDB = new SchulDB(filepath);
+                var tempDB = new Schuldatenbank(filepath);
                 var res = await tempDB.Import(myschool);
                 if (res == 0)
                 {
@@ -193,7 +192,7 @@ namespace StS_GUI_Avalonia
             {
                 var filepath = await globalSaveFileDialog.ShowAsync(this);
                 if (filepath == null) return;
-                var tempDB = new SchulDB(filepath);
+                var tempDB = new Schuldatenbank(filepath);
                 var res = await tempDB.Import(myschool);
                 if (res != 0)
                 {
@@ -236,7 +235,7 @@ namespace StS_GUI_Avalonia
                 var filepath = await globalSaveFileDialog.ShowAsync(this);
                 if (filepath == null) return;
                 LocalCryptoServive.FileDecrypt(respath[0], filepath, "TODO!");
-                myschool = new SchulDB(filepath);
+                myschool = new Schuldatenbank(filepath);
             };
             await Task.Run(saveDBFile);
         }
@@ -1345,7 +1344,7 @@ namespace StS_GUI_Avalonia
             foreach (string luleintrag in LeftListBox.SelectedItems)
             {
                 var lul = await myschool.GetLehrkraft(luleintrag.Split(';')[0]);
-                myschool.SetTPwd(lul.ID, SchulDB.GeneratePasswort(8));
+                myschool.SetTPwd(lul.ID, Schuldatenbank.GeneratePasswort(8));
             }
 
             await myschool.StopTransaction();
