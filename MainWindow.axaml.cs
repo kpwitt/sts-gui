@@ -1429,7 +1429,7 @@ namespace StS_GUI_Avalonia
                 };
                 lulliste.AddRange(myschool.GetLehrerListe().Result.Select(lehrer =>
                     lehrer.Kuerzel + ";" + lehrer.Nachname + ";" + lehrer.Vorname + ";" +
-                    lehrer.Fakultas + ";" + lehrer.Mail));
+                    lehrer.Fakultas + ";" + lehrer.Mail).OrderBy(s =>s.Split(';')[0]));
                 await File.WriteAllLinesAsync(filepath, lulliste, Encoding.UTF8);
             };
             await Task.Run(saveDBFile);
