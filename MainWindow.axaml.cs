@@ -5,6 +5,7 @@ using Avalonia.Input;
 using Avalonia.Threading;
 using MessageBox.Avalonia.DTO;
 using MessageBox.Avalonia.Enums;
+using SchulDB;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,7 +15,6 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
-using SchulDB;
 
 namespace StS_GUI_Avalonia
 {
@@ -1467,7 +1467,7 @@ namespace StS_GUI_Avalonia
         {
             SetupSaveFileDialog(globalSaveFileDialog, "Lehrkräfteexport für die Homepage", new[] { "csv" },
                 new[] { "CSV-Datei" });
-            var saveDBFile = async () =>
+            var saveLKtoHP = async () =>
             {
                 var filepath = await globalSaveFileDialog.ShowAsync(this);
                 if (filepath == null) return;
@@ -1480,7 +1480,7 @@ namespace StS_GUI_Avalonia
                     lehrer.Fakultas + ";" + lehrer.Mail).OrderBy(s =>s.Split(';')[0]));
                 await File.WriteAllLinesAsync(filepath, lulliste, Encoding.UTF8);
             };
-            await Task.Run(saveDBFile);
+            await Task.Run(saveLKtoHP);
         }
     }
 }
