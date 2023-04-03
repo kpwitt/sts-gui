@@ -69,8 +69,10 @@
                                       Click="MnuLoadElternMails_OnClick" />
                         </MenuItem>
                         <MenuItem Header="Änderungen _einlesen" x:Name="mnuReadDiffs" IsVisible="False" />
-                        <MenuItem Header="Export als Ausgangsdaten" x:Name="mnuExportToCSV" Click="OnMnuexporttocsvClick" />
-                        <MenuItem Header="Lehrkräfte für Homepage" x:Name="mnuExportLKtoHP" Click="MnuExportLKtoHP_OnClick" />
+                        <MenuItem Header="Export als Ausgangsdaten" x:Name="mnuExportToCSV"
+                                  Click="OnMnuexporttocsvClick" />
+                        <MenuItem Header="Lehrkräfte für Homepage" x:Name="mnuExportLKtoHP"
+                                  Click="MnuExportLKtoHP_OnClick" />
                     </MenuItem>
                     <MenuItem Header="_Hilfe">
                         <MenuItem Header="Über" x:Name="mnuAbout" Click="OnMnuaboutClick" />
@@ -81,37 +83,41 @@
                 <TabItem Header="Daten" Classes="Header"> <!-- Daten-Tab -->
                     <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto" VerticalAlignment="Stretch">
                         <Grid Grid.Row="0" Grid.Column="0" ColumnDefinitions="Auto,Auto" RowDefinitions="Auto">
-                            <Grid ColumnDefinitions="Auto" RowDefinitions="Auto,Auto,Auto">
-                                <ComboBox Width="250" VerticalAlignment="Top"
-                                          Grid.Row="0" Grid.Column="0"
-                                          x:Name="CboxDataLeft"
-                                          SelectionChanged="CboxDataLeft_OnSelectionChanged">
-                                    <ComboBoxItem Content="Schüler*in" />
-                                    <ComboBoxItem Content="Lehrkräfte" />
-                                    <ComboBoxItem Content="Klasse/Kurs" />
-                                </ComboBox>
-                                <TextBox Text="" Grid.Row="1" Grid.Column="0" x:Name="tbLeftSearch" KeyUp="TbLeftSearch_OnKeyUp"/>
-                                <ListBox Grid.Row="2" MaxHeight="750" x:Name="LeftListBox" SelectionMode="Multiple"
-                                         SelectionChanged="LeftListBox_OnSelectionChanged" VerticalAlignment="Stretch">
-                                </ListBox>
-                            </Grid>
-                            <DockPanel Grid.Row="0" Grid.Column="1">
-                                <Grid DockPanel.Dock="Top" ColumnDefinitions="*" RowDefinitions="Auto,Auto">
+                            <DockPanel Grid.Row="0" Grid.Column="0" Margin="2">
+                                <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto" RowDefinitions="Auto,Auto,Auto">
                                     <ComboBox Width="250" VerticalAlignment="Top"
-                                              Grid.Row="0" Grid.Column="1"
-                                              x:Name="CboxDataRight"
+                                              Grid.Row="0"
+                                              x:Name="CboxDataLeft"
+                                              SelectionChanged="CboxDataLeft_OnSelectionChanged">
+                                        <ComboBoxItem Content="Schüler*in" />
+                                        <ComboBoxItem Content="Lehrkräfte" />
+                                        <ComboBoxItem Content="Klasse/Kurs" />
+                                    </ComboBox>
+                                    <TextBox Text="" Grid.Row="1" x:Name="tbLeftSearch"
+                                             KeyUp="TbLeftSearch_OnKeyUp" />
+                                    <ListBox Grid.Row="2" MaxHeight="750" x:Name="LeftListBox" SelectionMode="Multiple"
+                                             SelectionChanged="LeftListBox_OnSelectionChanged"
+                                             VerticalAlignment="Stretch">
+                                    </ListBox>
+                                </Grid>
+                            </DockPanel>
+                            <DockPanel Grid.Row="0" Grid.Column="1" Margin="2">
+                                <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto" RowDefinitions="Auto,Auto,Auto">
+                                    <ComboBox Width="250" VerticalAlignment="Top"
+                                              Grid.Row="0" x:Name="CboxDataRight"
                                               SelectionChanged="CboxDataRight_OnSelectionChanged">
                                         <ComboBoxItem Content="Schüler*in" />
                                         <ComboBoxItem Content="Lehrkräfte" />
                                         <ComboBoxItem Content="Klasse/Kurs" />
                                     </ComboBox>
-                                    <TextBox Text="" Grid.Row="1" Grid.Column="1" x:Name="tbRightSearch" KeyUp="TbRightSearch_OnKeyUp"/>
-                                </Grid>
-                                <ListBox MaxHeight="750" x:Name="RightListBox" SelectionMode="Multiple"
+                                    <TextBox Text="" Grid.Row="1" x:Name="tbRightSearch"
+                                             KeyUp="TbRightSearch_OnKeyUp" />
+                                <ListBox Grid.Row="2" MaxHeight="750" x:Name="RightListBox" SelectionMode="Multiple"
                                          SelectionChanged="RightListBox_OnSelectionChanged" VerticalAlignment="Stretch">
                                     <ContextMenu IsVisible="False">
                                     </ContextMenu>
                                 </ListBox>
+                                </Grid>
                             </DockPanel>
 
                         </Grid>
