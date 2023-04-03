@@ -1414,5 +1414,25 @@ namespace StS_GUI_Avalonia
 
             await Dispatcher.UIThread.InvokeAsync(readFileTask);
         }
+
+        private async void MnuExportLKtoHP_OnClick(object? sender, RoutedEventArgs e)
+        {
+            SetupSaveFileDialog(globalSaveFileDialog, "Lehrkräfteexport für die Homepage", new[] { "csv" },
+                new[] { "CSV-Datei" });
+            var saveDBFile = async () =>
+            {
+                var filepath = await globalSaveFileDialog.ShowAsync(this);
+                if (filepath == null) return;
+                List<string> lulliste = new()
+                {
+                    "Kürzel;Nachname;Vorname;Fächer;Mailadresse"
+                };
+                lulliste.AddRange(myschool.GetLehrerListe().Result.Select(lehrer =>
+                    lehrer.Kuerzel + ";" + lehrer.Nachname + ";" + lehrer.Vorname + ";" +
+                    lehrer.Fakultas + ";" + lehrer.Mail));
+                await File.WriteAllLinesAsync(filepath, lulliste, Encoding.UTF8);
+            };
+            await Task.Run(saveDBFile);
+        }
     }
 }
