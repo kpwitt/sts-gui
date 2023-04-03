@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
@@ -338,11 +339,18 @@ namespace StS_GUI_Avalonia
 
         public async void OnMnuaboutClick(object? sender, RoutedEventArgs e)
         {
-            var about = new AboutDialog
-            {
-                ShowInTaskbar = false
-            };
-            await about.ShowDialog(this);
+            var version = Assembly.GetExecutingAssembly().GetName().Version;
+            if (version == null) return;
+            var errorNoSystemDialog = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                new MessageBoxStandardParams
+                {
+                    ButtonDefinitions = ButtonEnum.Ok,
+                    ContentTitle = "Über",
+                    ContentMessage =
+                        Application.Current?.Name+"\n"+version,
+                    Icon = MessageBox.Avalonia.Enums.Icon.Info
+                });
+            await errorNoSystemDialog.Show();
         }
 
         public async void OnBtnsusaddClick(object? sender, RoutedEventArgs e)
