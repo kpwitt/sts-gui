@@ -1,6 +1,10 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using Avalonia.Input;
+using Avalonia.Threading;
+using MessageBox.Avalonia.DTO;
+using MessageBox.Avalonia.Enums;
 using SDB;
 using SchulStructs;
 using System;
@@ -11,10 +15,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
-using Avalonia.Input;
-using Avalonia.Threading;
-using MessageBox.Avalonia.DTO;
-using MessageBox.Avalonia.Enums;
 
 namespace StS_GUI_Avalonia
 {
@@ -1454,6 +1454,26 @@ namespace StS_GUI_Avalonia
             {
                 await myschool.ElternEinlesen(respath[0]);
             }
+        }
+
+        private async void MnuExportLKtoHP_OnClick(object? sender, RoutedEventArgs e)
+        {
+            SetupSaveFileDialog(globalSaveFileDialog, "Lehrkräfteexport für die Homepage", new[] { "csv" },
+                new[] { "CSV-Datei" });
+            var saveDBFile = async () =>
+            {
+                var filepath = await globalSaveFileDialog.ShowAsync(this);
+                if (filepath == null) return;
+                List<string> lulliste = new()
+                {
+                    "Kürzel;Nachname;Vorname;Fächer;Mailadresse"
+                };
+                lulliste.AddRange(myschool.GetLehrerListe().Result.Select(lehrer =>
+                    lehrer.Kuerzel + ";" + lehrer.Nachname + ";" + lehrer.Vorname + ";" +
+                    lehrer.Fakultas + ";" + lehrer.Mail).OrderBy(s =>s.Split(';')[0]));
+                await File.WriteAllLinesAsync(filepath, lulliste, Encoding.UTF8);
+            };
+            await Task.Run(saveDBFile);
         }
     }
 }

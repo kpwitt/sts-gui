@@ -69,7 +69,8 @@
                                       Click="MnuLoadElternMails_OnClick" />
                         </MenuItem>
                         <MenuItem Header="Änderungen _einlesen" x:Name="mnuReadDiffs" IsVisible="False" />
-                        <MenuItem Header="In CSV exportieren" x:Name="mnuExportToCSV" Click="OnMnuexporttocsvClick" />
+                        <MenuItem Header="Export als Ausgangsdaten" x:Name="mnuExportToCSV" Click="OnMnuexporttocsvClick" />
+                        <MenuItem Header="Lehrkräfte für Homepage" x:Name="mnuExportLKtoHP" Click="MnuExportLKtoHP_OnClick" />
                     </MenuItem>
                     <MenuItem Header="_Hilfe">
                         <MenuItem Header="Über" x:Name="mnuAbout" Click="OnMnuaboutClick" />
