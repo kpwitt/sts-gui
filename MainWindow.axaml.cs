@@ -1482,5 +1482,15 @@ namespace StS_GUI_Avalonia
             };
             await Task.Run(saveLKtoHP);
         }
+
+        private void TbLuLtmpPwd_OnPointerEnter(object? sender, PointerEventArgs e)
+        {
+            tbLuLtmpPwd.RevealPassword = true;
+        }
+
+        private void TbLuLtmpPwd_OnPointerLeave(object? sender, PointerEventArgs e)
+        {
+            tbLuLtmpPwd.RevealPassword = false;
+        }
     }
 }

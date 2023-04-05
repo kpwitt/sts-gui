@@ -171,7 +171,7 @@
                                     <TextBlock Classes="Header" Text="Fächer:" Grid.Column="0" Grid.Row="6"></TextBlock>
                                     <TextBox x:Name="tbLuLMail" Grid.Column="1" Grid.Row="6"></TextBox>
                                     <TextBlock Classes="Header" Text="temp. Passwort:" Grid.Column="0" Grid.Row="7"></TextBlock>
-                                    <TextBox x:Name="tbLuLtmpPwd" Grid.Column="1" Grid.Row="7" PasswordChar="*"></TextBox>
+                                    <TextBox x:Name="tbLuLtmpPwd" Grid.Column="1" Grid.Row="7" PasswordChar="*" PointerLeave="TbLuLtmpPwd_OnPointerLeave" PointerEnter="TbLuLtmpPwd_OnPointerEnter"></TextBox>
                                     <TextBlock Classes="Header" Text="Kurse:" Grid.Column="0" Grid.Row="8"></TextBlock>
                                     <TextBox x:Name="tbLuLKurse" Grid.Column="1" Grid.Row="8"></TextBox>
                                     <Button x:Name="btnLuLAdd" Grid.Column="0" Grid.Row="9" Click="OnBtnluladdClick">Hinzufügen/aktualisieren</Button>
