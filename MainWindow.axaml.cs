@@ -213,11 +213,21 @@ namespace StS_GUI_Avalonia
                 new[] { "aes" },
                 new[] { "verschlüsselte Datenbankdatei" });
             if (myschool.GetFilePath().Result == ":memory:") return;
+            var getPasswordInput = async () =>
+            {
+                var pwiWindow = new PasswordInput();
+                var test = await pwiWindow.ShowPWDDialog(this);
+                return test;
+            };
+            var inputResult = await Dispatcher.UIThread.InvokeAsync(getPasswordInput, DispatcherPriority.Input);
             var saveDBFile = async () =>
             {
                 var filepath = await globalSaveFileDialog.ShowAsync(this);
                 if (filepath == null) return;
-                LocalCryptoServive.FileEncrypt(myschool.GetFilePath().Result, filepath, "TODO!");
+                var db_path = await myschool.GetFilePath();
+                myschool.CloseDB();
+                LocalCryptoServive.FileEncrypt(db_path, filepath, inputResult);
+                myschool = new Schuldatenbank(db_path);
             };
             await Task.Run(saveDBFile);
         }
@@ -230,11 +240,19 @@ namespace StS_GUI_Avalonia
             if (respath is not { Length: > 0 }) return;
             SetupSaveFileDialog(globalSaveFileDialog, "Datenbankdatei speichern unter...", new[] { "sqlite" },
                 new[] { "Datenbankdatei" });
+            var getPasswordInput = async () =>
+            {
+                var pwiWindow = new PasswordInput();
+                var test = await pwiWindow.ShowDialog<string>(this);
+                return test;
+            };
+            var inputResult = await Dispatcher.UIThread.InvokeAsync(getPasswordInput, DispatcherPriority.Input);
             var saveDBFile = async () =>
             {
                 var filepath = await globalSaveFileDialog.ShowAsync(this);
                 if (filepath == null) return;
-                LocalCryptoServive.FileDecrypt(respath[0], filepath, "TODO!");
+                
+                LocalCryptoServive.FileDecrypt(respath[0], filepath,inputResult);
                 myschool = new Schuldatenbank(filepath);
             };
             await Task.Run(saveDBFile);
