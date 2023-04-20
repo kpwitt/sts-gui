@@ -464,11 +464,16 @@ namespace StS_GUI_Avalonia
             var lulpwtemp = tbLuLtmpPwd.Text;
             var lulkurse = tbLuLKurse.Text.Split(',').ToList();
             if (lulid == null || lulvname == null || lulnname == null || lulkrz == null || lulfakultas == null ||
-                lulmail == null || lulpwtemp == null || lulid == "" || lulvname == "" || lulnname == "" ||
+                lulmail == null || lulpwtemp == null || lulvname == "" || lulnname == "" ||
                 lulkrz == "" || lulfakultas == "" ||
                 lulmail == "") return;
+            if (lulid == "")
+            {
+                lulid = myschool.GetLehrerIDListe().Result.Max()+1+"";
+                lulpwtemp = Schuldatenbank.GeneratePasswort(8);
+            }
             var lid = Convert.ToInt32(lulid);
-            if (await myschool.GibtEsLehrkraft(lid))
+            if (! await myschool.GibtEsLehrkraft(lid))
             {
                 await myschool.Addlehrkraft(lid, lulvname, lulnname, lulkrz, lulmail, lulfakultas);
             }
@@ -1405,7 +1410,7 @@ namespace StS_GUI_Avalonia
                 List<LuL> lullist = new();
                 List<Kurs> kurslist = new();
                 var whattoexport = "";
-                const string destsys = "all";
+                const string destsys = "ami";
                 switch (CboxDataLeft.SelectedIndex)
                 {
                     case 0:
@@ -1422,7 +1427,7 @@ namespace StS_GUI_Avalonia
                         {
                             var isllginternChecked = ((CheckBox)LeftListBox.ContextMenu.Items.Cast<Control>()
                                 .Where(c => c.Name == "cbMnuLeftContextLLGIntern").ToList().First()).IsChecked;
-                            if (isllginternChecked != null && isllginternChecked.Value) whattoexport += "e";
+                            if (isllginternChecked != null && isllginternChecked.Value) whattoexport += "i";
                         }
 
                         foreach (string luleintrag in LeftListBox.SelectedItems)
