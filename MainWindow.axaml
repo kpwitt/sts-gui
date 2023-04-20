@@ -163,13 +163,13 @@
                                     <TextBlock Classes="Header" Text="Vorname:" Grid.Column="0" Grid.Row="2"></TextBlock>
                                     <TextBox x:Name="tbLuLVorname" Grid.Column="1" Grid.Row="2"></TextBox>
                                     <TextBlock Classes="Header" Text="Nachname:" Grid.Column="0" Grid.Row="3"></TextBlock>
-                                    <TextBox x:Name="tbLuLnachname" Grid.Column="1" Grid.Row="3"></TextBox>
+                                    <TextBox x:Name="tbLuLNachname" Grid.Column="1" Grid.Row="3"></TextBox>
                                     <TextBlock Classes="Header" Text="Kürzel:" Grid.Column="0" Grid.Row="4"></TextBlock>
                                     <TextBox x:Name="tbLuLKuerzel" Grid.Column="1" Grid.Row="4"></TextBox>
                                     <TextBlock Classes="Header" Text="Mailadresse:" Grid.Column="0" Grid.Row="5"></TextBlock>
-                                    <TextBox x:Name="tbLuLFach" Grid.Column="1" Grid.Row="5"></TextBox>
+                                    <TextBox x:Name="tbLuLMail" Grid.Column="1" Grid.Row="5"></TextBox>
                                     <TextBlock Classes="Header" Text="Fächer:" Grid.Column="0" Grid.Row="6"></TextBlock>
-                                    <TextBox x:Name="tbLuLMail" Grid.Column="1" Grid.Row="6"></TextBox>
+                                    <TextBox x:Name="tbLuLFach" Grid.Column="1" Grid.Row="6"></TextBox>
                                     <TextBlock Classes="Header" Text="temp. Passwort:" Grid.Column="0" Grid.Row="7"></TextBlock>
                                     <TextBox x:Name="tbLuLtmpPwd" Grid.Column="1" Grid.Row="7" PasswordChar="*" PointerLeave="TbLuLtmpPwd_OnPointerLeave" PointerEnter="TbLuLtmpPwd_OnPointerEnter"></TextBox>
                                     <TextBlock Classes="Header" Text="Kurse:" Grid.Column="0" Grid.Row="8"></TextBlock>

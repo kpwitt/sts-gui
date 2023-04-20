@@ -457,7 +457,7 @@ namespace StS_GUI_Avalonia
         {
             var lulid = tbLuLID.Text;
             var lulvname = tbLuLVorname.Text;
-            var lulnname = tbLuLnachname.Text;
+            var lulnname = tbLuLNachname.Text;
             var lulkrz = tbLuLKuerzel.Text;
             var lulfakultas = tbLuLFach.Text;
             var lulmail = tbLuLMail.Text;
@@ -516,7 +516,7 @@ namespace StS_GUI_Avalonia
             }
 
             var templist = source.Items.Cast<string>().ToList();
-            templist.Remove(tbLuLKuerzel + ";" + tbLuLnachname + "," + tbLuLVorname);
+            templist.Remove(tbLuLKuerzel + ";" + tbLuLNachname + "," + tbLuLVorname);
             await myschool.RemoveL(lid);
             source.Items = templist;
         }
@@ -561,7 +561,7 @@ namespace StS_GUI_Avalonia
         {
             tbLuLID.Text = "";
             tbLuLVorname.Text = "";
-            tbLuLnachname.Text = "";
+            tbLuLNachname.Text = "";
             tbLuLKuerzel.Text = "";
             tbLuLFach.Text = "";
             tbLuLMail.Text = "";
@@ -919,7 +919,7 @@ namespace StS_GUI_Avalonia
             if (l.ID is 0 or > 1500) return;
             tbLuLID.Text = l.ID + "";
             tbLuLVorname.Text = l.Vorname;
-            tbLuLnachname.Text = l.Nachname;
+            tbLuLNachname.Text = l.Nachname;
             tbLuLKuerzel.Text = l.Kuerzel;
             tbLuLFach.Text = l.Fakultas;
             tbLuLMail.Text = l.Mail;
@@ -982,9 +982,9 @@ namespace StS_GUI_Avalonia
                     var dialogResult = await overwriteFilesDialog.ShowDialog(this);
                     expandFiles = dialogResult switch
                     {
-                        ButtonResult.Yes => true,
-                        ButtonResult.No => false,
-                        _ => false
+                        ButtonResult.Yes => false,
+                        ButtonResult.No => true,
+                        _ => true
                     };
                 }
 
@@ -1400,9 +1400,9 @@ namespace StS_GUI_Avalonia
                     var dialogResult = await overwriteFilesDialog.ShowDialog(this);
                     expandFiles = dialogResult switch
                     {
-                        ButtonResult.Yes => true,
-                        ButtonResult.No => false,
-                        _ => false
+                        ButtonResult.Yes => false,
+                        ButtonResult.No => true,
+                        _ => true
                     };
                 }
 
