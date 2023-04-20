@@ -38,7 +38,7 @@ public partial class PasswordInput : Window
         Close();
     }
 
-    public new async Task<string?> ShowPWDDialog(Window owner)
+    public async Task<string?> ShowPWDDialog(Window owner)
     {
         await ShowDialog(owner);
         return pwd;

@@ -220,6 +220,7 @@ namespace StS_GUI_Avalonia
                 return test;
             };
             var inputResult = await Dispatcher.UIThread.InvokeAsync(getPasswordInput, DispatcherPriority.Input);
+            if (string.IsNullOrEmpty(inputResult))return;
             var saveDBFile = async () =>
             {
                 var filepath = await globalSaveFileDialog.ShowAsync(this);
@@ -243,10 +244,11 @@ namespace StS_GUI_Avalonia
             var getPasswordInput = async () =>
             {
                 var pwiWindow = new PasswordInput();
-                var test = await pwiWindow.ShowDialog<string>(this);
+                var test = await pwiWindow.ShowPWDDialog(this);
                 return test;
             };
             var inputResult = await Dispatcher.UIThread.InvokeAsync(getPasswordInput, DispatcherPriority.Input);
+            if (string.IsNullOrEmpty(inputResult))return;
             var saveDBFile = async () =>
             {
                 var filepath = await globalSaveFileDialog.ShowAsync(this);
