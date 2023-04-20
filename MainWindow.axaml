@@ -119,8 +119,8 @@
                                 </ListBox>
                                 </Grid>
                             </DockPanel>
-
                         </Grid>
+                        
                         <TabControl Grid.Row="0" Grid.Column="1">
                             <TabItem Header="SuS" Classes="Header"> <!--Daten-SuS-Tab-->
                                 <Grid Margin="5" ColumnDefinitions="Auto,Auto"
