@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Input;
+using Avalonia.Media;
 using Avalonia.Threading;
 using MessageBox.Avalonia.DTO;
 using MessageBox.Avalonia.Enums;
@@ -20,13 +21,13 @@ namespace StS_GUI_Avalonia
 {
     public partial class MainWindow : Window
     {
-        private SaveFileDialog globalSaveFileDialog = new();
-        private OpenFileDialog globalOpenFileDialog = new();
-        private OpenFolderDialog globalOpenFolderDialog = new();
-        private Timer leftInputTimer = new(350);
-        private Timer rightInputTimer = new(350);
+        private readonly SaveFileDialog globalSaveFileDialog = new();
+        private readonly OpenFileDialog globalOpenFileDialog = new();
+        private readonly OpenFolderDialog globalOpenFolderDialog = new();
+        private readonly Timer leftInputTimer = new(350);
+        private readonly Timer rightInputTimer = new(350);
         private Schuldatenbank myschool = new(":memory:");
-        private ContextMenu leftContext = new();
+        private readonly ContextMenu leftContext = new();
 
         public MainWindow()
         {
@@ -95,6 +96,10 @@ namespace StS_GUI_Avalonia
             leftContextItems.Add(mnuItemMExport);
             leftContext.Items = leftContextItems;
             LeftListBox.ContextMenu = leftContext;
+            rbL.IsChecked = true;
+            LeftListBox.MaxHeight = ClientSize.Height*1.1;
+            RightListBox.MaxHeight = LeftListBox.MaxHeight;
+            ExtendClientAreaToDecorationsHint = true;
         }
 
         private void SetupSaveFileDialog(SaveFileDialog sfd, string dialogtitle, string[] extensions,
@@ -1523,6 +1528,24 @@ namespace StS_GUI_Avalonia
         private void TbLuLtmpPwd_OnPointerLeave(object? sender, PointerEventArgs e)
         {
             tbLuLtmpPwd.RevealPassword = false;
+        }
+
+        private void Rb_OnClick(object? sender, RoutedEventArgs e)
+        {
+            if (sender.Equals(rbD))
+            {
+                Background = Brushes.DarkGray;
+                LeftListBox.Background = CboxDataLeft.Background;
+                RightListBox.Background = LeftListBox.Background;
+                lbFehlerliste.Background = LeftListBox.Background;
+
+            } else if (sender.Equals(rbL))
+            {
+                Background = Brushes.White;
+                LeftListBox.Background = CboxDataLeft.Background;
+                RightListBox.Background = LeftListBox.Background;
+                lbFehlerliste.Background = LeftListBox.Background;
+            }
         }
     }
 }

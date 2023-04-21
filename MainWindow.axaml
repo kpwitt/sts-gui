@@ -74,6 +74,10 @@
                         <MenuItem Header="Lehrkräfte für Homepage" x:Name="mnuExportLKtoHP"
                                   Click="MnuExportLKtoHP_OnClick" />
                     </MenuItem>
+                    <MenuItem Header = "Theme">
+                        <RadioButton x:Name="rbD" Click="Rb_OnClick" GroupName="Theme">Dark</RadioButton>
+                        <RadioButton x:Name="rbL" Click="Rb_OnClick" GroupName="Theme">Light</RadioButton>
+                    </MenuItem>
                     <MenuItem Header="_Hilfe">
                         <MenuItem Header="Über" x:Name="mnuAbout" Click="OnMnuaboutClick" />
                     </MenuItem>
@@ -83,8 +87,8 @@
                 <TabItem Header="Daten" Classes="Header"> <!-- Daten-Tab -->
                     <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto" VerticalAlignment="Stretch">
                         <Grid Grid.Row="0" Grid.Column="0" ColumnDefinitions="Auto,Auto" RowDefinitions="Auto">
-                            <DockPanel Grid.Row="0" Grid.Column="0" Margin="2">
-                                <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto" RowDefinitions="Auto,Auto,Auto">
+                            <DockPanel Grid.Row="0" Grid.Column="0" Margin="2" VerticalAlignment="Stretch">
+                                <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto" RowDefinitions="Auto,Auto">
                                     <ComboBox Width="250" VerticalAlignment="Top"
                                               Grid.Row="0"
                                               x:Name="CboxDataLeft"
@@ -95,14 +99,14 @@
                                     </ComboBox>
                                     <TextBox Text="" Grid.Row="1" x:Name="tbLeftSearch"
                                              KeyUp="TbLeftSearch_OnKeyUp" />
-                                    <ListBox Grid.Row="2" MaxHeight="750" x:Name="LeftListBox" SelectionMode="Multiple"
-                                             SelectionChanged="LeftListBox_OnSelectionChanged"
-                                             VerticalAlignment="Stretch">
-                                    </ListBox>
-                                </Grid>
+                                    
+                                </Grid><ListBox DockPanel.Dock="Bottom" x:Name="LeftListBox" SelectionMode="Multiple"
+                                                SelectionChanged="LeftListBox_OnSelectionChanged"
+                                                VerticalAlignment="Stretch">
+                                </ListBox>
                             </DockPanel>
-                            <DockPanel Grid.Row="0" Grid.Column="1" Margin="2">
-                                <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto" RowDefinitions="Auto,Auto,Auto">
+                            <DockPanel Grid.Row="0" Grid.Column="1" Margin="2" VerticalAlignment="Stretch">
+                                <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto" RowDefinitions="Auto,Auto">
                                     <ComboBox Width="250" VerticalAlignment="Top"
                                               Grid.Row="0" x:Name="CboxDataRight"
                                               SelectionChanged="CboxDataRight_OnSelectionChanged">
@@ -112,14 +116,14 @@
                                     </ComboBox>
                                     <TextBox Text="" Grid.Row="1" x:Name="tbRightSearch"
                                              KeyUp="TbRightSearch_OnKeyUp" />
-                                    <ListBox Grid.Row="2" MaxHeight="750" x:Name="RightListBox"
-                                             SelectionMode="Multiple"
-                                             SelectionChanged="RightListBox_OnSelectionChanged"
-                                             VerticalAlignment="Stretch">
-                                        <ContextMenu IsVisible="False">
-                                        </ContextMenu>
-                                    </ListBox>
                                 </Grid>
+                                <ListBox DockPanel.Dock="Bottom" x:Name="RightListBox"
+                                         SelectionMode="Multiple"
+                                         SelectionChanged="RightListBox_OnSelectionChanged"
+                                         VerticalAlignment="Stretch">
+                                    <ContextMenu IsVisible="False">
+                                    </ContextMenu>
+                                </ListBox>
                             </DockPanel>
 
                         </Grid>
