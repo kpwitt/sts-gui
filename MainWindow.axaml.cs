@@ -220,7 +220,7 @@ namespace StS_GUI_Avalonia
                 return test;
             };
             var inputResult = await Dispatcher.UIThread.InvokeAsync(getPasswordInput, DispatcherPriority.Input);
-            if (string.IsNullOrEmpty(inputResult))return;
+            if (string.IsNullOrEmpty(inputResult)) return;
             var saveDBFile = async () =>
             {
                 var filepath = await globalSaveFileDialog.ShowAsync(this);
@@ -248,13 +248,13 @@ namespace StS_GUI_Avalonia
                 return test;
             };
             var inputResult = await Dispatcher.UIThread.InvokeAsync(getPasswordInput, DispatcherPriority.Input);
-            if (string.IsNullOrEmpty(inputResult))return;
+            if (string.IsNullOrEmpty(inputResult)) return;
             var saveDBFile = async () =>
             {
                 var filepath = await globalSaveFileDialog.ShowAsync(this);
                 if (filepath == null) return;
-                
-                LocalCryptoServive.FileDecrypt(respath[0], filepath,inputResult);
+
+                LocalCryptoServive.FileDecrypt(respath[0], filepath, inputResult);
                 myschool = new Schuldatenbank(filepath);
             };
             await Task.Run(saveDBFile);
@@ -366,7 +366,7 @@ namespace StS_GUI_Avalonia
                     ButtonDefinitions = ButtonEnum.Ok,
                     ContentTitle = "Über",
                     ContentMessage =
-                        Application.Current?.Name+"\n"+version,
+                        Application.Current?.Name + "\n" + version,
                     Icon = MessageBox.Avalonia.Enums.Icon.Info
                 });
             await errorNoSystemDialog.Show();
@@ -391,15 +391,6 @@ namespace StS_GUI_Avalonia
             var sid = Convert.ToInt32(susid);
             if (await myschool.GibtEsSchueler(sid))
             {
-                await myschool.AddSchuelerIn(sid, susvname, susnname, suselternadresse, susklasse, susnutzername,
-                    susaximail, susHatZweitaccount == false ? 0 : 1, suszweitadresse);
-                foreach (var kursbez in suskurse)
-                {
-                    await myschool.AddStoK(sid, kursbez);
-                }
-            }
-            else
-            {
                 await myschool.UpdateSchueler(sid, susvname, susnname, suselternadresse, susklasse, susnutzername,
                     susaximail, susHatZweitaccount == false ? 0 : 1, suszweitadresse);
                 var alteKurse = myschool.GetKursVonSuS(sid).Result;
@@ -414,6 +405,16 @@ namespace StS_GUI_Avalonia
                     {
                         await myschool.AddStoK(sid, kurs);
                     }
+                }
+            }
+            else
+            {
+                await myschool.AddSchuelerIn(sid, susvname, susnname, suselternadresse, susklasse, susnutzername,
+                    susaximail, susHatZweitaccount == false ? 0 : 1, suszweitadresse);
+                if (suskurse.Count == 0) return;
+                foreach (var kursbez in suskurse)
+                {
+                    await myschool.AddStoK(sid, kursbez);
                 }
             }
         }
@@ -469,15 +470,12 @@ namespace StS_GUI_Avalonia
                 lulmail == "") return;
             if (lulid == "")
             {
-                lulid = myschool.GetLehrerIDListe().Result.Max()+1+"";
+                lulid = myschool.GetLehrerIDListe().Result.Max() + 1 + "";
                 lulpwtemp = Schuldatenbank.GeneratePasswort(8);
             }
+
             var lid = Convert.ToInt32(lulid);
-            if (! await myschool.GibtEsLehrkraft(lid))
-            {
-                await myschool.Addlehrkraft(lid, lulvname, lulnname, lulkrz, lulmail, lulfakultas);
-            }
-            else
+            if (await myschool.GibtEsLehrkraft(lid))
             {
                 await myschool.UpdateLehrkraft(lid, lulvname, lulnname, lulkrz, lulmail, lulfakultas, lulpwtemp);
                 var alteKurse = myschool.GetKursVonLuL(lid).Result;
@@ -492,6 +490,15 @@ namespace StS_GUI_Avalonia
                     {
                         await myschool.AddLtoK(lid, kurs);
                     }
+                }
+            }
+            else
+            {
+                await myschool.Addlehrkraft(lid, lulvname, lulnname, lulkrz, lulmail, lulfakultas);
+                if (lulkurse.Count == 0) return;
+                foreach (var kurs in lulkurse)
+                {
+                    await myschool.AddLtoK(lid, kurs);
                 }
             }
         }
@@ -1056,7 +1063,7 @@ namespace StS_GUI_Avalonia
                                 "Export war nicht erfolgreiche. Bitte im Log nachschauen",
                             Icon = MessageBox.Avalonia.Enums.Icon.Error
                         });
-                    await failedExportDialog.Show(); 
+                    await failedExportDialog.Show();
                 }
             };
 
@@ -1502,7 +1509,7 @@ namespace StS_GUI_Avalonia
                 };
                 lulliste.AddRange(myschool.GetLehrerListe().Result.Select(lehrer =>
                     lehrer.Kuerzel + ";" + lehrer.Nachname + ";" + lehrer.Vorname + ";" +
-                    lehrer.Fakultas + ";" + lehrer.Mail).OrderBy(s =>s.Split(';')[0]));
+                    lehrer.Fakultas + ";" + lehrer.Mail).OrderBy(s => s.Split(';')[0]));
                 await File.WriteAllLinesAsync(filepath, lulliste, Encoding.UTF8);
             };
             await Task.Run(saveLKtoHP);
