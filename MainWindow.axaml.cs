@@ -28,6 +28,8 @@ namespace StS_GUI_Avalonia
         private readonly Timer rightInputTimer = new(350);
         private Schuldatenbank myschool = new(":memory:");
         private readonly ContextMenu leftContext = new();
+        private readonly Brush darkBackgroundColor = new SolidColorBrush(Color.FromRgb(80, 80, 80));
+        private readonly Brush lightBackgroundColor = new SolidColorBrush(Color.FromRgb(242, 242, 242));
 
         public MainWindow()
         {
@@ -97,9 +99,8 @@ namespace StS_GUI_Avalonia
             leftContext.Items = leftContextItems;
             LeftListBox.ContextMenu = leftContext;
             rbL.IsChecked = true;
-            LeftListBox.MaxHeight = ClientSize.Height*1.1;
+            LeftListBox.MaxHeight = ClientSize.Height * 1.1;
             RightListBox.MaxHeight = LeftListBox.MaxHeight;
-            ExtendClientAreaToDecorationsHint = true;
         }
 
         private void SetupSaveFileDialog(SaveFileDialog sfd, string dialogtitle, string[] extensions,
@@ -1532,19 +1533,20 @@ namespace StS_GUI_Avalonia
 
         private void Rb_OnClick(object? sender, RoutedEventArgs e)
         {
+            if (sender == null) return;
             if (sender.Equals(rbD))
             {
-                Background = Brushes.DarkGray;
-                LeftListBox.Background = CboxDataLeft.Background;
-                RightListBox.Background = LeftListBox.Background;
-                lbFehlerliste.Background = LeftListBox.Background;
-
-            } else if (sender.Equals(rbL))
+                Background = darkBackgroundColor;
+                LeftListBox.Background = darkBackgroundColor;
+                RightListBox.Background = darkBackgroundColor;
+                lbFehlerliste.Background = darkBackgroundColor;
+            }
+            else if (sender.Equals(rbL))
             {
-                Background = Brushes.White;
-                LeftListBox.Background = CboxDataLeft.Background;
-                RightListBox.Background = LeftListBox.Background;
-                lbFehlerliste.Background = LeftListBox.Background;
+                Background = lightBackgroundColor;
+                LeftListBox.Background = lightBackgroundColor;
+                RightListBox.Background = lightBackgroundColor;
+                lbFehlerliste.Background = lightBackgroundColor;
             }
         }
     }
