@@ -613,7 +613,7 @@ namespace StS_GUI_Avalonia
             OnRightDataChanged(false);
         }
 
-        private void OnLeftDataChanged(bool changedCB)
+        private void OnLeftDataChanged(bool hasComboBoxChanged)
         {
             if (LeftListBox == null || RightListBox == null || CboxDataLeft == null || CboxDataRight == null) return;
             if (LeftListBox.SelectedItems == null) return;
@@ -626,7 +626,7 @@ namespace StS_GUI_Avalonia
                         CboxDataRight.SelectedIndex = 1;
                     }
 
-                    if (LeftListBox.SelectedItems.Count < 1 || LeftListBox.SelectedItems == null || changedCB)
+                    if (LeftListBox.SelectedItems.Count < 1 || LeftListBox.SelectedItems == null || hasComboBoxChanged)
                     {
                         var slist = myschool.GetSchuelerListe().Result
                             .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID)).Distinct().ToList();
@@ -668,7 +668,7 @@ namespace StS_GUI_Avalonia
                         CboxDataRight.SelectedIndex = 2;
                     }
 
-                    if (LeftListBox.SelectedItems.Count < 1 || LeftListBox.SelectedItems == null || changedCB)
+                    if (LeftListBox.SelectedItems.Count < 1 || LeftListBox.SelectedItems == null || hasComboBoxChanged)
                     {
                         var lullist = myschool.GetLehrerListe().Result
                             .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).Distinct().ToList();
@@ -712,7 +712,7 @@ namespace StS_GUI_Avalonia
                         CboxDataRight.SelectedIndex = 0;
                     }
 
-                    if (LeftListBox.SelectedItems.Count < 1 || LeftListBox.SelectedItems == null || changedCB)
+                    if (LeftListBox.SelectedItems.Count < 1 || LeftListBox.SelectedItems == null || hasComboBoxChanged)
                     {
                         var klist = myschool.GetKursListe().Result.Select(k => (k.Bezeichnung)).Distinct().ToList();
                         klist.Sort(Comparer<string>.Default);
@@ -750,7 +750,7 @@ namespace StS_GUI_Avalonia
             }
         }
 
-        private void OnRightDataChanged(bool changedCB)
+        private void OnRightDataChanged(bool hasComboBoxChanged)
         {
             if (LeftListBox == null || RightListBox == null || CboxDataLeft == null || CboxDataRight == null) return;
             if (RightListBox.SelectedItems == null) return;
@@ -776,7 +776,7 @@ namespace StS_GUI_Avalonia
                                 LoadSuSData(sus);
                             }
 
-                            if (!changedCB) return;
+                            if (!hasComboBoxChanged) return;
                             var rlist = myschool.GetSuSVonLuL(lul.ID).Result
                                 .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID)).Distinct().ToList();
                             rlist.Sort(Comparer<string>.Default);
@@ -797,7 +797,7 @@ namespace StS_GUI_Avalonia
                                 LoadSuSData(sus);
                             }
 
-                            if (!changedCB) return;
+                            if (!hasComboBoxChanged) return;
                             var rlist = myschool.GetSuSAusKurs(kurs.Bezeichnung).Result
                                 .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID)).Distinct().ToList();
                             rlist.Sort(Comparer<string>.Default);
@@ -826,7 +826,7 @@ namespace StS_GUI_Avalonia
                                 LoadLuLData(lul);
                             }
 
-                            if (!changedCB) return;
+                            if (!hasComboBoxChanged) return;
                             var rlist = myschool.GetLuLvonSuS(sus.ID).Result
                                 .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).Distinct().ToList();
                             rlist.Sort(Comparer<string>.Default);
@@ -847,7 +847,7 @@ namespace StS_GUI_Avalonia
                                 LoadLuLData(lul);
                             }
 
-                            if (!changedCB) return;
+                            if (!hasComboBoxChanged) return;
                             var rlist = myschool.GetLuLAusKurs(kurs.Bezeichnung).Result
                                 .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).Distinct().ToList();
                             rlist.Sort(Comparer<string>.Default);
@@ -876,7 +876,7 @@ namespace StS_GUI_Avalonia
                                 LoadKursData(kurs);
                             }
 
-                            if (!changedCB) return;
+                            if (!hasComboBoxChanged) return;
                             var rlist = myschool.GetKursVonSuS(sus.ID).Result.Select(k => (k.Bezeichnung))
                                 .Distinct()
                                 .ToList();
@@ -897,7 +897,7 @@ namespace StS_GUI_Avalonia
                                 LoadKursData(kurs);
                             }
 
-                            if (!changedCB) return;
+                            if (!hasComboBoxChanged) return;
                             var rlist = myschool.GetKursVonLuL(lul.ID).Result.Select(k => (k.Bezeichnung))
                                 .Distinct()
                                 .ToList();
