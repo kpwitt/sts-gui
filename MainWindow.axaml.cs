@@ -188,6 +188,29 @@ namespace StS_GUI_Avalonia
                 if (res == 0)
                 {
                     myschool = tempDB;
+                    var saveDBInPath = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                        new MessageBoxStandardParams
+                        {
+                            ButtonDefinitions = ButtonEnum.Ok,
+                            ContentTitle = "Erfolg",
+                            ContentMessage =
+                                "Datenbank erfolgreich gespeichert",
+                            Icon = MessageBox.Avalonia.Enums.Icon.Success
+                        });
+                    await saveDBInPath.Show();
+                }
+                else
+                {
+                    var errorNoSystemDialog = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                        new MessageBoxStandardParams
+                        {
+                            ButtonDefinitions = ButtonEnum.Ok,
+                            ContentTitle = "Fehler",
+                            ContentMessage =
+                                "Schließen fehlgeschlagen",
+                            Icon = MessageBox.Avalonia.Enums.Icon.Error
+                        });
+                    await errorNoSystemDialog.Show();
                 }
             };
             await Task.Run(saveDBFile);
@@ -223,7 +246,7 @@ namespace StS_GUI_Avalonia
                         new MessageBoxStandardParams
                         {
                             ButtonDefinitions = ButtonEnum.Ok,
-                            ContentTitle = "Speichern erfolgreich",
+                            ContentTitle = "Erfolg",
                             ContentMessage =
                                 "Datenbank erfolgreich gespeichert",
                             Icon = MessageBox.Avalonia.Enums.Icon.Success
