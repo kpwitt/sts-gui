@@ -30,6 +30,7 @@ namespace StS_GUI_Avalonia
         private readonly ContextMenu leftContext = new();
         private readonly Brush darkBackgroundColor = new SolidColorBrush(Color.FromRgb(80, 80, 80));
         private readonly Brush lightBackgroundColor = new SolidColorBrush(Color.FromRgb(242, 242, 242));
+        private bool rightMutex;
 
         public MainWindow()
         {
@@ -547,9 +548,10 @@ namespace StS_GUI_Avalonia
 
         private void CboxDataLeft_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
         {
-            RightListBox.Items = new List<string>();
             ClearTextFields();
+            rightMutex = true;
             OnLeftDataChanged(true);
+            rightMutex = false;
         }
 
         private void ClearTextFields()
@@ -598,8 +600,9 @@ namespace StS_GUI_Avalonia
 
         private void CboxDataRight_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
         {
-            RightListBox.Items = new List<string>();
+            rightMutex = true;
             OnRightDataChanged(true);
+            rightMutex = false;
         }
 
         private void LeftListBox_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
@@ -617,6 +620,11 @@ namespace StS_GUI_Avalonia
         {
             if (LeftListBox == null || RightListBox == null || CboxDataLeft == null || CboxDataRight == null) return;
             if (LeftListBox.SelectedItems == null) return;
+            if (rightMutex && !hasComboBoxChanged) return;
+            if (hasComboBoxChanged)
+            {
+                RightListBox.Items = new List<string>();
+            }
             switch (CboxDataLeft.SelectedIndex)
             {
                 //s=0;l==1;k==2
@@ -754,6 +762,13 @@ namespace StS_GUI_Avalonia
         {
             if (LeftListBox == null || RightListBox == null || CboxDataLeft == null || CboxDataRight == null) return;
             if (RightListBox.SelectedItems == null) return;
+            if (rightMutex && !hasComboBoxChanged) return;
+            if (hasComboBoxChanged)
+            {
+                RightListBox.Items = new List<string>();
+                RightListBox.SelectedItems.Clear();
+                
+            }
             switch (CboxDataRight.SelectedIndex)
             {
                 //s=0;l==1;k==2
