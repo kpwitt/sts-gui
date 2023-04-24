@@ -171,6 +171,8 @@ namespace StS_GUI_Avalonia
                 leftlist.Items = new List<string>();
                 rightlist.Items = new List<string>();
                 Title = "SchildToSchule";
+                myschool.CloseDB();
+                myschool = new Schuldatenbank(":memory:");
                 ClearTextFields();
                 return;
             }
@@ -304,7 +306,16 @@ namespace StS_GUI_Avalonia
                     await myschool.SusEinlesen(folder + "/sus.csv");
                     await myschool.LulEinlesen(folder + "/lul.csv");
                     await myschool.KurseEinlesen(folder + "/kurse.csv");
-                    Debug.WriteLine("Done importing");
+                    var loadFolderMessageBox = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                        new MessageBoxStandardParams
+                        {
+                            ButtonDefinitions = ButtonEnum.Ok,
+                            ContentTitle = "Information",
+                            ContentMessage =
+                                "Import erfolgreich",
+                            Icon = MessageBox.Avalonia.Enums.Icon.Info
+                        });
+                    await loadFolderMessageBox.Show();
                 }
             };
             await Task.Run(readFileTask);
