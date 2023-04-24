@@ -203,12 +203,30 @@ namespace StS_GUI_Avalonia
                 var res = await tempDB.Import(myschool);
                 if (res != 0)
                 {
-                    Debug.WriteLine("Task failed");
+                    var errorNoSystemDialog = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                        new MessageBoxStandardParams
+                        {
+                            ButtonDefinitions = ButtonEnum.Ok,
+                            ContentTitle = "Fehler",
+                            ContentMessage =
+                                "Speichern unter fehlgeschlagen",
+                            Icon = MessageBox.Avalonia.Enums.Icon.Error
+                        });
+                    await errorNoSystemDialog.Show();
                 }
                 else
                 {
                     myschool = tempDB;
-                    Debug.WriteLine("Saving done");
+                    var saveDBInPath = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                        new MessageBoxStandardParams
+                        {
+                            ButtonDefinitions = ButtonEnum.Ok,
+                            ContentTitle = "Speichern erfolgreich",
+                            ContentMessage =
+                                "Datenbank erfolgreich gespeichert",
+                            Icon = MessageBox.Avalonia.Enums.Icon.Success
+                        });
+                    await saveDBInPath.Show();
                 }
             };
             await Task.Run(saveDBFile);
