@@ -1636,5 +1636,14 @@ namespace StS_GUI_Avalonia
                 lbFehlerliste.Background = lightBackgroundColor;
             }
         }
+
+        private async void BtnLuLNewTmpPasswort_OnClick(object? sender, RoutedEventArgs e)
+        {
+            if (tbLuLKuerzel == null || tbLuLID == null || tbLuLKuerzel.Text == "" || tbLuLID.Text == "") return;
+            var lul = await myschool.GetLehrkraft(tbLuLKuerzel.Text);
+            var pwd = Schuldatenbank.GeneratePasswort(8);
+            myschool.SetTPwd(lul.ID, pwd);
+            tbLuLtmpPwd.Text = pwd;
+        }
     }
 }
