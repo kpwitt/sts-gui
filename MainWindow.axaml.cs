@@ -103,7 +103,7 @@ namespace StS_GUI_Avalonia
             RightListBox.MaxHeight = LeftListBox.MaxHeight;
         }
 
-        private void SetupSaveFileDialog(SaveFileDialog sfd, string dialogtitle, string[] extensions,
+        private static void SetupSaveFileDialog(SaveFileDialog sfd, string dialogtitle, string[] extensions,
             string[] extensionsanames)
         {
             if (extensions.Length != extensionsanames.Length) return;
@@ -122,7 +122,7 @@ namespace StS_GUI_Avalonia
             sfd.Filters = filters;
         }
 
-        private void SetupOpenFileDialog(OpenFileDialog ofd, string dialogtitle, string[] extensions,
+        private static void SetupOpenFileDialog(OpenFileDialog ofd, string dialogtitle, string[] extensions,
             string[] extensionsanames)
         {
             if (extensions.Length != extensionsanames.Length) return;
