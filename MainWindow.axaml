@@ -308,12 +308,12 @@
                 <TabItem Header="Log" Classes="Header"> <!--Log-Tab-->
                     <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="Auto">
                         <StackPanel Grid.Row="0" Orientation="Horizontal">
-                            <Button x:Name="btnLogReload" Click="BtnLogReload_OnClick">
+                            <Button x:Name="btnLogReload" Click="BtnLogReload_OnClick" ToolTip.Tip="Lädt das Log neu aus der Datenbank">
                                 <Panel>
                                     <Image Source="/Assets/gfx/reload.png" />
                                 </Panel>
                             </Button>
-                            <Button x:Name="btnLogDelete" Click="BtnLogDelete_OnClick">
+                            <Button x:Name="btnLogDelete" Click="BtnLogDelete_OnClick" ToolTip.Tip="Löscht das komplette Log">
                                 <Panel>
                                     <Image Source="/Assets/gfx/delete.png" />
                                 </Panel>
