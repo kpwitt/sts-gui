@@ -1305,6 +1305,18 @@ namespace StS_GUI_Avalonia
 
         private async void BtnLogDelete_OnClick(object? sender, RoutedEventArgs e)
         {
+            var reallyDeleteLog = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                new MessageBoxStandardParams
+                {
+                    ButtonDefinitions = ButtonEnum.YesNo,
+                    ContentTitle = "Log löschen",
+                    ContentHeader = "Sicherheitsabfrage",
+                    ContentMessage =
+                        "Möchten Sie das Log wirklich löschen?",
+                    Icon = MessageBox.Avalonia.Enums.Icon.Question
+                });
+            var dialogResult = await reallyDeleteLog.ShowDialog(this);
+            if (dialogResult == ButtonResult.No) return;
             lbLogDisplay.Items = new List<string>();
             await myschool.LoescheLog();
         }
