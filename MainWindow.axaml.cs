@@ -1112,32 +1112,7 @@ namespace StS_GUI_Avalonia
                     expandFiles, kursvorlagen,
                     await myschool.GetSchuelerIDListe(), await myschool.GetLehrerIDListe(),
                     await myschool.GetKursBezListe());
-                if (res == 1)
-                {
-                    var successExportDialog = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
-                        new MessageBoxStandardParams
-                        {
-                            ButtonDefinitions = ButtonEnum.Ok,
-                            ContentTitle = "Export erfolgreich",
-                            ContentMessage =
-                                "Der Expport war erfolgreich",
-                            Icon = MessageBox.Avalonia.Enums.Icon.Info
-                        });
-                    await successExportDialog.Show();
-                }
-                else
-                {
-                    var failedExportDialog = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
-                        new MessageBoxStandardParams
-                        {
-                            ButtonDefinitions = ButtonEnum.Ok,
-                            ContentTitle = "Export fehlgeschlagen",
-                            ContentMessage =
-                                "Export war nicht erfolgreiche. Bitte im Log nachschauen",
-                            Icon = MessageBox.Avalonia.Enums.Icon.Error
-                        });
-                    await failedExportDialog.Show();
-                }
+                await CheckSuccesfulExport(res);
             };
 
             await Dispatcher.UIThread.InvokeAsync(readFileTask);
@@ -1253,9 +1228,10 @@ namespace StS_GUI_Avalonia
                 SetupOpenFolderDialog(globalOpenFolderDialog, "Bitte den Ordner für die Dateien auswählen");
                 var folder = await globalOpenFolderDialog.ShowAsync(this);
                 if (folder == null) return;
+                int res;
                 if (!tbExportStufenkurse.Text.Contains(';'))
                 {
-                    await myschool.ExportCSV(folder, "all", "s", false, false, new[] { "", "" },
+                    res = await myschool.ExportCSV(folder, "all", "s", false, false, new[] { "", "" },
                         myschool.GetSusAusStufe(tbExportStufenkurse.Text).Result.Select(s => s.ID).ToList(),
                         new List<int>(), new List<string>());
                 }
@@ -1268,12 +1244,43 @@ namespace StS_GUI_Avalonia
                         suslist.AddRange(myschool.GetSusAusStufe(stufe).Result.Select(s => s.ID).ToList());
                     }
 
-                    await myschool.ExportCSV(folder, "all", "s", false, false, new[] { "", "" },
+                    res = await myschool.ExportCSV(folder, "all", "s", false, false, new[] { "", "" },
                         suslist,
                         new List<int>(), new List<string>());
                 }
+                await CheckSuccesfulExport(res);
             };
             await Task.Run(readFileTask);
+        }
+
+        private static async Task CheckSuccesfulExport(int res)
+        {
+            if (res == 1)
+            {
+                var successExportDialog = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                    new MessageBoxStandardParams
+                    {
+                        ButtonDefinitions = ButtonEnum.Ok,
+                        ContentTitle = "Export erfolgreich",
+                        ContentMessage =
+                            "Der Expport war erfolgreich",
+                        Icon = MessageBox.Avalonia.Enums.Icon.Info
+                    });
+                await successExportDialog.Show();
+            }
+            else
+            {
+                var failedExportDialog = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                    new MessageBoxStandardParams
+                    {
+                        ButtonDefinitions = ButtonEnum.Ok,
+                        ContentTitle = "Export fehlgeschlagen",
+                        ContentMessage =
+                            "Export war nicht erfolgreiche. Bitte im Log nachschauen",
+                        Icon = MessageBox.Avalonia.Enums.Icon.Error
+                    });
+                await failedExportDialog.Show();
+            }
         }
 
         private async void BtnExport5InklPasswort_OnClick(object? sender, RoutedEventArgs e)
@@ -1283,9 +1290,10 @@ namespace StS_GUI_Avalonia
                 SetupOpenFolderDialog(globalOpenFolderDialog, "Bitte den Ordner für die Dateien auswählen");
                 var folder = await globalOpenFolderDialog.ShowAsync(this);
                 if (folder == null) return;
-                await myschool.ExportCSV(folder, "all", "s", false, false, new[] { "", "" },
+                var res = await myschool.ExportCSV(folder, "all", "s", false, false, new[] { "", "" },
                     myschool.GetSusAusStufe("5").Result.Select(s => s.ID).ToList(),
                     new List<int>(), new List<string>());
+                await CheckSuccesfulExport(res);
             };
             await Task.Run(readFileTask);
         }
@@ -1551,6 +1559,7 @@ namespace StS_GUI_Avalonia
                         expandFiles, kursvorlagen,
                         suslist.Select(s => s.ID).Distinct().ToList(), lullist.Select(l => l.ID).Distinct().ToList(),
                         kurslist.Select(k => k.Bezeichnung).Distinct().ToList());
+                    await CheckSuccesfulExport(res);
                 }
             };
 
