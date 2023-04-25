@@ -818,7 +818,6 @@ namespace StS_GUI_Avalonia
             {
                 RightListBox.Items = new List<string>();
                 RightListBox.SelectedItems.Clear();
-                
             }
 
             switch (CboxDataRight.SelectedIndex)
