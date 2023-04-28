@@ -184,33 +184,36 @@ namespace StS_GUI_Avalonia
                 if (filepath == null) return;
                 var tempDB = new Schuldatenbank(filepath);
                 var res = await tempDB.Import(myschool);
-                if (res == 0)
+                await Dispatcher.UIThread.InvokeAsync(async () =>
                 {
-                    myschool = tempDB;
-                    var saveDBInPath = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
-                        new MessageBoxStandardParams
-                        {
-                            ButtonDefinitions = ButtonEnum.Ok,
-                            ContentTitle = "Erfolg",
-                            ContentMessage =
-                                "Datenbank erfolgreich gespeichert",
-                            Icon = MessageBox.Avalonia.Enums.Icon.Success
-                        });
-                    await saveDBInPath.Show();
-                }
-                else
-                {
-                    var errorNoSystemDialog = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
-                        new MessageBoxStandardParams
-                        {
-                            ButtonDefinitions = ButtonEnum.Ok,
-                            ContentTitle = "Fehler",
-                            ContentMessage =
-                                "Schließen fehlgeschlagen",
-                            Icon = MessageBox.Avalonia.Enums.Icon.Error
-                        });
-                    await errorNoSystemDialog.Show();
-                }
+                    if (res == 0)
+                    {
+                        myschool = tempDB;
+                        var saveDBInPath = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                            new MessageBoxStandardParams
+                            {
+                                ButtonDefinitions = ButtonEnum.Ok,
+                                ContentTitle = "Erfolg",
+                                ContentMessage =
+                                    "Datenbank erfolgreich gespeichert",
+                                Icon = MessageBox.Avalonia.Enums.Icon.Success
+                            });
+                        await saveDBInPath.Show();
+                    }
+                    else
+                    {
+                        var errorNoSystemDialog = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                            new MessageBoxStandardParams
+                            {
+                                ButtonDefinitions = ButtonEnum.Ok,
+                                ContentTitle = "Fehler",
+                                ContentMessage =
+                                    "Schließen fehlgeschlagen",
+                                Icon = MessageBox.Avalonia.Enums.Icon.Error
+                            });
+                        await errorNoSystemDialog.Show();
+                    }
+                });
             };
             await Task.Run(saveDBFile);
         }
@@ -225,33 +228,36 @@ namespace StS_GUI_Avalonia
                 if (filepath == null) return;
                 var tempDB = new Schuldatenbank(filepath);
                 var res = await tempDB.Import(myschool);
-                if (res != 0)
+                await Dispatcher.UIThread.InvokeAsync(async () =>
                 {
-                    var errorNoSystemDialog = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
-                        new MessageBoxStandardParams
-                        {
-                            ButtonDefinitions = ButtonEnum.Ok,
-                            ContentTitle = "Fehler",
-                            ContentMessage =
-                                "Speichern unter fehlgeschlagen",
-                            Icon = MessageBox.Avalonia.Enums.Icon.Error
-                        });
-                    await errorNoSystemDialog.Show();
-                }
-                else
-                {
-                    myschool = tempDB;
-                    var saveDBInPath = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
-                        new MessageBoxStandardParams
-                        {
-                            ButtonDefinitions = ButtonEnum.Ok,
-                            ContentTitle = "Erfolg",
-                            ContentMessage =
-                                "Datenbank erfolgreich gespeichert",
-                            Icon = MessageBox.Avalonia.Enums.Icon.Success
-                        });
-                    await saveDBInPath.Show();
-                }
+                    if (res != 0)
+                    {
+                        var errorNoSystemDialog = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                            new MessageBoxStandardParams
+                            {
+                                ButtonDefinitions = ButtonEnum.Ok,
+                                ContentTitle = "Fehler",
+                                ContentMessage =
+                                    "Speichern unter fehlgeschlagen",
+                                Icon = MessageBox.Avalonia.Enums.Icon.Error
+                            });
+                        await errorNoSystemDialog.Show();
+                    }
+                    else
+                    {
+                        myschool = tempDB;
+                        var saveDBInPath = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                            new MessageBoxStandardParams
+                            {
+                                ButtonDefinitions = ButtonEnum.Ok,
+                                ContentTitle = "Erfolg",
+                                ContentMessage =
+                                    "Datenbank erfolgreich gespeichert",
+                                Icon = MessageBox.Avalonia.Enums.Icon.Success
+                            });
+                        await saveDBInPath.Show();
+                    }
+                });
             };
             await Task.Run(saveDBFile);
         }
@@ -328,16 +334,18 @@ namespace StS_GUI_Avalonia
                     await myschool.SusEinlesen(folder + "/sus.csv");
                     await myschool.LulEinlesen(folder + "/lul.csv");
                     await myschool.KurseEinlesen(folder + "/kurse.csv");
-                    var loadFolderMessageBox = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
-                        new MessageBoxStandardParams
-                        {
-                            ButtonDefinitions = ButtonEnum.Ok,
-                            ContentTitle = "Information",
-                            ContentMessage =
-                                "Import erfolgreich",
-                            Icon = MessageBox.Avalonia.Enums.Icon.Info
-                        });
-                    await loadFolderMessageBox.Show();
+                    await Dispatcher.UIThread.InvokeAsync(() =>
+                    {
+                        MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                            new MessageBoxStandardParams
+                            {
+                                ButtonDefinitions = ButtonEnum.Ok,
+                                ContentTitle = "Information",
+                                ContentMessage =
+                                    "Import erfolgreich",
+                                Icon = MessageBox.Avalonia.Enums.Icon.Info
+                            }).Show();
+                    });
                 }
             };
             await Task.Run(readFileTask);
