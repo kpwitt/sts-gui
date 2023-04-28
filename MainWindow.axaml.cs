@@ -1264,7 +1264,7 @@ namespace StS_GUI_Avalonia
                         ButtonDefinitions = ButtonEnum.Ok,
                         ContentTitle = "Export erfolgreich",
                         ContentMessage =
-                            "Der Expport war erfolgreich",
+                            "Der Export war erfolgreich",
                         Icon = MessageBox.Avalonia.Enums.Icon.Info
                     });
                 await successExportDialog.Show();
