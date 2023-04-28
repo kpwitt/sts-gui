@@ -1100,6 +1100,7 @@ namespace StS_GUI_Avalonia
                 }
 
                 var kursvorlagen = new[] { "", "" };
+                var nurMoodleSuffix = (cbNurMoodleSuffix.IsChecked != null);
                 if (cbExportVorlagenkurse.IsChecked != null && cbExportVorlagenkurse.IsChecked.Value)
                 {
                     kursvorlagen[0] = tbExportKl.Text;
@@ -1108,7 +1109,7 @@ namespace StS_GUI_Avalonia
 
                 var res = await myschool.ExportCSV(folder, destsys, whattoexport,
                     cbExportwithPasswort.IsChecked != null && cbExportwithPasswort.IsChecked.Value,
-                    expandFiles, kursvorlagen,
+                    expandFiles, nurMoodleSuffix, kursvorlagen,
                     await myschool.GetSchuelerIDListe(), await myschool.GetLehrerIDListe(),
                     await myschool.GetKursBezListe());
                 await CheckSuccesfulExport(res);
@@ -1228,9 +1229,10 @@ namespace StS_GUI_Avalonia
                 var folder = await globalOpenFolderDialog.ShowAsync(this);
                 if (folder == null) return;
                 int res;
+                var nurMoodleSuffix = (cbNurMoodleSuffix.IsChecked != null);
                 if (!tbExportStufenkurse.Text.Contains(';'))
                 {
-                    res = await myschool.ExportCSV(folder, "all", "s", false, false, new[] { "", "" },
+                    res = await myschool.ExportCSV(folder, "all", "s", false, false, nurMoodleSuffix,new[] { "", "" },
                         myschool.GetSusAusStufe(tbExportStufenkurse.Text).Result.Select(s => s.ID).ToList(),
                         new List<int>(), new List<string>());
                 }
@@ -1243,7 +1245,7 @@ namespace StS_GUI_Avalonia
                         suslist.AddRange(myschool.GetSusAusStufe(stufe).Result.Select(s => s.ID).ToList());
                     }
 
-                    res = await myschool.ExportCSV(folder, "all", "s", false, false, new[] { "", "" },
+                    res = await myschool.ExportCSV(folder, "all", "s", false, false, nurMoodleSuffix, new[] { "", "" },
                         suslist,
                         new List<int>(), new List<string>());
                 }
@@ -1289,7 +1291,8 @@ namespace StS_GUI_Avalonia
                 SetupOpenFolderDialog(globalOpenFolderDialog, "Bitte den Ordner für die Dateien auswählen");
                 var folder = await globalOpenFolderDialog.ShowAsync(this);
                 if (folder == null) return;
-                var res = await myschool.ExportCSV(folder, "all", "s", false, false, new[] { "", "" },
+                var nurMoodleSuffix = (cbNurMoodleSuffix.IsChecked != null);
+                var res = await myschool.ExportCSV(folder, "all", "s", false, false, nurMoodleSuffix,new[] { "", "" },
                     myschool.GetSusAusStufe("5").Result.Select(s => s.ID).ToList(),
                     new List<int>(), new List<string>());
                 await CheckSuccesfulExport(res);
@@ -1565,9 +1568,10 @@ namespace StS_GUI_Avalonia
                 {
                     var isAnfangsPasswortChecked = ((CheckBox)LeftListBox.ContextMenu.Items.Cast<Control>()
                         .Where(c => c.Name == "cbMnuLeftContextAnfangsPasswort").ToList().First()).IsChecked;
+                    var nurMoodleSuffix = (cbNurMoodleSuffix.IsChecked != null);
                     var res = await myschool.ExportCSV(folder, destsys, whattoexport,
                         isAnfangsPasswortChecked != null && isAnfangsPasswortChecked.Value,
-                        expandFiles, kursvorlagen,
+                        expandFiles, nurMoodleSuffix, kursvorlagen,
                         suslist.Select(s => s.ID).Distinct().ToList(), lullist.Select(l => l.ID).Distinct().ToList(),
                         kurslist.Select(k => k.Bezeichnung).Distinct().ToList());
                     await CheckSuccesfulExport(res);
