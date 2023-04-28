@@ -433,7 +433,7 @@ namespace StS_GUI_Avalonia
                     ContentTitle = "Über",
                     ContentMessage =
                         Application.Current?.Name + "\n" + version,
-                    Icon = MessageBox.Avalonia.Enums.Icon.Info
+                    Icon = MessageBox.Avalonia.Enums.Icon.Setting
                 });
             await errorNoSystemDialog.Show();
         }
