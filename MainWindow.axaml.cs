@@ -488,6 +488,7 @@ namespace StS_GUI_Avalonia
         public async void OnBtnsusdelClick(object? sender, RoutedEventArgs e)
         {
             var susid = tbSuSID.Text;
+            if (susid is null or "" || !susid.All(char.IsDigit)) return;
             var sid = Convert.ToInt32(susid);
             if (myschool.GetSchueler(sid).Result.ID == 0) return;
             ListBox source;
@@ -505,10 +506,17 @@ namespace StS_GUI_Avalonia
                 return;
             }
 
-            var templist = source.Items.Cast<string>().ToList();
-            templist.Remove(tbSuSnachname.Text + "," + tbSuSVorname.Text + ";" + susid);
-            await myschool.RemoveS(sid);
-            source.Items = templist;
+            await myschool.StartTransaction();
+            foreach (var susstring in source.SelectedItems.Cast<string>())
+            {
+                if (susstring == null) return;
+                sid = Convert.ToInt32(susstring.Split(';')[1]);
+                await myschool.RemoveS(sid);
+            }
+
+            await myschool.StopTransaction();
+            OnLeftDataChanged(true);
+            OnRightDataChanged(true);
         }
 
         public async void OnbtnsuseinschreibenClick(object? sender, RoutedEventArgs e)
@@ -572,6 +580,7 @@ namespace StS_GUI_Avalonia
         public async void OnBtnluldelClick(object? sender, RoutedEventArgs e)
         {
             var lulid = tbLuLID.Text;
+            if (lulid is null or "" || !lulid.All(char.IsDigit)) return;
             var lid = Convert.ToInt32(lulid);
             ListBox source;
             if (CboxDataLeft.SelectedIndex == 1)
@@ -588,10 +597,16 @@ namespace StS_GUI_Avalonia
                 return;
             }
 
-            var templist = source.Items.Cast<string>().ToList();
-            templist.Remove(tbLuLKuerzel + ";" + tbLuLNachname + "," + tbLuLVorname);
-            await myschool.RemoveL(lid);
-            source.Items = templist;
+            await myschool.StartTransaction();
+            foreach (var lulstring in source.SelectedItems.Cast<string>())
+            {
+                var krz = lulstring.Split(';')[0];
+                await myschool.RemoveL(krz);
+            }
+
+            await myschool.StopTransaction();
+            OnLeftDataChanged(true);
+            OnRightDataChanged(true);
         }
 
         private void InitData()
@@ -684,6 +699,7 @@ namespace StS_GUI_Avalonia
             {
                 RightListBox.Items = new List<string>();
             }
+
             switch (CboxDataLeft.SelectedIndex)
             {
                 //s=0;l==1;k==2
@@ -1244,7 +1260,7 @@ namespace StS_GUI_Avalonia
                     : true;
                 if (!tbExportStufenkurse.Text.Contains(';'))
                 {
-                    res = await myschool.ExportCSV(folder, "all", "s", false, false, nurMoodleSuffix,new[] { "", "" },
+                    res = await myschool.ExportCSV(folder, "all", "s", false, false, nurMoodleSuffix, new[] { "", "" },
                         myschool.GetSusAusStufe(tbExportStufenkurse.Text).Result.Select(s => s.ID).ToList(),
                         new List<int>(), new List<string>());
                 }
@@ -1261,6 +1277,7 @@ namespace StS_GUI_Avalonia
                         suslist,
                         new List<int>(), new List<string>());
                 }
+
                 await CheckSuccesfulExport(res);
             };
             await Task.Run(readFileTask);
@@ -1306,7 +1323,7 @@ namespace StS_GUI_Avalonia
                 var nurMoodleSuffix = (cbNurMoodleSuffix.IsChecked != null || cbNurMoodleSuffix.IsChecked == false)
                     ? false
                     : true;
-                var res = await myschool.ExportCSV(folder, "all", "s", false, false, nurMoodleSuffix,new[] { "", "" },
+                var res = await myschool.ExportCSV(folder, "all", "s", false, false, nurMoodleSuffix, new[] { "", "" },
                     myschool.GetSusAusStufe("5").Result.Select(s => s.ID).ToList(),
                     new List<int>(), new List<string>());
                 await CheckSuccesfulExport(res);
@@ -1406,8 +1423,31 @@ namespace StS_GUI_Avalonia
         private async void BtnKurseDel_OnClick(object? sender, RoutedEventArgs e)
         {
             var kursbez = tbKursbezeichnung.Text;
-            await myschool.RemoveK(kursbez);
+            ListBox source;
+            if (CboxDataLeft.SelectedIndex == 2)
+            {
+                source = LeftListBox;
+            }
+            else if (CboxDataRight.SelectedIndex == 2)
+            {
+                source = RightListBox;
+            }
+            else
+            {
+                await myschool.RemoveK(kursbez);
+                return;
+            }
+
+            await myschool.StartTransaction();
+            foreach (var kurs in source.SelectedItems.Cast<string>())
+            {
+                if (kurs == null) return;
+                await myschool.RemoveK(kurs);
+            }
+
+            await myschool.StopTransaction();
             OnLeftDataChanged(true);
+            OnRightDataChanged(true);
         }
 
         private async void OnLeftTimedEvent(object? source, ElapsedEventArgs e)
@@ -1585,7 +1625,7 @@ namespace StS_GUI_Avalonia
                     var nurMoodleSuffix = (cbNurMoodleSuffix.IsChecked != null || cbNurMoodleSuffix.IsChecked == false)
                         ? false
                         : true;
-                        
+
                     var res = await myschool.ExportCSV(folder, destsys, whattoexport,
                         isAnfangsPasswortChecked != null && isAnfangsPasswortChecked.Value,
                         expandFiles, nurMoodleSuffix, kursvorlagen,
