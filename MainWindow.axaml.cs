@@ -526,6 +526,8 @@ namespace StS_GUI_Avalonia
             var susklasse = tbSuSKlasse.Text;
             if (susklasse == "" || sid == 0) return;
             await myschool.AddStoKlassenKurse(await myschool.GetSchueler(sid), susklasse);
+            OnLeftDataChanged(true);
+            OnRightDataChanged(true);
         }
 
         public async void OnBtnluladdClick(object? sender, RoutedEventArgs e)
@@ -575,6 +577,8 @@ namespace StS_GUI_Avalonia
                     await myschool.AddLtoK(lid, kurs);
                 }
             }
+            OnLeftDataChanged(true);
+            OnRightDataChanged(true);
         }
 
         public async void OnBtnluldelClick(object? sender, RoutedEventArgs e)
@@ -1418,6 +1422,8 @@ namespace StS_GUI_Avalonia
                     await myschool.AddStoK(sus, await myschool.GetKurs(kursbez));
                 }
             }
+            OnLeftDataChanged(true);
+            OnRightDataChanged(true);
         }
 
         private async void BtnKurseDel_OnClick(object? sender, RoutedEventArgs e)
