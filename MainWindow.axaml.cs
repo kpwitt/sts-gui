@@ -1168,10 +1168,13 @@ namespace StS_GUI_Avalonia
         {
             try
             {
+                var kursliste = myschool.GetKursListe().Result;
+                var susliste = myschool.GetSchuelerListe().Result;
+                pbFehlersuche.Maximum = kursliste.Count + susliste.Count;
                 var ergebnisliste = new List<string>();
                 if (cbFehlerLeereKurse.IsChecked != null && cbFehlerLeereKurse.IsChecked.Value)
                 {
-                    foreach (var k in myschool.GetKursListe().Result)
+                    foreach (var k in kursliste)
                     {
                         if (myschool.GetSuSAusKurs(k.Bezeichnung).Result.Count == 0)
                         {
@@ -1182,6 +1185,7 @@ namespace StS_GUI_Avalonia
                         {
                             ergebnisliste.Add(k.Bezeichnung + " ohne LuL");
                         }
+                        ++pbFehlersuche.Value;
                     }
                 }
 
@@ -1215,7 +1219,7 @@ namespace StS_GUI_Avalonia
 
                 if (cbFehlerSuS.IsChecked != null && cbFehlerSuS.IsChecked.Value)
                 {
-                    foreach (var sus in myschool.GetSchuelerListe().Result)
+                    foreach (var sus in susliste)
                     {
                         if (sus.Nutzername.Equals(""))
                         {
@@ -1234,6 +1238,7 @@ namespace StS_GUI_Avalonia
                             ergebnisliste.Add(sus.Nachname + ", " + sus.Vorname + ";Klasse " + sus.Klasse + ";" +
                                               sus.ID + ";ohne gültige Zweitmailadresse");
                         }
+                        ++pbFehlersuche.Value;
                     }
                 }
 

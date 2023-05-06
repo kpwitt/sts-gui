@@ -274,6 +274,7 @@
                                 <Button x:Name="btnFehlerSuche" Click="BtnFehlerSuche_OnClick">Suche</Button>
                                 <Button x:Name="btnFehlerExport" Click="BtnFehlerExport_OnClick">Export</Button>
                             </WrapPanel>
+                            <ProgressBar x:Name="pbFehlersuche" Value="0"></ProgressBar>
                         </StackPanel>
                         <ListBox DockPanel.Dock="Bottom" x:Name="lbFehlerliste" Height="750" SelectionMode="Multiple"
                                  VerticalAlignment="Stretch">
