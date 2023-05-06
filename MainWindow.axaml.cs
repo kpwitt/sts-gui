@@ -350,6 +350,19 @@ namespace StS_GUI_Avalonia
                     await myschool.SusEinlesen(folder + "/sus.csv");
                     await myschool.LulEinlesen(folder + "/lul.csv");
                     await myschool.KurseEinlesen(folder + "/kurse.csv");
+                    var aixcsvpath = "";
+                    var d = new DirectoryInfo(folder);
+                    var files = d.GetFiles();
+                    foreach (var csvFile in files) {
+                        if (csvFile.Name.StartsWith("AlleSchueler")) {
+                            aixcsvpath = csvFile.FullName;
+                        }
+                    }
+
+                    if (aixcsvpath != "")
+                    {
+                        await myschool.IdsEinlesen(aixcsvpath);
+                    }
                     await Dispatcher.UIThread.InvokeAsync(() =>
                     {
                         MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
