@@ -36,10 +36,10 @@ namespace StS_GUI_Avalonia
             InitGUI();
         }
 
-        public MainWindow(string[] args)
+        public MainWindow(IReadOnlyList<string> args)
         {
             InitGUI();
-            if (args.Length != 1) return;
+            if (args.Count != 1) return;
             var filepath = args[0];
             if (!File.Exists(filepath) || !filepath.EndsWith(".sqlite")) return;
             myschool = new Schuldatenbank(filepath);
