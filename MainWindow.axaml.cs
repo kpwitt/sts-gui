@@ -1166,9 +1166,7 @@ namespace StS_GUI_Avalonia
                 }
 
                 var kursvorlagen = new[] { "", "" };
-                var nurMoodleSuffix = (cbNurMoodleSuffix.IsChecked != null || cbNurMoodleSuffix.IsChecked == false)
-                    ? false
-                    : true;
+                var nurMoodleSuffix = cbNurMoodleSuffix.IsChecked is not false;
                 if (cbExportVorlagenkurse.IsChecked != null && cbExportVorlagenkurse.IsChecked.Value)
                 {
                     kursvorlagen[0] = tbExportKl.Text;
@@ -1302,9 +1300,7 @@ namespace StS_GUI_Avalonia
                 var folder = await globalOpenFolderDialog.ShowAsync(this);
                 if (folder == null) return;
                 int res;
-                var nurMoodleSuffix = (cbNurMoodleSuffix.IsChecked != null || cbNurMoodleSuffix.IsChecked == false)
-                    ? false
-                    : true;
+                var nurMoodleSuffix = cbNurMoodleSuffix.IsChecked is not false;
                 if (!tbExportStufenkurse.Text.Contains(';'))
                 {
                     res = await myschool.ExportCSV(folder, "all", "s", false, false, nurMoodleSuffix, new[] { "", "" },
@@ -1367,9 +1363,7 @@ namespace StS_GUI_Avalonia
                 SetupOpenFolderDialog(globalOpenFolderDialog, "Bitte den Ordner für die Dateien auswählen");
                 var folder = await globalOpenFolderDialog.ShowAsync(this);
                 if (folder == null) return;
-                var nurMoodleSuffix = (cbNurMoodleSuffix.IsChecked != null || cbNurMoodleSuffix.IsChecked == false)
-                    ? false
-                    : true;
+                var nurMoodleSuffix = cbNurMoodleSuffix.IsChecked is not false;
                 var res = await myschool.ExportCSV(folder, "all", "s", false, false, nurMoodleSuffix, new[] { "", "" },
                     myschool.GetSusAusStufe("5").Result.Select(s => s.ID).ToList(),
                     new List<int>(), new List<string>());
@@ -1671,10 +1665,7 @@ namespace StS_GUI_Avalonia
                 {
                     var isAnfangsPasswortChecked = ((CheckBox)LeftListBox.ContextMenu.Items.Cast<Control>()
                         .Where(c => c.Name == "cbMnuLeftContextAnfangsPasswort").ToList().First()).IsChecked;
-                    var nurMoodleSuffix = (cbNurMoodleSuffix.IsChecked != null || cbNurMoodleSuffix.IsChecked == false)
-                        ? false
-                        : true;
-
+                    var nurMoodleSuffix = cbNurMoodleSuffix.IsChecked is not false;
                     var res = await myschool.ExportCSV(folder, destsys, whattoexport,
                         isAnfangsPasswortChecked != null && isAnfangsPasswortChecked.Value,
                         expandFiles, nurMoodleSuffix, kursvorlagen,
