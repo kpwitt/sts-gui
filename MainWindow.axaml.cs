@@ -296,10 +296,10 @@ namespace StS_GUI_Avalonia
             {
                 var filepath = await globalSaveFileDialog.ShowAsync(this);
                 if (filepath == null) return;
-                var db_path = await myschool.GetFilePath();
+                var dbPath = await myschool.GetFilePath();
                 myschool.CloseDB();
-                LocalCryptoServive.FileEncrypt(db_path, filepath, inputResult);
-                myschool = new Schuldatenbank(db_path);
+                LocalCryptoServive.FileEncrypt(dbPath, filepath, inputResult);
+                myschool = new Schuldatenbank(dbPath);
             };
             await Task.Run(saveDBFile);
         }
