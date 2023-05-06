@@ -15,7 +15,8 @@ namespace StS_GUI_Avalonia
         {
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
-                desktop.MainWindow = new MainWindow();
+                var desktopLifetime = ApplicationLifetime as IClassicDesktopStyleApplicationLifetime;
+                desktop.MainWindow = new MainWindow(desktopLifetime.Args);
             }
 
             base.OnFrameworkInitializationCompleted();

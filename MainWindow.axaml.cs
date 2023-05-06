@@ -33,6 +33,22 @@ namespace StS_GUI_Avalonia
 
         public MainWindow()
         {
+            InitGUI();
+        }
+
+        public MainWindow(string[] args)
+        {
+            InitGUI();
+            if (args.Length != 1) return;
+            var filepath = args[0];
+            if (!File.Exists(filepath) || !filepath.EndsWith(".sqlite")) return;
+            myschool = new Schuldatenbank(filepath);
+            Title = "SchildToSchule - " + myschool.GetFilePath().Result;
+            InitData();
+        }
+
+        private void InitGUI()
+        {
             InitializeComponent();
 #if DEBUG
             this.AttachDevTools();
