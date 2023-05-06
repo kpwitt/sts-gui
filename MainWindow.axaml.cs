@@ -638,6 +638,15 @@ namespace StS_GUI_Avalonia
                 .ToList();
             llist.Sort(Comparer<string>.Default);
             LeftListBox.Items = llist;
+            var settings = myschool.GetSettings().Result;
+            tbSettingMailplatzhalter.Text = settings[0].Split(';')[1];
+            tbSettingKursersetzung.Text = settings[1].Split(';')[1];
+            tbSettingKurssuffix.Text = settings[2].Split(';')[1];
+            var kurzfach = myschool.GetFachersatz().Result.Select(t => t.Split(';')[0]);
+            foreach (var fachk in kurzfach)
+            {
+                tbSettingFachkurz.Text += fachk + '\n';
+            }
         }
 
         private void CboxDataLeft_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
