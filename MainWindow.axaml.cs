@@ -9,6 +9,7 @@ using MessageBox.Avalonia.Enums;
 using SchulDB;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -1310,8 +1311,10 @@ namespace StS_GUI_Avalonia
                 if (!tbExportStufenkurse.Text.Contains(';'))
                 {
                     res = await myschool.ExportCSV(folder, "all", "s", false, false, nurMoodleSuffix, new[] { "", "" },
-                        myschool.GetSusAusStufe(tbExportStufenkurse.Text).Result.Select(s => s.ID).ToList(),
-                        new List<int>(), new List<string>());
+                        myschool.GetSusAusStufe(tbExportStufenkurse.Text).Result.Select(s => s.ID) as
+                            ReadOnlyCollection<int>,
+                        new ReadOnlyCollection<int>(new List<int>()),
+                        new ReadOnlyCollection<string>(new List<string>()));
                 }
                 else
                 {
@@ -1323,8 +1326,9 @@ namespace StS_GUI_Avalonia
                     }
 
                     res = await myschool.ExportCSV(folder, "all", "s", false, false, nurMoodleSuffix, new[] { "", "" },
-                        suslist,
-                        new List<int>(), new List<string>());
+                        new ReadOnlyCollection<int>(suslist),
+                        new ReadOnlyCollection<int>(new List<int>()),
+                        new ReadOnlyCollection<string>(new List<string>()));
                 }
 
                 await CheckSuccesfulExport(res);
@@ -1371,8 +1375,8 @@ namespace StS_GUI_Avalonia
                 if (folder == null) return;
                 var nurMoodleSuffix = cbNurMoodleSuffix.IsChecked is not false;
                 var res = await myschool.ExportCSV(folder, "all", "s", false, false, nurMoodleSuffix, new[] { "", "" },
-                    myschool.GetSusAusStufe("5").Result.Select(s => s.ID).ToList(),
-                    new List<int>(), new List<string>());
+                    new ReadOnlyCollection<int>(myschool.GetSusAusStufe("5").Result.Select(s => s.ID).ToList()),
+                    new ReadOnlyCollection<int>(new List<int>()), new ReadOnlyCollection<string>(new List<string>()));
                 await CheckSuccesfulExport(res);
             };
             await Task.Run(readFileTask);
@@ -1675,8 +1679,9 @@ namespace StS_GUI_Avalonia
                     var res = await myschool.ExportCSV(folder, destsys, whattoexport,
                         isAnfangsPasswortChecked != null && isAnfangsPasswortChecked.Value,
                         expandFiles, nurMoodleSuffix, kursvorlagen,
-                        suslist.Select(s => s.ID).Distinct().ToList(), lullist.Select(l => l.ID).Distinct().ToList(),
-                        kurslist.Select(k => k.Bezeichnung).Distinct().ToList());
+                        new ReadOnlyCollection<int>(suslist.Select(s => s.ID).Distinct().ToList()),
+                        new ReadOnlyCollection<int>(lullist.Select(l => l.ID).Distinct().ToList()),
+                        new ReadOnlyCollection<string>(kurslist.Select(k => k.Bezeichnung).Distinct().ToList()));
                     await CheckSuccesfulExport(res);
                 }
             };
