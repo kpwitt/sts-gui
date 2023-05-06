@@ -353,8 +353,10 @@ namespace StS_GUI_Avalonia
                     var aixcsvpath = "";
                     var d = new DirectoryInfo(folder);
                     var files = d.GetFiles();
-                    foreach (var csvFile in files) {
-                        if (csvFile.Name.StartsWith("AlleSchueler")) {
+                    foreach (var csvFile in files)
+                    {
+                        if (csvFile.Name.StartsWith("AlleSchueler"))
+                        {
                             aixcsvpath = csvFile.FullName;
                         }
                     }
@@ -363,6 +365,7 @@ namespace StS_GUI_Avalonia
                     {
                         await myschool.IdsEinlesen(aixcsvpath);
                     }
+
                     await Dispatcher.UIThread.InvokeAsync(() =>
                     {
                         MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
@@ -606,6 +609,7 @@ namespace StS_GUI_Avalonia
                     await myschool.AddLtoK(lid, kurs);
                 }
             }
+
             OnLeftDataChanged(true);
             OnRightDataChanged(true);
         }
@@ -1205,6 +1209,7 @@ namespace StS_GUI_Avalonia
                         {
                             ergebnisliste.Add(k.Bezeichnung + " ohne LuL");
                         }
+
                         ++pbFehlersuche.Value;
                     }
                 }
@@ -1258,6 +1263,7 @@ namespace StS_GUI_Avalonia
                             ergebnisliste.Add(sus.Nachname + ", " + sus.Vorname + ";Klasse " + sus.Klasse + ";" +
                                               sus.ID + ";ohne gültige Zweitmailadresse");
                         }
+
                         ++pbFehlersuche.Value;
                     }
                 }
