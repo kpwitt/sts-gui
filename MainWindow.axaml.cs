@@ -486,7 +486,40 @@ namespace StS_GUI_Avalonia
             if (susid == null || susvname == null || susnname is null || susklasse == null ||
                 susnutzername == null || susaximail == null || suselternadresse == null || suszweitadresse == null ||
                 susHatZweitaccount == null || susid == "" || susvname == "" || susnname is "" || susklasse == "" ||
-                suselternadresse == "") return;
+                suselternadresse == "")
+            {
+                await Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                        new MessageBoxStandardParams
+                        {
+                            ButtonDefinitions = ButtonEnum.Ok,
+                            ContentTitle = "Fehler",
+                            ContentMessage =
+                                "Nicht alle erforderlichen Informationen angegeben!\nStellen Sie sicher, dass ID, Vorname, Nachname, Klasse\nund eine Elternadresse angegeben sind",
+                            Icon = MessageBox.Avalonia.Enums.Icon.Error
+                        }).Show();
+                });
+                return;
+            }
+
+            if (!susid.All(char.IsDigit))
+            {
+                await Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                        new MessageBoxStandardParams
+                        {
+                            ButtonDefinitions = ButtonEnum.Ok,
+                            ContentTitle = "Fehler",
+                            ContentMessage =
+                                "Die SuS-ID enthält nicht nur Zahlen!",
+                            Icon = MessageBox.Avalonia.Enums.Icon.Error
+                        }).Show();
+                });
+                return;
+            }
+
             var sid = Convert.ToInt32(susid);
             if (await myschool.GibtEsSchueler(sid))
             {
@@ -576,8 +609,24 @@ namespace StS_GUI_Avalonia
             if (lulid == null || lulvname == null || lulnname == null || lulkrz == null || lulfakultas == null ||
                 lulmail == null || lulpwtemp == null || lulvname == "" || lulnname == "" ||
                 lulkrz == "" || lulfakultas == "" ||
-                lulmail == "") return;
-            if (lulid == "")
+                lulmail == "")
+            {
+                await Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                        new MessageBoxStandardParams
+                        {
+                            ButtonDefinitions = ButtonEnum.Ok,
+                            ContentTitle = "Fehler",
+                            ContentMessage =
+                                "Nicht alle erforderlichen Informationen angegeben!\nStellen Sie sicher, dass ID, Vorname, Nachname, Kürzel\nund Fakultas ausgefüllt sind.",
+                            Icon = MessageBox.Avalonia.Enums.Icon.Error
+                        }).Show();
+                });
+                return;
+            }
+
+            if (lulid == "" || !lulid.All(char.IsDigit))
             {
                 lulid = myschool.GetLehrerIDListe().Result.Max() + 1 + "";
                 lulpwtemp = Schuldatenbank.GeneratePasswort(8);
@@ -1422,7 +1471,23 @@ namespace StS_GUI_Avalonia
             var kursstufe = tbKursStufe.Text;
             var istKurs = cbKursIstKurs.IsChecked != null && cbKursIstKurs.IsChecked.Value;
             if (kursbez == null || lehrkraefte == null || kursfach == null || kursklasse == null || kursstufe == null ||
-                kursbez == "" || lehrkraefte == "" || kursfach == "" || kursklasse == "" || kursstufe == "") return;
+                kursbez == "" || lehrkraefte == "" || kursfach == "" || kursklasse == "" || kursstufe == "")
+            {
+                await Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                        new MessageBoxStandardParams
+                        {
+                            ButtonDefinitions = ButtonEnum.Ok,
+                            ContentTitle = "Fehler",
+                            ContentMessage =
+                                "Nicht alle erforderlichen Informationen angegeben!\nStellen Sie sicher, dass Kursbezeichnung, mind. einn Kürzel, das Fach, die Klasse und die Stufe ausgefüllt sind.",
+                            Icon = MessageBox.Avalonia.Enums.Icon.Error
+                        }).Show();
+                });
+                return;
+            }
+
             if (await myschool.GibtEsKurs(kursbez))
             {
                 await myschool.UpdateKurs(kursbez, kursfach, kursklasse, kursstufe, kurssuffix,
