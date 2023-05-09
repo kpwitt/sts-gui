@@ -1608,7 +1608,7 @@ namespace StS_GUI_Avalonia
             {
                 SetupSaveFileDialog(globalSaveFileDialog, "Serienbriefdatei...", new[] { "csv" },
                     new[] { "CSV-Datei" });
-                var folder = await globalOpenFolderDialog.ShowAsync(this);
+                var folder = await globalSaveFileDialog.ShowAsync(this);
                 if (folder == null) return;
                 List<string> susausgabe = new() { "Vorname;Nachname;Anmeldename;Kennwort;E-Mail;Klasse" };
                 switch (CboxDataLeft.SelectedIndex)
