@@ -122,6 +122,7 @@ namespace StS_GUI_Avalonia
             RightListBox.MaxHeight = LeftListBox.MaxHeight;
             var assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
             var uriString = new Uri("avares://StS-GUI-Avalonia/Assets/gfx/school-building.png");
+            if (assets == null) Environment.Exit(1);
             msgBoxWindowIcon = new WindowIcon(assets.Open(uriString));
         }
 
