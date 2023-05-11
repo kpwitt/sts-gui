@@ -215,7 +215,7 @@ namespace StS_GUI_Avalonia
                                     "Datenbank erfolgreich gespeichert",
                                 Icon = MessageBox.Avalonia.Enums.Icon.Success
                             });
-                        await saveDBInPath.Show();
+                        await saveDBInPath.ShowDialog(this);
                     }
                     else
                     {
@@ -228,7 +228,7 @@ namespace StS_GUI_Avalonia
                                     "Schließen fehlgeschlagen",
                                 Icon = MessageBox.Avalonia.Enums.Icon.Error
                             });
-                        await errorNoSystemDialog.Show();
+                        await errorNoSystemDialog.ShowDialog(this);
                     }
                 });
             };
@@ -258,7 +258,7 @@ namespace StS_GUI_Avalonia
                                     "Speichern unter fehlgeschlagen",
                                 Icon = MessageBox.Avalonia.Enums.Icon.Error
                             });
-                        await errorNoSystemDialog.Show();
+                        await errorNoSystemDialog.ShowDialog(this);
                     }
                     else
                     {
@@ -272,7 +272,7 @@ namespace StS_GUI_Avalonia
                                     "Datenbank erfolgreich gespeichert",
                                 Icon = MessageBox.Avalonia.Enums.Icon.Success
                             });
-                        await saveDBInPath.Show();
+                        await saveDBInPath.ShowDialog(this);
                     }
                 });
             };
@@ -377,7 +377,7 @@ namespace StS_GUI_Avalonia
                                 ContentMessage =
                                     "Import erfolgreich",
                                 Icon = MessageBox.Avalonia.Enums.Icon.Info
-                            }).Show();
+                            }).ShowDialog(this);
                     });
                 }
             };
@@ -459,17 +459,20 @@ namespace StS_GUI_Avalonia
         {
             var version = Assembly.GetExecutingAssembly().GetName().Version;
             if (version == null) return;
-            var errorNoSystemDialog = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
-                new MessageBoxStandardParams
-                {
-                    ButtonDefinitions = ButtonEnum.Ok,
-                    ContentTitle = "Über",
-                    ContentMessage =
-                        Application.Current?.Name + "\n" + version,
-                    Icon = MessageBox.Avalonia.Enums.Icon.Setting
-                });
-            await errorNoSystemDialog.Show();
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                    new MessageBoxStandardParams
+                    {
+                        ButtonDefinitions = ButtonEnum.Ok,
+                        ContentTitle = "Über",
+                        ContentMessage =
+                            Application.Current?.Name + "\n" + version,
+                        Icon = MessageBox.Avalonia.Enums.Icon.Setting
+                    }).ShowDialog(this);
+            });
         }
+
 
         public async void OnBtnsusaddClick(object? sender, RoutedEventArgs e)
         {
@@ -498,7 +501,7 @@ namespace StS_GUI_Avalonia
                             ContentMessage =
                                 "Nicht alle erforderlichen Informationen angegeben!\nStellen Sie sicher, dass ID, Vorname, Nachname, Klasse\nund eine Elternadresse angegeben sind",
                             Icon = MessageBox.Avalonia.Enums.Icon.Error
-                        }).Show();
+                        }).ShowDialog(this);
                 });
                 return;
             }
@@ -515,7 +518,7 @@ namespace StS_GUI_Avalonia
                             ContentMessage =
                                 "Die SuS-ID enthält nicht nur Zahlen!",
                             Icon = MessageBox.Avalonia.Enums.Icon.Error
-                        }).Show();
+                        }).ShowDialog(this);
                 });
                 return;
             }
@@ -621,7 +624,7 @@ namespace StS_GUI_Avalonia
                             ContentMessage =
                                 "Nicht alle erforderlichen Informationen angegeben!\nStellen Sie sicher, dass ID, Vorname, Nachname, Kürzel\nund Fakultas ausgefüllt sind.",
                             Icon = MessageBox.Avalonia.Enums.Icon.Error
-                        }).Show();
+                        }).ShowDialog(this);
                 });
                 return;
             }
@@ -1145,16 +1148,19 @@ namespace StS_GUI_Avalonia
             if (cbMoodle.IsChecked != null && !cbMoodle.IsChecked.Value && cbAIX.IsChecked != null &&
                 !cbAIX.IsChecked.Value)
             {
-                var errorNoSystemDialog = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
-                    new MessageBoxStandardParams
+                await Dispatcher.UIThread.InvokeAsync(() =>
                     {
-                        ButtonDefinitions = ButtonEnum.Ok,
-                        ContentTitle = "Kein Zielsystem ausgewählt",
-                        ContentMessage =
-                            "Bitte wählen Sie entweder Moodle und/oder AIX als Zielsystem!",
-                        Icon = MessageBox.Avalonia.Enums.Icon.Error
-                    });
-                await errorNoSystemDialog.Show();
+                        MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                            new MessageBoxStandardParams
+                            {
+                                ButtonDefinitions = ButtonEnum.Ok,
+                                ContentTitle = "Kein Zielsystem ausgewählt",
+                                ContentMessage =
+                                    "Bitte wählen Sie entweder Moodle und/oder AIX als Zielsystem!",
+                                Icon = MessageBox.Avalonia.Enums.Icon.Error
+                            }).ShowDialog(this);
+                    }
+                );
                 return;
             }
 
@@ -1385,33 +1391,37 @@ namespace StS_GUI_Avalonia
             await Task.Run(readFileTask);
         }
 
-        private static async Task CheckSuccesfulExport(int res)
+        private async Task CheckSuccesfulExport(int res)
         {
             if (res == 1)
             {
-                var successExportDialog = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
-                    new MessageBoxStandardParams
-                    {
-                        ButtonDefinitions = ButtonEnum.Ok,
-                        ContentTitle = "Export erfolgreich",
-                        ContentMessage =
-                            "Der Export war erfolgreich",
-                        Icon = MessageBox.Avalonia.Enums.Icon.Info
-                    });
-                await successExportDialog.Show();
+                await Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                        new MessageBoxStandardParams
+                        {
+                            ButtonDefinitions = ButtonEnum.Ok,
+                            ContentTitle = "Export erfolgreich",
+                            ContentMessage =
+                                "Der Export war erfolgreich",
+                            Icon = MessageBox.Avalonia.Enums.Icon.Info
+                        }).ShowDialog(this);
+                });
             }
             else
             {
-                var failedExportDialog = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
-                    new MessageBoxStandardParams
-                    {
-                        ButtonDefinitions = ButtonEnum.Ok,
-                        ContentTitle = "Export fehlgeschlagen",
-                        ContentMessage =
-                            "Export war nicht erfolgreiche. Bitte im Log nachschauen",
-                        Icon = MessageBox.Avalonia.Enums.Icon.Error
-                    });
-                await failedExportDialog.Show();
+                await Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                        new MessageBoxStandardParams
+                        {
+                            ButtonDefinitions = ButtonEnum.Ok,
+                            ContentTitle = "Export fehlgeschlagen",
+                            ContentMessage =
+                                "Export war nicht erfolgreiche. Bitte im Log nachschauen",
+                            Icon = MessageBox.Avalonia.Enums.Icon.Error
+                        }).ShowDialog(this);
+                });
             }
         }
 
@@ -1483,7 +1493,7 @@ namespace StS_GUI_Avalonia
                             ContentMessage =
                                 "Nicht alle erforderlichen Informationen angegeben!\nStellen Sie sicher, dass Kursbezeichnung, mind. einn Kürzel, das Fach, die Klasse und die Stufe ausgefüllt sind.",
                             Icon = MessageBox.Avalonia.Enums.Icon.Error
-                        }).Show();
+                        }).ShowDialog(this);
                 });
                 return;
             }
