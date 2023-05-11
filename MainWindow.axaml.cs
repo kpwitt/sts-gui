@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Input;
 using Avalonia.Media;
+using Avalonia.Platform;
 using Avalonia.Threading;
 using MessageBox.Avalonia.DTO;
 using MessageBox.Avalonia.Enums;
@@ -31,6 +32,7 @@ namespace StS_GUI_Avalonia
         private readonly Brush darkBackgroundColor = new SolidColorBrush(Color.FromRgb(80, 80, 80));
         private readonly Brush lightBackgroundColor = new SolidColorBrush(Color.FromRgb(242, 242, 242));
         private bool rightMutex;
+        private WindowIcon msgBoxWindowIcon;
 
         public MainWindow()
         {
@@ -118,6 +120,9 @@ namespace StS_GUI_Avalonia
             rbL.IsChecked = true;
             LeftListBox.MaxHeight = ClientSize.Height * 1.1;
             RightListBox.MaxHeight = LeftListBox.MaxHeight;
+            var assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
+            var uriString = new Uri("avares://StS-GUI-Avalonia/Assets/gfx/school-building.png");
+            msgBoxWindowIcon = new WindowIcon(assets.Open(uriString));
         }
 
         private static void SetupSaveFileDialog(SaveFileDialog sfd, string dialogtitle, string[] extensions,
@@ -213,7 +218,8 @@ namespace StS_GUI_Avalonia
                                 ContentTitle = "Erfolg",
                                 ContentMessage =
                                     "Datenbank erfolgreich gespeichert",
-                                Icon = MessageBox.Avalonia.Enums.Icon.Success
+                                Icon = MessageBox.Avalonia.Enums.Icon.Success,
+                                WindowIcon = msgBoxWindowIcon
                             });
                         await saveDBInPath.ShowDialog(this);
                     }
@@ -226,7 +232,8 @@ namespace StS_GUI_Avalonia
                                 ContentTitle = "Fehler",
                                 ContentMessage =
                                     "Schließen fehlgeschlagen",
-                                Icon = MessageBox.Avalonia.Enums.Icon.Error
+                                Icon = MessageBox.Avalonia.Enums.Icon.Error,
+                                WindowIcon = msgBoxWindowIcon
                             });
                         await errorNoSystemDialog.ShowDialog(this);
                     }
@@ -256,7 +263,8 @@ namespace StS_GUI_Avalonia
                                 ContentTitle = "Fehler",
                                 ContentMessage =
                                     "Speichern unter fehlgeschlagen",
-                                Icon = MessageBox.Avalonia.Enums.Icon.Error
+                                Icon = MessageBox.Avalonia.Enums.Icon.Error,
+                                WindowIcon = msgBoxWindowIcon
                             });
                         await errorNoSystemDialog.ShowDialog(this);
                     }
@@ -270,7 +278,8 @@ namespace StS_GUI_Avalonia
                                 ContentTitle = "Erfolg",
                                 ContentMessage =
                                     "Datenbank erfolgreich gespeichert",
-                                Icon = MessageBox.Avalonia.Enums.Icon.Success
+                                Icon = MessageBox.Avalonia.Enums.Icon.Success,
+                                WindowIcon = msgBoxWindowIcon
                             });
                         await saveDBInPath.ShowDialog(this);
                     }
@@ -376,7 +385,8 @@ namespace StS_GUI_Avalonia
                                 ContentTitle = "Information",
                                 ContentMessage =
                                     "Import erfolgreich",
-                                Icon = MessageBox.Avalonia.Enums.Icon.Info
+                                Icon = MessageBox.Avalonia.Enums.Icon.Info,
+                                WindowIcon = msgBoxWindowIcon
                             }).ShowDialog(this);
                     });
                 }
@@ -468,7 +478,8 @@ namespace StS_GUI_Avalonia
                         ContentTitle = "Über",
                         ContentMessage =
                             Application.Current?.Name + "\n" + version,
-                        Icon = MessageBox.Avalonia.Enums.Icon.Setting
+                        Icon = MessageBox.Avalonia.Enums.Icon.Setting,
+                        WindowIcon = msgBoxWindowIcon
                     }).ShowDialog(this);
             });
         }
@@ -500,7 +511,8 @@ namespace StS_GUI_Avalonia
                             ContentTitle = "Fehler",
                             ContentMessage =
                                 "Nicht alle erforderlichen Informationen angegeben!\nStellen Sie sicher, dass ID, Vorname, Nachname, Klasse\nund eine Elternadresse angegeben sind",
-                            Icon = MessageBox.Avalonia.Enums.Icon.Error
+                            Icon = MessageBox.Avalonia.Enums.Icon.Error,
+                            WindowIcon = msgBoxWindowIcon
                         }).ShowDialog(this);
                 });
                 return;
@@ -517,7 +529,8 @@ namespace StS_GUI_Avalonia
                             ContentTitle = "Fehler",
                             ContentMessage =
                                 "Die SuS-ID enthält nicht nur Zahlen!",
-                            Icon = MessageBox.Avalonia.Enums.Icon.Error
+                            Icon = MessageBox.Avalonia.Enums.Icon.Error,
+                            WindowIcon = msgBoxWindowIcon
                         }).ShowDialog(this);
                 });
                 return;
@@ -623,7 +636,8 @@ namespace StS_GUI_Avalonia
                             ContentTitle = "Fehler",
                             ContentMessage =
                                 "Nicht alle erforderlichen Informationen angegeben!\nStellen Sie sicher, dass ID, Vorname, Nachname, Kürzel\nund Fakultas ausgefüllt sind.",
-                            Icon = MessageBox.Avalonia.Enums.Icon.Error
+                            Icon = MessageBox.Avalonia.Enums.Icon.Error,
+                            WindowIcon = msgBoxWindowIcon
                         }).ShowDialog(this);
                 });
                 return;
@@ -1157,7 +1171,8 @@ namespace StS_GUI_Avalonia
                                 ContentTitle = "Kein Zielsystem ausgewählt",
                                 ContentMessage =
                                     "Bitte wählen Sie entweder Moodle und/oder AIX als Zielsystem!",
-                                Icon = MessageBox.Avalonia.Enums.Icon.Error
+                                Icon = MessageBox.Avalonia.Enums.Icon.Error,
+                                WindowIcon = msgBoxWindowIcon
                             }).ShowDialog(this);
                     }
                 );
@@ -1182,7 +1197,8 @@ namespace StS_GUI_Avalonia
                             ContentHeader = "Überschreiben?",
                             ContentMessage =
                                 "Im Ordner existieren schon eine/mehrere Exportdateien.\nSollen diese überschrieben werden?",
-                            Icon = MessageBox.Avalonia.Enums.Icon.Question
+                            Icon = MessageBox.Avalonia.Enums.Icon.Question,
+                            WindowIcon = msgBoxWindowIcon
                         });
                     var dialogResult = await overwriteFilesDialog.ShowDialog(this);
                     expandFiles = dialogResult switch
@@ -1404,7 +1420,8 @@ namespace StS_GUI_Avalonia
                             ContentTitle = "Export erfolgreich",
                             ContentMessage =
                                 "Der Export war erfolgreich",
-                            Icon = MessageBox.Avalonia.Enums.Icon.Info
+                            Icon = MessageBox.Avalonia.Enums.Icon.Info,
+                            WindowIcon = msgBoxWindowIcon
                         }).ShowDialog(this);
                 });
             }
@@ -1419,7 +1436,8 @@ namespace StS_GUI_Avalonia
                             ContentTitle = "Export fehlgeschlagen",
                             ContentMessage =
                                 "Export war nicht erfolgreiche. Bitte im Log nachschauen",
-                            Icon = MessageBox.Avalonia.Enums.Icon.Error
+                            Icon = MessageBox.Avalonia.Enums.Icon.Error,
+                            WindowIcon = msgBoxWindowIcon
                         }).ShowDialog(this);
                 });
             }
@@ -1457,7 +1475,8 @@ namespace StS_GUI_Avalonia
                     ContentHeader = "Sicherheitsabfrage",
                     ContentMessage =
                         "Möchten Sie das Log wirklich löschen?",
-                    Icon = MessageBox.Avalonia.Enums.Icon.Question
+                    Icon = MessageBox.Avalonia.Enums.Icon.Question,
+                    WindowIcon = msgBoxWindowIcon
                 });
             var dialogResult = await reallyDeleteLog.ShowDialog(this);
             if (dialogResult == ButtonResult.No) return;
@@ -1492,7 +1511,8 @@ namespace StS_GUI_Avalonia
                             ContentTitle = "Fehler",
                             ContentMessage =
                                 "Nicht alle erforderlichen Informationen angegeben!\nStellen Sie sicher, dass Kursbezeichnung, mind. einn Kürzel, das Fach, die Klasse und die Stufe ausgefüllt sind.",
-                            Icon = MessageBox.Avalonia.Enums.Icon.Error
+                            Icon = MessageBox.Avalonia.Enums.Icon.Error,
+                            WindowIcon = msgBoxWindowIcon
                         }).ShowDialog(this);
                 });
                 return;
@@ -1679,7 +1699,8 @@ namespace StS_GUI_Avalonia
                             ContentHeader = "Überschreiben?",
                             ContentMessage =
                                 "Im Ordner existieren schon eine/mehrere Exportdateien.\nSollen diese überschrieben werden?",
-                            Icon = MessageBox.Avalonia.Enums.Icon.Question
+                            Icon = MessageBox.Avalonia.Enums.Icon.Question,
+                            WindowIcon = msgBoxWindowIcon
                         });
                     var dialogResult = await overwriteFilesDialog.ShowDialog(this);
                     expandFiles = dialogResult switch

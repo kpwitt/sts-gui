@@ -38,6 +38,7 @@
   </ItemGroup>
   <ItemGroup>
     <AvaloniaResource Include="Assets\gfx\school-building.ico" />
+    <AvaloniaResource Include="Assets\gfx\school-building.png"/>
     <AvaloniaResource Include="Assets\gfx\reload.png" />
     <AvaloniaResource Include="Assets\gfx\delete.png" />
   </ItemGroup>
