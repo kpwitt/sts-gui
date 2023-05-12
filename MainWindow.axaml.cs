@@ -127,9 +127,9 @@ namespace StS_GUI_Avalonia
         }
 
         private static void SetupSaveFileDialog(SaveFileDialog sfd, string dialogtitle, string[] extensions,
-            string[] extensionsanames)
+            string[] extensionnames)
         {
-            if (extensions.Length != extensionsanames.Length) return;
+            if (extensions.Length != extensionnames.Length) return;
             sfd.DefaultExtension = extensions[0];
             sfd.Title = dialogtitle;
             List<FileDialogFilter> filters = new();
@@ -138,7 +138,7 @@ namespace StS_GUI_Avalonia
                 FileDialogFilter filter = new();
                 List<string> extension = new() { extensions[i] };
                 filter.Extensions = extension;
-                filter.Name = extensionsanames[i];
+                filter.Name = extensionnames[i];
                 filters.Add(filter);
             }
 
@@ -146,9 +146,9 @@ namespace StS_GUI_Avalonia
         }
 
         private static void SetupOpenFileDialog(OpenFileDialog ofd, string dialogtitle, string[] extensions,
-            string[] extensionsanames)
+            string[] extensionnames)
         {
-            if (extensions.Length != extensionsanames.Length) return;
+            if (extensions.Length != extensionnames.Length) return;
             ofd.Title = dialogtitle;
             ofd.AllowMultiple = false;
             List<FileDialogFilter> filters = new();
@@ -157,7 +157,7 @@ namespace StS_GUI_Avalonia
                 FileDialogFilter filter = new();
                 List<string> extension = new() { extensions[i] };
                 filter.Extensions = extension;
-                filter.Name = extensionsanames[i];
+                filter.Name = extensionnames[i];
                 filters.Add(filter);
             }
 
