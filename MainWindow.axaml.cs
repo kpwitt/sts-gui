@@ -367,10 +367,9 @@ namespace StS_GUI_Avalonia
                     var files = d.GetFiles();
                     foreach (var csvFile in files)
                     {
-                        if (csvFile.Name.StartsWith("AlleSchueler"))
-                        {
-                            aixcsvpath = csvFile.FullName;
-                        }
+                        if (!csvFile.Name.StartsWith("AlleSchueler")) continue;
+                        aixcsvpath = csvFile.FullName;
+                        break;
                     }
 
                     if (aixcsvpath != "")
