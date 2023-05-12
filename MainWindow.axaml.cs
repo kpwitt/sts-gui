@@ -196,6 +196,7 @@ namespace StS_GUI_Avalonia
                 myschool.CloseDB();
                 myschool = new Schuldatenbank(":memory:");
                 ClearTextFields();
+                InitData();
                 return;
             }
 
@@ -728,9 +729,16 @@ namespace StS_GUI_Avalonia
             tbSettingKursersetzung.Text = settings[1].Split(';')[1];
             tbSettingKurssuffix.Text = settings[2].Split(';')[1];
             var kurzfach = myschool.GetFachersatz().Result.Select(t => t.Split(';')[0]);
+            var langfach = myschool.GetFachersatz().Result.Select(t => t.Split(';')[1]);
+            tbSettingFachkurz.Text = "";
             foreach (var fachk in kurzfach)
             {
                 tbSettingFachkurz.Text += fachk + '\n';
+            }
+            tbSettingFachlang.Text = "";
+            foreach (var fachl in langfach)
+            {
+                tbSettingFachlang.Text += fachl + '\n';
             }
         }
 
