@@ -183,7 +183,6 @@ namespace StS_GUI_Avalonia
             InitData();
         }
 
-
         public async void OnMnuschuleschließenClick(object? sender, RoutedEventArgs e)
         {
             if (myschool.GetFilePath().Result != ":memory:")
