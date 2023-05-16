@@ -314,6 +314,19 @@ namespace StS_GUI_Avalonia
                 myschool = new Schuldatenbank(dbPath);
             };
             await Task.Run(saveDBFile);
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                    new MessageBoxStandardParams
+                    {
+                        ButtonDefinitions = ButtonEnum.Ok,
+                        ContentTitle = "Information",
+                        ContentMessage =
+                            "Speichern erfolgreich",
+                        Icon = MessageBox.Avalonia.Enums.Icon.Info,
+                        WindowIcon = msgBoxWindowIcon
+                    }).ShowDialog(this);
+            });
         }
 
         public async void OnMnuversschuleladenClick(object? sender, RoutedEventArgs e)
