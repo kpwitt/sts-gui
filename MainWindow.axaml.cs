@@ -1875,10 +1875,13 @@ namespace StS_GUI_Avalonia
 
                         break;
                     case 2:
-                        whattoexport += "k";
+                        whattoexport += "ksl";
                         foreach (string kurseintrag in LeftListBox.SelectedItems)
                         {
-                            kurslist.Add(await myschool.GetKurs(kurseintrag));
+                            var kurs = await myschool.GetKurs(kurseintrag);
+                            kurslist.Add(kurs);
+                            suslist.AddRange(myschool.GetSuSAusKurs(kurs.Bezeichnung).Result);
+                            lullist.AddRange(myschool.GetLuLAusKurs(kurs.Bezeichnung).Result);
                         }
 
                         break;
