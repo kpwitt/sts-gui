@@ -327,5 +327,6 @@
                 <TabItem Header="Sonstiges" Classes="Header">Nicht implementiert</TabItem> <!--Sonstiges-Tab-->
             </TabControl>
         </Grid>
+        <TextBlock x:Name="tbStatusBar" Margin="10"></TextBlock>
     </DockPanel>
 </Window>

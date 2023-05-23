@@ -965,6 +965,8 @@ namespace StS_GUI_Avalonia
 
                     break;
             }
+
+            tbStatusBar.Text = myschool.GetStat().Result;
         }
 
         private void OnRightDataChanged(bool hasComboBoxChanged)
@@ -1133,6 +1135,7 @@ namespace StS_GUI_Avalonia
 
                     break;
             }
+            tbStatusBar.Text = myschool.GetStat().Result;
         }
 
         private void LoadSuSData(SuS s)
