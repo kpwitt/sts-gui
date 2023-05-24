@@ -828,6 +828,7 @@ namespace StS_GUI_Avalonia
         {
             if (LeftListBox == null || RightListBox == null || CboxDataLeft == null || CboxDataRight == null) return;
             if (LeftListBox.SelectedItems == null) return;
+            SetStatusText();
             if (rightMutex && !hasComboBoxChanged) return;
             if (hasComboBoxChanged)
             {
@@ -965,14 +966,46 @@ namespace StS_GUI_Avalonia
 
                     break;
             }
+        }
 
-            tbStatusBar.Text = myschool.GetStat().Result;
+        private void SetStatusText()
+        {
+            var leftcounter = " | ";
+            switch (CboxDataLeft.SelectedIndex)
+            {
+                case 0:
+                    leftcounter += LeftListBox.SelectedItems.Count + " Schüler:Innen";
+                    break;
+                case 1:
+                    leftcounter += LeftListBox.SelectedItems.Count + " Lehrkräfte";
+                    break;
+                case 2:
+                    leftcounter += LeftListBox.SelectedItems.Count + " Kurse";
+                    break;
+            }
+
+            var rightcounter = " und ";
+            switch (CboxDataRight.SelectedIndex)
+            {
+                case 0:
+                    rightcounter += RightListBox.SelectedItems.Count + " Schüler:Innen";
+                    break;
+                case 1:
+                    rightcounter += RightListBox.SelectedItems.Count + " Lehrkräfte";
+                    break;
+                case 2:
+                    rightcounter += RightListBox.SelectedItems.Count + " Kurse";
+                    break;
+            }
+
+            tbStatusBar.Text = myschool.GetStat().Result + leftcounter + rightcounter + " markiert";
         }
 
         private void OnRightDataChanged(bool hasComboBoxChanged)
         {
             if (LeftListBox == null || RightListBox == null || CboxDataLeft == null || CboxDataRight == null) return;
             if (RightListBox.SelectedItems == null) return;
+            SetStatusText();
             if (rightMutex && !hasComboBoxChanged) return;
             if (hasComboBoxChanged)
             {
@@ -1135,7 +1168,6 @@ namespace StS_GUI_Avalonia
 
                     break;
             }
-            tbStatusBar.Text = myschool.GetStat().Result;
         }
 
         private void LoadSuSData(SuS s)
