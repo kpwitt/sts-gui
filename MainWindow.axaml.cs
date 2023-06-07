@@ -572,7 +572,7 @@ namespace StS_GUI_Avalonia
             {
                 await myschool.AddSchuelerIn(sid, susvname, susnname, suselternadresse, susklasse, susnutzername,
                     susaximail, susHatZweitaccount == false ? 0 : 1, suszweitadresse);
-                if (suskurse.Count == 0) return;
+                if (suskurse.Count == 1 && suskurse[0]=="") return;
                 foreach (var kursbez in suskurse)
                 {
                     await myschool.AddStoK(sid, kursbez);
