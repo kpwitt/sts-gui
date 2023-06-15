@@ -27,7 +27,7 @@ namespace StS_GUI_Avalonia
         private readonly OpenFolderDialog globalOpenFolderDialog = new();
         private readonly Timer leftInputTimer = new(350);
         private readonly Timer rightInputTimer = new(350);
-        private Schuldatenbank myschool = new(":memory:");
+        private Schuldatenbank myschool;
         private readonly ContextMenu leftContext = new();
         private readonly Brush darkBackgroundColor = new SolidColorBrush(Color.FromRgb(80, 80, 80));
         private readonly Brush lightBackgroundColor = new SolidColorBrush(Color.FromRgb(242, 242, 242));
@@ -56,10 +56,11 @@ namespace StS_GUI_Avalonia
 #if DEBUG
             this.AttachDevTools();
 #endif
+            myschool = new Schuldatenbank(":memory:");
             var settings = myschool.GetSettings().Result;
-            tbSettingMailplatzhalter.Text = settings[0].Split(';')[1];
-            tbSettingKursersetzung.Text = settings[1].Split(';')[1];
-            tbSettingKurssuffix.Text = settings[2].Split(';')[1];
+            tbSettingMailplatzhalter.Text = settings.Mailsuffix;
+            tbSettingKursersetzung.Text = settings.Fachersetzung==""?"":settings.Fachersetzung.Split(';')[1];
+            tbSettingKurssuffix.Text = settings.Kurssuffix;
             var kurzfach = myschool.GetFachersatz().Result.Select(t => t.Split(';')[0]);
             foreach (var fachk in kurzfach)
             {
@@ -736,9 +737,9 @@ namespace StS_GUI_Avalonia
             llist.Sort(Comparer<string>.Default);
             LeftListBox.Items = llist;
             var settings = myschool.GetSettings().Result;
-            tbSettingMailplatzhalter.Text = settings[0].Split(';')[1];
-            tbSettingKursersetzung.Text = settings[1].Split(';')[1];
-            tbSettingKurssuffix.Text = settings[2].Split(';')[1];
+            tbSettingMailplatzhalter.Text = settings.Mailsuffix;
+            tbSettingKursersetzung.Text = settings.Fachersetzung==""?"":settings.Fachersetzung.Split(';')[1];
+            tbSettingKurssuffix.Text = settings.Kurssuffix;
             var kurzfach = myschool.GetFachersatz().Result.Select(t => t.Split(';')[0]);
             var langfach = myschool.GetFachersatz().Result.Select(t => t.Split(';')[1]);
             tbSettingFachkurz.Text = "";
@@ -1380,7 +1381,7 @@ namespace StS_GUI_Avalonia
                                               sus.ID + ";ohne Nutzernamen");
                         }
 
-                        if (sus.Aixmail.Contains(myschool.GetSettings().Result[0].Split(';')[1]))
+                        if (sus.Aixmail.Contains(myschool.GetSettings().Result.Mailsuffix.Split(';')[1]))
                         {
                             ergebnisliste.Add(sus.Nachname + ", " + sus.Vorname + ";Klasse " + sus.Klasse + ";" +
                                               sus.ID + ";ohne gültige Mailadresse");
