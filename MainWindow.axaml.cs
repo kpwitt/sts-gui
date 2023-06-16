@@ -193,7 +193,7 @@ namespace StS_GUI_Avalonia
                 leftlist.Items = new List<string>();
                 rightlist.Items = new List<string>();
                 Title = "SchildToSchule";
-                myschool.CloseDB();
+                myschool.Dispose();
                 myschool = new Schuldatenbank(":memory:");
                 ClearTextFields();
                 InitData();
@@ -309,7 +309,7 @@ namespace StS_GUI_Avalonia
                 var filepath = await globalSaveFileDialog.ShowAsync(this);
                 if (filepath == null) return;
                 var dbPath = await myschool.GetFilePath();
-                myschool.CloseDB();
+                myschool.Dispose();
                 LocalCryptoServive.FileEncrypt(dbPath, filepath, inputResult);
                 myschool = new Schuldatenbank(dbPath);
             };
