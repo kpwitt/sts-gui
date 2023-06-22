@@ -298,11 +298,11 @@
                         </StackPanel>
                         <StackPanel Grid.Row="2" Grid.Column="0">
                             <TextBlock Classes="Header" Text="Fächerkurzform"></TextBlock>
-                            <TextBox x:Name="tbSettingFachkurz"></TextBox>
+                            <TextBox x:Name="tbSettingFachkurz" MaxHeight="650"></TextBox>
                         </StackPanel>
                         <StackPanel Grid.Row="2" Grid.Column="1">
                             <TextBlock Classes="Header" Text="Fächerlangform"></TextBlock>
-                            <TextBox x:Name="tbSettingFachlang"></TextBox>
+                            <TextBox x:Name="tbSettingFachlang" MaxHeight="650"></TextBox>
                         </StackPanel>
                         <Button x:Name="btnSettingSave" Grid.Row="3" Grid.Column="0" Click="BtnSettingSave_OnClick">Speichern</Button>
                     </Grid>
