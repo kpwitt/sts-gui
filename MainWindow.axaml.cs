@@ -59,7 +59,9 @@ namespace StS_GUI_Avalonia
             myschool = new Schuldatenbank(":memory:");
             var settings = myschool.GetSettings().Result;
             tbSettingMailplatzhalter.Text = settings.Mailsuffix;
-            tbSettingKursersetzung.Text = settings.Fachersetzung == "" ? "" : settings.Fachersetzung.Split(';')[1];
+            tbSettingKursersetzung.Text = string.IsNullOrEmpty(settings.Fachersetzung)
+                ? ""
+                : settings.Fachersetzung.Split(';')[1];
             tbSettingKurssuffix.Text = settings.Kurssuffix;
             var kurzfach = myschool.GetFachersatz().Result.Select(t => t.Split(';')[0]);
             foreach (var fachk in kurzfach)
@@ -1518,8 +1520,36 @@ namespace StS_GUI_Avalonia
 
         private async void BtnSettingSave_OnClick(object? sender, RoutedEventArgs e)
         {
-            await myschool.SetSettings(tbSettingMailplatzhalter.Text, tbSettingKursersetzung.Text,
-                tbSettingFachkurz.Text.Split('\n'), tbSettingFachlang.Text.Split('\n'), tbSettingKurssuffix.Text);
+            Settings settings = new()
+            {
+                Mailsuffix = tbSettingMailplatzhalter.Text,
+                Fachersetzung = tbSettingKursersetzung.Text,
+                Kurzfaecher = tbSettingFachkurz.Text.Split('\n'),
+                Langfaecher = tbSettingFachlang.Text.Split('\n'),
+                Kurssuffix = tbSettingKurssuffix.Text,
+                Erprobungstufenleitung = string.IsNullOrEmpty(tbSettingErprobungsstufenleitung.Text)
+                    ? ""
+                    : tbSettingErprobungsstufenleitung.Text,
+                Mittelstufenleitung = string.IsNullOrEmpty(tbSettingMittelstufenleitung.Text)
+                    ? ""
+                    : tbSettingMittelstufenleitung.Text, // tbSettingMittelstufenleitung.Text,
+                EFStufenleitung = string.IsNullOrEmpty(tbSettingEFstufenleitung.Text)
+                    ? ""
+                    : tbSettingEFstufenleitung.Text, // tbSettingEFstufenleitung.Text,
+                Q1Stufenleitung = string.IsNullOrEmpty(tbSettingQ1stufenleitung.Text)
+                    ? ""
+                    : tbSettingQ1stufenleitung.Text, // tbSettingQ1stufenleitung.Text,
+                Q2Stufenleitung = string.IsNullOrEmpty(tbSettingQ2stufenleitung.Text)
+                    ? ""
+                    : tbSettingQ2stufenleitung.Text, // tbSettingQ2stufenleitung.Text,
+                Oberstufenkoordination = string.IsNullOrEmpty(tbSettingOberstufenkoordination.Text)
+                    ? ""
+                    : tbSettingOberstufenkoordination.Text, // tbSettingOberstufenkoordination.Text
+            };
+
+            await myschool
+                .SetSettings(
+                    settings); //tbSettingMailplatzhalter.Text, tbSettingKursersetzung.Text,tbSettingFachkurz.Text.Split('\n'), tbSettingFachlang.Text.Split('\n'), tbSettingKurssuffix.Text);
         }
 
         private async void BtnLogDelete_OnClick(object? sender, RoutedEventArgs e)
