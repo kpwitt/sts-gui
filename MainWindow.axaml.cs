@@ -59,7 +59,7 @@ namespace StS_GUI_Avalonia
             myschool = new Schuldatenbank(":memory:");
             var settings = myschool.GetSettings().Result;
             tbSettingMailplatzhalter.Text = settings.Mailsuffix;
-            tbSettingKursersetzung.Text = settings.Fachersetzung==""?"":settings.Fachersetzung.Split(';')[1];
+            tbSettingKursersetzung.Text = settings.Fachersetzung == "" ? "" : settings.Fachersetzung.Split(';')[1];
             tbSettingKurssuffix.Text = settings.Kurssuffix;
             var kurzfach = myschool.GetFachersatz().Result.Select(t => t.Split(';')[0]);
             foreach (var fachk in kurzfach)
@@ -573,7 +573,7 @@ namespace StS_GUI_Avalonia
             {
                 await myschool.AddSchuelerIn(sid, susvname, susnname, suselternadresse, susklasse, susnutzername,
                     susaximail, susHatZweitaccount == false ? 0 : 1, suszweitadresse);
-                if (suskurse.Count == 1 && suskurse[0]=="") return;
+                if (suskurse.Count == 1 && suskurse[0] == "") return;
                 foreach (var kursbez in suskurse)
                 {
                     await myschool.AddStoK(sid, kursbez);
@@ -738,7 +738,7 @@ namespace StS_GUI_Avalonia
             LeftListBox.Items = llist;
             var settings = myschool.GetSettings().Result;
             tbSettingMailplatzhalter.Text = settings.Mailsuffix;
-            tbSettingKursersetzung.Text = settings.Fachersetzung==""?"":settings.Fachersetzung.Split(';')[1];
+            tbSettingKursersetzung.Text = settings.Fachersetzung == "" ? "" : settings.Fachersetzung.Split(';')[1];
             tbSettingKurssuffix.Text = settings.Kurssuffix;
             var kurzfach = myschool.GetFachersatz().Result.Select(t => t.Split(';')[0]);
             var langfach = myschool.GetFachersatz().Result.Select(t => t.Split(';')[1]);
