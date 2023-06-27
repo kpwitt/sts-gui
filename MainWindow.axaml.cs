@@ -1532,24 +1532,22 @@ namespace StS_GUI_Avalonia
                     : tbSettingErprobungsstufenleitung.Text,
                 Mittelstufenleitung = string.IsNullOrEmpty(tbSettingMittelstufenleitung.Text)
                     ? ""
-                    : tbSettingMittelstufenleitung.Text, // tbSettingMittelstufenleitung.Text,
+                    : tbSettingMittelstufenleitung.Text,
                 EFStufenleitung = string.IsNullOrEmpty(tbSettingEFstufenleitung.Text)
                     ? ""
-                    : tbSettingEFstufenleitung.Text, // tbSettingEFstufenleitung.Text,
+                    : tbSettingEFstufenleitung.Text,
                 Q1Stufenleitung = string.IsNullOrEmpty(tbSettingQ1stufenleitung.Text)
                     ? ""
-                    : tbSettingQ1stufenleitung.Text, // tbSettingQ1stufenleitung.Text,
+                    : tbSettingQ1stufenleitung.Text,
                 Q2Stufenleitung = string.IsNullOrEmpty(tbSettingQ2stufenleitung.Text)
                     ? ""
-                    : tbSettingQ2stufenleitung.Text, // tbSettingQ2stufenleitung.Text,
+                    : tbSettingQ2stufenleitung.Text,
                 Oberstufenkoordination = string.IsNullOrEmpty(tbSettingOberstufenkoordination.Text)
                     ? ""
-                    : tbSettingOberstufenkoordination.Text, // tbSettingOberstufenkoordination.Text
+                    : tbSettingOberstufenkoordination.Text,
             };
 
-            await myschool
-                .SetSettings(
-                    settings); //tbSettingMailplatzhalter.Text, tbSettingKursersetzung.Text,tbSettingFachkurz.Text.Split('\n'), tbSettingFachlang.Text.Split('\n'), tbSettingKurssuffix.Text);
+            await myschool.SetSettings(settings);
         }
 
         private async void BtnLogDelete_OnClick(object? sender, RoutedEventArgs e)
