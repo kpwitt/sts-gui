@@ -272,7 +272,7 @@
                             <TextBlock Classes="Header" Text="Kursersetzungen" />
                             <TextBox x:Name="tbSettingKursersetzung" Width="150" />
                         </StackPanel>
-                        <TextBlock Margin="10" Grid.Row="1" Grid.Column="2" Classes="Header" TextWrapping = "Wrap" Width="200" Text="Falls mehrere Lehrkräfte eine Stufe betreuen Kürzel mit Semikolon getrennt eingeben" />
+                        <TextBlock Margin="10" Grid.Row="1" Grid.Column="2" Classes="Header" TextWrapping = "Wrap" Width="200" Text="Falls mehrere Lehrkräfte eine Stufe betreuen, die Kürzel mit kommagetrennt eingeben" />
                         <StackPanel Grid.Row="2" Grid.Column="0">
                             <TextBlock Classes="Header" Text="Fächerkurzform" />
                             <TextBox x:Name="tbSettingFachkurz" MaxHeight="650" />

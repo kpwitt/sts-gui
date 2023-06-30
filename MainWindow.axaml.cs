@@ -740,7 +740,9 @@ namespace StS_GUI_Avalonia
             LeftListBox.Items = llist;
             var settings = myschool.GetSettings().Result;
             tbSettingMailplatzhalter.Text = settings.Mailsuffix;
-            tbSettingKursersetzung.Text = settings.Fachersetzung == "" ? "" : settings.Fachersetzung.Split(';')[1];
+            tbSettingKursersetzung.Text = string.IsNullOrEmpty(settings.Fachersetzung)
+                ? ""
+                : settings.Fachersetzung.Split(';')[1];
             tbSettingKurssuffix.Text = settings.Kurssuffix;
             var kurzfach = myschool.GetFachersatz().Result.Select(t => t.Split(';')[0]);
             var langfach = myschool.GetFachersatz().Result.Select(t => t.Split(';')[1]);
@@ -755,6 +757,13 @@ namespace StS_GUI_Avalonia
             {
                 tbSettingFachlang.Text += fachl + '\n';
             }
+
+            tbSettingErprobungsstufenleitung.Text = settings.Erprobungstufenleitung;
+            tbSettingMittelstufenleitung.Text = settings.Mittelstufenleitung;
+            tbSettingEFstufenleitung.Text = settings.EFStufenleitung;
+            tbSettingQ1stufenleitung.Text = settings.Q1Stufenleitung;
+            tbSettingQ2stufenleitung.Text = settings.Q2Stufenleitung;
+            tbSettingOberstufenkoordination.Text = settings.Oberstufenkoordination;
         }
 
         private void CboxDataLeft_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
@@ -1532,22 +1541,186 @@ namespace StS_GUI_Avalonia
                     : tbSettingErprobungsstufenleitung.Text,
                 Mittelstufenleitung = string.IsNullOrEmpty(tbSettingMittelstufenleitung.Text)
                     ? ""
-                    : tbSettingMittelstufenleitung.Text,
+                    : tbSettingMittelstufenleitung.Text.TrimEnd(','),
                 EFStufenleitung = string.IsNullOrEmpty(tbSettingEFstufenleitung.Text)
                     ? ""
-                    : tbSettingEFstufenleitung.Text,
+                    : tbSettingEFstufenleitung.Text.TrimEnd(','),
                 Q1Stufenleitung = string.IsNullOrEmpty(tbSettingQ1stufenleitung.Text)
                     ? ""
-                    : tbSettingQ1stufenleitung.Text,
+                    : tbSettingQ1stufenleitung.Text.TrimEnd(','),
                 Q2Stufenleitung = string.IsNullOrEmpty(tbSettingQ2stufenleitung.Text)
                     ? ""
-                    : tbSettingQ2stufenleitung.Text,
+                    : tbSettingQ2stufenleitung.Text.TrimEnd(','),
                 Oberstufenkoordination = string.IsNullOrEmpty(tbSettingOberstufenkoordination.Text)
                     ? ""
-                    : tbSettingOberstufenkoordination.Text,
+                    : tbSettingOberstufenkoordination.Text.TrimEnd(','),
             };
 
             await myschool.SetSettings(settings);
+            await myschool.StartTransaction();
+            if (!await myschool.GibtEsKurs("Erprobungsstufe" + settings.Kurssuffix))
+            {
+                await myschool.AddKurs("Erprobungsstufe", "", "", "", settings.Kurssuffix, 1);
+                foreach (var s in await myschool.GetSusAusStufe("5"))
+                {
+                    await myschool.AddStoK(s.ID, "Erprobungsstufe");
+                }
+
+                foreach (var s in await myschool.GetSusAusStufe("6"))
+                {
+                    await myschool.AddStoK(s.ID, "Erprobungsstufe");
+                }
+            }
+
+            foreach (var l in await myschool.GetLuLAusKurs("Erprobungsstufe"))
+            {
+                await myschool.RemoveLfromK(l.ID, "Erprobungsstufe");
+            }
+
+            if (tbSettingErprobungsstufenleitung.Text.Contains(','))
+            {
+                foreach (var krz in tbSettingErprobungsstufenleitung.Text.Split(','))
+                {
+                    await myschool.AddLtoK(await myschool.GetLehrkraft(krz),
+                        await myschool.GetKurs("Erprobungsstufe"));
+                }
+            }
+            else
+            {
+                await myschool.AddLtoK(await myschool.GetLehrkraft(tbSettingErprobungsstufenleitung.Text),
+                    await myschool.GetKurs("Erprobungsstufe"));
+            }
+
+            if (!myschool.GibtEsKurs("Mittelstufe" + settings.Kurssuffix).Result)
+            {
+                await myschool.AddKurs("Mittelstufe", "", "", "", settings.Kurssuffix, 1);
+                foreach (var s in await myschool.GetSusAusStufe("7"))
+                {
+                    await myschool.AddStoK(s.ID, "Mittelstufe");
+                }
+
+                foreach (var s in await myschool.GetSusAusStufe("8"))
+                {
+                    await myschool.AddStoK(s.ID, "Mittelstufe");
+                }
+
+                foreach (var s in await myschool.GetSusAusStufe("9"))
+                {
+                    await myschool.AddStoK(s.ID, "Mittelstufe");
+                }
+
+                foreach (var s in await myschool.GetSusAusStufe("10"))
+                {
+                    await myschool.AddStoK(s.ID, "Mittelstufe");
+                }
+            }
+
+            if (tbSettingMittelstufenleitung.Text.Contains(','))
+            {
+                foreach (var krz in tbSettingMittelstufenleitung.Text.Split(','))
+                {
+                    await myschool.AddLtoK(await myschool.GetLehrkraft(krz),
+                        await myschool.GetKurs("Mittelstufe"));
+                }
+            }
+            else
+            {
+                await myschool.AddLtoK(await myschool.GetLehrkraft(tbSettingMittelstufenleitung.Text),
+                    await myschool.GetKurs("Mittelstufe"));
+            }
+
+            if (!myschool.GibtEsKurs("Einführungsphase" + settings.Kurssuffix).Result)
+            {
+                await myschool.AddKurs("Einführungsphase", "", "EF", "EF", settings.Kurssuffix, 1);
+                foreach (var s in await myschool.GetSusAusStufe("EF"))
+                {
+                    await myschool.AddStoK(s.ID, "Einführungsphase");
+                }
+            }
+
+            if (tbSettingEFstufenleitung.Text.Contains(','))
+            {
+                foreach (var krz in tbSettingEFstufenleitung.Text.Split(','))
+                {
+                    await myschool.AddLtoK(await myschool.GetLehrkraft(krz),
+                        await myschool.GetKurs("Einführungsphase"));
+                }
+            }
+            else
+            {
+                await myschool.AddLtoK(await myschool.GetLehrkraft(tbSettingEFstufenleitung.Text),
+                    await myschool.GetKurs("Einführungsphase"));
+            }
+
+            if (!myschool.GibtEsKurs("Qualifikationsphase 1" + settings.Kurssuffix).Result)
+            {
+                await myschool.AddKurs("Qualifikationsphase 1", "", "Q1", "Q1", settings.Kurssuffix, 1);
+                foreach (var s in await myschool.GetSusAusStufe("Q1"))
+                {
+                    await myschool.AddStoK(s.ID, "Qualifikationsphase 1");
+                }
+            }
+
+            if (tbSettingQ1stufenleitung.Text.Contains(','))
+            {
+                foreach (var krz in tbSettingQ1stufenleitung.Text.Split(','))
+                {
+                    await myschool.AddLtoK(await myschool.GetLehrkraft(krz),
+                        await myschool.GetKurs("Qualifikationsphase 1"));
+                }
+            }
+            else
+            {
+                await myschool.AddLtoK(await myschool.GetLehrkraft(tbSettingQ1stufenleitung.Text),
+                    await myschool.GetKurs("Qualifikationsphase 1"));
+            }
+
+            if (!myschool.GibtEsKurs("Qualifikationsphase 2" + settings.Kurssuffix).Result)
+            {
+                await myschool.AddKurs("Qualifikationsphase 2", "", "Q2", "Q2", settings.Kurssuffix, 1);
+                foreach (var s in await myschool.GetSusAusStufe("Q2"))
+                {
+                    await myschool.AddStoK(s.ID, "Qualifikationsphase 2");
+                }
+            }
+
+            if (tbSettingQ2stufenleitung.Text.Contains(','))
+            {
+                foreach (var krz in tbSettingQ2stufenleitung.Text.Split(','))
+                {
+                    await myschool.AddLtoK(await myschool.GetLehrkraft(krz),
+                        await myschool.GetKurs("Qualifikationsphase 2"));
+                }
+            }
+            else
+            {
+                await myschool.AddLtoK(await myschool.GetLehrkraft(tbSettingQ2stufenleitung.Text),
+                    await myschool.GetKurs("Qualifikationsphase 2"));
+            }
+
+            if (tbSettingOberstufenkoordination.Text.Contains(';'))
+            {
+                foreach (var krz in tbSettingOberstufenkoordination.Text.Split(','))
+                {
+                    await myschool.AddLtoK(await myschool.GetLehrkraft(krz),
+                        await myschool.GetKurs("Einführungsphase"));
+                    await myschool.AddLtoK(await myschool.GetLehrkraft(krz),
+                        await myschool.GetKurs("Qualifikationsphase 1"));
+                    await myschool.AddLtoK(await myschool.GetLehrkraft(krz),
+                        await myschool.GetKurs("Qualifikationsphase 2"));
+                }
+            }
+            else
+            {
+                await myschool.AddLtoK(await myschool.GetLehrkraft(tbSettingOberstufenkoordination.Text),
+                    await myschool.GetKurs("Einführungsphase"));
+                await myschool.AddLtoK(await myschool.GetLehrkraft(tbSettingOberstufenkoordination.Text),
+                    await myschool.GetKurs("Qualifikationsphase 1"));
+                await myschool.AddLtoK(await myschool.GetLehrkraft(tbSettingOberstufenkoordination.Text),
+                    await myschool.GetKurs("Qualifikationsphase 2"));
+            }
+
+            await myschool.StopTransaction();
         }
 
         private async void BtnLogDelete_OnClick(object? sender, RoutedEventArgs e)
@@ -1735,7 +1908,7 @@ namespace StS_GUI_Avalonia
                             foreach (var eingabe in eingabeliste)
                             {
                                 kliste.AddRange(kcachelist.Where(s =>
-                                    s.Bezeichnung.Contains(eingabe)).ToList());
+                                    s.Bezeichnung.ToLower().Contains(eingabe.ToLower())).ToList());
                             }
 
                             var keliste = kliste.Distinct().Select(k => k.Bezeichnung)
