@@ -129,14 +129,15 @@ namespace StS_GUI_Avalonia
             msgBoxWindowIcon = new WindowIcon(assets.Open(uriString));
         }
 
-        private static void SetupSaveFileDialog(SaveFileDialog sfd, string dialogtitle, string[] extensions,
-            string[] extensionnames)
+        private static void SetupSaveFileDialog(SaveFileDialog sfd, string dialogtitle,
+            IReadOnlyList<string> extensions,
+            IReadOnlyList<string> extensionnames)
         {
-            if (extensions.Length != extensionnames.Length) return;
+            if (extensions.Count != extensionnames.Count) return;
             sfd.DefaultExtension = extensions[0];
             sfd.Title = dialogtitle;
             List<FileDialogFilter> filters = new();
-            for (var i = 0; i < extensions.Length; i++)
+            for (var i = 0; i < extensions.Count; i++)
             {
                 FileDialogFilter filter = new();
                 List<string> extension = new() { extensions[i] };
@@ -148,14 +149,15 @@ namespace StS_GUI_Avalonia
             sfd.Filters = filters;
         }
 
-        private static void SetupOpenFileDialog(OpenFileDialog ofd, string dialogtitle, string[] extensions,
-            string[] extensionnames)
+        private static void SetupOpenFileDialog(OpenFileDialog ofd, string dialogtitle,
+            IReadOnlyList<string> extensions,
+            IReadOnlyList<string> extensionnames)
         {
-            if (extensions.Length != extensionnames.Length) return;
+            if (extensions.Count != extensionnames.Count) return;
             ofd.Title = dialogtitle;
             ofd.AllowMultiple = false;
             List<FileDialogFilter> filters = new();
-            for (var i = 0; i < extensions.Length; i++)
+            for (var i = 0; i < extensions.Count; i++)
             {
                 FileDialogFilter filter = new();
                 List<string> extension = new() { extensions[i] };
@@ -167,7 +169,7 @@ namespace StS_GUI_Avalonia
             ofd.Filters = filters;
         }
 
-        private void SetupOpenFolderDialog(SystemDialog ofd, string dialogtitle)
+        private static void SetupOpenFolderDialog(SystemDialog ofd, string dialogtitle)
         {
             ofd.Title = dialogtitle;
         }
