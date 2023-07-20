@@ -5,8 +5,9 @@ using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Platform;
 using Avalonia.Threading;
-using MessageBox.Avalonia.DTO;
-using MessageBox.Avalonia.Enums;
+using MsBox.Avalonia;
+using MsBox.Avalonia.Dto;
+using MsBox.Avalonia.Enums;
 using SchulDB;
 using System;
 using System.Collections.Generic;
@@ -36,11 +37,13 @@ namespace StS_GUI_Avalonia
 
         public MainWindow()
         {
+            InitializeComponent(false, false);
             InitGUI();
         }
 
         public MainWindow(IReadOnlyList<string> args)
         {
+            InitializeComponent(false, false);
             InitGUI();
             if (args.Count != 1) return;
             var filepath = args[0];
@@ -52,10 +55,6 @@ namespace StS_GUI_Avalonia
 
         private void InitGUI()
         {
-            InitializeComponent();
-#if DEBUG
-            this.AttachDevTools();
-#endif
             myschool = new Schuldatenbank(":memory:");
             var settings = myschool.GetSettings().Result;
             tbSettingMailplatzhalter.Text = settings.Mailsuffix;
@@ -118,15 +117,13 @@ namespace StS_GUI_Avalonia
             leftContextItems.Add(mnuItemMSerienbrief);
             leftContextItems.Add(mnuItemMPasswordGenerieren);
             leftContextItems.Add(mnuItemMExport);
-            leftContext.Items = leftContextItems;
+            leftContext.ItemsSource = leftContextItems;
             LeftListBox.ContextMenu = leftContext;
             rbL.IsChecked = true;
             LeftListBox.MaxHeight = ClientSize.Height * 1.1;
             RightListBox.MaxHeight = LeftListBox.MaxHeight;
-            var assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
-            var uriString = new Uri("avares://StS-GUI-Avalonia/Assets/gfx/school-building.png");
-            if (assets == null) Environment.Exit(1);
-            msgBoxWindowIcon = new WindowIcon(assets.Open(uriString));
+            msgBoxWindowIcon =
+                new WindowIcon(AssetLoader.Open(new Uri("avares://StS-GUI-Avalonia/Assets/gfx/school-building.png")));
         }
 
         private static void SetupSaveFileDialog(SaveFileDialog sfd, string dialogtitle,
@@ -194,8 +191,8 @@ namespace StS_GUI_Avalonia
             {
                 var leftlist = this.GetControl<ListBox>("LeftListBox");
                 var rightlist = this.GetControl<ListBox>("RightListBox");
-                leftlist.Items = new List<string>();
-                rightlist.Items = new List<string>();
+                leftlist.ItemsSource = new List<string>();
+                rightlist.ItemsSource = new List<string>();
                 Title = "SchildToSchule";
                 myschool.Dispose();
                 myschool = new Schuldatenbank(":memory:");
@@ -212,36 +209,36 @@ namespace StS_GUI_Avalonia
                 if (filepath == null) return;
                 var tempDB = new Schuldatenbank(filepath);
                 var res = await tempDB.Import(myschool);
-                await Dispatcher.UIThread.InvokeAsync(async () =>
+                Dispatcher.UIThread.InvokeAsync(async () =>
                 {
                     if (res == 0)
                     {
                         myschool = tempDB;
-                        var saveDBInPath = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                        var saveDBInPath = MessageBoxManager.GetMessageBoxStandard(
                             new MessageBoxStandardParams
                             {
                                 ButtonDefinitions = ButtonEnum.Ok,
                                 ContentTitle = "Erfolg",
                                 ContentMessage =
                                     "Datenbank erfolgreich gespeichert",
-                                Icon = MessageBox.Avalonia.Enums.Icon.Success,
+                                Icon = MsBox.Avalonia.Enums.Icon.Success,
                                 WindowIcon = msgBoxWindowIcon
                             });
-                        await saveDBInPath.ShowDialog(this);
+                        await saveDBInPath.ShowAsPopupAsync(this);
                     }
                     else
                     {
-                        var errorNoSystemDialog = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                        var errorNoSystemDialog = MessageBoxManager.GetMessageBoxStandard(
                             new MessageBoxStandardParams
                             {
                                 ButtonDefinitions = ButtonEnum.Ok,
                                 ContentTitle = "Fehler",
                                 ContentMessage =
                                     "Schließen fehlgeschlagen",
-                                Icon = MessageBox.Avalonia.Enums.Icon.Error,
+                                Icon = MsBox.Avalonia.Enums.Icon.Error,
                                 WindowIcon = msgBoxWindowIcon
                             });
-                        await errorNoSystemDialog.ShowDialog(this);
+                        await errorNoSystemDialog.ShowAsPopupAsync(this);
                     }
                 });
             };
@@ -262,32 +259,32 @@ namespace StS_GUI_Avalonia
                 {
                     if (res != 0)
                     {
-                        var errorNoSystemDialog = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                        var errorNoSystemDialog = MessageBoxManager.GetMessageBoxStandard(
                             new MessageBoxStandardParams
                             {
                                 ButtonDefinitions = ButtonEnum.Ok,
                                 ContentTitle = "Fehler",
                                 ContentMessage =
                                     "Speichern unter fehlgeschlagen",
-                                Icon = MessageBox.Avalonia.Enums.Icon.Error,
+                                Icon = MsBox.Avalonia.Enums.Icon.Error,
                                 WindowIcon = msgBoxWindowIcon
                             });
-                        await errorNoSystemDialog.ShowDialog(this);
+                        await errorNoSystemDialog.ShowAsPopupAsync(this);
                     }
                     else
                     {
                         myschool = tempDB;
-                        var saveDBInPath = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                        var saveDBInPath = MessageBoxManager.GetMessageBoxStandard(
                             new MessageBoxStandardParams
                             {
                                 ButtonDefinitions = ButtonEnum.Ok,
                                 ContentTitle = "Erfolg",
                                 ContentMessage =
                                     "Datenbank erfolgreich gespeichert",
-                                Icon = MessageBox.Avalonia.Enums.Icon.Success,
+                                Icon = MsBox.Avalonia.Enums.Icon.Success,
                                 WindowIcon = msgBoxWindowIcon
                             });
-                        await saveDBInPath.ShowDialog(this);
+                        await saveDBInPath.ShowAsPopupAsync(this);
                     }
                 });
             };
@@ -320,16 +317,16 @@ namespace StS_GUI_Avalonia
             await Task.Run(saveDBFile);
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
-                MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                MessageBoxManager.GetMessageBoxStandard(
                     new MessageBoxStandardParams
                     {
                         ButtonDefinitions = ButtonEnum.Ok,
                         ContentTitle = "Information",
                         ContentMessage =
                             "Speichern erfolgreich",
-                        Icon = MessageBox.Avalonia.Enums.Icon.Info,
+                        Icon = MsBox.Avalonia.Enums.Icon.Info,
                         WindowIcon = msgBoxWindowIcon
-                    }).ShowDialog(this);
+                    }).ShowAsPopupAsync(this);
             });
         }
 
@@ -396,16 +393,16 @@ namespace StS_GUI_Avalonia
 
                     await Dispatcher.UIThread.InvokeAsync(() =>
                     {
-                        MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                        MessageBoxManager.GetMessageBoxStandard(
                             new MessageBoxStandardParams
                             {
                                 ButtonDefinitions = ButtonEnum.Ok,
                                 ContentTitle = "Information",
                                 ContentMessage =
                                     "Import erfolgreich",
-                                Icon = MessageBox.Avalonia.Enums.Icon.Info,
+                                Icon = MsBox.Avalonia.Enums.Icon.Info,
                                 WindowIcon = msgBoxWindowIcon
-                            }).ShowDialog(this);
+                            }).ShowAsPopupAsync(this);
                     });
                 }
             };
@@ -489,16 +486,16 @@ namespace StS_GUI_Avalonia
             if (version == null) return;
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
-                MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                MessageBoxManager.GetMessageBoxStandard(
                     new MessageBoxStandardParams
                     {
                         ButtonDefinitions = ButtonEnum.Ok,
                         ContentTitle = "Über",
                         ContentMessage =
                             Application.Current?.Name + "\n" + version,
-                        Icon = MessageBox.Avalonia.Enums.Icon.Setting,
+                        Icon = MsBox.Avalonia.Enums.Icon.Setting,
                         WindowIcon = msgBoxWindowIcon
-                    }).ShowDialog(this);
+                    }).ShowAsPopupAsync(this);
             });
         }
 
@@ -522,16 +519,16 @@ namespace StS_GUI_Avalonia
             {
                 await Dispatcher.UIThread.InvokeAsync(() =>
                 {
-                    MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                    MessageBoxManager.GetMessageBoxStandard(
                         new MessageBoxStandardParams
                         {
                             ButtonDefinitions = ButtonEnum.Ok,
                             ContentTitle = "Fehler",
                             ContentMessage =
                                 "Nicht alle erforderlichen Informationen angegeben!\nStellen Sie sicher, dass ID, Vorname, Nachname, Klasse\nund eine Elternadresse angegeben sind",
-                            Icon = MessageBox.Avalonia.Enums.Icon.Error,
+                            Icon = MsBox.Avalonia.Enums.Icon.Error,
                             WindowIcon = msgBoxWindowIcon
-                        }).ShowDialog(this);
+                        }).ShowAsPopupAsync(this);
                 });
                 return;
             }
@@ -540,16 +537,16 @@ namespace StS_GUI_Avalonia
             {
                 await Dispatcher.UIThread.InvokeAsync(() =>
                 {
-                    MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                    MessageBoxManager.GetMessageBoxStandard(
                         new MessageBoxStandardParams
                         {
                             ButtonDefinitions = ButtonEnum.Ok,
                             ContentTitle = "Fehler",
                             ContentMessage =
                                 "Die SuS-ID enthält nicht nur Zahlen!",
-                            Icon = MessageBox.Avalonia.Enums.Icon.Error,
+                            Icon = MsBox.Avalonia.Enums.Icon.Error,
                             WindowIcon = msgBoxWindowIcon
-                        }).ShowDialog(this);
+                        }).ShowAsPopupAsync(this);
                 });
                 return;
             }
@@ -647,16 +644,16 @@ namespace StS_GUI_Avalonia
             {
                 await Dispatcher.UIThread.InvokeAsync(() =>
                 {
-                    MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                    MessageBoxManager.GetMessageBoxStandard(
                         new MessageBoxStandardParams
                         {
                             ButtonDefinitions = ButtonEnum.Ok,
                             ContentTitle = "Fehler",
                             ContentMessage =
                                 "Nicht alle erforderlichen Informationen angegeben!\nStellen Sie sicher, dass ID, Vorname, Nachname, Kürzel\nund Fakultas ausgefüllt sind.",
-                            Icon = MessageBox.Avalonia.Enums.Icon.Error,
+                            Icon = MsBox.Avalonia.Enums.Icon.Error,
                             WindowIcon = msgBoxWindowIcon
-                        }).ShowDialog(this);
+                        }).ShowAsPopupAsync(this);
                 });
                 return;
             }
@@ -739,7 +736,7 @@ namespace StS_GUI_Avalonia
             var llist = myschool.GetSchuelerListe().Result.Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID))
                 .ToList();
             llist.Sort(Comparer<string>.Default);
-            LeftListBox.Items = llist;
+            LeftListBox.ItemsSource = llist;
             var settings = myschool.GetSettings().Result;
             tbSettingMailplatzhalter.Text = settings.Mailsuffix;
             tbSettingKursersetzung.Text = string.IsNullOrEmpty(settings.Fachersetzung)
@@ -846,7 +843,7 @@ namespace StS_GUI_Avalonia
             if (rightMutex && !hasComboBoxChanged) return;
             if (hasComboBoxChanged)
             {
-                RightListBox.Items = new List<string>();
+                RightListBox.ItemsSource = new List<string>();
             }
 
             switch (CboxDataLeft.SelectedIndex)
@@ -863,8 +860,8 @@ namespace StS_GUI_Avalonia
                         var slist = myschool.GetSchuelerListe().Result
                             .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID)).Distinct().ToList();
                         slist.Sort(Comparer<string>.Default);
-                        LeftListBox.Items = slist;
-                        RightListBox.Items = new List<string>();
+                        LeftListBox.ItemsSource = slist;
+                        RightListBox.ItemsSource = new List<string>();
                     }
                     else
                     {
@@ -879,7 +876,7 @@ namespace StS_GUI_Avalonia
                                 var rlist = myschool.GetLuLvonSuS(sus.ID).Result
                                     .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).Distinct().ToList();
                                 rlist.Sort(Comparer<string>.Default);
-                                RightListBox.Items = rlist;
+                                RightListBox.ItemsSource = rlist;
                                 break;
                             }
                             case 2:
@@ -887,7 +884,7 @@ namespace StS_GUI_Avalonia
                                 var rlist = myschool.GetKursVonSuS(sus.ID).Result.Select(k => (k.Bezeichnung))
                                     .Distinct()
                                     .ToList();
-                                RightListBox.Items = rlist;
+                                RightListBox.ItemsSource = rlist;
                                 break;
                             }
                         }
@@ -905,8 +902,8 @@ namespace StS_GUI_Avalonia
                         var lullist = myschool.GetLehrerListe().Result
                             .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).Distinct().ToList();
                         lullist.Sort(Comparer<string>.Default);
-                        LeftListBox.Items = lullist;
-                        RightListBox.Items = new List<string>();
+                        LeftListBox.ItemsSource = lullist;
+                        RightListBox.ItemsSource = new List<string>();
                     }
                     else
                     {
@@ -921,7 +918,7 @@ namespace StS_GUI_Avalonia
                                 var rlist = myschool.GetSuSVonLuL(lul.ID).Result
                                     .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID)).Distinct().ToList();
                                 rlist.Sort(Comparer<string>.Default);
-                                RightListBox.Items = rlist;
+                                RightListBox.ItemsSource = rlist;
 
                                 break;
                             }
@@ -931,7 +928,7 @@ namespace StS_GUI_Avalonia
                                     .Distinct()
                                     .ToList();
                                 rlist.Sort(Comparer<string>.Default);
-                                RightListBox.Items = rlist;
+                                RightListBox.ItemsSource = rlist;
                                 break;
                             }
                         }
@@ -948,8 +945,8 @@ namespace StS_GUI_Avalonia
                     {
                         var klist = myschool.GetKursListe().Result.Select(k => (k.Bezeichnung)).Distinct().ToList();
                         klist.Sort(Comparer<string>.Default);
-                        LeftListBox.Items = klist;
-                        RightListBox.Items = new List<string>();
+                        LeftListBox.ItemsSource = klist;
+                        RightListBox.ItemsSource = new List<string>();
                     }
                     else
                     {
@@ -964,7 +961,7 @@ namespace StS_GUI_Avalonia
                                 var rlist = myschool.GetSuSAusKurs(kurs.Bezeichnung).Result
                                     .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID)).Distinct().ToList();
                                 rlist.Sort(Comparer<string>.Default);
-                                RightListBox.Items = rlist;
+                                RightListBox.ItemsSource = rlist;
                                 break;
                             }
                             case 1:
@@ -972,7 +969,7 @@ namespace StS_GUI_Avalonia
                                 var rlist = myschool.GetLuLAusKurs(kurs.Bezeichnung).Result
                                     .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).Distinct().ToList();
                                 rlist.Sort(Comparer<string>.Default);
-                                RightListBox.Items = rlist;
+                                RightListBox.ItemsSource = rlist;
                                 break;
                             }
                         }
@@ -1023,7 +1020,7 @@ namespace StS_GUI_Avalonia
             if (rightMutex && !hasComboBoxChanged) return;
             if (hasComboBoxChanged)
             {
-                RightListBox.Items = new List<string>();
+                RightListBox.ItemsSource = new List<string>();
                 RightListBox.SelectedItems.Clear();
             }
 
@@ -1053,7 +1050,7 @@ namespace StS_GUI_Avalonia
                             var rlist = myschool.GetSuSVonLuL(lul.ID).Result
                                 .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID)).Distinct().ToList();
                             rlist.Sort(Comparer<string>.Default);
-                            RightListBox.Items = rlist;
+                            RightListBox.ItemsSource = rlist;
                             break;
                         }
                         case 2:
@@ -1074,7 +1071,7 @@ namespace StS_GUI_Avalonia
                             var rlist = myschool.GetSuSAusKurs(kurs.Bezeichnung).Result
                                 .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID)).Distinct().ToList();
                             rlist.Sort(Comparer<string>.Default);
-                            RightListBox.Items = rlist;
+                            RightListBox.ItemsSource = rlist;
                             break;
                         }
                     }
@@ -1103,7 +1100,7 @@ namespace StS_GUI_Avalonia
                             var rlist = myschool.GetLuLvonSuS(sus.ID).Result
                                 .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).Distinct().ToList();
                             rlist.Sort(Comparer<string>.Default);
-                            RightListBox.Items = rlist;
+                            RightListBox.ItemsSource = rlist;
                             break;
                         }
                         case 2:
@@ -1124,7 +1121,7 @@ namespace StS_GUI_Avalonia
                             var rlist = myschool.GetLuLAusKurs(kurs.Bezeichnung).Result
                                 .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).Distinct().ToList();
                             rlist.Sort(Comparer<string>.Default);
-                            RightListBox.Items = rlist;
+                            RightListBox.ItemsSource = rlist;
                             break;
                         }
                     }
@@ -1153,7 +1150,7 @@ namespace StS_GUI_Avalonia
                             var rlist = myschool.GetKursVonSuS(sus.ID).Result.Select(k => (k.Bezeichnung))
                                 .Distinct()
                                 .ToList();
-                            RightListBox.Items = rlist;
+                            RightListBox.ItemsSource = rlist;
                             break;
                         }
                         case 1:
@@ -1175,7 +1172,7 @@ namespace StS_GUI_Avalonia
                                 .Distinct()
                                 .ToList();
                             rlist.Sort(Comparer<string>.Default);
-                            RightListBox.Items = rlist;
+                            RightListBox.ItemsSource = rlist;
                             break;
                         }
                     }
@@ -1234,16 +1231,16 @@ namespace StS_GUI_Avalonia
             {
                 await Dispatcher.UIThread.InvokeAsync(() =>
                     {
-                        MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                        MessageBoxManager.GetMessageBoxStandard(
                             new MessageBoxStandardParams
                             {
                                 ButtonDefinitions = ButtonEnum.Ok,
                                 ContentTitle = "Kein Zielsystem ausgewählt",
                                 ContentMessage =
                                     "Bitte wählen Sie entweder Moodle und/oder AIX als Zielsystem!",
-                                Icon = MessageBox.Avalonia.Enums.Icon.Error,
+                                Icon = MsBox.Avalonia.Enums.Icon.Error,
                                 WindowIcon = msgBoxWindowIcon
-                            }).ShowDialog(this);
+                            }).ShowAsPopupAsync(this);
                     }
                 );
                 return;
@@ -1259,7 +1256,7 @@ namespace StS_GUI_Avalonia
                     File.Exists(folder + "/mdl_einschreibungen.csv") || File.Exists(folder + "/mdl_kurse.csv") ||
                     File.Exists(folder + "/mdl_nutzer.csv"))
                 {
-                    var overwriteFilesDialog = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                    var overwriteFilesDialog = MessageBoxManager.GetMessageBoxStandard(
                         new MessageBoxStandardParams
                         {
                             ButtonDefinitions = ButtonEnum.YesNo,
@@ -1267,10 +1264,10 @@ namespace StS_GUI_Avalonia
                             ContentHeader = "Überschreiben?",
                             ContentMessage =
                                 "Im Ordner existieren schon eine/mehrere Exportdateien.\nSollen diese überschrieben werden?",
-                            Icon = MessageBox.Avalonia.Enums.Icon.Question,
+                            Icon = MsBox.Avalonia.Enums.Icon.Question,
                             WindowIcon = msgBoxWindowIcon
                         });
-                    var dialogResult = await overwriteFilesDialog.ShowDialog(this);
+                    var dialogResult = await overwriteFilesDialog.ShowAsPopupAsync(this);
                     expandFiles = dialogResult switch
                     {
                         ButtonResult.Yes => false,
@@ -1415,7 +1412,7 @@ namespace StS_GUI_Avalonia
                     ergebnisliste.Add("Keine Fehler gefunden!");
                 }
 
-                lbFehlerliste.Items = ergebnisliste;
+                lbFehlerliste.ItemsSource = ergebnisliste;
             }
             catch (Exception ex)
             {
@@ -1483,32 +1480,32 @@ namespace StS_GUI_Avalonia
             {
                 await Dispatcher.UIThread.InvokeAsync(() =>
                 {
-                    MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                    MessageBoxManager.GetMessageBoxStandard(
                         new MessageBoxStandardParams
                         {
                             ButtonDefinitions = ButtonEnum.Ok,
                             ContentTitle = "Export erfolgreich",
                             ContentMessage =
                                 "Der Export war erfolgreich",
-                            Icon = MessageBox.Avalonia.Enums.Icon.Info,
+                            Icon = MsBox.Avalonia.Enums.Icon.Info,
                             WindowIcon = msgBoxWindowIcon
-                        }).ShowDialog(this);
+                        }).ShowAsPopupAsync(this);
                 });
             }
             else
             {
                 await Dispatcher.UIThread.InvokeAsync(() =>
                 {
-                    MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                    MessageBoxManager.GetMessageBoxStandard(
                         new MessageBoxStandardParams
                         {
                             ButtonDefinitions = ButtonEnum.Ok,
                             ContentTitle = "Export fehlgeschlagen",
                             ContentMessage =
                                 "Export war nicht erfolgreiche. Bitte im Log nachschauen",
-                            Icon = MessageBox.Avalonia.Enums.Icon.Error,
+                            Icon = MsBox.Avalonia.Enums.Icon.Error,
                             WindowIcon = msgBoxWindowIcon
-                        }).ShowDialog(this);
+                        }).ShowAsPopupAsync(this);
                 });
             }
         }
@@ -1727,7 +1724,7 @@ namespace StS_GUI_Avalonia
 
         private async void BtnLogDelete_OnClick(object? sender, RoutedEventArgs e)
         {
-            var reallyDeleteLog = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+            var reallyDeleteLog = MessageBoxManager.GetMessageBoxStandard(
                 new MessageBoxStandardParams
                 {
                     ButtonDefinitions = ButtonEnum.YesNo,
@@ -1735,19 +1732,19 @@ namespace StS_GUI_Avalonia
                     ContentHeader = "Sicherheitsabfrage",
                     ContentMessage =
                         "Möchten Sie das Log wirklich löschen?",
-                    Icon = MessageBox.Avalonia.Enums.Icon.Question,
+                    Icon = MsBox.Avalonia.Enums.Icon.Question,
                     WindowIcon = msgBoxWindowIcon
                 });
-            var dialogResult = await reallyDeleteLog.ShowDialog(this);
+            var dialogResult = await reallyDeleteLog.ShowAsPopupAsync(this);
             if (dialogResult == ButtonResult.No) return;
-            lbLogDisplay.Items = new List<string>();
+            lbLogDisplay.ItemsSource = new List<string>();
             await myschool.LoescheLog();
         }
 
         private async void BtnLogReload_OnClick(object? sender, RoutedEventArgs e)
         {
             var items = await myschool.GetLog();
-            lbLogDisplay.Items = items.Select(message => message.Replace('\t', ' ').TrimEnd('\t')).ToList();
+            lbLogDisplay.ItemsSource = items.Select(message => message.Replace('\t', ' ').TrimEnd('\t')).ToList();
         }
 
         private async void BtnKurseAdd_OnClick(object? sender, RoutedEventArgs e)
@@ -1764,16 +1761,16 @@ namespace StS_GUI_Avalonia
             {
                 await Dispatcher.UIThread.InvokeAsync(() =>
                 {
-                    MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                    MessageBoxManager.GetMessageBoxStandard(
                         new MessageBoxStandardParams
                         {
                             ButtonDefinitions = ButtonEnum.Ok,
                             ContentTitle = "Fehler",
                             ContentMessage =
                                 "Nicht alle erforderlichen Informationen angegeben!\nStellen Sie sicher, dass Kursbezeichnung, mind. einn Kürzel, das Fach, die Klasse und die Stufe ausgefüllt sind.",
-                            Icon = MessageBox.Avalonia.Enums.Icon.Error,
+                            Icon = MsBox.Avalonia.Enums.Icon.Error,
                             WindowIcon = msgBoxWindowIcon
-                        }).ShowDialog(this);
+                        }).ShowAsPopupAsync(this);
                 });
                 return;
             }
@@ -1865,7 +1862,7 @@ namespace StS_GUI_Avalonia
                 if (tbLeftSearch.Text == "") OnLeftDataChanged(true);
                 if (!tbLeftSearch.Text.Contains(';'))
                 {
-                    LeftListBox.Items = LeftListBox.Items.Cast<string>()
+                    LeftListBox.ItemsSource = LeftListBox.Items.Cast<string>()
                         .Where(listitem => listitem.ToLower().Contains(tbLeftSearch.Text.ToLower()));
                 }
                 else
@@ -1886,7 +1883,7 @@ namespace StS_GUI_Avalonia
                             var seliste = sliste.Distinct().Select(s => (s.ID + ";" + s.Nachname + "," + s.Vorname))
                                 .ToList();
                             seliste.Sort(Comparer<string>.Default);
-                            LeftListBox.Items = seliste;
+                            LeftListBox.ItemsSource = seliste;
                             break;
                         case 1:
                             var lliste = new List<LuL>();
@@ -1902,7 +1899,7 @@ namespace StS_GUI_Avalonia
                                 .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname))
                                 .ToList();
                             leliste.Sort(Comparer<string>.Default);
-                            LeftListBox.Items = leliste;
+                            LeftListBox.ItemsSource = leliste;
                             break;
                         case 2:
                             var kliste = new List<Kurs>();
@@ -1916,7 +1913,7 @@ namespace StS_GUI_Avalonia
                             var keliste = kliste.Distinct().Select(k => k.Bezeichnung)
                                 .ToList();
                             keliste.Sort(Comparer<string>.Default);
-                            LeftListBox.Items = keliste;
+                            LeftListBox.ItemsSource = keliste;
                             break;
                     }
                 }
@@ -1932,7 +1929,7 @@ namespace StS_GUI_Avalonia
                 if (tbRightSearch.Text == "") OnRightDataChanged(true);
                 if (!tbRightSearch.Text.Contains(';'))
                 {
-                    RightListBox.Items = RightListBox.Items.Cast<string>()
+                    RightListBox.ItemsSource = RightListBox.Items.Cast<string>()
                         .Where(listitem => listitem.ToLower().Contains(tbRightSearch.Text.ToLower()));
                 }
                 else
@@ -1953,7 +1950,7 @@ namespace StS_GUI_Avalonia
                             var seliste = sliste.Distinct().Select(s => (s.ID + ";" + s.Nachname + "," + s.Vorname))
                                 .ToList();
                             seliste.Sort(Comparer<string>.Default);
-                            RightListBox.Items = seliste;
+                            RightListBox.ItemsSource = seliste;
                             break;
                         case 1:
                             var lliste = new List<LuL>();
@@ -1969,7 +1966,7 @@ namespace StS_GUI_Avalonia
                                 .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname))
                                 .ToList();
                             leliste.Sort(Comparer<string>.Default);
-                            RightListBox.Items = leliste;
+                            RightListBox.ItemsSource = leliste;
                             break;
                         case 2:
                             var kliste = new List<Kurs>();
@@ -1983,7 +1980,7 @@ namespace StS_GUI_Avalonia
                             var keliste = kliste.Distinct().Select(k => k.Bezeichnung)
                                 .ToList();
                             keliste.Sort(Comparer<string>.Default);
-                            RightListBox.Items = keliste;
+                            RightListBox.ItemsSource = keliste;
                             break;
                     }
                 }
@@ -2063,7 +2060,7 @@ namespace StS_GUI_Avalonia
                     File.Exists(folder + "/mdl_einschreibungen.csv") || File.Exists(folder + "/mdl_kurse.csv") ||
                     File.Exists(folder + "/mdl_nutzer.csv"))
                 {
-                    var overwriteFilesDialog = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                    var overwriteFilesDialog = MessageBoxManager.GetMessageBoxStandard(
                         new MessageBoxStandardParams
                         {
                             ButtonDefinitions = ButtonEnum.YesNo,
@@ -2071,10 +2068,10 @@ namespace StS_GUI_Avalonia
                             ContentHeader = "Überschreiben?",
                             ContentMessage =
                                 "Im Ordner existieren schon eine/mehrere Exportdateien.\nSollen diese überschrieben werden?",
-                            Icon = MessageBox.Avalonia.Enums.Icon.Question,
+                            Icon = MsBox.Avalonia.Enums.Icon.Question,
                             WindowIcon = msgBoxWindowIcon
                         });
-                    var dialogResult = await overwriteFilesDialog.ShowDialog(this);
+                    var dialogResult = await overwriteFilesDialog.ShowAsPopupAsync(this);
                     expandFiles = dialogResult switch
                     {
                         ButtonResult.Yes => false,

@@ -178,9 +178,9 @@
                                     <TextBlock Classes="Header" Text="Fächer:" Grid.Column="0" Grid.Row="6" />
                                     <TextBox x:Name="tbLuLFach" Grid.Column="1" Grid.Row="6" />
                                     <TextBlock Classes="Header" Text="temp. Passwort:" Grid.Column="0" Grid.Row="7" />
-                                    <TextBox x:Name="tbLuLtmpPwd" Grid.Column="1" Grid.Row="7" PasswordChar="*"
-                                             PointerLeave="TbLuLtmpPwd_OnPointerLeave"
-                                             PointerEnter="TbLuLtmpPwd_OnPointerEnter" />
+                                    <TextBox x:Name="tbLuLtmpPwd" Grid.Column="1" Grid.Row="7" PasswordChar="*" 
+                                             PointerExited="TbLuLtmpPwd_OnPointerLeave"
+                                             PointerEntered="TbLuLtmpPwd_OnPointerEnter" />
                                     <Button Grid.Column="2" Grid.Row="7" x:Name="btnLuLNewTmpPasswort" Click="BtnLuLNewTmpPasswort_OnClick" ToolTip.Tip="neues temp. Passwort generieren"><Panel>
                                         <Image Source="/Assets/gfx/reload.png" />
                                     </Panel></Button>
