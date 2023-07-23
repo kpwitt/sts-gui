@@ -192,10 +192,8 @@ namespace StS_GUI_Avalonia
             {
                 var leftlist = this.GetControl<ListBox>("LeftListBox");
                 var rightlist = this.GetControl<ListBox>("RightListBox");
-                leftlist.ItemsSource = null;
-                rightlist.ItemsSource = null;
-                leftlist.ItemsSource = new List<string>();
-                rightlist.ItemsSource = new List<string>();
+                ResetItemsSource(leftlist, new List<string>());
+                ResetItemsSource(rightlist, new List<string>());
                 Title = "SchildToSchule";
                 myschool.Dispose();
                 myschool = new Schuldatenbank(":memory:");
@@ -739,8 +737,7 @@ namespace StS_GUI_Avalonia
             var llist = myschool.GetSchuelerListe().Result.Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID))
                 .ToList();
             llist.Sort(Comparer<string>.Default);
-            LeftListBox.ItemsSource = null;
-            LeftListBox.ItemsSource = llist;
+            ResetItemsSource(LeftListBox, llist);
             var settings = myschool.GetSettings().Result;
             tbSettingMailplatzhalter.Text = settings.Mailsuffix;
             tbSettingKursersetzung.Text = string.IsNullOrEmpty(settings.Fachersetzung)
@@ -847,8 +844,7 @@ namespace StS_GUI_Avalonia
             if (rightMutex && !hasComboBoxChanged) return;
             if (hasComboBoxChanged)
             {
-                RightListBox.ItemsSource = null;
-                RightListBox.ItemsSource = new List<string>();
+                ResetItemsSource(RightListBox, new List<string>());
             }
 
             switch (CboxDataLeft.SelectedIndex)
@@ -865,10 +861,8 @@ namespace StS_GUI_Avalonia
                         var slist = myschool.GetSchuelerListe().Result
                             .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID)).Distinct().ToList();
                         slist.Sort(Comparer<string>.Default);
-                        LeftListBox.ItemsSource = null;
-                        RightListBox.ItemsSource = null;
-                        LeftListBox.ItemsSource = slist;
-                        RightListBox.ItemsSource = new List<string>();
+                        ResetItemsSource(LeftListBox, slist);
+                        ResetItemsSource(RightListBox, new List<string>());
                     }
                     else
                     {
@@ -883,8 +877,7 @@ namespace StS_GUI_Avalonia
                                 var rlist = myschool.GetLuLvonSuS(sus.ID).Result
                                     .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).Distinct().ToList();
                                 rlist.Sort(Comparer<string>.Default);
-                                RightListBox.ItemsSource = null;
-                                RightListBox.ItemsSource = rlist;
+                                ResetItemsSource(RightListBox, rlist);
                                 break;
                             }
                             case 2:
@@ -892,8 +885,7 @@ namespace StS_GUI_Avalonia
                                 var rlist = myschool.GetKursVonSuS(sus.ID).Result.Select(k => (k.Bezeichnung))
                                     .Distinct()
                                     .ToList();
-                                RightListBox.ItemsSource = null;
-                                RightListBox.ItemsSource = rlist;
+                                ResetItemsSource(RightListBox, rlist);
                                 break;
                             }
                         }
@@ -911,10 +903,8 @@ namespace StS_GUI_Avalonia
                         var lullist = myschool.GetLehrerListe().Result
                             .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).Distinct().ToList();
                         lullist.Sort(Comparer<string>.Default);
-                        LeftListBox.ItemsSource = null;
-                        RightListBox.ItemsSource = null;
-                        LeftListBox.ItemsSource = lullist;
-                        RightListBox.ItemsSource = new List<string>();
+                        ResetItemsSource(LeftListBox, lullist);
+                        ResetItemsSource(RightListBox, new List<string>());
                     }
                     else
                     {
@@ -929,8 +919,7 @@ namespace StS_GUI_Avalonia
                                 var rlist = myschool.GetSuSVonLuL(lul.ID).Result
                                     .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID)).Distinct().ToList();
                                 rlist.Sort(Comparer<string>.Default);
-                                RightListBox.ItemsSource = null;
-                                RightListBox.ItemsSource = rlist;
+                                ResetItemsSource(RightListBox, rlist);
 
                                 break;
                             }
@@ -940,8 +929,7 @@ namespace StS_GUI_Avalonia
                                     .Distinct()
                                     .ToList();
                                 rlist.Sort(Comparer<string>.Default);
-                                RightListBox.ItemsSource = null;
-                                RightListBox.ItemsSource = rlist;
+                                ResetItemsSource(RightListBox, rlist);
                                 break;
                             }
                         }
@@ -958,10 +946,8 @@ namespace StS_GUI_Avalonia
                     {
                         var klist = myschool.GetKursListe().Result.Select(k => (k.Bezeichnung)).Distinct().ToList();
                         klist.Sort(Comparer<string>.Default);
-                        LeftListBox.ItemsSource = null;
-                        RightListBox.ItemsSource = null;
-                        LeftListBox.ItemsSource = klist;
-                        RightListBox.ItemsSource = new List<string>();
+                        ResetItemsSource(LeftListBox, klist);
+                        ResetItemsSource(RightListBox, new List<string>());
                     }
                     else
                     {
@@ -976,8 +962,7 @@ namespace StS_GUI_Avalonia
                                 var rlist = myschool.GetSuSAusKurs(kurs.Bezeichnung).Result
                                     .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID)).Distinct().ToList();
                                 rlist.Sort(Comparer<string>.Default);
-                                RightListBox.ItemsSource = null;
-                                RightListBox.ItemsSource = rlist;
+                                ResetItemsSource(RightListBox, rlist);
                                 break;
                             }
                             case 1:
@@ -985,8 +970,7 @@ namespace StS_GUI_Avalonia
                                 var rlist = myschool.GetLuLAusKurs(kurs.Bezeichnung).Result
                                     .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).Distinct().ToList();
                                 rlist.Sort(Comparer<string>.Default);
-                                RightListBox.ItemsSource = null;
-                                RightListBox.ItemsSource = rlist;
+                                ResetItemsSource(RightListBox, rlist);
                                 break;
                             }
                         }
@@ -1037,8 +1021,7 @@ namespace StS_GUI_Avalonia
             if (rightMutex && !hasComboBoxChanged) return;
             if (hasComboBoxChanged)
             {
-                RightListBox.ItemsSource = null;
-                RightListBox.ItemsSource = new List<string>();
+                ResetItemsSource(LeftListBox, new List<string>());
             }
 
             switch (CboxDataRight.SelectedIndex)
@@ -1067,8 +1050,7 @@ namespace StS_GUI_Avalonia
                             var rlist = myschool.GetSuSVonLuL(lul.ID).Result
                                 .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID)).Distinct().ToList();
                             rlist.Sort(Comparer<string>.Default);
-                            RightListBox.ItemsSource = null;
-                            RightListBox.ItemsSource = rlist;
+                            ResetItemsSource(LeftListBox, rlist);
                             break;
                         }
                         case 2:
@@ -1089,8 +1071,7 @@ namespace StS_GUI_Avalonia
                             var rlist = myschool.GetSuSAusKurs(kurs.Bezeichnung).Result
                                 .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID)).Distinct().ToList();
                             rlist.Sort(Comparer<string>.Default);
-                            RightListBox.ItemsSource = null;
-                            RightListBox.ItemsSource = rlist;
+                            ResetItemsSource(LeftListBox, rlist);
                             break;
                         }
                     }
@@ -1119,8 +1100,7 @@ namespace StS_GUI_Avalonia
                             var rlist = myschool.GetLuLvonSuS(sus.ID).Result
                                 .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).Distinct().ToList();
                             rlist.Sort(Comparer<string>.Default);
-                            RightListBox.ItemsSource = null;
-                            RightListBox.ItemsSource = rlist;
+                            ResetItemsSource(LeftListBox, rlist);
                             break;
                         }
                         case 2:
@@ -1141,8 +1121,7 @@ namespace StS_GUI_Avalonia
                             var rlist = myschool.GetLuLAusKurs(kurs.Bezeichnung).Result
                                 .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).Distinct().ToList();
                             rlist.Sort(Comparer<string>.Default);
-                            RightListBox.ItemsSource = null;
-                            RightListBox.ItemsSource = rlist;
+                            ResetItemsSource(LeftListBox, rlist);
                             break;
                         }
                     }
@@ -1171,8 +1150,7 @@ namespace StS_GUI_Avalonia
                             var rlist = myschool.GetKursVonSuS(sus.ID).Result.Select(k => (k.Bezeichnung))
                                 .Distinct()
                                 .ToList();
-                            RightListBox.ItemsSource = null;
-                            RightListBox.ItemsSource = rlist;
+                            ResetItemsSource(LeftListBox, rlist);
                             break;
                         }
                         case 1:
@@ -1194,8 +1172,7 @@ namespace StS_GUI_Avalonia
                                 .Distinct()
                                 .ToList();
                             rlist.Sort(Comparer<string>.Default);
-                            RightListBox.ItemsSource = null;
-                            RightListBox.ItemsSource = rlist;
+                            ResetItemsSource(LeftListBox, rlist);
                             break;
                         }
                     }
@@ -1435,8 +1412,7 @@ namespace StS_GUI_Avalonia
                     ergebnisliste.Add("Keine Fehler gefunden!");
                 }
 
-                lbFehlerliste.ItemsSource = null;
-                lbFehlerliste.ItemsSource = ergebnisliste;
+                ResetItemsSource(lbFehlerliste, ergebnisliste);
             }
             catch (Exception ex)
             {
@@ -1761,16 +1737,14 @@ namespace StS_GUI_Avalonia
                 });
             var dialogResult = await reallyDeleteLog.ShowAsPopupAsync(this);
             if (dialogResult == ButtonResult.No) return;
-            lbLogDisplay.ItemsSource = null;
-            lbLogDisplay.ItemsSource = new List<string>();
+            ResetItemsSource(lbLogDisplay, new List<string>());
             await myschool.LoescheLog();
         }
 
         private async void BtnLogReload_OnClick(object? sender, RoutedEventArgs e)
         {
             var items = await myschool.GetLog();
-            lbLogDisplay.ItemsSource = null;
-            lbLogDisplay.ItemsSource = items.Select(message => message.Replace('\t', ' ').TrimEnd('\t')).ToList();
+            ResetItemsSource(lbLogDisplay, items.Select(message => message.Replace('\t', ' ').TrimEnd('\t')));
         }
 
         private async void BtnKurseAdd_OnClick(object? sender, RoutedEventArgs e)
@@ -1888,9 +1862,9 @@ namespace StS_GUI_Avalonia
                 if (tbLeftSearch.Text == "") OnLeftDataChanged(true);
                 if (!tbLeftSearch.Text.Contains(';'))
                 {
-                    LeftListBox.ItemsSource = null;
-                    LeftListBox.ItemsSource = LeftListBox.Items.Cast<string>()
-                        .Where(listitem => listitem.ToLower().Contains(tbLeftSearch.Text.ToLower()));
+                    var tmp = LeftListBox.Items.ToList();
+                    ResetItemsSource(LeftListBox, tmp.Cast<string>()
+                        .Where(listitem => listitem.ToLower().Contains(tbLeftSearch.Text.ToLower())));
                 }
                 else
                 {
@@ -1910,8 +1884,7 @@ namespace StS_GUI_Avalonia
                             var seliste = sliste.Distinct().Select(s => (s.ID + ";" + s.Nachname + "," + s.Vorname))
                                 .ToList();
                             seliste.Sort(Comparer<string>.Default);
-                            LeftListBox.ItemsSource = null;
-                            LeftListBox.ItemsSource = seliste;
+                            ResetItemsSource(LeftListBox, seliste);
                             break;
                         case 1:
                             var lliste = new List<LuL>();
@@ -1927,8 +1900,7 @@ namespace StS_GUI_Avalonia
                                 .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname))
                                 .ToList();
                             leliste.Sort(Comparer<string>.Default);
-                            LeftListBox.ItemsSource = null;
-                            LeftListBox.ItemsSource = leliste;
+                            ResetItemsSource(LeftListBox, leliste);
                             break;
                         case 2:
                             var kliste = new List<Kurs>();
@@ -1942,8 +1914,7 @@ namespace StS_GUI_Avalonia
                             var keliste = kliste.Distinct().Select(k => k.Bezeichnung)
                                 .ToList();
                             keliste.Sort(Comparer<string>.Default);
-                            LeftListBox.ItemsSource = null;
-                            LeftListBox.ItemsSource = keliste;
+                            ResetItemsSource(LeftListBox, keliste);
                             break;
                     }
                 }
@@ -1959,9 +1930,9 @@ namespace StS_GUI_Avalonia
                 if (tbRightSearch.Text == "") OnRightDataChanged(true);
                 if (!tbRightSearch.Text.Contains(';'))
                 {
-                    RightListBox.ItemsSource = null;
-                    RightListBox.ItemsSource = RightListBox.Items.Cast<string>()
-                        .Where(listitem => listitem.ToLower().Contains(tbRightSearch.Text.ToLower()));
+                    var tmp = RightListBox.Items.ToList();
+                    ResetItemsSource(RightListBox, tmp.Cast<string>()
+                        .Where(listitem => listitem.ToLower().Contains(tbRightSearch.Text.ToLower())));
                 }
                 else
                 {
@@ -1981,8 +1952,7 @@ namespace StS_GUI_Avalonia
                             var seliste = sliste.Distinct().Select(s => (s.ID + ";" + s.Nachname + "," + s.Vorname))
                                 .ToList();
                             seliste.Sort(Comparer<string>.Default);
-                            RightListBox.ItemsSource = null;
-                            RightListBox.ItemsSource = seliste;
+                            ResetItemsSource(RightListBox, seliste);
                             break;
                         case 1:
                             var lliste = new List<LuL>();
@@ -1998,8 +1968,7 @@ namespace StS_GUI_Avalonia
                                 .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname))
                                 .ToList();
                             leliste.Sort(Comparer<string>.Default);
-                            RightListBox.ItemsSource = null;
-                            RightListBox.ItemsSource = leliste;
+                            ResetItemsSource(RightListBox, leliste);
                             break;
                         case 2:
                             var kliste = new List<Kurs>();
@@ -2013,8 +1982,7 @@ namespace StS_GUI_Avalonia
                             var keliste = kliste.Distinct().Select(k => k.Bezeichnung)
                                 .ToList();
                             keliste.Sort(Comparer<string>.Default);
-                            RightListBox.ItemsSource = null;
-                            RightListBox.ItemsSource = keliste;
+                            ResetItemsSource(RightListBox, keliste);
                             break;
                     }
                 }
@@ -2258,6 +2226,13 @@ namespace StS_GUI_Avalonia
             var pwd = Schuldatenbank.GeneratePasswort(8);
             myschool.SetTPwd(lul.ID, pwd);
             tbLuLtmpPwd.Text = pwd;
+        }
+
+        private static void ResetItemsSource(ItemsControl sourceList, IEnumerable<string> dataList)
+        {
+            sourceList.ItemsSource = null;
+            sourceList.Items.Clear();
+            sourceList.ItemsSource = dataList;
         }
     }
 }
