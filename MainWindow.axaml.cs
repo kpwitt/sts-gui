@@ -37,13 +37,22 @@ namespace StS_GUI_Avalonia
 
         public MainWindow()
         {
-            InitializeComponent(true, false);
+#if DEBUG
+    InitializeComponent(true, false);
+#else
+            InitializeComponent(true);
+#endif
+
             InitGUI();
         }
 
         public MainWindow(IReadOnlyList<string> args)
         {
-            InitializeComponent(true, false);
+#if DEBUG
+    InitializeComponent(true, false);
+#else
+            InitializeComponent(true);
+#endif
             InitGUI();
             if (args.Count != 1) return;
             var filepath = args[0];
