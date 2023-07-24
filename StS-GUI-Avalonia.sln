@@ -5,8 +5,6 @@ VisualStudioVersion = 17.2.32616.157
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StS-GUI-Avalonia", "StS-GUI-Avalonia.csproj", "{1A90EADC-E74F-4B51-9516-11D949C32701}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SchulDB", "..\sts-lib\SchulDB.csproj", "{AC0CB42B-DAFF-45F2-9DCC-2AF092A5B3BB}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,10 +15,6 @@ Global
 		{1A90EADC-E74F-4B51-9516-11D949C32701}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1A90EADC-E74F-4B51-9516-11D949C32701}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1A90EADC-E74F-4B51-9516-11D949C32701}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AC0CB42B-DAFF-45F2-9DCC-2AF092A5B3BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AC0CB42B-DAFF-45F2-9DCC-2AF092A5B3BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AC0CB42B-DAFF-45F2-9DCC-2AF092A5B3BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AC0CB42B-DAFF-45F2-9DCC-2AF092A5B3BB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
