@@ -40,7 +40,7 @@ namespace StS_GUI_Avalonia
 #if DEBUG
     InitializeComponent(true, false);
 #else
-            InitializeComponent(true);
+            InitializeComponent();
 #endif
 
             InitGUI();
@@ -51,7 +51,7 @@ namespace StS_GUI_Avalonia
 #if DEBUG
     InitializeComponent(true, false);
 #else
-            InitializeComponent(true);
+            InitializeComponent();
 #endif
             InitGUI();
             if (args.Count != 1) return;
@@ -129,7 +129,7 @@ namespace StS_GUI_Avalonia
             leftContext.ItemsSource = leftContextItems;
             LeftListBox.ContextMenu = leftContext;
             rbD.IsChecked = true;
-            Rb_OnClick(rbD, null);
+            Rb_OnClick(rbD, new RoutedEventArgs());
             LeftListBox.MaxHeight = ClientSize.Height * 1.1;
             RightListBox.MaxHeight = LeftListBox.MaxHeight;
             msgBoxWindowIcon =
@@ -219,7 +219,7 @@ namespace StS_GUI_Avalonia
                 if (filepath == null) return;
                 var tempDB = new Schuldatenbank(filepath);
                 var res = await tempDB.Import(myschool);
-                Dispatcher.UIThread.InvokeAsync(async () =>
+                await Dispatcher.UIThread.InvokeAsync(async () =>
                 {
                     if (res == 0)
                     {
