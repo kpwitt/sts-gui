@@ -2393,7 +2393,7 @@ namespace SchulDB
         public async Task StopTransaction()
         {
             trans = false;
-            dbtrans.Commit();
+            await dbtrans.CommitAsync();
         }
 
         /// <summary>
