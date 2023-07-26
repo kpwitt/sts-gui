@@ -845,7 +845,7 @@ namespace SchulDB
                         var kListe = "";
                         foreach (var kk in await GetKursVonSuS(s.ID))
                         {
-                            if (kk.Bezeichnung == null)
+                            if (string.IsNullOrEmpty(kk.Bezeichnung))
                             {
                                 break;
                             }
@@ -983,7 +983,7 @@ namespace SchulDB
                         fak = fak.TrimStart('|');
                         foreach (var kurs in await GetKursVonLuL(lt.ID))
                         {
-                            if (kurs.Bezeichnung == null) continue;
+                            if (string.IsNullOrEmpty(kurs.Bezeichnung)) continue;
                             if (kurs.Istkurs)
                             {
                                 ausgabeMoodleEinschreibungen.Add("add,editingteacher," + lt.ID + "," +
@@ -1965,7 +1965,7 @@ namespace SchulDB
                             stufe = klasse[..1];
                             //Klassenkurse
                             var klkurs = klasse + "KL";
-                            if (GetKurs(klkurs).Result.Bezeichnung == null) //Kurs nicht existent
+                            if (string.IsNullOrEmpty(GetKurs(klkurs).Result.Bezeichnung)) //Kurs nicht existent
                             {
                                 await AddKurs(klkurs, "KL", klasse, stufe, fachsuffix, 0);
                             }
@@ -1995,7 +1995,7 @@ namespace SchulDB
                                 }
 
                                 var bez = stufe + "-" + tmpkurs[ink];
-                                if (GetKurs(bez).Result.Bezeichnung == null)
+                                if (string.IsNullOrEmpty(GetKurs(bez).Result.Bezeichnung))
                                 {
                                     await AddKurs(bez, fach, stufe, stufe, fachsuffix, 1);
                                 }
@@ -2015,7 +2015,7 @@ namespace SchulDB
                                 }
 
                                 var bez = klasse + fach;
-                                if (GetKurs(bez).Result.Bezeichnung == null)
+                                if (string.IsNullOrEmpty(GetKurs(bez).Result.Bezeichnung))
                                 {
                                     await AddKurs(bez, fach, klasse, stufe, fachsuffix, 0);
                                 }
