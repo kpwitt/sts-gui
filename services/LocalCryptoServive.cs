@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Security.Cryptography;
 
@@ -57,11 +58,11 @@ public class LocalCryptoServive
         }
         catch (CryptographicException exCryptographicException)
         {
-            Console.WriteLine("CryptographicException error: " + exCryptographicException.Message);
+            Debug.WriteLine("CryptographicException error: " + exCryptographicException.Message);
         }
         catch (Exception ex)
         {
-            Console.WriteLine("Error: " + ex.Message);
+            Debug.WriteLine("Error: " + ex.Message);
         }
 
         try
@@ -70,7 +71,7 @@ public class LocalCryptoServive
         }
         catch (Exception ex)
         {
-            Console.WriteLine("Error by closing CryptoStream: " + ex.Message);
+            Debug.WriteLine("Error by closing CryptoStream: " + ex.Message);
         }
         finally
         {
@@ -125,7 +126,7 @@ public class LocalCryptoServive
         }
         catch (Exception ex)
         {
-            Console.WriteLine("Error: " + ex.Message);
+            Debug.WriteLine("Error: " + ex.Message);
         }
         finally
         {
