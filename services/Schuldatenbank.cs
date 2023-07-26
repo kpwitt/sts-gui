@@ -452,8 +452,8 @@ namespace SchulDB
         /// <param name="folder"></param>
         /// <param name="lehrerliste"></param>
         /// <param name="susliste"></param>
-        public async Task<int> DumpDataToCSVs(string folder, ReadOnlyCollection<SuS> susliste,
-            ReadOnlyCollection<LuL> lehrerliste)
+        private async Task<int> DumpDataToCSVs(string folder, ReadOnlyCollection<SuS> susliste,
+            IEnumerable<LuL> lehrerliste)
         {
             try
             {
@@ -1307,7 +1307,7 @@ namespace SchulDB
         /// gibt das globale Kurssuffix zurück
         /// </summary>
         /// <returns>String Kurssuffix</returns>
-        public async Task<string> GetKursSuffix()
+        private async Task<string> GetKursSuffix()
         {
             return GetSettings().Result.Kurssuffix;
         }
@@ -1356,7 +1356,7 @@ namespace SchulDB
         /// gibt die Informationen ID, Nachname, Vorname, Mail, Kürzel und Fakultas der Lehrkraft zur übergebenen ID zurück
         /// </summary>
         /// <param name="id"></param>
-        public async Task<LuL> GetLehrkraft(int id)
+        private async Task<LuL> GetLehrkraft(int id)
         {
             var sqlite_cmd = sqlite_conn.CreateCommand();
             sqlite_cmd.CommandText =
@@ -1503,7 +1503,7 @@ namespace SchulDB
         /// </summary>
         /// <param name="shortsubject"></param>
         /// <returns>String Langfach-Bezeichnung</returns>
-        public async Task<string> GetLangeFachbezeichnung(string shortsubject)
+        private async Task<string> GetLangeFachbezeichnung(string shortsubject)
         {
             var sqlite_cmd = sqlite_conn.CreateCommand();
             sqlite_cmd.CommandText = "SELECT langfach FROM fachersatz WHERE kurzfach = @shortsubject;";
@@ -1594,7 +1594,7 @@ namespace SchulDB
         /// </summary>
         /// <param name="vorname"></param>
         /// <param name="nachname"></param>
-        public async Task<SuS> GetSchueler(string vorname, string nachname)
+        private async Task<SuS> GetSchueler(string vorname, string nachname)
         {
             var sqlite_cmd = sqlite_conn.CreateCommand();
             sqlite_cmd.CommandText =
@@ -2192,7 +2192,7 @@ namespace SchulDB
         /// </summary>
         /// <param name="lehrkraft"></param>
         /// <returns></returns>
-        public async Task RemoveL(LuL lehrkraft)
+        private async Task RemoveL(LuL lehrkraft)
         {
             await RemoveL(lehrkraft.ID);
         }
@@ -2597,7 +2597,7 @@ namespace SchulDB
         /// </summary>
         /// <param name="lehrerid">Die lehrerid, für die das temporäre Passwort ausgelesen werden soll</param>
         /// <returns>String temporäre Passwort</returns>
-        public async Task<string> GetTempPasswort(int lehrerid)
+        private async Task<string> GetTempPasswort(int lehrerid)
         {
             var sqlite_cmd = sqlite_conn.CreateCommand();
             sqlite_cmd.CommandText = "SELECT pwtemp FROM lehrkraft WHERE id=" + lehrerid + ";";
@@ -2676,7 +2676,7 @@ namespace SchulDB
         /// </summary>
         /// <param name="id"></param>
         /// <param name="pStatus"></param>
-        public async Task SetZweitAccount(int id, int pStatus)
+        private async Task SetZweitAccount(int id, int pStatus)
         {
             var sqlite_cmd = sqlite_conn.CreateCommand();
             sqlite_cmd.CommandText = "UPDATE schueler SET zweitaccount = @status WHERE id = @susid;";
