@@ -682,6 +682,7 @@ namespace SchulDB
 #if DEBUG
                     await AddLogMessage("Debug", ex.StackTrace + ";" + ex.Message);
 #endif
+                    await AddLogMessage("Error", "Fehler beim Einlesen der Eltern");
                 }
             }
 
@@ -1890,6 +1891,7 @@ namespace SchulDB
 #if DEBUG
                     await AddLogMessage("Debug", ex.StackTrace + ";" + ex.Message);
 #endif
+                    await AddLogMessage("Error", "Fehler beim Einlesen der IDs");
                 }
             }
 
@@ -2041,6 +2043,7 @@ namespace SchulDB
 #if DEBUG
                     await AddLogMessage("Debug", ex.StackTrace + ";" + ex.Message + "at " + i);
 #endif
+                    await AddLogMessage("Error", "Fehler beim Einlesen der Kurse");
                 }
 
                 await StopTransaction();
@@ -2480,6 +2483,7 @@ namespace SchulDB
                     await AddLogMessage("Debug", ex.StackTrace + ";" + ex.Message);
                     //Debug.WriteLine("Zeile " + i + ": " + lines[i]);
 #endif
+                    await AddLogMessage("Error", "Fehler beim Einlesen der SuS");
                 }
             }
         }
