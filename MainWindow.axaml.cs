@@ -1461,9 +1461,9 @@ namespace StS_GUI_Avalonia
 
         private async void BtnExportStufenkurs_OnClick(object? sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrEmpty(tbExportStufenkurse.Text)) return;
             var readFileTask = async () =>
             {
+                if (string.IsNullOrEmpty(tbExportStufenkurse.Text)) return;
                 SetupOpenFolderDialog(globalOpenFolderDialog, "Bitte den Ordner für die Dateien auswählen");
                 var folder = await globalOpenFolderDialog.ShowAsync(this);
                 if (folder == null) return;
@@ -2080,9 +2080,9 @@ namespace StS_GUI_Avalonia
 
         private async void OnMnuSerienbriefClick(object? sender, RoutedEventArgs e)
         {
-            if (LeftListBox.SelectedItems == null) return;
             var readFileTask = async () =>
             {
+                if (LeftListBox.SelectedItems == null) return;
                 SetupSaveFileDialog(globalSaveFileDialog, "Serienbriefdatei...", new[] { "csv" },
                     new[] { "CSV-Datei" });
                 var folder = await globalSaveFileDialog.ShowAsync(this);
@@ -2129,9 +2129,9 @@ namespace StS_GUI_Avalonia
 
         private async void OnMnuExportClick(object? sender, RoutedEventArgs e)
         {
-            if (LeftListBox.SelectedItems == null) return;
             var readFileTask = async () =>
             {
+                if (LeftListBox.SelectedItems == null) return;
                 SetupOpenFolderDialog(globalOpenFolderDialog, "Bitte den Ordner zum Speichern angeben");
                 var folder = await globalOpenFolderDialog.ShowAsync(this);
                 if (folder == null) return;
@@ -2253,10 +2253,10 @@ namespace StS_GUI_Avalonia
 
         private async void MnuExportLKtoHP_OnClick(object? sender, RoutedEventArgs e)
         {
-            SetupSaveFileDialog(globalSaveFileDialog, "Lehrkräfteexport für die Homepage", new[] { "csv" },
-                new[] { "CSV-Datei" });
             var saveLKtoHP = async () =>
             {
+                SetupSaveFileDialog(globalSaveFileDialog, "Lehrkräfteexport für die Homepage", new[] { "csv" },
+                    new[] { "CSV-Datei" });
                 var filepath = await globalSaveFileDialog.ShowAsync(this);
                 if (filepath == null) return;
                 List<string> lulliste = new()
