@@ -38,7 +38,7 @@ namespace StS_GUI_Avalonia
         public MainWindow()
         {
 #if DEBUG
-    InitializeComponent(true, false);
+            InitializeComponent(true, false);
 #else
             InitializeComponent();
 #endif
@@ -49,7 +49,7 @@ namespace StS_GUI_Avalonia
         public MainWindow(IReadOnlyList<string> args)
         {
 #if DEBUG
-    InitializeComponent(true, false);
+            InitializeComponent(true, false);
 #else
             InitializeComponent();
 #endif
@@ -1916,10 +1916,17 @@ namespace StS_GUI_Avalonia
 
         private async void OnLeftTimedEvent(object? source, ElapsedEventArgs e)
         {
-            if (tbLeftSearch.Text == null) return;
             var updateLeftList = () =>
             {
-                if (tbLeftSearch.Text == "") OnLeftDataChanged(true);
+                switch (tbLeftSearch.Text)
+                {
+                    case null:
+                        return;
+                    case "":
+                        OnLeftDataChanged(true);
+                        break;
+                }
+
                 if (!tbLeftSearch.Text.Contains(';'))
                 {
                     var tmp = LeftListBox.Items.ToList();
@@ -1985,10 +1992,17 @@ namespace StS_GUI_Avalonia
 
         private async void OnRightTimedEvent(object? source, ElapsedEventArgs e)
         {
-            if (tbRightSearch.Text == null) return;
             var updateRightList = () =>
             {
-                if (tbRightSearch.Text == "") OnRightDataChanged(true);
+                switch (tbRightSearch.Text)
+                {
+                    case null:
+                        return;
+                    case "":
+                        OnRightDataChanged(true);
+                        break;
+                }
+
                 if (!tbRightSearch.Text.Contains(';'))
                 {
                     var tmp = RightListBox.Items.ToList();
