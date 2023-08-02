@@ -1679,7 +1679,7 @@ namespace SchulDB
             while (sqlite_datareader.Read())
             {
                 var key = sqlite_datareader.GetString(0);
-                var value = sqlite_datareader.GetString(1) == null ? "" : sqlite_datareader.GetString(1);
+                var value = string.IsNullOrEmpty(sqlite_datareader.GetString(1)) ? "" : sqlite_datareader.GetString(1);
                 switch (key)
                 {
                     case "mailsuffix":
