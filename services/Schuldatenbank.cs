@@ -777,7 +777,7 @@ namespace SchulDB
                                                            k.Art.Substring(k.Art.Length - 1, 1) + " SJ" +
                                                            k.Suffix.Substring(1, 2) + "/" +
                                                            k.Suffix.Substring(3, 2) + ";" + k.Bezeichnung +
-                                                           k.Suffix + ";stufe_" + k.Stufe + k.Suffix + ";topics");
+                                                           k.Suffix + ";stufe_" + k.Stufe + k.Suffix + ";tiles");
                                 }
                                 else
                                 {
@@ -785,7 +785,7 @@ namespace SchulDB
                                                            GetLangeFachbezeichnung(k.Fach).Result + "-" + k.Art +
                                                            " SJ" + k.Suffix.Substring(1, 2) + "/" +
                                                            k.Suffix.Substring(3, 2) + ";" + k.Bezeichnung +
-                                                           k.Suffix + ";stufe_" + k.Stufe + k.Suffix + ";topics");
+                                                           k.Suffix + ";stufe_" + k.Stufe + k.Suffix + ";tiles");
                                 }
                             }
                             else
@@ -794,7 +794,7 @@ namespace SchulDB
                                                        GetLangeFachbezeichnung(k.Fach).Result + " SJ" +
                                                        k.Suffix.Substring(1, 2) + "/" + k.Suffix.Substring(3, 2) +
                                                        ";" + k.Bezeichnung + k.Suffix + ";" + k.Klasse + k.Suffix +
-                                                       ";topics");
+                                                       ";tiles");
                             }
                         }
                         else
@@ -809,7 +809,7 @@ namespace SchulDB
                                                            k.Art.Substring(k.Art.Length - 1, 1) + " SJ" +
                                                            k.Suffix.Substring(1, 2) + "/" +
                                                            k.Suffix.Substring(3, 2) + ";" + k.Bezeichnung +
-                                                           k.Suffix + ";stufe_" + k.Stufe + k.Suffix + ";topics;" +
+                                                           k.Suffix + ";stufe_" + k.Stufe + k.Suffix + ";tiles;" +
                                                            strkursvorlage);
                                 }
                                 else
@@ -818,7 +818,7 @@ namespace SchulDB
                                                            GetLangeFachbezeichnung(k.Fach).Result + "-" + k.Art +
                                                            " SJ" + k.Suffix.Substring(1, 2) + "/" +
                                                            k.Suffix.Substring(3, 2) + ";" + k.Bezeichnung +
-                                                           k.Suffix + ";stufe_" + k.Stufe + k.Suffix + ";topics;" +
+                                                           k.Suffix + ";stufe_" + k.Stufe + k.Suffix + ";tiles;" +
                                                            strkursvorlage);
                                 }
                             }
@@ -828,7 +828,7 @@ namespace SchulDB
                                                        GetLangeFachbezeichnung(k.Fach).Result + " SJ" +
                                                        k.Suffix.Substring(1, 2) + "/" + k.Suffix.Substring(3, 2) +
                                                        ";" + k.Bezeichnung + k.Suffix + ";" + k.Klasse + k.Suffix +
-                                                       ";topics;" + strkursvorlage);
+                                                       ";tiles;" + strkursvorlage);
                             }
                         }
 
