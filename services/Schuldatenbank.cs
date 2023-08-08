@@ -2307,6 +2307,7 @@ namespace SchulDB
                 var sqlite_cmd = sqlite_conn.CreateCommand();
                 for (var i = 0; i < fachk.Length; i++)
                 {
+                    if(fachl[i]==""||fachk[i]=="")continue;
                     var kurzesfach = fachk[i];
                     var langesfach = fachl[i];
                     sqlite_cmd.CommandText =
