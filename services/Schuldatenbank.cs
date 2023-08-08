@@ -138,21 +138,91 @@ namespace SchulDB
                     "Informatik", "Italienisch", "Kunst", "Latein", "Musik", "Physik", "Politik", "Psychologie",
                     "Schwimmen", "Sport"
                 };
-                Settings settings = new()
+                if (dbpath == ":memory")
                 {
-                    Mailsuffix = "@schule.local",
-                    Fachersetzung = "",
-                    Kurzfaecher = fachk,
-                    Langfaecher = fachl,
-                    Kurssuffix = "_" + (DateTime.Now.Year - 2000) + "" + (DateTime.Now.Year - 1999),
-                    Erprobungstufenleitung = "",
-                    Mittelstufenleitung = "",
-                    EFStufenleitung = "",
-                    Q1Stufenleitung = "",
-                    Q2Stufenleitung = "",
-                    Oberstufenkoordination = ""
-                };
-                SetSettings(settings);
+                    Settings settings = new()
+                    {
+                        Mailsuffix = "@schule.local",
+                        Fachersetzung = "",
+                        Kurzfaecher = fachk,
+                        Langfaecher = fachl,
+                        Kurssuffix = "_" + (DateTime.Now.Year - 2000) + "" + (DateTime.Now.Year - 1999),
+                        Erprobungstufenleitung = "",
+                        Mittelstufenleitung = "",
+                        EFStufenleitung = "",
+                        Q1Stufenleitung = "",
+                        Q2Stufenleitung = "",
+                        Oberstufenkoordination = ""
+                    };
+                    // sqlite_cmd.CommandText = "INSERT OR IGNORE INTO settings (mailsuffix, kurssuffix, fachersetzung) VALUES (@mailsuffix, @kurssuffix, @fachersatz);";
+                    sqlite_cmd.Parameters.Add(new SQLiteParameter("@mailsuffixparam", settings.Mailsuffix));
+                    sqlite_cmd.Parameters.Add(new SQLiteParameter("@kurssuffixparam", settings.Kurssuffix));
+                    sqlite_cmd.Parameters.Add(new SQLiteParameter("@fachersatzparam", settings.Fachersetzung));
+
+                    sqlite_cmd.Parameters.Add(new SQLiteParameter("@mailsuffix", "mailsuffix"));
+                    sqlite_cmd.Parameters.Add(new SQLiteParameter("@kurssuffix", "kurssuffix"));
+                    sqlite_cmd.Parameters.Add(new SQLiteParameter("@fachersatz", "fachersatz"));
+
+                    sqlite_cmd.Parameters.Add(new SQLiteParameter("@erprobungstufenleitung",
+                        "erprobungsstufenleitung"));
+                    sqlite_cmd.Parameters.Add(new SQLiteParameter("@mittelstufenleitung", "mittelstufenleitung"));
+                    sqlite_cmd.Parameters.Add(new SQLiteParameter("@efstufenleitung", "efstufenleitung"));
+                    sqlite_cmd.Parameters.Add(new SQLiteParameter("@q1stufenleitung", "q1stufenleitung"));
+                    sqlite_cmd.Parameters.Add(new SQLiteParameter("@q2stufenleitung", "q2stufenleitung"));
+                    sqlite_cmd.Parameters.Add(new SQLiteParameter("@oberstufenkoordination", "oberstufenkoordination"));
+
+                    sqlite_cmd.Parameters.Add(new SQLiteParameter("@erprobungstufenleitungparam",
+                        settings.Erprobungstufenleitung));
+                    sqlite_cmd.Parameters.Add(new SQLiteParameter("@mittelstufenleitungparam",
+                        settings.Mittelstufenleitung));
+                    sqlite_cmd.Parameters.Add(new SQLiteParameter("@efstufenleitungparam", settings.EFStufenleitung));
+                    sqlite_cmd.Parameters.Add(new SQLiteParameter("@q1stufenleitungparam", settings.Q1Stufenleitung));
+                    sqlite_cmd.Parameters.Add(new SQLiteParameter("@q2stufenleitungparam", settings.Q2Stufenleitung));
+                    sqlite_cmd.Parameters.Add(new SQLiteParameter("@oberstufenkoordinationparam",
+                        settings.Oberstufenkoordination));
+                    // sqlite_cmd.ExecuteNonQuery();
+                    sqlite_cmd.CommandText =
+                        "INSERT OR REPLACE INTO settings (setting,value) VALUES(@mailsuffix, @mailsuffixparam)";
+                    sqlite_cmd.ExecuteNonQuery();
+                    sqlite_cmd.CommandText =
+                        "INSERT OR REPLACE INTO settings (setting,value) VALUES(@kurssuffix, @kurssuffixparam)";
+                    sqlite_cmd.ExecuteNonQuery();
+                    sqlite_cmd.CommandText =
+                        "INSERT OR REPLACE INTO settings (setting,value) VALUES(@fachersatz, @fachersatzparam)";
+                    sqlite_cmd.ExecuteNonQuery();
+                    sqlite_cmd.CommandText =
+                        "INSERT OR REPLACE INTO settings (setting,value) VALUES(@erprobungstufenleitung, @erprobungstufenleitungparam)";
+                    sqlite_cmd.ExecuteNonQuery();
+                    sqlite_cmd.CommandText =
+                        "INSERT OR REPLACE INTO settings (setting,value) VALUES(@mittelstufenleitung, @mittelstufenleitungparam)";
+                    sqlite_cmd.ExecuteNonQuery();
+                    sqlite_cmd.CommandText =
+                        "INSERT OR REPLACE INTO settings (setting,value) VALUES(@efstufenleitung, @efstufenleitungparam)";
+                    sqlite_cmd.ExecuteNonQuery();
+                    sqlite_cmd.CommandText =
+                        "INSERT OR REPLACE INTO settings (setting,value) VALUES(@q1stufenleitung, @q1stufenleitungparam)";
+                    sqlite_cmd.ExecuteNonQuery();
+                    sqlite_cmd.CommandText =
+                        "INSERT OR REPLACE INTO settings (setting,value) VALUES(@q2stufenleitung, @q2stufenleitungparam)";
+                    sqlite_cmd.ExecuteNonQuery();
+                    sqlite_cmd.CommandText =
+                        "INSERT OR REPLACE INTO settings (setting,value) VALUES(@oberstufenkoordination, @oberstufenkoordinationparam)";
+                    sqlite_cmd.ExecuteNonQuery();
+
+                    if (fachk.Length != fachl.Length) return;
+                    for (var i = 0; i < fachk.Length; i++)
+                    {
+                        if (fachl[i] == "" || fachk[i] == "") continue;
+                        var kurzesfach = fachk[i];
+                        var langesfach = fachl[i];
+                        sqlite_cmd.CommandText =
+                            "INSERT OR IGNORE INTO fachersatz (kurzfach, langfach) VALUES (@kfach, @lfach);";
+                        sqlite_cmd.Parameters.Add(new SQLiteParameter("@kfach", kurzesfach));
+                        sqlite_cmd.Parameters.Add(new SQLiteParameter("@lfach", langesfach));
+                        sqlite_cmd.ExecuteNonQuery();
+                    }
+                }
+                
             }
             catch (SQLiteException ex)
             {
