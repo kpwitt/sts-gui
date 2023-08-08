@@ -144,7 +144,7 @@ namespace SchulDB
                     Fachersetzung = "",
                     Kurzfaecher = fachk,
                     Langfaecher = fachl,
-                    Kurssuffix = "_" + (DateTime.Now.Year - 2001) + "" + (DateTime.Now.Year - 2000),
+                    Kurssuffix = "_" + (DateTime.Now.Year - 2000) + "" + (DateTime.Now.Year - 1999),
                     Erprobungstufenleitung = "",
                     Mittelstufenleitung = "",
                     EFStufenleitung = "",
