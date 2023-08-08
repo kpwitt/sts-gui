@@ -1498,7 +1498,7 @@ namespace StS_GUI_Avalonia
 
                 await CheckSuccesfulExport(res);
             };
-            await Task.Run(readFileTask);
+            await Dispatcher.UIThread.InvokeAsync(readFileTask);
         }
 
         private async Task CheckSuccesfulExport(int res)
@@ -1550,7 +1550,7 @@ namespace StS_GUI_Avalonia
                     new ReadOnlyCollection<int>(new List<int>()), new ReadOnlyCollection<string>(new List<string>()));
                 await CheckSuccesfulExport(res);
             };
-            await Task.Run(readFileTask);
+            await Dispatcher.UIThread.InvokeAsync(readFileTask);
         }
 
         private async void BtnSettingSave_OnClick(object? sender, RoutedEventArgs e)
