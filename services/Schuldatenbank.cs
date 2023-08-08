@@ -135,7 +135,7 @@ namespace SchulDB
                 var fachl = new[]
                 {
                     "Deutsch", "Englisch", "Mathematik", "Biologie", "Chemie", "Erdkunde", "Französisch", "Geschichte",
-                    "Informtik", "Italienisch", "Kunst", "Latein", "Musik", "Physik", "Politik", "Psychologie",
+                    "Informatik", "Italienisch", "Kunst", "Latein", "Musik", "Physik", "Politik", "Psychologie",
                     "Schwimmen", "Sport"
                 };
                 Settings settings = new()
