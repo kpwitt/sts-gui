@@ -106,7 +106,7 @@ namespace SchulDB
                 sqlite_cmd.CommandText = @"CREATE TABLE IF NOT EXISTS
         [settings] (
         [setting]   NVARCHAR(512) NOT NULL UNIQUE,
-        [value]  NVARCHAR(512) NOT NULL UNIQUE
+        [value]  NVARCHAR(512) NOT NULL
       )";
                 sqlite_cmd.ExecuteNonQuery();
 
