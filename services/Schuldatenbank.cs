@@ -390,7 +390,8 @@ namespace SchulDB
         public async Task AddStoKlassenKurse(SuS schulerin, string klasse)
         {
             if (klasse.StartsWith('5') || klasse.StartsWith('6') || klasse.StartsWith('7') || klasse.StartsWith('8') ||
-                klasse.StartsWith('9'))
+                klasse.StartsWith('9')||
+                klasse.StartsWith("10"))
             {
                 var kliste = GetKursListe().Result.ToList();
                 kliste = kliste.FindAll(k => k.Bezeichnung.StartsWith(klasse) && k.Istkurs == false);
@@ -867,7 +868,8 @@ namespace SchulDB
                                 ausgabeMoodleEinschreibungen.Add("add,schueler," + s.ID + ",erprobungsstufe" +
                                                                  GetKursSuffix().Result);
                             }
-                            else if (s.Klasse.StartsWith("7") || s.Klasse.StartsWith("8") || s.Klasse.StartsWith("9"))
+                            else if (s.Klasse.StartsWith("7") || s.Klasse.StartsWith("8") || s.Klasse.StartsWith("9")||
+                                     s.Klasse.StartsWith("10"))
                             {
                                 ausgabeMoodleEinschreibungen.Add("add,schueler," + s.ID + ",mittelstufe" +
                                                                  GetKursSuffix().Result);
@@ -932,7 +934,7 @@ namespace SchulDB
                                                                  GetKursSuffix().Result);
                             }
                             else if (sus.Klasse.StartsWith("7") || sus.Klasse.StartsWith("8") ||
-                                     sus.Klasse.StartsWith("9"))
+                                     sus.Klasse.StartsWith("9")| sus.Klasse.StartsWith("10"))
                             {
                                 ausgabeMoodleUser.Add(sus.Zweitmail + ";Klasse" + sus.Klasse + DateTime.Now.Year + "!" +
                                                       ";" + sus.Nutzername + "_E1;" + "E_" + sus.ID + "1;" +
@@ -954,7 +956,7 @@ namespace SchulDB
                             ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + ",erprobungsstufe" +
                                                              GetKursSuffix().Result);
                         }
-                        else if (sus.Klasse.StartsWith("7") || sus.Klasse.StartsWith("8") || sus.Klasse.StartsWith("9"))
+                        else if (sus.Klasse.StartsWith("7") || sus.Klasse.StartsWith("8") || sus.Klasse.StartsWith("9")| sus.Klasse.StartsWith("10"))
                         {
                             ausgabeMoodleUser.Add(sus.Mail + ";Klasse" + sus.Klasse + DateTime.Now.Year + "!" + ";" +
                                                   sus.Nutzername + "_E;" + "E_" + sus.ID + ";" + sus.Nachname +
@@ -1962,7 +1964,11 @@ namespace SchulDB
                         var stufe = klasse[..2];
                         if (!(stufe.Equals("EF") || stufe.Equals("Q1") || stufe.Equals("Q2")))
                         {
-                            stufe = klasse[..1];
+                            if (!stufe.Equals("10"))
+                            {
+                                stufe = klasse[..1];
+                            }
+
                             //Klassenkurse
                             var klkurs = klasse + "KL";
                             if (string.IsNullOrEmpty(GetKurs(klkurs).Result.Bezeichnung)) //Kurs nicht existent
