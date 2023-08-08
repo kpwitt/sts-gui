@@ -1774,6 +1774,12 @@ namespace StS_GUI_Avalonia
                 }
             }
 
+            foreach (var kurs in myschool.GetKursListe().Result)
+            {
+                await myschool.UpdateKurs(kurs.Bezeichnung, kurs.Fach, kurs.Klasse, kurs.Stufe, settings.Kurssuffix,
+                    kurs.Istkurs ? 1 : 0);
+            }
+            
             await myschool.StopTransaction();
         }
 
