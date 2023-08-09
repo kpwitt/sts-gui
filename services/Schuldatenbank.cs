@@ -139,13 +139,16 @@ namespace SchulDB
                     "Schwimmen", "Sport"
                 };
                 if (dbpath != ":memory") return;
+                var calc_suffix = DateTime.Now.Month < 8
+                    ? (DateTime.Now.Year - 2001) + "" + (DateTime.Now.Year - 2000)
+                    : (DateTime.Now.Year - 2000) + "" + (DateTime.Now.Year - 1999);
                 Settings settings = new()
                 {
                     Mailsuffix = "@schule.local",
                     Fachersetzung = "",
                     Kurzfaecher = fachk,
                     Langfaecher = fachl,
-                    Kurssuffix = "_" + (DateTime.Now.Year - 2000) + "" + (DateTime.Now.Year - 1999),
+                    Kurssuffix = "_" + calc_suffix,
                     Erprobungstufenleitung = "",
                     Mittelstufenleitung = "",
                     EFStufenleitung = "",
