@@ -1173,7 +1173,10 @@ namespace SchulDB
                             if (File.Exists(folder + "/mdl_kurse.csv"))
                             {
                                 var mdl_kurse = (await File.ReadAllLinesAsync(folder + "/mdl_kurse.csv")).ToList();
-                                mdl_kurse.RemoveAt(0);
+                                if (mdl_kurse.Count > 0)
+                                {
+                                    mdl_kurse.RemoveAt(0);
+                                }
                                 ausgabeMoodleKurse.AddRange(mdl_kurse);
                                 await File.WriteAllLinesAsync(folder + "/mdl_kurse.csv",
                                     ausgabeMoodleKurse.Distinct().ToList(),
@@ -1183,7 +1186,10 @@ namespace SchulDB
                             if (File.Exists(folder + "/mdl_nutzer.csv"))
                             {
                                 var mdl_nutzer = (await File.ReadAllLinesAsync(folder + "/mdl_nutzer.csv")).ToList();
-                                mdl_nutzer.RemoveAt(0);
+                                if (mdl_nutzer.Count > 0)
+                                {
+                                    mdl_nutzer.RemoveAt(0);
+                                }
                                 ausgabeMoodleUser.AddRange(mdl_nutzer);
                                 await File.WriteAllLinesAsync(folder + "/mdl_nutzer.csv",
                                     ausgabeMoodleUser.Distinct().ToList(),
