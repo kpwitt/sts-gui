@@ -838,6 +838,7 @@ namespace SchulDB
                     {
                         if (kurs.EndsWith('-')) continue;
                         var k = GetKurs(kurs.Split(';')[0]).Result;
+                        //ToDo: Fallunterscheidung-, Erprobungsstufe-, Mittelstufe-, Jahrgangsstufenkurse
                         if (kursvorlagen)
                         {
                             if (k.Istkurs)
