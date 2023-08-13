@@ -882,7 +882,7 @@ namespace StS_GUI_Avalonia
                     }
                     else
                     {
-                        var sid = LeftListBox.SelectedItems[0]?.ToString()?.Split(';')[1];
+                        var sid = LeftListBox.SelectedItems[0]?.ToString()?.Split(';')[0];
                         var sus = myschool.GetSchueler(Convert.ToInt32(sid)).Result;
                         LoadSuSData(sus);
                         if (sus.ID == 0) return;
@@ -1467,31 +1467,31 @@ namespace StS_GUI_Avalonia
                 SetupOpenFolderDialog(globalOpenFolderDialog, "Bitte den Ordner für die Dateien auswählen");
                 var folder = await globalOpenFolderDialog.ShowAsync(this);
                 if (folder == null) return;
-                var res = 0;
+                var res = -2;
+                var susidlist = new List<int>();
                 var nurMoodleSuffix = cbNurMoodleSuffix.IsChecked is not false;
                 if (!tbExportStufenkurse.Text.Contains(';'))
                 {
-                    if (myschool.GetSusAusStufe(tbExportStufenkurse.Text).Result.Select(s => s.ID) is
-                        ReadOnlyCollection<int> susidliste)
-                    {
+                    var stufe = tbExportStufenkurse.Text;
+                    susidlist.AddRange(myschool.GetSusAusStufe(stufe).Result.Select(s => s.ID).ToList());
                         res = await myschool.ExportCSV(folder, "all", "s", false, false, nurMoodleSuffix,
                             new[] { "", "" },
-                            susidliste,
+                            new ReadOnlyCollection<int>(susidlist),
                             new ReadOnlyCollection<int>(new List<int>()),
                             new ReadOnlyCollection<string>(new List<string>()));
-                    }
+                    
                 }
                 else
                 {
-                    var suslist = new List<int>();
+                    
                     var stufen = tbExportStufenkurse.Text.Split(';');
                     foreach (var stufe in stufen)
                     {
-                        suslist.AddRange(myschool.GetSusAusStufe(stufe).Result.Select(s => s.ID).ToList());
+                        susidlist.AddRange(myschool.GetSusAusStufe(stufe).Result.Select(s => s.ID).ToList());
                     }
 
                     res = await myschool.ExportCSV(folder, "all", "s", false, false, nurMoodleSuffix, new[] { "", "" },
-                        new ReadOnlyCollection<int>(suslist),
+                        new ReadOnlyCollection<int>(susidlist),
                         new ReadOnlyCollection<int>(new List<int>()),
                         new ReadOnlyCollection<string>(new List<string>()));
                 }
@@ -2098,7 +2098,7 @@ namespace StS_GUI_Avalonia
                 {
                     case 0:
                         susausgabe.AddRange(LeftListBox.SelectedItems.Cast<string>().ToList()
-                            .Select(sus => myschool.GetSchueler(Convert.ToInt32(sus.Split(';')[1])).Result).Select(s =>
+                            .Select(sus => myschool.GetSchueler(Convert.ToInt32(sus.Split(';')[0])).Result).Select(s =>
                                 s.Vorname + ";" + s.Nachname + ";" + s.Nutzername + ";" + "Klasse" + s.Klasse +
                                 DateTime.Now.Year + "!;" + s.Aixmail + ";" + s.Klasse));
                         await File.WriteAllLinesAsync(folder, susausgabe.Distinct().ToList(), Encoding.UTF8);
