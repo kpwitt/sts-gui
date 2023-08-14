@@ -2377,13 +2377,13 @@ namespace SchulDB
         /// </summary>
         /// <param name="fachk"></param>
         /// <param name="fachl"></param>
-        private async Task SetKurzLangFach(string[] fachk, string[] fachl)
+        private async Task SetKurzLangFach(IReadOnlyList<string> fachk, IReadOnlyList<string> fachl)
         {
-            if (fachk.Length == fachl.Length)
+            if (fachk.Count == fachl.Count)
             {
                 await StartTransaction();
                 var sqlite_cmd = sqlite_conn.CreateCommand();
-                for (var i = 0; i < fachk.Length; i++)
+                for (var i = 0; i < fachk.Count; i++)
                 {
                     if(fachl[i]==""||fachk[i]=="")continue;
                     var kurzesfach = fachk[i];

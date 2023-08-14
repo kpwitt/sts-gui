@@ -114,18 +114,26 @@ namespace StS_GUI_Avalonia
                 Header = "Serienbrief-CSV exportieren"
             };
             mnuItemMSerienbrief.Click += OnMnuSerienbriefClick;
+            var mnuItemMSerienbriefDV = new MenuItem
+            {
+                Name = "mnuItemMExportDV",
+                Header = "markierte Elemente exportieren (nur mit DV)"
+            };
+            mnuItemMSerienbriefDV.Click += OnMnuItemMSerienbriefDV;
             var mnuItemMExport = new MenuItem
             {
                 Name = "mnuItemMExport",
                 Header = "markierte Elemente exportieren"
             };
             mnuItemMExport.Click += OnMnuExportClick;
+            
             leftContextItems.Add(cbMAnfangsPassword);
             leftContextItems.Add(cbMEltern);
             leftContextItems.Add(cbMLLGIntern);
             leftContextItems.Add(mnuItemMSerienbrief);
             leftContextItems.Add(mnuItemMPasswordGenerieren);
             leftContextItems.Add(mnuItemMExport);
+            leftContextItems.Add(mnuItemMSerienbriefDV);
             leftContext.ItemsSource = leftContextItems;
             LeftListBox.ContextMenu = leftContext;
             rbD.IsChecked = true;
@@ -2117,6 +2125,47 @@ namespace StS_GUI_Avalonia
                 }
             };
             await Task.Run(readFileTask);
+        }
+        
+        private async void OnMnuItemMSerienbriefDV(object? sender, RoutedEventArgs e)
+        {
+            var readFileTask = async () =>
+            {
+                if (LeftListBox.SelectedItems == null) return;
+                SetupSaveFileDialog(globalSaveFileDialog, "Serienbriefdatei...", new[] { "csv" },
+                    new[] { "CSV-Datei" });
+                var folder = await globalSaveFileDialog.ShowAsync(this);
+                if (folder is null) return;
+                SetupOpenFileDialog(globalOpenFileDialog, "Nutzer ohne DV-Zustimmung", new[]{"csv"},new[] { "CSV-Datei" });
+                var file = await globalOpenFileDialog.ShowAsync(this);
+                if (file is null || file.Length == 0) return;
+                var fileentries = File.ReadAllLinesAsync(file[0]).Result.ToList();
+                if (fileentries.Count<1) return;
+                fileentries.RemoveAt(0);
+                var susToDel = fileentries.Select(line => myschool.GetSchueler(Convert.ToInt32(line.Split(';')[0]))).ToList();
+                List<string> susausgabe = new() { "Vorname;Nachname;Anmeldename;Kennwort;E-Mail;Klasse" };
+                switch (CboxDataLeft.SelectedIndex)
+                {
+                    case 2:
+                        foreach (string kursbez in LeftListBox.SelectedItems)
+                        {
+                            var suslist = myschool.GetSuSAusKurs(kursbez).Result.Distinct().ToList();
+                            if (suslist.Count<1)continue;
+                            foreach (var s in susToDel)
+                            {
+                                suslist.Remove(s.Result);
+                            }
+                            susausgabe.AddRange(suslist.Select(s =>
+                                s.Vorname + ";" + s.Nachname + ";" + s.Nutzername + ";" + "Klasse" + s.Klasse +
+                                DateTime.Now.Year + "!;" + s.Aixmail + ";" + s.Klasse));
+                        }
+
+                        await File.WriteAllLinesAsync(folder, susausgabe.Distinct().ToList(), Encoding.UTF8);
+                        break;
+                    default: return;
+                }
+            };
+            await Dispatcher.UIThread.InvokeAsync(readFileTask);
         }
 
         private async void OnMnuPasswordGenClick(object? sender, RoutedEventArgs e)
