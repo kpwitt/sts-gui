@@ -223,7 +223,6 @@ namespace SchulDB
                     sqlite_cmd.Parameters.Add(new SQLiteParameter("@lfach", langesfach));
                     sqlite_cmd.ExecuteNonQuery();
                 }
-
             }
             catch (SQLiteException ex)
             {
@@ -461,7 +460,7 @@ namespace SchulDB
         public async Task AddStoKlassenKurse(SuS schulerin, string klasse)
         {
             if (klasse.StartsWith('5') || klasse.StartsWith('6') || klasse.StartsWith('7') || klasse.StartsWith('8') ||
-                klasse.StartsWith('9')||
+                klasse.StartsWith('9') ||
                 klasse.StartsWith("10"))
             {
                 var kliste = GetKursListe().Result.ToList();
@@ -838,8 +837,15 @@ namespace SchulDB
                     {
                         if (kurs.EndsWith('-')) continue;
                         var k = GetKurs(kurs.Split(';')[0]).Result;
-                        //ToDo: Fallunterscheidung-, Erprobungsstufe-, Mittelstufe-, Jahrgangsstufenkurse
-                        if (kursvorlagen)
+                        if (k.Bezeichnung.Contains("Erprobungsstufe") || k.Bezeichnung.Contains("Mittelstufe") ||
+                            k.Bezeichnung.Contains("Einführungsphase") || k.Bezeichnung.Contains("Qualifikationsphase"))
+                        {
+                            ausgabeMoodleKurse.Add(k.Bezeichnung + k.Suffix + ";" + k.Bezeichnung +
+                                                   " SJ" + k.Suffix.Substring(1, 2) + "/" +
+                                                   k.Suffix.Substring(3, 2) + ";" + k.Bezeichnung +
+                                                   k.Suffix + ";SJ" + k.Suffix + ";tiles");
+                        }
+                        else if (kursvorlagen)
                         {
                             if (k.Istkurs)
                             {
@@ -940,7 +946,7 @@ namespace SchulDB
                                 ausgabeMoodleEinschreibungen.Add("add,schueler," + s.ID + ",erprobungsstufe" +
                                                                  GetKursSuffix().Result);
                             }
-                            else if (s.Klasse.StartsWith("7") || s.Klasse.StartsWith("8") || s.Klasse.StartsWith("9")||
+                            else if (s.Klasse.StartsWith("7") || s.Klasse.StartsWith("8") || s.Klasse.StartsWith("9") ||
                                      s.Klasse.StartsWith("10"))
                             {
                                 ausgabeMoodleEinschreibungen.Add("add,schueler," + s.ID + ",mittelstufe" +
@@ -962,7 +968,7 @@ namespace SchulDB
                         var susmail = s.Mail.Contains(' ') ? s.Mail.Split(' ')[0] : s.Mail;
                         if (passwort)
                         {
-                            ausgabeMoodleUser.Add(susmail+ ";Klasse" + s.Klasse + DateTime.Now.Year + "!;" +
+                            ausgabeMoodleUser.Add(susmail + ";Klasse" + s.Klasse + DateTime.Now.Year + "!;" +
                                                   s.Nutzername + ";" + s.ID + ";" + s.Nachname + ";" + s.Vorname +
                                                   ";schueler");
                             ausgabeAIXS.Add("\"" + s.Vorname + "\";\"" + s.Nachname + "\";\"" + s.Klasse + "\";\"" +
@@ -1008,9 +1014,10 @@ namespace SchulDB
                                                                  GetKursSuffix().Result);
                             }
                             else if (sus.Klasse.StartsWith("7") || sus.Klasse.StartsWith("8") ||
-                                     sus.Klasse.StartsWith("9")| sus.Klasse.StartsWith("10"))
+                                     sus.Klasse.StartsWith("9") | sus.Klasse.StartsWith("10"))
                             {
-                                ausgabeMoodleUser.Add(sus.Zweitmail.Split(',')[0]+ ";Klasse" + sus.Klasse + DateTime.Now.Year + "!" +
+                                ausgabeMoodleUser.Add(sus.Zweitmail.Split(',')[0] + ";Klasse" + sus.Klasse +
+                                                      DateTime.Now.Year + "!" +
                                                       ";" + sus.Nutzername + "_E1;" + "E_" + sus.ID + "1;" +
                                                       sus.Nachname + "_Eltern;" + sus.Vorname + ";eltern");
                                 ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + "1," + sus.Klasse + "KL" +
@@ -1030,9 +1037,10 @@ namespace SchulDB
                             ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + ",erprobungsstufe" +
                                                              GetKursSuffix().Result);
                         }
-                        else if (sus.Klasse.StartsWith("7") || sus.Klasse.StartsWith("8") || sus.Klasse.StartsWith("9")| sus.Klasse.StartsWith("10"))
+                        else if (sus.Klasse.StartsWith("7") || sus.Klasse.StartsWith("8") ||
+                                 sus.Klasse.StartsWith("9") | sus.Klasse.StartsWith("10"))
                         {
-                            ausgabeMoodleUser.Add(susmail+ ";Klasse" + sus.Klasse + DateTime.Now.Year + "!" + ";" +
+                            ausgabeMoodleUser.Add(susmail + ";Klasse" + sus.Klasse + DateTime.Now.Year + "!" + ";" +
                                                   sus.Nutzername + "_E;" + "E_" + sus.ID + ";" + sus.Nachname +
                                                   "_Eltern;" + sus.Vorname + ";eltern");
                             ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + "," + sus.Klasse + "KL" +
@@ -1180,6 +1188,7 @@ namespace SchulDB
                                 {
                                     mdl_kurse.RemoveAt(0);
                                 }
+
                                 ausgabeMoodleKurse.AddRange(mdl_kurse);
                                 await File.WriteAllLinesAsync(folder + "/mdl_kurse.csv",
                                     ausgabeMoodleKurse.Distinct().ToList(),
@@ -1193,6 +1202,7 @@ namespace SchulDB
                                 {
                                     mdl_nutzer.RemoveAt(0);
                                 }
+
                                 ausgabeMoodleUser.AddRange(mdl_nutzer);
                                 await File.WriteAllLinesAsync(folder + "/mdl_nutzer.csv",
                                     ausgabeMoodleUser.Distinct().ToList(),
@@ -2387,7 +2397,7 @@ namespace SchulDB
                 var sqlite_cmd = sqlite_conn.CreateCommand();
                 for (var i = 0; i < fachk.Count; i++)
                 {
-                    if(fachl[i]==""||fachk[i]=="")continue;
+                    if (fachl[i] == "" || fachk[i] == "") continue;
                     var kurzesfach = fachk[i];
                     var langesfach = fachl[i];
                     sqlite_cmd.CommandText =
