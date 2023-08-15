@@ -1066,7 +1066,7 @@ namespace StS_GUI_Avalonia
                             LoadLuLData(lul);
                             if (RightListBox.SelectedItems.Count > 0)
                             {
-                                var sid = RightListBox.SelectedItems[0]?.ToString()?.Split(';')[1];
+                                var sid = RightListBox.SelectedItems[0]?.ToString()?.Split(';')[0];
                                 var sus = myschool.GetSchueler(Convert.ToInt32(sid)).Result;
                                 if (sus.ID == 0) return;
                                 LoadSuSData(sus);
@@ -1087,7 +1087,7 @@ namespace StS_GUI_Avalonia
                             LoadKursData(kurs);
                             if (RightListBox.SelectedItems.Count > 0)
                             {
-                                var sid = RightListBox.SelectedItems[0]?.ToString()?.Split(';')[1];
+                                var sid = RightListBox.SelectedItems[0]?.ToString()?.Split(';')[0];
                                 var sus = myschool.GetSchueler(Convert.ToInt32(sid)).Result;
                                 if (sus.ID == 0) return;
                                 LoadSuSData(sus);
@@ -1111,7 +1111,7 @@ namespace StS_GUI_Avalonia
                     {
                         case 0:
                         {
-                            var sid = LeftListBox.SelectedItems[0]?.ToString()?.Split(';')[1];
+                            var sid = LeftListBox.SelectedItems[0]?.ToString()?.Split(';')[0];
                             var sus = myschool.GetSchueler(Convert.ToInt32(sid)).Result;
                             if (sus.ID == 0) return;
                             LoadSuSData(sus);
@@ -1162,7 +1162,7 @@ namespace StS_GUI_Avalonia
                     {
                         case 0:
                         {
-                            var sid = LeftListBox.SelectedItems[0]?.ToString()?.Split(';')[1];
+                            var sid = LeftListBox.SelectedItems[0]?.ToString()?.Split(';')[0];
                             var sus = myschool.GetSchueler(Convert.ToInt32(sid)).Result;
                             if (sus.ID == 0) return;
                             LoadSuSData(sus);
