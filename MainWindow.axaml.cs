@@ -117,7 +117,7 @@ namespace StS_GUI_Avalonia
             var mnuItemMSerienbriefDV = new MenuItem
             {
                 Name = "mnuItemMExportDV",
-                Header = "markierte Elemente exportieren (nur mit DV)"
+                Header = "Serienbrief-CSV exportieren (nur mit DV)"
             };
             mnuItemMSerienbriefDV.Click += OnMnuItemMSerienbriefDV;
             var mnuItemMExport = new MenuItem
@@ -131,9 +131,9 @@ namespace StS_GUI_Avalonia
             leftContextItems.Add(cbMEltern);
             leftContextItems.Add(cbMLLGIntern);
             leftContextItems.Add(mnuItemMSerienbrief);
+            leftContextItems.Add(mnuItemMSerienbriefDV);
             leftContextItems.Add(mnuItemMPasswordGenerieren);
             leftContextItems.Add(mnuItemMExport);
-            leftContextItems.Add(mnuItemMSerienbriefDV);
             leftContext.ItemsSource = leftContextItems;
             LeftListBox.ContextMenu = leftContext;
             rbD.IsChecked = true;
@@ -890,7 +890,7 @@ namespace StS_GUI_Avalonia
                     }
                     else
                     {
-                        var sid = LeftListBox.SelectedItems[0]?.ToString()?.Split(';')[0];
+                        var sid = LeftListBox.SelectedItems[0]?.ToString()?.Split(';')[1];
                         var sus = myschool.GetSchueler(Convert.ToInt32(sid)).Result;
                         LoadSuSData(sus);
                         if (sus.ID == 0) return;
@@ -2106,7 +2106,7 @@ namespace StS_GUI_Avalonia
                 {
                     case 0:
                         susausgabe.AddRange(LeftListBox.SelectedItems.Cast<string>().ToList()
-                            .Select(sus => myschool.GetSchueler(Convert.ToInt32(sus.Split(';')[0])).Result).Select(s =>
+                            .Select(sus => myschool.GetSchueler(Convert.ToInt32(sus.Split(';')[1])).Result).Select(s =>
                                 s.Vorname + ";" + s.Nachname + ";" + s.Nutzername + ";" + "Klasse" + s.Klasse +
                                 DateTime.Now.Year + "!;" + s.Aixmail + ";" + s.Klasse));
                         await File.WriteAllLinesAsync(folder, susausgabe.Distinct().ToList(), Encoding.UTF8);
@@ -2226,7 +2226,7 @@ namespace StS_GUI_Avalonia
                         whattoexport += "s";
                         foreach (string suseintrag in LeftListBox.SelectedItems)
                         {
-                            suslist.Add(await myschool.GetSchueler(Convert.ToInt32(suseintrag.Split(';')[0])));
+                            suslist.Add(await myschool.GetSchueler(Convert.ToInt32(suseintrag.Split(';')[1])));
                         }
 
                         break;
