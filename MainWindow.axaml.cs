@@ -2226,7 +2226,7 @@ namespace StS_GUI_Avalonia
                         whattoexport += "s";
                         foreach (string suseintrag in LeftListBox.SelectedItems)
                         {
-                            suslist.Add(await myschool.GetSchueler(Convert.ToInt32(suseintrag.Split(';')[1])));
+                            suslist.Add(await myschool.GetSchueler(Convert.ToInt32(suseintrag.Split(';')[0])));
                         }
 
                         break;

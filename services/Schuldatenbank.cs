@@ -959,9 +959,10 @@ namespace SchulDB
                             kListe = kListe.Replace(GetKursSuffix().Result, "");
                         }
 
+                        var susmail = s.Mail.Contains(' ') ? s.Mail.Split(' ')[0] : s.Mail;
                         if (passwort)
                         {
-                            ausgabeMoodleUser.Add(s.Mail + ";Klasse" + s.Klasse + DateTime.Now.Year + "!;" +
+                            ausgabeMoodleUser.Add(susmail+ ";Klasse" + s.Klasse + DateTime.Now.Year + "!;" +
                                                   s.Nutzername + ";" + s.ID + ";" + s.Nachname + ";" + s.Vorname +
                                                   ";schueler");
                             ausgabeAIXS.Add("\"" + s.Vorname + "\";\"" + s.Nachname + "\";\"" + s.Klasse + "\";\"" +
@@ -970,7 +971,7 @@ namespace SchulDB
                         }
                         else
                         {
-                            ausgabeMoodleUser.Add(s.Mail + ";" + s.Nutzername + ";" + s.ID + ";" + s.Nachname + ";" +
+                            ausgabeMoodleUser.Add(susmail + ";" + s.Nutzername + ";" + s.ID + ";" + s.Nachname + ";" +
                                                   s.Vorname);
                             ausgabeAIXS.Add("\"" + s.Vorname + "\";\"" + s.Nachname + "\";\"" + s.Klasse + "\";\"" +
                                             s.ID + "\";\"" + kListe + "\"");
@@ -992,6 +993,7 @@ namespace SchulDB
                     foreach (var s in susidliste)
                     {
                         var sus = GetSchueler(s).Result;
+                        var susmail = sus.Mail.Contains(' ') ? sus.Mail.Split(' ')[0] : sus.Mail;
                         if (sus.Zweitaccount)
                         {
                             if (sus.Klasse.StartsWith("5") || sus.Klasse.StartsWith("6"))
@@ -1008,7 +1010,7 @@ namespace SchulDB
                             else if (sus.Klasse.StartsWith("7") || sus.Klasse.StartsWith("8") ||
                                      sus.Klasse.StartsWith("9")| sus.Klasse.StartsWith("10"))
                             {
-                                ausgabeMoodleUser.Add(sus.Zweitmail + ";Klasse" + sus.Klasse + DateTime.Now.Year + "!" +
+                                ausgabeMoodleUser.Add(sus.Zweitmail.Split(',')[0]+ ";Klasse" + sus.Klasse + DateTime.Now.Year + "!" +
                                                       ";" + sus.Nutzername + "_E1;" + "E_" + sus.ID + "1;" +
                                                       sus.Nachname + "_Eltern;" + sus.Vorname + ";eltern");
                                 ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + "1," + sus.Klasse + "KL" +
@@ -1020,7 +1022,7 @@ namespace SchulDB
 
                         if (sus.Klasse.StartsWith("5") || sus.Klasse.StartsWith("6"))
                         {
-                            ausgabeMoodleUser.Add(sus.Mail + ";Klasse" + sus.Klasse + DateTime.Now.Year + "!" + ";" +
+                            ausgabeMoodleUser.Add(susmail + ";Klasse" + sus.Klasse + DateTime.Now.Year + "!" + ";" +
                                                   sus.Nutzername + "_E;" + "E_" + sus.ID + ";" + sus.Nachname +
                                                   "_Eltern;" + sus.Vorname + ";eltern");
                             ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + "," + sus.Klasse + "KL" +
@@ -1030,7 +1032,7 @@ namespace SchulDB
                         }
                         else if (sus.Klasse.StartsWith("7") || sus.Klasse.StartsWith("8") || sus.Klasse.StartsWith("9")| sus.Klasse.StartsWith("10"))
                         {
-                            ausgabeMoodleUser.Add(sus.Mail + ";Klasse" + sus.Klasse + DateTime.Now.Year + "!" + ";" +
+                            ausgabeMoodleUser.Add(susmail+ ";Klasse" + sus.Klasse + DateTime.Now.Year + "!" + ";" +
                                                   sus.Nutzername + "_E;" + "E_" + sus.ID + ";" + sus.Nachname +
                                                   "_Eltern;" + sus.Vorname + ";eltern");
                             ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + "," + sus.Klasse + "KL" +
