@@ -138,7 +138,7 @@ namespace SchulDB
                     "Informatik", "Italienisch", "Kunst", "Latein", "Musik", "Physik", "Politik", "Psychologie",
                     "Schwimmen", "Sport"
                 };
-                if (dbpath != ":memory") return;
+                if (dbpath != ":memory:") return;
                 var calc_suffix = DateTime.Now.Month < 8
                     ? (DateTime.Now.Year - 2001) + "" + (DateTime.Now.Year - 2000)
                     : (DateTime.Now.Year - 2000) + "" + (DateTime.Now.Year - 1999);
