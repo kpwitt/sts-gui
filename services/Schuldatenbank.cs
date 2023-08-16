@@ -2557,10 +2557,10 @@ namespace SchulDB
                     }
 
                     maillist = maillist.Distinct().ToList();
-                    if (tmpsus[ink].StartsWith("EF"))
+                    /*if (tmpsus[ink].StartsWith("EF"))
                     {
                         tmpsus[ink] = "EF";
-                    }
+                    }*/
 
                     if (mail.Contains(';'))
                     {
