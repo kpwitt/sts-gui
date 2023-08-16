@@ -224,7 +224,16 @@ namespace StS_GUI_Avalonia
             var saveDBFile = async () =>
             {
                 var filepath = await globalSaveFileDialog.ShowAsync(this);
-                if (filepath == null) return;
+                if (filepath == null)
+                {
+                    await Dispatcher.UIThread.InvokeAsync(() =>
+                    {
+                        ClearTextFields();
+                        ResetItemsSource(LeftListBox, new List<string>());
+                        ResetItemsSource(RightListBox, new List<string>());
+                    });
+                    return;
+                }
                 var tempDB = new Schuldatenbank(filepath);
                 var res = await tempDB.Import(myschool);
                 await Dispatcher.UIThread.InvokeAsync(async () =>
@@ -411,6 +420,7 @@ namespace StS_GUI_Avalonia
 
                     await Dispatcher.UIThread.InvokeAsync(() =>
                     {
+                        InitData();
                         MessageBoxManager.GetMessageBoxStandard(
                             new MessageBoxStandardParams
                             {
@@ -790,7 +800,7 @@ namespace StS_GUI_Avalonia
             tbSettingOberstufenkoordination.Text = settings.Oberstufenkoordination;
         }
 
-        private void CboxDataLeft_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
+        private async void CboxDataLeft_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
         {
             ClearTextFields();
             rightMutex = true;
@@ -798,14 +808,14 @@ namespace StS_GUI_Avalonia
             rightMutex = false;
         }
 
-        private void ClearTextFields()
+        private async void ClearTextFields()
         {
             ClearSuSTextFields();
             ClearLuLTextFields();
             ClearKursTextFields();
         }
 
-        private void ClearKursTextFields()
+        private async void ClearKursTextFields()
         {
             tbKursbezeichnung.Text = "";
             tbKursLuL.Text = "";
@@ -816,7 +826,7 @@ namespace StS_GUI_Avalonia
             cbKursIstKurs.IsChecked = false;
         }
 
-        private void ClearLuLTextFields()
+        private async void ClearLuLTextFields()
         {
             tbLuLID.Text = "";
             tbLuLVorname.Text = "";
