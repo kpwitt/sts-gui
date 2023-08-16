@@ -1803,6 +1803,32 @@ namespace SchulDB
                         break;
                 }
             }
+            
+            List<string> flist = new();
+            sqlite_cmd = sqlite_conn.CreateCommand();
+            sqlite_cmd.CommandText = "SELECT kurzfach,langfach FROM fachersatz;";
+            sqlite_datareader = sqlite_cmd.ExecuteReader();
+            while (sqlite_datareader.Read())
+            {
+                var returnstr = "";
+                for (var i = 0; i < sqlite_datareader.FieldCount; i++)
+                {
+                    returnstr += sqlite_datareader.GetString(i) + ";";
+                }
+
+                flist.Add(returnstr);
+            }
+
+            var fachk = new List<string>();
+            var fachl = new List<string>();
+            foreach (var faecher in flist)
+            {
+                fachk.Add(faecher.Split(';')[0]);
+                fachl.Add(faecher.Split(';')[1]);
+            }
+
+            settings_result.Kurzfaecher = fachk.ToArray();
+            settings_result.Langfaecher = fachl.ToArray();
 
             return settings_result;
         }
