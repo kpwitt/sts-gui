@@ -2443,7 +2443,6 @@ namespace SchulDB
             sqlite_cmd.Parameters.Add(new SQLiteParameter("@q2stufenleitungparam", settings.Q2Stufenleitung));
             sqlite_cmd.Parameters.Add(new SQLiteParameter("@oberstufenkoordinationparam",
                 settings.Oberstufenkoordination));
-            // sqlite_cmd.ExecuteNonQuery();
             sqlite_cmd.CommandText =
                 "INSERT OR REPLACE INTO settings (setting,value) VALUES(@mailsuffix, @mailsuffixparam)";
             sqlite_cmd.ExecuteNonQuery();
