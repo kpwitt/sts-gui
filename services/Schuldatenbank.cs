@@ -2034,9 +2034,9 @@ namespace SchulDB
                 }
             }
 
+            await StartTransaction();
             for (var i = 1; i < lines.Length; i++)
             {
-                await StartTransaction();
                 try
                 {
                     var tmpkurs = lines[i].Split('|');
@@ -2140,10 +2140,11 @@ namespace SchulDB
                     await AddLogMessage("Debug", ex.StackTrace + ";" + ex.Message + "at " + i);
 #endif
                     await AddLogMessage("Error", "Fehler beim Einlesen der Kurse");
+                    await StopTransaction();
                 }
-
-                await StopTransaction();
             }
+
+            await StopTransaction();
         }
 
         /// <summary>
