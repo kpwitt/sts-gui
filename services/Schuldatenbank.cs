@@ -845,6 +845,13 @@ namespace SchulDB
                                                    k.Suffix.Substring(3, 2) + ";" + k.Bezeichnung +
                                                    k.Suffix + ";SJ" + k.Suffix + ";tiles");
                         }
+                        else if (k.Bezeichnung.Contains("konferenz"))
+                        {
+                            ausgabeMoodleKurse.Add(k.Bezeichnung + k.Suffix + ";" + k.Bezeichnung +
+                                                   " SJ" + k.Suffix.Substring(1, 2) + "/" +
+                                                   k.Suffix.Substring(3, 2) + ";" + k.Bezeichnung +
+                                                   k.Suffix + ";lehrkraefte;tiles");
+                        }
                         else if (kursvorlagen)
                         {
                             if (k.Istkurs)
@@ -1642,6 +1649,30 @@ namespace SchulDB
             sqlite_cmd.CommandText =
                 "SELECT unterrichtet.lehrerid FROM unterrichtet JOIN nimmtteil ON nimmtteil.kursbez = unterrichtet.kursbez WHERE schuelerid = @susid;";
             sqlite_cmd.Parameters.Add(new SQLiteParameter("@susid", susid));
+            var sqlite_datareader = sqlite_cmd.ExecuteReader();
+            while (sqlite_datareader.Read())
+            {
+                for (var i = 0; i < sqlite_datareader.FieldCount; i++)
+                {
+                    lliste.Add(await GetLehrkraft(sqlite_datareader.GetInt32(0)));
+                }
+            }
+
+            return new ReadOnlyCollection<LuL>(lliste);
+        }
+        
+        /// <summary>
+        /// gibt die LuL der Stufe zurück
+        /// </summary>
+        /// <param name="stufe"></param>
+        /// <returns>Interger-Liste der LuL-IDs</returns>
+        public async Task<ReadOnlyCollection<LuL>> GetLuLAusStufe(string stufe)
+        {
+            List<LuL> lliste = new();
+            var sqlite_cmd = sqlite_conn.CreateCommand();
+            sqlite_cmd.CommandText =
+                "SELECT DISTINCT unterrichtet.lehrerid FROM unterrichtet WHERE kursbez LIKE @stufe;";
+            sqlite_cmd.Parameters.Add(new SQLiteParameter("@stufe", stufe+"%"));
             var sqlite_datareader = sqlite_cmd.ExecuteReader();
             while (sqlite_datareader.Read())
             {

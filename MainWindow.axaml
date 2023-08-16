@@ -335,7 +335,11 @@
                         <ListBox Grid.Row="1" x:Name="lbLogDisplay" MaxHeight="750" MaxWidth="800" />
                     </Grid>
                 </TabItem>
-                <TabItem Header="Sonstiges" Classes="Header">Nicht implementiert</TabItem> <!--Sonstiges-Tab-->
+                <TabItem Header="Sonstiges" Classes="Header">
+                    <StackPanel>
+                        <Button x:Name="btnSonstOberstufenLuLKurse" Click="BtnSonstOberstufenLuLKurse_OnClick">Erstelle Jahrgangsstufenkonferenzen (EF, Q1, Q2)</Button>
+                    </StackPanel>
+                </TabItem> <!--Sonstiges-Tab-->
             </TabControl>
         </Grid>
         <TextBlock x:Name="tbStatusBar" Margin="10" />
