@@ -1971,7 +1971,7 @@ namespace StS_GUI_Avalonia
                                     s.Nachname.ToLower().Contains(eingabe)).ToList());
                             }
 
-                            var seliste = sliste.Distinct().Select(s => (s.ID + ";" + s.Nachname + "," + s.Vorname))
+                            var seliste = sliste.Distinct().Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID))
                                 .ToList();
                             seliste.Sort(Comparer<string>.Default);
                             ResetItemsSource(LeftListBox, seliste);
@@ -2047,7 +2047,7 @@ namespace StS_GUI_Avalonia
                                     s.Nachname.ToLower().Contains(eingabe)).ToList());
                             }
 
-                            var seliste = sliste.Distinct().Select(s => (s.ID + ";" + s.Nachname + "," + s.Vorname))
+                            var seliste = sliste.Distinct().Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID))
                                 .ToList();
                             seliste.Sort(Comparer<string>.Default);
                             ResetItemsSource(RightListBox, seliste);
