@@ -1660,7 +1660,7 @@ namespace SchulDB
 
             return new ReadOnlyCollection<LuL>(lliste);
         }
-        
+
         /// <summary>
         /// gibt die LuL der Stufe zurück
         /// </summary>
@@ -1672,7 +1672,7 @@ namespace SchulDB
             var sqlite_cmd = sqlite_conn.CreateCommand();
             sqlite_cmd.CommandText =
                 "SELECT DISTINCT unterrichtet.lehrerid FROM unterrichtet WHERE kursbez LIKE @stufe;";
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@stufe", stufe+"%"));
+            sqlite_cmd.Parameters.Add(new SQLiteParameter("@stufe", stufe + "%"));
             var sqlite_datareader = sqlite_cmd.ExecuteReader();
             while (sqlite_datareader.Read())
             {
@@ -1834,7 +1834,7 @@ namespace SchulDB
                         break;
                 }
             }
-            
+
             List<string> flist = new();
             sqlite_cmd = sqlite_conn.CreateCommand();
             sqlite_cmd.CommandText = "SELECT kurzfach,langfach FROM fachersatz;";
