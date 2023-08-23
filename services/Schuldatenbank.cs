@@ -1075,7 +1075,17 @@ namespace SchulDB
                         foreach (var kurs in await GetKursVonLuL(lt.ID))
                         {
                             if (string.IsNullOrEmpty(kurs.Bezeichnung)) continue;
-                            if (kurs.Istkurs)
+                            if (kurs.Bezeichnung.Contains("Jahrgangsstufenkonferenz"))
+                            {
+                                var stufenleitungen = await getOberstufenleitung(kurs.Stufe);
+                                var role = stufenleitungen.Contains(lt) ||
+                                           GetSettings().Result.Oberstufenkoordination.Contains(lt.Kuerzel)
+                                    ? "editingteacher"
+                                    : "student";
+                                ausgabeMoodleEinschreibungen.Add("add," + role + "," + lt.ID + "," +
+                                                                 kurs.Bezeichnung + kurs.Suffix);
+                            }
+                            else if (kurs.Istkurs)
                             {
                                 ausgabeMoodleEinschreibungen.Add("add,editingteacher," + lt.ID + "," +
                                                                  kurs.Bezeichnung + kurs.Suffix);
@@ -1872,6 +1882,30 @@ namespace SchulDB
             var result = "Kurse: " + GetKursListe().Result.Count + "; Lehrer:Innen: " +
                          GetLehrerListe().Result.Count + "; Schüler:Innen: " + GetSchuelerListe().Result.Count;
             return result;
+        }
+
+        public async Task<List<LuL>> getOberstufenleitung(string stufe)
+        {
+            if (string.IsNullOrEmpty(stufe) || (stufe != "EF" && stufe != "Q1" && stufe != "Q2"))
+                return new List<LuL>();
+            List<LuL> luls = new();
+            switch (stufe)
+            {
+                case "EF":
+                    luls.AddRange(GetSettings().Result.EFStufenleitung.Split(',')
+                        .Select(krz => GetLehrkraft(krz).Result));
+                    return luls;
+                case "Q1":
+                    luls.AddRange(GetSettings().Result.Q1Stufenleitung.Split(',')
+                        .Select(krz => GetLehrkraft(krz).Result));
+                    return luls;
+                case "Q2":
+                    luls.AddRange(GetSettings().Result.Q2Stufenleitung.Split(',')
+                        .Select(krz => GetLehrkraft(krz).Result));
+                    return luls;
+                default:
+                    return new List<LuL>();
+            }
         }
 
         /// <summary>
