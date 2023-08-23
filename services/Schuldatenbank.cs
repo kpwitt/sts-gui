@@ -985,7 +985,7 @@ namespace SchulDB
                         else
                         {
                             ausgabeMoodleUser.Add(susmail + ";" + s.Nutzername + ";" + s.ID + ";" + s.Nachname + ";" +
-                                                  s.Vorname);
+                                                  s.Vorname + ";schueler");
                             ausgabeAIXS.Add("\"" + s.Vorname + "\";\"" + s.Nachname + "\";\"" + s.Klasse + "\";\"" +
                                             s.ID + "\";\"" + kListe + "\"");
                         }
