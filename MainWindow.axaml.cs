@@ -2386,7 +2386,8 @@ namespace StS_GUI_Avalonia
 
         private async void BtnSonstOberstufenLuLKurse_OnClick(object? sender, RoutedEventArgs e)
         {
-            var kursBez = "Jahrgangstufenkonferenz EF";
+            await myschool.StartTransaction();
+            var kursBez = "Jahrgangsstufenkonferenz EF";
             var settingsCache = await myschool.GetSettings();
             if (!string.IsNullOrEmpty(settingsCache.EFStufenleitung))
             {
@@ -2411,7 +2412,7 @@ namespace StS_GUI_Avalonia
                 }
             }
 
-            kursBez = "Jahrgangstufenkonferenz Q1";
+            kursBez = "Jahrgangsstufenkonferenz Q1";
             if (!string.IsNullOrEmpty(settingsCache.Q1Stufenleitung))
             {
                 if (!myschool.GibtEsKurs(kursBez).Result)
@@ -2435,7 +2436,7 @@ namespace StS_GUI_Avalonia
                 }
             }
 
-            kursBez = "Jahrgangstufenkonferenz Q2";
+            kursBez = "Jahrgangsstufenkonferenz Q2";
             if (string.IsNullOrEmpty(settingsCache.Q2Stufenleitung)) return;
             if (!myschool.GibtEsKurs(kursBez).Result)
             {
@@ -2456,6 +2457,8 @@ namespace StS_GUI_Avalonia
             {
                 await myschool.AddLtoK(lid.ID, kursBez);
             }
+
+            await myschool.StopTransaction();
         }
     }
 }
