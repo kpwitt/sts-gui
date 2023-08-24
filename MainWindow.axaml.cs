@@ -801,7 +801,7 @@ namespace StS_GUI_Avalonia
             tbSettingOberstufenkoordination.Text = settings.Oberstufenkoordination;
         }
 
-        private async void CboxDataLeft_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
+        private void CboxDataLeft_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
         {
             ClearTextFields();
             rightMutex = true;
@@ -809,14 +809,14 @@ namespace StS_GUI_Avalonia
             rightMutex = false;
         }
 
-        private async void ClearTextFields()
+        private void ClearTextFields()
         {
             ClearSuSTextFields();
             ClearLuLTextFields();
             ClearKursTextFields();
         }
 
-        private async void ClearKursTextFields()
+        private void ClearKursTextFields()
         {
             tbKursbezeichnung.Text = "";
             tbKursLuL.Text = "";
@@ -827,7 +827,7 @@ namespace StS_GUI_Avalonia
             cbKursIstKurs.IsChecked = false;
         }
 
-        private async void ClearLuLTextFields()
+        private void ClearLuLTextFields()
         {
             tbLuLID.Text = "";
             tbLuLVorname.Text = "";
