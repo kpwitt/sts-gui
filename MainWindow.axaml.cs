@@ -2460,5 +2460,86 @@ namespace StS_GUI_Avalonia
 
             await myschool.StopTransaction();
         }
+
+        private async void BtnModErstellung_OnClick(object? sender, RoutedEventArgs e)
+        {
+            if (cbSonst1 == null || cbSonst2 == null ||
+                cbSonst3 == null || string.IsNullOrEmpty(tbSonst3.Text) || string.IsNullOrEmpty(tbSonst2.Text)) return;
+            var suscache = await myschool.GetSchuelerListe();
+            var lulcache = await myschool.GetLehrerListe();
+            var kurscache = await myschool.GetKursListe();
+            var susliste = new List<SuS>();
+            var lulliste = new List<LuL>();
+            switch (cbSonst1.SelectedIndex)
+            {
+                case 0:
+                    susliste = cbSonst2.SelectedIndex switch
+                    {
+                        0 => suscache.Where(s => tbSonst2.Text.Split(';').Contains(s.GetStufe())).ToList(),
+                        1 => suscache.Where(s => tbSonst2.Text.Split(';').Contains(s.Klasse)).ToList(),
+                        _ => susliste
+                    };
+                    break;
+                case 1:
+                    if (string.IsNullOrEmpty(tbSonst1.Text)) return;
+                    susliste = suscache.Where(s => tbSonst1.Text.Split(';').Contains(s.ID.ToString())).ToList();
+                    break;
+                case 2:
+                    lulliste = lulcache.ToList();
+                    break;
+                case 3:
+                    if (string.IsNullOrEmpty(tbSonst1.Text)) return;
+                    lulliste = lulcache.Where(l => tbSonst1.Text.Split(';').Contains(l.Kuerzel)).ToList();
+                    break;
+                default:
+                    return;
+            }
+
+            var kursliste = kurscache.Where(k => tbSonst3.Text.Split(";").Contains(k.Bezeichnung)).ToList();
+            if (kursliste.Count < 1) return;
+            switch (cbSonst1.SelectedIndex)
+            {
+                case 0 or 1 when susliste.Count < 1:
+                    return;
+                case 0 or 1:
+                {
+                    await myschool.StartTransaction();
+                    foreach (var kurs in kursliste)
+                    {
+                        foreach (var sus in susliste)
+                        {
+                            await myschool.AddStoK(sus, kurs);
+                        }
+                    }
+
+                    await myschool.StopTransaction();
+                    return;
+                }
+                case 2 or 3 when lulliste.Count < 1:
+                    return;
+                case 2 or 3:
+                {
+                    await myschool.StartTransaction();
+                    foreach (var kurs in kursliste)
+                    {
+                        foreach (var lul in lulliste)
+                        {
+                            await myschool.AddLtoK(lul, kurs);
+                        }
+                    }
+
+                    await myschool.StopTransaction();
+                    return;
+                }
+            }
+        }
+
+        private void CbSonst1_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
+        {
+            tbSonst1.IsVisible = cbSonst1.SelectedIndex % 2 == 1;
+            tbSonst1_1.IsVisible = cbSonst1.SelectedIndex % 2 == 0;
+            cbSonst2.IsVisible = cbSonst1.SelectedIndex % 2 == 0;
+            tbSonst2.IsVisible = cbSonst1.SelectedIndex % 2 == 0;
+        }
     }
 }

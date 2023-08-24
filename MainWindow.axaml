@@ -336,9 +336,32 @@
                     </Grid>
                 </TabItem>
                 <TabItem Header="Sonstiges" Classes="Header">
-                    <StackPanel>
-                        <Button x:Name="btnSonstOberstufenLuLKurse" Click="BtnSonstOberstufenLuLKurse_OnClick">Erstelle Jahrgangsstufenkonferenzen (EF, Q1, Q2)</Button>
-                    </StackPanel>
+                    <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="Auto">
+                        <StackPanel Grid.Row="0" Orientation="Horizontal">
+                            <ComboBox x:Name="cbSonst1" SelectionChanged="CbSonst1_OnSelectionChanged">
+                                <ComboBoxItem>Alle Schüler:innen</ComboBoxItem>
+                                <ComboBoxItem>Einige Schüler:innen</ComboBoxItem>
+                                <ComboBoxItem>Alle Lehrkräfte</ComboBoxItem>
+                                <ComboBoxItem>Einige Lehrkräfte</ComboBoxItem>
+                            </ComboBox>
+                            <TextBox x:Name="tbSonst1">-</TextBox>
+                            <TextBlock x:Name="tbSonst1_1" VerticalAlignment="Center"> aus der </TextBlock>
+                            <ComboBox x:Name="cbSonst2">
+                                <ComboBoxItem>Stufe</ComboBoxItem>
+                                <ComboBoxItem>Klasse</ComboBoxItem>
+                            </ComboBox>
+                            <TextBox x:Name="tbSonst2">-</TextBox>
+                            <TextBlock VerticalAlignment="Center"> in </TextBlock>
+                            <ComboBox x:Name="cbSonst3">
+                                <ComboBoxItem>den Kurs</ComboBoxItem>
+                                <ComboBoxItem>die Kurse</ComboBoxItem>
+                            </ComboBox>
+                            <TextBox x:Name="tbSonst3">-</TextBox>
+                            <TextBlock VerticalAlignment="Center"> einschreiben</TextBlock>
+                            <Button x:Name="btnModErstellung" Click="BtnModErstellung_OnClick">Ausführen</Button>
+                        </StackPanel>
+                        <Button Grid.Row="1" x:Name="btnSonstOberstufenLuLKurse" Click="BtnSonstOberstufenLuLKurse_OnClick">Erstelle Jahrgangsstufenkonferenzen (EF, Q1, Q2)</Button>
+                    </Grid>
                 </TabItem> <!--Sonstiges-Tab-->
             </TabControl>
         </Grid>
