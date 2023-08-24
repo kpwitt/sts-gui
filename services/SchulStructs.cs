@@ -26,6 +26,17 @@
             Zweitmail = zweitmail;
             Zweitaccount = zweitaccount;
         }
+
+        public string GetStufe()
+        {
+            var stufen = new string[] { "5", "6", "7", "8", "9", "10", "EF", "Q1", "Q2" };
+            foreach (var stufe in stufen)
+            {
+                if (Klasse.StartsWith(stufe)) return stufe;
+            }
+
+            return "";
+        }
     }
 
     public struct LuL
