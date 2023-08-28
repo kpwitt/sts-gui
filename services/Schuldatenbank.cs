@@ -1096,6 +1096,7 @@ namespace SchulDB
                                                                  kurs.Bezeichnung + kurs.Suffix);
                             }
 
+                            if (kurs.Bezeichnung.Length>20) continue;
                             kListe += "^" + kurs.Bezeichnung + kurs.Suffix + "|";
                         }
 
