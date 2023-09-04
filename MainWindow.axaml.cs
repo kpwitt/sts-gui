@@ -2541,5 +2541,27 @@ namespace StS_GUI_Avalonia
             cbSonst2.IsVisible = cbSonst1.SelectedIndex % 2 == 0;
             tbSonst2.IsVisible = cbSonst1.SelectedIndex % 2 == 0;
         }
+
+        private async void BtnSonstDVIDs_OnClick(object? sender, RoutedEventArgs e)
+        {
+            SetupOpenFileDialog(globalOpenFileDialog, "Einwilligungen alt", new[] { "csv", "*" },
+                new[] { "CSV-Datei", "Alle-Dateien" });
+            var alterStatusFP = await globalOpenFileDialog.ShowAsync(this);
+            if (alterStatusFP == null || alterStatusFP.Length == 0) return;
+            var alterstatus = await File.ReadAllLinesAsync(alterStatusFP[0]);
+            SetupOpenFileDialog(globalOpenFileDialog, "Einwilligungen neu", new[] { "csv", "*" },
+                new[] { "CSV-Datei", "Alle-Dateien" });
+            var neuerStatusFP = await globalOpenFileDialog.ShowAsync(this);
+            if (neuerStatusFP == null || neuerStatusFP.Length == 0) return;
+            var neuerStatus = await File.ReadAllLinesAsync(neuerStatusFP[0]);
+
+            var alteIDListe = (from line in alterstatus select line.Split(';')[0] into id where id.All(char.IsDigit) select Convert.ToInt32(id)).ToList();
+            var neueIDListe = (from line in neuerStatus select line.Split(';')[0] into id where id.All(char.IsDigit) select Convert.ToInt32(id)).ToList();
+            var diff = alteIDListe.Except(neueIDListe);
+            var ids = diff.Aggregate("", (current, id) => current + ';' + id).TrimStart(';');
+            var clipboard = Clipboard;
+            if (clipboard == null) return;
+            await clipboard.SetTextAsync(ids);
+        }
     }
 }
