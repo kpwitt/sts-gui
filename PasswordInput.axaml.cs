@@ -2,6 +2,7 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
+using Avalonia.Media;
 
 namespace StS_GUI_Avalonia;
 
@@ -23,7 +24,13 @@ public partial class PasswordInput : Window
     {
         var upperTextBox = this.GetControl<TextBox>("pwInputUpper");
         var lowerTextBox = this.GetControl<TextBox>("pwInputLower");
-        if (upperTextBox.Text != lowerTextBox.Text || string.IsNullOrEmpty(upperTextBox.Text)) return;
+        if (upperTextBox.Text != lowerTextBox.Text || string.IsNullOrEmpty(upperTextBox.Text))
+        {
+            upperTextBox.BorderBrush = lowerTextBox.BorderBrush = new SolidColorBrush(Color.FromRgb(255, 0, 0));
+            return;
+        }
+
+        upperTextBox.BorderBrush = lowerTextBox.BorderBrush = new SolidColorBrush(Color.FromRgb(0, 255, 0));
         pwd = upperTextBox.Text;
         Close();
     }
