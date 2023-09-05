@@ -2546,14 +2546,14 @@ namespace StS_GUI_Avalonia
         {
             SetupOpenFileDialog(globalOpenFileDialog, "Einwilligungen alt", new[] { "csv", "*" },
                 new[] { "CSV-Datei", "Alle-Dateien" });
-            var alterStatusFP = await globalOpenFileDialog.ShowAsync(this);
-            if (alterStatusFP == null || alterStatusFP.Length == 0) return;
-            var alterstatus = await File.ReadAllLinesAsync(alterStatusFP[0]);
+            var alterStatusFilePath = await globalOpenFileDialog.ShowAsync(this);
+            if (alterStatusFilePath == null || alterStatusFilePath.Length == 0) return;
+            var alterstatus = await File.ReadAllLinesAsync(alterStatusFilePath[0]);
             SetupOpenFileDialog(globalOpenFileDialog, "Einwilligungen neu", new[] { "csv", "*" },
                 new[] { "CSV-Datei", "Alle-Dateien" });
-            var neuerStatusFP = await globalOpenFileDialog.ShowAsync(this);
-            if (neuerStatusFP == null || neuerStatusFP.Length == 0) return;
-            var neuerStatus = await File.ReadAllLinesAsync(neuerStatusFP[0]);
+            var neuerStatusFilePath = await globalOpenFileDialog.ShowAsync(this);
+            if (neuerStatusFilePath == null || neuerStatusFilePath.Length == 0) return;
+            var neuerStatus = await File.ReadAllLinesAsync(neuerStatusFilePath[0]);
 
             var alteIDListe = (from line in alterstatus select line.Split(';')[0] into id where id.All(char.IsDigit) select Convert.ToInt32(id)).ToList();
             var neueIDListe = (from line in neuerStatus select line.Split(';')[0] into id where id.All(char.IsDigit) select Convert.ToInt32(id)).ToList();
