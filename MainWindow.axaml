@@ -361,7 +361,7 @@
                             <Button x:Name="btnModErstellung" Click="BtnModErstellung_OnClick">Ausführen</Button>
                         </StackPanel>
                         <Button Grid.Row="1" x:Name="btnSonstOberstufenLuLKurse" Click="BtnSonstOberstufenLuLKurse_OnClick">Erstelle Jahrgangsstufenkonferenzen (EF, Q1, Q2)</Button>
-                        <Button Grid.Row="2" x:Name="btnSonstDVIDs" Click="BtnSonstDVIDs_OnClick">ID's kopieren</Button>
+                        <Button Grid.Row="2" x:Name="btnSonstDVIDs" Click="BtnSonstDVIDs_OnClick">ID's ohne DV kopieren</Button>
                     </Grid>
                 </TabItem> <!--Sonstiges-Tab-->
             </TabControl>
