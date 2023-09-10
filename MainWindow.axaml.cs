@@ -147,8 +147,8 @@ namespace StS_GUI_Avalonia
                 new WindowIcon(AssetLoader.Open(new Uri("avares://StS-GUI-Avalonia/Assets/gfx/school-building.png")));
         }
 
-        private async Task<IStorageFile> SetupSaveFileDialog(string dialogtitle,
-            List<FilePickerFileType> extensions)
+        private async Task<IStorageFile> ShowSaveFileDialog(string dialogtitle,
+            IReadOnlyList<FilePickerFileType> extensions)
         {
             //if (extensions.Count != extensionnames.Count) return;
             //sfd.DefaultExtension = extensions[0];
@@ -235,7 +235,7 @@ namespace StS_GUI_Avalonia
                 {
                     StSFileTypes.DataBaseFile
                 };
-                var files = await SetupSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
+                var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
                 if (files == null)
                 {
                     await Dispatcher.UIThread.InvokeAsync(() =>
@@ -293,7 +293,7 @@ namespace StS_GUI_Avalonia
                 {
                     StSFileTypes.DataBaseFile
                 };
-                var files = await SetupSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
+                var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
                 if (files == null) return;
                 var filepath = files.Path.AbsolutePath;
                 var tempDB = new Schuldatenbank(filepath);
@@ -351,7 +351,7 @@ namespace StS_GUI_Avalonia
                 {
                     StSFileTypes.EncryptedFile
                 };
-                var files = await SetupSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
+                var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
                 if (files == null) return;
                 var filepath = files.Path.AbsolutePath;
                 var dbPath = await myschool.GetFilePath();
@@ -395,7 +395,7 @@ namespace StS_GUI_Avalonia
                 {
                     StSFileTypes.EncryptedFile
                 };
-                var files = await SetupSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
+                var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
                 if (files == null) return;
                 var filepath = files.Path.AbsolutePath;
                 if (filepath == null) return;
@@ -1494,7 +1494,7 @@ namespace StS_GUI_Avalonia
                 {
                     StSFileTypes.CSVFile
                 };
-                var files = await SetupSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
+                var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
                 if (files == null) return;
                 var filepath = files.Path.AbsolutePath;
 
@@ -2135,7 +2135,7 @@ namespace StS_GUI_Avalonia
                 {
                     StSFileTypes.CSVFile
                 };
-                var files = await SetupSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
+                var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
                 if (files == null) return;
                 var folder = files.Path.AbsolutePath;
                 List<string> susausgabe = new() { "Vorname;Nachname;Anmeldename;Kennwort;E-Mail;Klasse" };
@@ -2173,7 +2173,7 @@ namespace StS_GUI_Avalonia
                 {
                     StSFileTypes.CSVFile
                 };
-                var files = await SetupSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
+                var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
                 if (files == null) return;
                 var folder = files.Path.AbsolutePath;
                 SetupOpenFileDialog(globalOpenFileDialog, "Nutzer ohne DV-Zustimmung", new[] { "csv" },
@@ -2358,7 +2358,7 @@ namespace StS_GUI_Avalonia
                 {
                     StSFileTypes.CSVFile
                 };
-                var files = await SetupSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
+                var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
                 if (files == null) return;
                 var filepath = files.Path.AbsolutePath;
                 List<string> lulliste = new()
