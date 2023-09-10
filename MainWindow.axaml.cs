@@ -18,12 +18,14 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
+using Avalonia.Platform.Storage;
+using System.Collections.Immutable;
+using StS_GUI_Avalonia.services;
 
 namespace StS_GUI_Avalonia
 {
     public partial class MainWindow : Window
     {
-        private readonly SaveFileDialog globalSaveFileDialog = new();
         private readonly OpenFileDialog globalOpenFileDialog = new();
         private readonly OpenFolderDialog globalOpenFolderDialog = new();
         private readonly Timer leftInputTimer = new(350);
@@ -34,6 +36,7 @@ namespace StS_GUI_Avalonia
         private readonly Brush lightBackgroundColor = new SolidColorBrush(Color.FromRgb(242, 242, 242));
         private bool rightMutex;
         private WindowIcon msgBoxWindowIcon;
+        
 
         public MainWindow()
         {
@@ -144,24 +147,31 @@ namespace StS_GUI_Avalonia
                 new WindowIcon(AssetLoader.Open(new Uri("avares://StS-GUI-Avalonia/Assets/gfx/school-building.png")));
         }
 
-        private static void SetupSaveFileDialog(SaveFileDialog sfd, string dialogtitle,
-            IReadOnlyList<string> extensions,
-            IReadOnlyList<string> extensionnames)
+        private async Task<IStorageFile> SetupSaveFileDialog(string dialogtitle,
+            List<FilePickerFileType> extensions)
         {
-            if (extensions.Count != extensionnames.Count) return;
-            sfd.DefaultExtension = extensions[0];
-            sfd.Title = dialogtitle;
-            List<FileDialogFilter> filters = new();
-            for (var i = 0; i < extensions.Count; i++)
-            {
-                FileDialogFilter filter = new();
-                List<string> extension = new() { extensions[i] };
-                filter.Extensions = extension;
-                filter.Name = extensionnames[i];
-                filters.Add(filter);
-            }
+            //if (extensions.Count != extensionnames.Count) return;
+            //sfd.DefaultExtension = extensions[0];
+            //sfd.Title = dialogtitle;
+            //List<FileDialogFilter> filters = new();
+            //for (var i = 0; i < extensions.Count; i++)
+            //{
+            //    FileDialogFilter filter = new();
+            //    List<string> extension = new() { extensions[i] };
+            //    filter.Extensions = extension;
+            //    filter.Name = extensionnames[i];
+            //    filters.Add(filter);
+            //}
 
-            sfd.Filters = filters;
+            //sfd.Filters = filters;
+            var topLevel = TopLevel.GetTopLevel(this);
+            if (topLevel == null) return null;
+            var files = await topLevel.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+            {
+                Title = dialogtitle,
+                DefaultExtension = extensions[0].Name
+            });
+            return files;
         }
 
         private static void SetupOpenFileDialog(OpenFileDialog ofd, string dialogtitle,
@@ -218,13 +228,15 @@ namespace StS_GUI_Avalonia
                 InitData();
                 return;
             }
-
-            SetupSaveFileDialog(globalSaveFileDialog, "Bitte einen Dateipfad angeben...", new[] { "sqlite" },
-                new[] { "Datenbankdatei" });
+                        
             var saveDBFile = async () =>
             {
-                var filepath = await globalSaveFileDialog.ShowAsync(this);
-                if (filepath == null)
+                var extx = new List<FilePickerFileType>
+                {
+                    StSFileTypes.DataBaseFile
+                };
+                var files = await SetupSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
+                if (files == null)
                 {
                     await Dispatcher.UIThread.InvokeAsync(() =>
                     {
@@ -234,7 +246,7 @@ namespace StS_GUI_Avalonia
                     });
                     return;
                 }
-
+                var filepath = files.Path.AbsolutePath;
                 var tempDB = new Schuldatenbank(filepath);
                 var res = await tempDB.Import(myschool);
                 await Dispatcher.UIThread.InvokeAsync(async () =>
@@ -275,12 +287,15 @@ namespace StS_GUI_Avalonia
 
         public async void OnMnuschulespeichernunterClick(object? sender, RoutedEventArgs e)
         {
-            SetupSaveFileDialog(globalSaveFileDialog, "Datenbankdatei speichern unter...", new[] { "sqlite" },
-                new[] { "Datenbankdatei" });
             var saveDBFile = async () =>
             {
-                var filepath = await globalSaveFileDialog.ShowAsync(this);
-                if (filepath == null) return;
+                var extx = new List<FilePickerFileType>
+                {
+                    StSFileTypes.DataBaseFile
+                };
+                var files = await SetupSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
+                if (files == null) return;
+                var filepath = files.Path.AbsolutePath;
                 var tempDB = new Schuldatenbank(filepath);
                 var res = await tempDB.Import(myschool);
                 await Dispatcher.UIThread.InvokeAsync(async () =>
@@ -320,10 +335,7 @@ namespace StS_GUI_Avalonia
         }
 
         public async void OnMnuschuleversspeichernClick(object? sender, RoutedEventArgs e)
-        {
-            SetupSaveFileDialog(globalSaveFileDialog, "Datenbankdatei verschlüsselt speichern unter...",
-                new[] { "aes" },
-                new[] { "verschlüsselte Datenbankdatei" });
+        {           
             if (myschool.GetFilePath().Result == ":memory:") return;
             var getPasswordInput = async () =>
             {
@@ -335,8 +347,13 @@ namespace StS_GUI_Avalonia
             if (string.IsNullOrEmpty(inputResult)) return;
             var saveDBFile = async () =>
             {
-                var filepath = await globalSaveFileDialog.ShowAsync(this);
-                if (filepath == null) return;
+                var extx = new List<FilePickerFileType>
+                {
+                    StSFileTypes.EncryptedFile
+                };
+                var files = await SetupSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
+                if (files == null) return;
+                var filepath = files.Path.AbsolutePath;
                 var dbPath = await myschool.GetFilePath();
                 myschool.Dispose();
                 LocalCryptoServive.FileEncrypt(dbPath, filepath, inputResult);
@@ -364,8 +381,6 @@ namespace StS_GUI_Avalonia
                 new[] { "verschlüsselte Datenbankdatei" });
             var respath = await globalOpenFileDialog.ShowAsync(this);
             if (respath is not { Length: > 0 }) return;
-            SetupSaveFileDialog(globalSaveFileDialog, "Datenbankdatei speichern unter...", new[] { "sqlite" },
-                new[] { "Datenbankdatei" });
             var getPasswordInput = async () =>
             {
                 var pwiWindow = new PasswordInput();
@@ -376,7 +391,13 @@ namespace StS_GUI_Avalonia
             if (string.IsNullOrEmpty(inputResult)) return;
             var saveDBFile = async () =>
             {
-                var filepath = await globalSaveFileDialog.ShowAsync(this);
+                var extx = new List<FilePickerFileType>
+                {
+                    StSFileTypes.EncryptedFile
+                };
+                var files = await SetupSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
+                if (files == null) return;
+                var filepath = files.Path.AbsolutePath;
                 if (filepath == null) return;
 
                 LocalCryptoServive.FileDecrypt(respath[0], filepath, inputResult);
@@ -1467,11 +1488,15 @@ namespace StS_GUI_Avalonia
 
         private async void BtnFehlerExport_OnClick(object? sender, RoutedEventArgs e)
         {
-            SetupSaveFileDialog(globalSaveFileDialog, "Speichern unter...", new[] { "csv" }, new[] { "CSV-Datei" });
             var saveDBFile = async () =>
             {
-                var filepath = await globalSaveFileDialog.ShowAsync(this);
-                if (filepath == null) return;
+                var extx = new List<FilePickerFileType>
+                {
+                    StSFileTypes.CSVFile
+                };
+                var files = await SetupSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
+                if (files == null) return;
+                var filepath = files.Path.AbsolutePath;
 
                 await File.WriteAllLinesAsync(filepath, lbFehlerliste.Items.Cast<string>(), Encoding.UTF8);
             };
@@ -2106,10 +2131,13 @@ namespace StS_GUI_Avalonia
             var readFileTask = async () =>
             {
                 if (LeftListBox.SelectedItems == null) return;
-                SetupSaveFileDialog(globalSaveFileDialog, "Serienbriefdatei...", new[] { "csv" },
-                    new[] { "CSV-Datei" });
-                var folder = await globalSaveFileDialog.ShowAsync(this);
-                if (folder == null) return;
+                var extx = new List<FilePickerFileType>
+                {
+                    StSFileTypes.CSVFile
+                };
+                var files = await SetupSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
+                if (files == null) return;
+                var folder = files.Path.AbsolutePath;
                 List<string> susausgabe = new() { "Vorname;Nachname;Anmeldename;Kennwort;E-Mail;Klasse" };
                 switch (CboxDataLeft.SelectedIndex)
                 {
@@ -2141,10 +2169,13 @@ namespace StS_GUI_Avalonia
             var readFileTask = async () =>
             {
                 if (LeftListBox.SelectedItems == null) return;
-                SetupSaveFileDialog(globalSaveFileDialog, "Serienbriefdatei...", new[] { "csv" },
-                    new[] { "CSV-Datei" });
-                var folder = await globalSaveFileDialog.ShowAsync(this);
-                if (folder is null) return;
+                var extx = new List<FilePickerFileType>
+                {
+                    StSFileTypes.CSVFile
+                };
+                var files = await SetupSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
+                if (files == null) return;
+                var folder = files.Path.AbsolutePath;
                 SetupOpenFileDialog(globalOpenFileDialog, "Nutzer ohne DV-Zustimmung", new[] { "csv" },
                     new[] { "CSV-Datei" });
                 var file = await globalOpenFileDialog.ShowAsync(this);
@@ -2322,10 +2353,14 @@ namespace StS_GUI_Avalonia
         {
             var saveLKtoHP = async () =>
             {
-                SetupSaveFileDialog(globalSaveFileDialog, "Lehrkräfteexport für die Homepage", new[] { "csv" },
-                    new[] { "CSV-Datei" });
-                var filepath = await globalSaveFileDialog.ShowAsync(this);
-                if (filepath == null) return;
+
+                var extx = new List<FilePickerFileType>
+                {
+                    StSFileTypes.CSVFile
+                };
+                var files = await SetupSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
+                if (files == null) return;
+                var filepath = files.Path.AbsolutePath;
                 List<string> lulliste = new()
                 {
                     "Kürzel;Nachname;Vorname;Fächer;Mailadresse"
