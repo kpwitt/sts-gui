@@ -25,7 +25,6 @@ namespace StS_GUI_Avalonia
 {
     public partial class MainWindow : Window
     {
-        private readonly OpenFolderDialog globalOpenFolderDialog = new();
         private readonly Timer leftInputTimer = new(350);
         private readonly Timer rightInputTimer = new(350);
         private Schuldatenbank myschool;
@@ -163,17 +162,25 @@ namespace StS_GUI_Avalonia
         {
             var topLevel = TopLevel.GetTopLevel(this);
             if (topLevel == null) return null;
-            var files = await topLevel.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+            var files = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions()
             {
                 Title = dialogtitle,
-                DefaultExtension = extensions[0].Name
+                FileTypeFilter = extensions,
+                AllowMultiple = false,
             });
-            return files;
+            return files[0];
         }
 
-        private static void SetupOpenFolderDialog(SystemDialog ofd, string dialogtitle)
+        private async Task<IStorageFolder> ShowOpenFolderDialog(string dialogtitle)
         {
-            ofd.Title = dialogtitle;
+            var topLevel = TopLevel.GetTopLevel(this);
+            if (topLevel == null) return null;
+            var folders = await topLevel.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions()
+            {
+                Title = dialogtitle,
+                AllowMultiple = false,
+            });
+            return folders[0];
         }
 
         public async void OnMnuSchoolLoadClick(object? sender, RoutedEventArgs e)
@@ -397,17 +404,17 @@ namespace StS_GUI_Avalonia
         {
             var readFileTask = async () =>
             {
-                SetupOpenFolderDialog(globalOpenFolderDialog, "Bitte den Ordner mit den Dateien auswählen");
-                var folder = await globalOpenFolderDialog.ShowAsync(this);
+                var folder = await ShowOpenFolderDialog("Bitte den Ordner mit den Dateien auswählen");
                 if (folder == null) return;
-                if (File.Exists(folder + "/sus.csv") && File.Exists(folder + "/lul.csv") &&
-                    File.Exists(folder + "/kurse.csv"))
+                var folderpath = folder.Path.AbsolutePath;
+                if (File.Exists(folderpath + "/sus.csv") && File.Exists(folderpath + "/lul.csv") &&
+                    File.Exists(folderpath + "/kurse.csv"))
                 {
-                    await myschool.SusEinlesen(folder + "/sus.csv");
-                    await myschool.LulEinlesen(folder + "/lul.csv");
-                    await myschool.KurseEinlesen(folder + "/kurse.csv");
+                    await myschool.SusEinlesen(folderpath + "/sus.csv");
+                    await myschool.LulEinlesen(folderpath + "/lul.csv");
+                    await myschool.KurseEinlesen(folderpath + "/kurse.csv");
                     var aixcsvpath = "";
-                    var d = new DirectoryInfo(folder);
+                    var d = new DirectoryInfo(folderpath);
                     var files = d.GetFiles();
                     foreach (var csvFile in files)
                     {
@@ -509,13 +516,13 @@ namespace StS_GUI_Avalonia
         {
             var readFileTask = async () =>
             {
-                SetupOpenFolderDialog(globalOpenFolderDialog, "Bitte den Ordner mit den Dateien auswählen");
-                var folder = await globalOpenFolderDialog.ShowAsync(this);
+                var folder = await ShowOpenFolderDialog("Bitte den Ordner mit den Dateien auswählen");
                 if (folder == null) return;
-                if (!File.Exists(folder + "/sus.csv") && !File.Exists(folder + "/lul.csv") &&
-                    !File.Exists(folder + "/kurse.csv"))
+                var folderpath = folder.Path.AbsolutePath;
+                if (!File.Exists(folderpath + "/sus.csv") && !File.Exists(folderpath + "/lul.csv") &&
+                    !File.Exists(folderpath + "/kurse.csv"))
                 {
-                    await myschool.DumpDataToCSVs(folder);
+                    await myschool.DumpDataToCSVs(folderpath);
                 }
             };
             await Task.Run(readFileTask);
@@ -1299,13 +1306,14 @@ namespace StS_GUI_Avalonia
 
             var readFileTask = async () =>
             {
-                SetupOpenFolderDialog(globalOpenFolderDialog, "Bitte den Ordner zum Speichern angeben");
-                var folder = await globalOpenFolderDialog.ShowAsync(this);
+                var folder = await ShowOpenFolderDialog("Bitte den Ordner mit den Dateien auswählen");
                 if (folder == null) return;
+                var folderpath = folder.Path.AbsolutePath;
                 var expandFiles = false;
-                if (File.Exists(folder + "/aix_sus.csv") || File.Exists(folder + "/aix_lul.csv") ||
-                    File.Exists(folder + "/mdl_einschreibungen.csv") || File.Exists(folder + "/mdl_kurse.csv") ||
-                    File.Exists(folder + "/mdl_nutzer.csv"))
+                if (File.Exists(folderpath + "/aix_sus.csv") || File.Exists(folderpath + "/aix_lul.csv") ||
+                    File.Exists(folderpath + "/mdl_einschreibungen.csv") ||
+                    File.Exists(folderpath + "/mdl_kurse.csv") ||
+                    File.Exists(folderpath + "/mdl_nutzer.csv"))
                 {
                     var overwriteFilesDialog = MessageBoxManager.GetMessageBoxStandard(
                         new MessageBoxStandardParams
@@ -1370,7 +1378,7 @@ namespace StS_GUI_Avalonia
                     }
                 }
 
-                var res = await myschool.ExportCSV(folder, destsys, whattoexport,
+                var res = await myschool.ExportCSV(folderpath, destsys, whattoexport,
                     cbExportwithPasswort.IsChecked != null && cbExportwithPasswort.IsChecked.Value,
                     expandFiles, nurMoodleSuffix, kursvorlagen,
                     await myschool.GetSchuelerIDListe(), await myschool.GetLehrerIDListe(),
@@ -1499,9 +1507,9 @@ namespace StS_GUI_Avalonia
             var readFileTask = async () =>
             {
                 if (string.IsNullOrEmpty(tbExportStufenkurse.Text)) return;
-                SetupOpenFolderDialog(globalOpenFolderDialog, "Bitte den Ordner für die Dateien auswählen");
-                var folder = await globalOpenFolderDialog.ShowAsync(this);
+                var folder = await ShowOpenFolderDialog("Bitte den Ordner mit den Dateien auswählen");
                 if (folder == null) return;
+                var folderpath = folder.Path.AbsolutePath;
                 var res = -2;
                 var susidlist = new List<int>();
                 var nurMoodleSuffix = cbNurMoodleSuffix.IsChecked is not false;
@@ -1509,7 +1517,7 @@ namespace StS_GUI_Avalonia
                 {
                     var stufe = tbExportStufenkurse.Text;
                     susidlist.AddRange(myschool.GetSusAusStufe(stufe).Result.Select(s => s.ID).ToList());
-                    res = await myschool.ExportCSV(folder, "all", "s", false, false, nurMoodleSuffix,
+                    res = await myschool.ExportCSV(folderpath, "all", "s", false, false, nurMoodleSuffix,
                         new[] { "", "" },
                         new ReadOnlyCollection<int>(susidlist),
                         new ReadOnlyCollection<int>(new List<int>()),
@@ -1523,7 +1531,8 @@ namespace StS_GUI_Avalonia
                         susidlist.AddRange(myschool.GetSusAusStufe(stufe).Result.Select(s => s.ID).ToList());
                     }
 
-                    res = await myschool.ExportCSV(folder, "all", "s", false, false, nurMoodleSuffix, new[] { "", "" },
+                    res = await myschool.ExportCSV(folderpath, "all", "s", false, false, nurMoodleSuffix,
+                        new[] { "", "" },
                         new ReadOnlyCollection<int>(susidlist),
                         new ReadOnlyCollection<int>(new List<int>()),
                         new ReadOnlyCollection<string>(new List<string>()));
@@ -1574,11 +1583,12 @@ namespace StS_GUI_Avalonia
         {
             var readFileTask = async () =>
             {
-                SetupOpenFolderDialog(globalOpenFolderDialog, "Bitte den Ordner für die Dateien auswählen");
-                var folder = await globalOpenFolderDialog.ShowAsync(this);
+                var folder = await ShowOpenFolderDialog("Bitte den Ordner mit den Dateien auswählen");
                 if (folder == null) return;
+                var folderpath = folder.Path.AbsolutePath;
                 var nurMoodleSuffix = cbNurMoodleSuffix.IsChecked is not false;
-                var res = await myschool.ExportCSV(folder, "all", "s", false, false, nurMoodleSuffix, new[] { "", "" },
+                var res = await myschool.ExportCSV(folderpath, "all", "s", false, false, nurMoodleSuffix,
+                    new[] { "", "" },
                     new ReadOnlyCollection<int>(myschool.GetSusAusStufe("5").Result.Select(s => s.ID).ToList()),
                     new ReadOnlyCollection<int>(new List<int>()), new ReadOnlyCollection<string>(new List<string>()));
                 await CheckSuccesfulExport(res);
@@ -2221,13 +2231,15 @@ namespace StS_GUI_Avalonia
             var readFileTask = async () =>
             {
                 if (LeftListBox.SelectedItems == null) return;
-                SetupOpenFolderDialog(globalOpenFolderDialog, "Bitte den Ordner zum Speichern angeben");
-                var folder = await globalOpenFolderDialog.ShowAsync(this);
+
+                var folder = await ShowOpenFolderDialog("Bitte den Ordner zum Speichern angeben");
                 if (folder == null) return;
+                var folderpath = folder.Path.AbsolutePath;
                 var expandFiles = false;
-                if (File.Exists(folder + "/aix_sus.csv") || File.Exists(folder + "/aix_lul.csv") ||
-                    File.Exists(folder + "/mdl_einschreibungen.csv") || File.Exists(folder + "/mdl_kurse.csv") ||
-                    File.Exists(folder + "/mdl_nutzer.csv"))
+                if (File.Exists(folderpath + "/aix_sus.csv") || File.Exists(folderpath + "/aix_lul.csv") ||
+                    File.Exists(folderpath + "/mdl_einschreibungen.csv") ||
+                    File.Exists(folderpath + "/mdl_kurse.csv") ||
+                    File.Exists(folderpath + "/mdl_nutzer.csv"))
                 {
                     var overwriteFilesDialog = MessageBoxManager.GetMessageBoxStandard(
                         new MessageBoxStandardParams
@@ -2316,7 +2328,7 @@ namespace StS_GUI_Avalonia
                     var isAnfangsPasswortChecked = ((CheckBox)LeftListBox.ContextMenu.Items.Cast<Control>()
                         .Where(c => c.Name == "cbMnuLeftContextAnfangsPasswort").ToList().First()).IsChecked;
                     var nurMoodleSuffix = cbNurMoodleSuffix.IsChecked is not false;
-                    var res = await myschool.ExportCSV(folder, destsys, whattoexport,
+                    var res = await myschool.ExportCSV(folderpath, destsys, whattoexport,
                         isAnfangsPasswortChecked != null && isAnfangsPasswortChecked.Value,
                         expandFiles, nurMoodleSuffix, kursvorlagen,
                         new ReadOnlyCollection<int>(suslist.Select(s => s.ID).Distinct().ToList()),
