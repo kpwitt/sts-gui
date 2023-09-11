@@ -25,7 +25,6 @@ namespace StS_GUI_Avalonia
 {
     public partial class MainWindow : Window
     {
-        private readonly OpenFileDialog globalOpenFileDialog = new();
         private readonly OpenFolderDialog globalOpenFolderDialog = new();
         private readonly Timer leftInputTimer = new(350);
         private readonly Timer rightInputTimer = new(350);
