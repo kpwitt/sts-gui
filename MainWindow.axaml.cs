@@ -36,7 +36,7 @@ namespace StS_GUI_Avalonia
         private readonly Brush lightBackgroundColor = new SolidColorBrush(Color.FromRgb(242, 242, 242));
         private bool rightMutex;
         private WindowIcon msgBoxWindowIcon;
-        
+
 
         public MainWindow()
         {
@@ -160,24 +160,17 @@ namespace StS_GUI_Avalonia
             return files;
         }
 
-        private static void SetupOpenFileDialog(OpenFileDialog ofd, string dialogtitle,
-            IReadOnlyList<string> extensions,
-            IReadOnlyList<string> extensionnames)
+        private async Task<IStorageFile> ShowOpenFileDialog(string dialogtitle,
+            IReadOnlyList<FilePickerFileType> extensions)
         {
-            if (extensions.Count != extensionnames.Count) return;
-            ofd.Title = dialogtitle;
-            ofd.AllowMultiple = false;
-            List<FileDialogFilter> filters = new();
-            for (var i = 0; i < extensions.Count; i++)
+            var topLevel = TopLevel.GetTopLevel(this);
+            if (topLevel == null) return null;
+            var files = await topLevel.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
             {
-                FileDialogFilter filter = new();
-                List<string> extension = new() { extensions[i] };
-                filter.Extensions = extension;
-                filter.Name = extensionnames[i];
-                filters.Add(filter);
-            }
-
-            ofd.Filters = filters;
+                Title = dialogtitle,
+                DefaultExtension = extensions[0].Name
+            });
+            return files;
         }
 
         private static void SetupOpenFolderDialog(SystemDialog ofd, string dialogtitle)
@@ -187,15 +180,15 @@ namespace StS_GUI_Avalonia
 
         public async void OnMnuSchoolLoadClick(object? sender, RoutedEventArgs e)
         {
-            SetupOpenFileDialog(globalOpenFileDialog, "Lade Datenbankdatei", new[] { "sqlite" },
-                new[] { "Datenbankdatei" });
-            var respath = await globalOpenFileDialog.ShowAsync(this);
-            if (respath is { Length: > 0 })
+            var extx = new List<FilePickerFileType>
             {
-                myschool = new Schuldatenbank(respath[0]);
-                Title = "SchildToSchule - " + await myschool.GetFilePath();
-            }
-
+                StSFileTypes.DataBaseFile
+            };
+            var files = await ShowOpenFileDialog("Bitte einen Dateipfad angeben...", extx);
+            if (files == null) return;
+            var filepath = files.Path.AbsolutePath;
+            myschool = new Schuldatenbank(filepath);
+            Title = "SchildToSchule - " + await myschool.GetFilePath();
             InitData();
         }
 
@@ -214,7 +207,7 @@ namespace StS_GUI_Avalonia
                 InitData();
                 return;
             }
-                        
+
             var saveDBFile = async () =>
             {
                 var extx = new List<FilePickerFileType>
@@ -232,6 +225,7 @@ namespace StS_GUI_Avalonia
                     });
                     return;
                 }
+
                 var filepath = files.Path.AbsolutePath;
                 var tempDB = new Schuldatenbank(filepath);
                 var res = await tempDB.Import(myschool);
@@ -321,7 +315,7 @@ namespace StS_GUI_Avalonia
         }
 
         public async void OnMnuschuleversspeichernClick(object? sender, RoutedEventArgs e)
-        {           
+        {
             if (myschool.GetFilePath().Result == ":memory:") return;
             var getPasswordInput = async () =>
             {
@@ -363,10 +357,13 @@ namespace StS_GUI_Avalonia
 
         public async void OnMnuversschuleladenClick(object? sender, RoutedEventArgs e)
         {
-            SetupOpenFileDialog(globalOpenFileDialog, "Lade verschlüsselte Datenbankdatei", new[] { "aes" },
-                new[] { "verschlüsselte Datenbankdatei" });
-            var respath = await globalOpenFileDialog.ShowAsync(this);
-            if (respath is not { Length: > 0 }) return;
+            var extx = new List<FilePickerFileType>
+            {
+                StSFileTypes.EncryptedFile
+            };
+            var files = await ShowOpenFileDialog("Bitte einen Dateipfad angeben...", extx);
+            if (files == null) return;
+            var inputFilePath = files.Path.AbsolutePath;
             var getPasswordInput = async () =>
             {
                 var pwiWindow = new PasswordInput();
@@ -383,11 +380,11 @@ namespace StS_GUI_Avalonia
                 };
                 var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
                 if (files == null) return;
-                var filepath = files.Path.AbsolutePath;
-                if (filepath == null) return;
+                var outputFilePath = files.Path.AbsolutePath;
+                if (outputFilePath == null) return;
 
-                LocalCryptoServive.FileDecrypt(respath[0], filepath, inputResult);
-                myschool = new Schuldatenbank(filepath);
+                LocalCryptoServive.FileDecrypt(inputFilePath, outputFilePath, inputResult);
+                myschool = new Schuldatenbank(outputFilePath);
             };
             await Task.Run(saveDBFile);
         }
@@ -447,57 +444,67 @@ namespace StS_GUI_Avalonia
 
         public async void OnMnuloadsusfromfileClick(object? sender, RoutedEventArgs e)
         {
-            SetupOpenFileDialog(globalOpenFileDialog, "Lade Schüler:innendaten", new[] { "csv", "*" },
-                new[] { "CSV-Datei", "Alle-Dateien" });
-            var respath = await globalOpenFileDialog.ShowAsync(this);
-            if (respath is { Length: > 0 })
+            var extx = new List<FilePickerFileType>
             {
-                await myschool.SusEinlesen(respath[0]);
-            }
+                StSFileTypes.CSVFile,
+                FilePickerFileTypes.All
+            };
+            var files = await ShowOpenFileDialog("Lade Schüler:innendaten", extx);
+            if (files == null) return;
+            var filePath = files.Path.AbsolutePath;
+            await myschool.SusEinlesen(filePath);
         }
 
         public async void OnMnuloadlulfromfileClick(object? sender, RoutedEventArgs e)
         {
-            SetupOpenFileDialog(globalOpenFileDialog, "Lade Lehrer:innendaten", new[] { "csv", "*" },
-                new[] { "CSV-Datei", "Alle-Dateien" });
-            var respath = await globalOpenFileDialog.ShowAsync(this);
-            if (respath is { Length: > 0 })
+            var extx = new List<FilePickerFileType>
             {
-                await myschool.LulEinlesen(respath[0]);
-            }
+                StSFileTypes.CSVFile,
+                FilePickerFileTypes.All
+            };
+            var files = await ShowOpenFileDialog("Lade Lehrer:innendaten", extx);
+            if (files == null) return;
+            var filePath = files.Path.AbsolutePath;
+            await myschool.LulEinlesen(filePath);
         }
 
         public async void OnMnuloadkursefromfileClick(object? sender, RoutedEventArgs e)
         {
-            SetupOpenFileDialog(globalOpenFileDialog, "Lade Kursdaten", new[] { "csv", "*" },
-                new[] { "CSV-Datei", "Alle-Dateien" });
-            var respath = await globalOpenFileDialog.ShowAsync(this);
-            if (respath is { Length: > 0 })
+            var extx = new List<FilePickerFileType>
             {
-                await myschool.KurseEinlesen(respath[0]);
-            }
+                StSFileTypes.CSVFile,
+                FilePickerFileTypes.All
+            };
+            var files = await ShowOpenFileDialog("Lade Kursdaten", extx);
+            if (files == null) return;
+            var filePath = files.Path.AbsolutePath;
+            await myschool.KurseEinlesen(filePath);
         }
 
         public async void OnMnuloadusernamesmailClick(object? sender, RoutedEventArgs e)
         {
-            SetupOpenFileDialog(globalOpenFileDialog, "Lade Nutzernamen & Mailadressen", new[] { "csv", "*" },
-                new[] { "CSV-Datei", "Alle-Dateien" });
-            var respath = await globalOpenFileDialog.ShowAsync(this);
-            if (respath is { Length: > 0 })
+            var extx = new List<FilePickerFileType>
             {
-                await myschool.IdsEinlesen(respath[0]);
-            }
+                StSFileTypes.CSVFile,
+                FilePickerFileTypes.All
+            };
+            var files = await ShowOpenFileDialog("Lade Nutzernamen & Mailadressen", extx);
+            if (files == null) return;
+            var filePath = files.Path.AbsolutePath;
+            await myschool.IdsEinlesen(filePath);
         }
 
         public async void OnMnuloadzweitaccountsClick(object? sender, RoutedEventArgs e)
         {
-            SetupOpenFileDialog(globalOpenFileDialog, "Lade Zweitaccountdaten", new[] { "csv", "*" },
-                new[] { "CSV-Datei", "Alle-Dateien" });
-            var respath = await globalOpenFileDialog.ShowAsync(this);
-            if (respath is { Length: > 0 })
+            var extx = new List<FilePickerFileType>
             {
-                await myschool.ZweitAccountsEinlesen(respath[0]);
-            }
+                StSFileTypes.CSVFile,
+                FilePickerFileTypes.All
+            };
+            var files = await ShowOpenFileDialog("Lade Zweitaccountdaten", extx);
+            if (files == null) return;
+            var filePath = files.Path.AbsolutePath;
+            await myschool.ZweitAccountsEinlesen(filePath);
         }
 
         public async void OnMnuexporttocsvClick(object? sender, RoutedEventArgs e)
@@ -2157,16 +2164,16 @@ namespace StS_GUI_Avalonia
                 if (LeftListBox.SelectedItems == null) return;
                 var extx = new List<FilePickerFileType>
                 {
-                    StSFileTypes.CSVFile
+                    StSFileTypes.CSVFile,
+                    FilePickerFileTypes.All
                 };
-                var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
+                var files = await ShowSaveFileDialog("Serienbriefdatei auswählen", extx);
                 if (files == null) return;
                 var folder = files.Path.AbsolutePath;
-                SetupOpenFileDialog(globalOpenFileDialog, "Nutzer ohne DV-Zustimmung", new[] { "csv" },
-                    new[] { "CSV-Datei" });
-                var file = await globalOpenFileDialog.ShowAsync(this);
-                if (file is null || file.Length == 0) return;
-                var fileentries = File.ReadAllLinesAsync(file[0]).Result.ToList();
+                var file = await ShowOpenFileDialog("Nutzer ohne DV-Zustimmung", extx);
+                if (file is null) return;
+                var filepath = file.Path.AbsolutePath;
+                var fileentries = File.ReadAllLinesAsync(filepath).Result.ToList();
                 if (fileentries.Count < 1) return;
                 fileentries.RemoveAt(0);
                 var susToDel = fileentries.Select(line => myschool.GetSchueler(Convert.ToInt32(line.Split(';')[0])))
@@ -2326,20 +2333,21 @@ namespace StS_GUI_Avalonia
 
         private async void MnuLoadElternMails_OnClick(object? sender, RoutedEventArgs e)
         {
-            SetupOpenFileDialog(globalOpenFileDialog, "Lade Elternmailadressen", new[] { "csv", "*" },
-                new[] { "CSV-Datei", "Alle-Dateien" });
-            var respath = await globalOpenFileDialog.ShowAsync(this);
-            if (respath is { Length: > 0 })
+            var extx = new List<FilePickerFileType>
             {
-                await myschool.ElternEinlesen(respath[0]);
-            }
+                StSFileTypes.CSVFile,
+                FilePickerFileTypes.All
+            };
+            var file = await ShowOpenFileDialog("Lade Elternmailadressen", extx);
+            if (file is null) return;
+            var filepath = file.Path.AbsolutePath;
+            await myschool.ElternEinlesen(filepath);
         }
 
         private async void MnuExportLKtoHP_OnClick(object? sender, RoutedEventArgs e)
         {
             var saveLKtoHP = async () =>
             {
-
                 var extx = new List<FilePickerFileType>
                 {
                     StSFileTypes.CSVFile
@@ -2565,19 +2573,30 @@ namespace StS_GUI_Avalonia
 
         private async void BtnSonstDVIDs_OnClick(object? sender, RoutedEventArgs e)
         {
-            SetupOpenFileDialog(globalOpenFileDialog, "Einwilligungen alt", new[] { "csv", "*" },
-                new[] { "CSV-Datei", "Alle-Dateien" });
-            var alterStatusFilePath = await globalOpenFileDialog.ShowAsync(this);
-            if (alterStatusFilePath == null || alterStatusFilePath.Length == 0) return;
-            var alterstatus = await File.ReadAllLinesAsync(alterStatusFilePath[0]);
-            SetupOpenFileDialog(globalOpenFileDialog, "Einwilligungen neu", new[] { "csv", "*" },
-                new[] { "CSV-Datei", "Alle-Dateien" });
-            var neuerStatusFilePath = await globalOpenFileDialog.ShowAsync(this);
-            if (neuerStatusFilePath == null || neuerStatusFilePath.Length == 0) return;
-            var neuerStatus = await File.ReadAllLinesAsync(neuerStatusFilePath[0]);
+            var extx = new List<FilePickerFileType>
+            {
+                StSFileTypes.CSVFile,
+                FilePickerFileTypes.All
+            };
+            var file = await ShowOpenFileDialog("Einwilligungen alt", extx);
+            if (file is null) return;
+            var alterStatusFilePath = file.Path.AbsolutePath;
+            var alterstatus = await File.ReadAllLinesAsync(alterStatusFilePath);
+            file = await ShowOpenFileDialog("Einwilligungen neu", extx);
+            if (file is null) return;
+            var neuerStatusFilePath = file.Path.AbsolutePath;
+            var neuerStatus = await File.ReadAllLinesAsync(neuerStatusFilePath);
 
-            var alteIDListe = (from line in alterstatus select line.Split(';')[0] into id where id.All(char.IsDigit) select Convert.ToInt32(id)).ToList();
-            var neueIDListe = (from line in neuerStatus select line.Split(';')[0] into id where id.All(char.IsDigit) select Convert.ToInt32(id)).ToList();
+            var alteIDListe = (from line in alterstatus
+                select line.Split(';')[0]
+                into id
+                where id.All(char.IsDigit)
+                select Convert.ToInt32(id)).ToList();
+            var neueIDListe = (from line in neuerStatus
+                select line.Split(';')[0]
+                into id
+                where id.All(char.IsDigit)
+                select Convert.ToInt32(id)).ToList();
             var diff = alteIDListe.Except(neueIDListe);
             var ids = diff.Aggregate("", (current, id) => current + ';' + id).TrimStart(';');
             var clipboard = Clipboard;
