@@ -150,20 +150,6 @@ namespace StS_GUI_Avalonia
         private async Task<IStorageFile> ShowSaveFileDialog(string dialogtitle,
             IReadOnlyList<FilePickerFileType> extensions)
         {
-            //if (extensions.Count != extensionnames.Count) return;
-            //sfd.DefaultExtension = extensions[0];
-            //sfd.Title = dialogtitle;
-            //List<FileDialogFilter> filters = new();
-            //for (var i = 0; i < extensions.Count; i++)
-            //{
-            //    FileDialogFilter filter = new();
-            //    List<string> extension = new() { extensions[i] };
-            //    filter.Extensions = extension;
-            //    filter.Name = extensionnames[i];
-            //    filters.Add(filter);
-            //}
-
-            //sfd.Filters = filters;
             var topLevel = TopLevel.GetTopLevel(this);
             if (topLevel == null) return null;
             var files = await topLevel.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
