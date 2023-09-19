@@ -21,6 +21,8 @@ using System.Timers;
 using Avalonia.Platform.Storage;
 using StS_GUI_Avalonia.services;
 
+// ReSharper disable InconsistentNaming
+
 namespace StS_GUI_Avalonia
 {
     public partial class MainWindow : Window
