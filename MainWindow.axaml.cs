@@ -35,6 +35,7 @@ namespace StS_GUI_Avalonia
         private WindowIcon msgBoxWindowIcon;
         private MenuItem mnuItemCopySuSID;
         private MenuItem mnuItemCopySuSMail;
+        private MenuItem _mnuItemCopyKursBez;
 
 
         public MainWindow()
@@ -145,10 +146,17 @@ namespace StS_GUI_Avalonia
                 Name = "mnuItemCopyMail",
                 Header = "Mail-Adressen"
             };
-            mnuItemCopySuSMail.Click += MnuItemCopySuSMailOnClick;
+            _mnuItemCopySuSMail.Click += MnuItemCopySuSMailOnClick;
+            _mnuItemCopyKursBez = new MenuItem
+            {
+                Name = "mnuItemCopyKursBez",
+                Header = "Kursbezeichnungen"
+            };
+            _mnuItemCopyKursBez.Click += MnuItemCopyKursBezOnClick;
 
             copyContextItems.Add(mnuItemCopySuSID);
             copyContextItems.Add(mnuItemCopySuSMail);
+            copyContextItems.Add(_mnuItemCopyKursBez);
             mnuItemCopyMenu.ItemsSource = copyContextItems;
             leftContextItems.Add(mnuItemCopyMenu);
             leftContextItems.Add(cbMAnfangsPassword);
@@ -2655,6 +2663,15 @@ namespace StS_GUI_Avalonia
             var clipboard = Clipboard;
             if (clipboard == null) return;
             await clipboard.SetTextAsync(sus.TrimEnd(','));
+        }
+
+        private async void MnuItemCopyKursBezOnClick(object? sender, RoutedEventArgs e)
+        {
+            var bezliste = LeftListBox.SelectedItems.Cast<string>()
+                .Aggregate("", (current, bez) => current + bez + ",");
+            var clipboard = Clipboard;
+            if (clipboard == null) return;
+            await clipboard.SetTextAsync(bezliste.TrimEnd(','));
         }
     }
 }
