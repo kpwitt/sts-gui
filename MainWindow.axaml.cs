@@ -144,7 +144,7 @@ namespace StS_GUI_Avalonia
                 new WindowIcon(AssetLoader.Open(new Uri("avares://StS-GUI-Avalonia/Assets/gfx/school-building.png")));
         }
 
-        private async Task<IStorageFile> ShowSaveFileDialog(string dialogtitle,
+        private async Task<IStorageFile?> ShowSaveFileDialog(string dialogtitle,
             IReadOnlyList<FilePickerFileType> extensions)
         {
             var topLevel = TopLevel.GetTopLevel(this);
@@ -157,7 +157,7 @@ namespace StS_GUI_Avalonia
             return files;
         }
 
-        private async Task<IStorageFile> ShowOpenFileDialog(string dialogtitle,
+        private async Task<IStorageFile?> ShowOpenFileDialog(string dialogtitle,
             IReadOnlyList<FilePickerFileType> extensions)
         {
             var topLevel = TopLevel.GetTopLevel(this);
@@ -171,7 +171,7 @@ namespace StS_GUI_Avalonia
             return files[0];
         }
 
-        private async Task<IStorageFolder> ShowOpenFolderDialog(string dialogtitle)
+        private async Task<IStorageFolder?> ShowOpenFolderDialog(string dialogtitle)
         {
             var topLevel = TopLevel.GetTopLevel(this);
             if (topLevel == null) return null;
@@ -384,8 +384,7 @@ namespace StS_GUI_Avalonia
                     StSFileTypes.EncryptedFile
                 };
                 var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
-                if (files == null) return;
-                var outputFilePath = files.Path.AbsolutePath;
+                var outputFilePath = files?.Path.AbsolutePath;
                 if (outputFilePath == null) return;
 
                 LocalCryptoServive.FileDecrypt(inputFilePath, outputFilePath, inputResult);
