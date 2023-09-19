@@ -25,16 +25,16 @@ namespace StS_GUI_Avalonia
 {
     public partial class MainWindow : Window
     {
-        private readonly Timer leftInputTimer = new(350);
-        private readonly Timer rightInputTimer = new(350);
-        private Schuldatenbank myschool;
-        private readonly ContextMenu leftContext = new();
-        private readonly Brush darkBackgroundColor = new SolidColorBrush(Color.FromRgb(80, 80, 80));
-        private readonly Brush lightBackgroundColor = new SolidColorBrush(Color.FromRgb(242, 242, 242));
-        private bool rightMutex;
-        private WindowIcon msgBoxWindowIcon;
-        private MenuItem mnuItemCopySuSID;
-        private MenuItem mnuItemCopySuSMail;
+        private readonly Timer _leftInputTimer = new(350);
+        private readonly Timer _rightInputTimer = new(350);
+        private Schuldatenbank _myschool;
+        private readonly ContextMenu _leftContext = new();
+        private readonly Brush _darkBackgroundColor = new SolidColorBrush(Color.FromRgb(80, 80, 80));
+        private readonly Brush _lightBackgroundColor = new SolidColorBrush(Color.FromRgb(242, 242, 242));
+        private bool _rightMutex;
+        private WindowIcon _msgBoxWindowIcon;
+        private MenuItem _mnuItemCopySuSid;
+        private MenuItem _mnuItemCopySuSMail;
         private MenuItem _mnuItemCopyKursBez;
 
 
@@ -60,34 +60,34 @@ namespace StS_GUI_Avalonia
             if (args.Count != 1) return;
             var filepath = args[0];
             if (!File.Exists(filepath) || !filepath.EndsWith(".sqlite")) return;
-            myschool = new Schuldatenbank(filepath);
-            Title = "SchildToSchule - " + myschool.GetFilePath().Result;
+            _myschool = new Schuldatenbank(filepath);
+            Title = "SchildToSchule - " + _myschool.GetFilePath().Result;
             InitData();
         }
 
         private void InitGUI()
         {
-            myschool = new Schuldatenbank(":memory:");
-            var settings = myschool.GetSettings().Result;
+            _myschool = new Schuldatenbank(":memory:");
+            var settings = _myschool.GetSettings().Result;
             tbSettingMailplatzhalter.Text = settings.Mailsuffix;
             tbSettingKursersetzung.Text = string.IsNullOrEmpty(settings.Fachersetzung)
                 ? ""
                 : settings.Fachersetzung.Split(';')[1];
             tbSettingKurssuffix.Text = settings.Kurssuffix;
-            var kurzfach = myschool.GetFachersatz().Result.Select(t => t.Split(';')[0]);
+            var kurzfach = _myschool.GetFachersatz().Result.Select(t => t.Split(';')[0]);
             foreach (var fachk in kurzfach)
             {
                 tbSettingFachkurz.Text += fachk + '\n';
             }
 
-            var langfach = myschool.GetFachersatz().Result.Select(t => t.Split(';')[1]);
+            var langfach = _myschool.GetFachersatz().Result.Select(t => t.Split(';')[1]);
             foreach (var fachl in langfach)
             {
                 tbSettingFachlang.Text += fachl + '\n';
             }
 
-            leftInputTimer.Elapsed += OnLeftTimedEvent;
-            rightInputTimer.Elapsed += OnRightTimedEvent;
+            _leftInputTimer.Elapsed += OnLeftTimedEvent;
+            _rightInputTimer.Elapsed += OnRightTimedEvent;
 
             List<Control> leftContextItems = new();
             List<Control> copyContextItems = new();
@@ -135,13 +135,13 @@ namespace StS_GUI_Avalonia
                 Name = "mnuItemCopyMenu",
                 Header = "Kopiere..."
             };
-            mnuItemCopySuSID = new MenuItem
+            _mnuItemCopySuSid = new MenuItem
             {
                 Name = "mnuItemCopyMenu",
                 Header = "IDs"
             };
-            mnuItemCopySuSID.Click += MnuItemCopySuSidOnClick;
-            mnuItemCopySuSMail = new MenuItem
+            _mnuItemCopySuSid.Click += MnuItemCopySuSidOnClick;
+            _mnuItemCopySuSMail = new MenuItem
             {
                 Name = "mnuItemCopyMail",
                 Header = "Mail-Adressen"
@@ -154,8 +154,8 @@ namespace StS_GUI_Avalonia
             };
             _mnuItemCopyKursBez.Click += MnuItemCopyKursBezOnClick;
 
-            copyContextItems.Add(mnuItemCopySuSID);
-            copyContextItems.Add(mnuItemCopySuSMail);
+            copyContextItems.Add(_mnuItemCopySuSid);
+            copyContextItems.Add(_mnuItemCopySuSMail);
             copyContextItems.Add(_mnuItemCopyKursBez);
             mnuItemCopyMenu.ItemsSource = copyContextItems;
             leftContextItems.Add(mnuItemCopyMenu);
@@ -166,13 +166,13 @@ namespace StS_GUI_Avalonia
             leftContextItems.Add(mnuItemMSerienbriefDV);
             leftContextItems.Add(mnuItemMPasswordGenerieren);
             leftContextItems.Add(mnuItemExport);
-            leftContext.ItemsSource = leftContextItems;
-            LeftListBox.ContextMenu = leftContext;
+            _leftContext.ItemsSource = leftContextItems;
+            LeftListBox.ContextMenu = _leftContext;
             rbD.IsChecked = true;
             Rb_OnClick(rbD, new RoutedEventArgs());
             LeftListBox.MaxHeight = ClientSize.Height * 1.1;
             RightListBox.MaxHeight = LeftListBox.MaxHeight;
-            msgBoxWindowIcon =
+            _msgBoxWindowIcon =
                 new WindowIcon(AssetLoader.Open(new Uri("avares://StS-GUI-Avalonia/Assets/gfx/school-building.png")));
         }
 
@@ -224,22 +224,22 @@ namespace StS_GUI_Avalonia
             var files = await ShowOpenFileDialog("Bitte einen Dateipfad angeben...", extx);
             if (files == null) return;
             var filepath = files.Path.AbsolutePath;
-            myschool = new Schuldatenbank(filepath);
-            Title = "SchildToSchule - " + await myschool.GetFilePath();
+            _myschool = new Schuldatenbank(filepath);
+            Title = "SchildToSchule - " + await _myschool.GetFilePath();
             InitData();
         }
 
         public async void OnMnuschuleschließenClick(object? sender, RoutedEventArgs e)
         {
-            if (myschool.GetFilePath().Result != ":memory:")
+            if (_myschool.GetFilePath().Result != ":memory:")
             {
                 var leftlist = this.GetControl<ListBox>("LeftListBox");
                 var rightlist = this.GetControl<ListBox>("RightListBox");
                 ResetItemsSource(leftlist, new List<string>());
                 ResetItemsSource(rightlist, new List<string>());
                 Title = "SchildToSchule";
-                myschool.Dispose();
-                myschool = new Schuldatenbank(":memory:");
+                _myschool.Dispose();
+                _myschool = new Schuldatenbank(":memory:");
                 ClearTextFields();
                 InitData();
                 return;
@@ -265,12 +265,12 @@ namespace StS_GUI_Avalonia
 
                 var filepath = files.Path.AbsolutePath;
                 var tempDB = new Schuldatenbank(filepath);
-                var res = await tempDB.Import(myschool);
+                var res = await tempDB.Import(_myschool);
                 await Dispatcher.UIThread.InvokeAsync(async () =>
                 {
                     if (res == 0)
                     {
-                        myschool = tempDB;
+                        _myschool = tempDB;
                         var saveDBInPath = MessageBoxManager.GetMessageBoxStandard(
                             new MessageBoxStandardParams
                             {
@@ -279,7 +279,7 @@ namespace StS_GUI_Avalonia
                                 ContentMessage =
                                     "Datenbank erfolgreich gespeichert",
                                 Icon = MsBox.Avalonia.Enums.Icon.Success,
-                                WindowIcon = msgBoxWindowIcon
+                                WindowIcon = _msgBoxWindowIcon
                             });
                         await saveDBInPath.ShowAsPopupAsync(this);
                     }
@@ -293,7 +293,7 @@ namespace StS_GUI_Avalonia
                                 ContentMessage =
                                     "Schließen fehlgeschlagen",
                                 Icon = MsBox.Avalonia.Enums.Icon.Error,
-                                WindowIcon = msgBoxWindowIcon
+                                WindowIcon = _msgBoxWindowIcon
                             });
                         await errorNoSystemDialog.ShowAsPopupAsync(this);
                     }
@@ -314,7 +314,7 @@ namespace StS_GUI_Avalonia
                 if (files == null) return;
                 var filepath = files.Path.AbsolutePath;
                 var tempDB = new Schuldatenbank(filepath);
-                var res = await tempDB.Import(myschool);
+                var res = await tempDB.Import(_myschool);
                 await Dispatcher.UIThread.InvokeAsync(async () =>
                 {
                     if (res != 0)
@@ -327,13 +327,13 @@ namespace StS_GUI_Avalonia
                                 ContentMessage =
                                     "Speichern unter fehlgeschlagen",
                                 Icon = MsBox.Avalonia.Enums.Icon.Error,
-                                WindowIcon = msgBoxWindowIcon
+                                WindowIcon = _msgBoxWindowIcon
                             });
                         await errorNoSystemDialog.ShowAsPopupAsync(this);
                     }
                     else
                     {
-                        myschool = tempDB;
+                        _myschool = tempDB;
                         var saveDBInPath = MessageBoxManager.GetMessageBoxStandard(
                             new MessageBoxStandardParams
                             {
@@ -342,7 +342,7 @@ namespace StS_GUI_Avalonia
                                 ContentMessage =
                                     "Datenbank erfolgreich gespeichert",
                                 Icon = MsBox.Avalonia.Enums.Icon.Success,
-                                WindowIcon = msgBoxWindowIcon
+                                WindowIcon = _msgBoxWindowIcon
                             });
                         await saveDBInPath.ShowAsPopupAsync(this);
                     }
@@ -353,7 +353,7 @@ namespace StS_GUI_Avalonia
 
         public async void OnMnuschuleversspeichernClick(object? sender, RoutedEventArgs e)
         {
-            if (myschool.GetFilePath().Result == ":memory:") return;
+            if (_myschool.GetFilePath().Result == ":memory:") return;
             var getPasswordInput = async () =>
             {
                 var pwiWindow = new PasswordInput();
@@ -371,10 +371,10 @@ namespace StS_GUI_Avalonia
                 var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
                 if (files == null) return;
                 var filepath = files.Path.AbsolutePath;
-                var dbPath = await myschool.GetFilePath();
-                myschool.Dispose();
+                var dbPath = await _myschool.GetFilePath();
+                _myschool.Dispose();
                 LocalCryptoServive.FileEncrypt(dbPath, filepath, inputResult);
-                myschool = new Schuldatenbank(dbPath);
+                _myschool = new Schuldatenbank(dbPath);
             };
             await Task.Run(saveDBFile);
             await Dispatcher.UIThread.InvokeAsync(() =>
@@ -387,7 +387,7 @@ namespace StS_GUI_Avalonia
                         ContentMessage =
                             "Speichern erfolgreich",
                         Icon = MsBox.Avalonia.Enums.Icon.Info,
-                        WindowIcon = msgBoxWindowIcon
+                        WindowIcon = _msgBoxWindowIcon
                     }).ShowAsPopupAsync(this);
             });
         }
@@ -420,14 +420,14 @@ namespace StS_GUI_Avalonia
                 if (outputFilePath == null) return;
 
                 LocalCryptoServive.FileDecrypt(inputFilePath, outputFilePath, inputResult);
-                myschool = new Schuldatenbank(outputFilePath);
+                _myschool = new Schuldatenbank(outputFilePath);
             };
             await Task.Run(saveDBFile);
         }
 
         public void OnMnuexitClick(object? sender, RoutedEventArgs e)
         {
-            myschool.Dispose();
+            _myschool.Dispose();
             Environment.Exit(0);
         }
 
@@ -441,9 +441,9 @@ namespace StS_GUI_Avalonia
                 if (File.Exists(folderpath + "/sus.csv") && File.Exists(folderpath + "/lul.csv") &&
                     File.Exists(folderpath + "/kurse.csv"))
                 {
-                    await myschool.SusEinlesen(folderpath + "/sus.csv");
-                    await myschool.LulEinlesen(folderpath + "/lul.csv");
-                    await myschool.KurseEinlesen(folderpath + "/kurse.csv");
+                    await _myschool.SusEinlesen(folderpath + "/sus.csv");
+                    await _myschool.LulEinlesen(folderpath + "/lul.csv");
+                    await _myschool.KurseEinlesen(folderpath + "/kurse.csv");
                     var aixcsvpath = "";
                     var d = new DirectoryInfo(folderpath);
                     var files = d.GetFiles();
@@ -456,7 +456,7 @@ namespace StS_GUI_Avalonia
 
                     if (aixcsvpath != "")
                     {
-                        await myschool.IdsEinlesen(aixcsvpath);
+                        await _myschool.IdsEinlesen(aixcsvpath);
                     }
 
                     await Dispatcher.UIThread.InvokeAsync(() =>
@@ -470,7 +470,7 @@ namespace StS_GUI_Avalonia
                                 ContentMessage =
                                     "Import erfolgreich",
                                 Icon = MsBox.Avalonia.Enums.Icon.Info,
-                                WindowIcon = msgBoxWindowIcon
+                                WindowIcon = _msgBoxWindowIcon
                             }).ShowAsPopupAsync(this);
                     });
                 }
@@ -488,7 +488,7 @@ namespace StS_GUI_Avalonia
             var files = await ShowOpenFileDialog("Lade Schüler:innendaten", extx);
             if (files == null) return;
             var filePath = files.Path.AbsolutePath;
-            await myschool.SusEinlesen(filePath);
+            await _myschool.SusEinlesen(filePath);
         }
 
         public async void OnMnuloadlulfromfileClick(object? sender, RoutedEventArgs e)
@@ -501,7 +501,7 @@ namespace StS_GUI_Avalonia
             var files = await ShowOpenFileDialog("Lade Lehrer:innendaten", extx);
             if (files == null) return;
             var filePath = files.Path.AbsolutePath;
-            await myschool.LulEinlesen(filePath);
+            await _myschool.LulEinlesen(filePath);
         }
 
         public async void OnMnuloadkursefromfileClick(object? sender, RoutedEventArgs e)
@@ -514,7 +514,7 @@ namespace StS_GUI_Avalonia
             var files = await ShowOpenFileDialog("Lade Kursdaten", extx);
             if (files == null) return;
             var filePath = files.Path.AbsolutePath;
-            await myschool.KurseEinlesen(filePath);
+            await _myschool.KurseEinlesen(filePath);
         }
 
         public async void OnMnuloadusernamesmailClick(object? sender, RoutedEventArgs e)
@@ -527,7 +527,7 @@ namespace StS_GUI_Avalonia
             var files = await ShowOpenFileDialog("Lade Nutzernamen & Mailadressen", extx);
             if (files == null) return;
             var filePath = files.Path.AbsolutePath;
-            await myschool.IdsEinlesen(filePath);
+            await _myschool.IdsEinlesen(filePath);
         }
 
         public async void OnMnuloadzweitaccountsClick(object? sender, RoutedEventArgs e)
@@ -540,7 +540,7 @@ namespace StS_GUI_Avalonia
             var files = await ShowOpenFileDialog("Lade Zweitaccountdaten", extx);
             if (files == null) return;
             var filePath = files.Path.AbsolutePath;
-            await myschool.ZweitAccountsEinlesen(filePath);
+            await _myschool.ZweitAccountsEinlesen(filePath);
         }
 
         public async void OnMnuexporttocsvClick(object? sender, RoutedEventArgs e)
@@ -553,7 +553,7 @@ namespace StS_GUI_Avalonia
                 if (!File.Exists(folderpath + "/sus.csv") && !File.Exists(folderpath + "/lul.csv") &&
                     !File.Exists(folderpath + "/kurse.csv"))
                 {
-                    await myschool.DumpDataToCSVs(folderpath);
+                    await _myschool.DumpDataToCSVs(folderpath);
                 }
             };
             await Task.Run(readFileTask);
@@ -573,7 +573,7 @@ namespace StS_GUI_Avalonia
                         ContentMessage =
                             Application.Current?.Name + "\n" + version,
                         Icon = MsBox.Avalonia.Enums.Icon.Setting,
-                        WindowIcon = msgBoxWindowIcon
+                        WindowIcon = _msgBoxWindowIcon
                     }).ShowAsPopupAsync(this);
             });
         }
@@ -605,7 +605,7 @@ namespace StS_GUI_Avalonia
                             ContentMessage =
                                 "Nicht alle erforderlichen Informationen angegeben!\nStellen Sie sicher, dass ID, Vorname, Nachname, Klasse\nund eine Elternadresse angegeben sind",
                             Icon = MsBox.Avalonia.Enums.Icon.Error,
-                            WindowIcon = msgBoxWindowIcon
+                            WindowIcon = _msgBoxWindowIcon
                         }).ShowAsPopupAsync(this);
                 });
                 return;
@@ -625,39 +625,39 @@ namespace StS_GUI_Avalonia
                             ContentMessage =
                                 "Die SuS-ID enthält nicht nur Zahlen!",
                             Icon = MsBox.Avalonia.Enums.Icon.Error,
-                            WindowIcon = msgBoxWindowIcon
+                            WindowIcon = _msgBoxWindowIcon
                         }).ShowAsPopupAsync(this);
                 });
                 return;
             }
 
             var sid = Convert.ToInt32(susid);
-            if (await myschool.GibtEsSchueler(sid))
+            if (await _myschool.GibtEsSchueler(sid))
             {
-                await myschool.UpdateSchueler(sid, susvname, susnname, suselternadresse, susklasse, susnutzername,
+                await _myschool.UpdateSchueler(sid, susvname, susnname, suselternadresse, susklasse, susnutzername,
                     susaximail, susHatZweitaccount == false ? 0 : 1, suszweitadresse);
-                var alteKurse = myschool.GetKursVonSuS(sid).Result;
+                var alteKurse = _myschool.GetKursVonSuS(sid).Result;
                 foreach (var kurs in alteKurse.Where(kurs => !suskurse.Contains(kurs.Bezeichnung)))
                 {
-                    await myschool.RemoveSfromK(sid, kurs.Bezeichnung);
+                    await _myschool.RemoveSfromK(sid, kurs.Bezeichnung);
                 }
 
                 if (suskurse.Count <= 0) return;
                 {
                     foreach (var kurs in suskurse)
                     {
-                        await myschool.AddStoK(sid, kurs);
+                        await _myschool.AddStoK(sid, kurs);
                     }
                 }
             }
             else
             {
-                await myschool.AddSchuelerIn(sid, susvname, susnname, suselternadresse, susklasse, susnutzername,
+                await _myschool.AddSchuelerIn(sid, susvname, susnname, suselternadresse, susklasse, susnutzername,
                     susaximail, susHatZweitaccount == false ? 0 : 1, suszweitadresse);
                 if (suskurse.Count == 1 && suskurse[0] == "") return;
                 foreach (var kursbez in suskurse)
                 {
-                    await myschool.AddStoK(sid, kursbez);
+                    await _myschool.AddStoK(sid, kursbez);
                 }
             }
         }
@@ -667,7 +667,7 @@ namespace StS_GUI_Avalonia
             var susid = tbSuSID.Text;
             if (susid is null or "" || !susid.All(char.IsDigit)) return;
             var sid = Convert.ToInt32(susid);
-            if (myschool.GetSchueler(sid).Result.ID == 0) return;
+            if (_myschool.GetSchueler(sid).Result.ID == 0) return;
             ListBox source;
             if (CboxDataLeft.SelectedIndex == 0)
             {
@@ -679,22 +679,22 @@ namespace StS_GUI_Avalonia
             }
             else
             {
-                await myschool.RemoveS(sid);
+                await _myschool.RemoveS(sid);
                 return;
             }
 
-            await myschool.StartTransaction();
+            await _myschool.StartTransaction();
             if (source.SelectedItems != null)
             {
                 foreach (var susstring in source.SelectedItems.Cast<string>())
                 {
                     if (susstring == null) return;
                     sid = Convert.ToInt32(susstring.Split(';')[1]);
-                    await myschool.RemoveS(sid);
+                    await _myschool.RemoveS(sid);
                 }
             }
 
-            await myschool.StopTransaction();
+            await _myschool.StopTransaction();
             OnLeftDataChanged(true);
             OnRightDataChanged(true);
         }
@@ -705,7 +705,7 @@ namespace StS_GUI_Avalonia
             var sid = Convert.ToInt32(susid);
             var susklasse = string.IsNullOrEmpty(tbSuSKlasse.Text) ? "" : tbSuSKlasse.Text;
             if (susklasse == "" || sid == 0) return;
-            await myschool.AddStoKlassenKurse(await myschool.GetSchueler(sid), susklasse);
+            await _myschool.AddStoKlassenKurse(await _myschool.GetSchueler(sid), susklasse);
             OnLeftDataChanged(true);
             OnRightDataChanged(true);
         }
@@ -733,7 +733,7 @@ namespace StS_GUI_Avalonia
                             ContentMessage =
                                 "Nicht alle erforderlichen Informationen angegeben!\nStellen Sie sicher, dass ID, Vorname, Nachname, Kürzel\nund Fakultas ausgefüllt sind.",
                             Icon = MsBox.Avalonia.Enums.Icon.Error,
-                            WindowIcon = msgBoxWindowIcon
+                            WindowIcon = _msgBoxWindowIcon
                         }).ShowAsPopupAsync(this);
                 });
                 return;
@@ -743,35 +743,35 @@ namespace StS_GUI_Avalonia
 
             if (lulid == "" || !lulid.All(char.IsDigit))
             {
-                lulid = myschool.GetLehrerIDListe().Result.Max() + 1 + "";
+                lulid = _myschool.GetLehrerIDListe().Result.Max() + 1 + "";
                 lulpwtemp = Schuldatenbank.GeneratePasswort(8);
             }
 
             var lid = Convert.ToInt32(lulid);
-            if (await myschool.GibtEsLehrkraft(lid))
+            if (await _myschool.GibtEsLehrkraft(lid))
             {
-                await myschool.UpdateLehrkraft(lid, lulvname, lulnname, lulkrz, lulmail, lulfakultas, lulpwtemp);
-                var alteKurse = myschool.GetKursVonLuL(lid).Result;
+                await _myschool.UpdateLehrkraft(lid, lulvname, lulnname, lulkrz, lulmail, lulfakultas, lulpwtemp);
+                var alteKurse = _myschool.GetKursVonLuL(lid).Result;
                 foreach (var kurs in alteKurse.Where(kurs => !lulkurse.Contains(kurs.Bezeichnung)))
                 {
-                    await myschool.RemoveLfromK(lid, kurs.Bezeichnung);
+                    await _myschool.RemoveLfromK(lid, kurs.Bezeichnung);
                 }
 
                 if (lulkurse.Count <= 0) return;
                 {
                     foreach (var kurs in lulkurse)
                     {
-                        await myschool.AddLtoK(lid, kurs);
+                        await _myschool.AddLtoK(lid, kurs);
                     }
                 }
             }
             else
             {
-                await myschool.Addlehrkraft(lid, lulvname, lulnname, lulkrz, lulmail, lulfakultas);
+                await _myschool.Addlehrkraft(lid, lulvname, lulnname, lulkrz, lulmail, lulfakultas);
                 if (lulkurse.Count == 0) return;
                 foreach (var kurs in lulkurse)
                 {
-                    await myschool.AddLtoK(lid, kurs);
+                    await _myschool.AddLtoK(lid, kurs);
                 }
             }
 
@@ -795,21 +795,21 @@ namespace StS_GUI_Avalonia
             }
             else
             {
-                await myschool.RemoveL(lid);
+                await _myschool.RemoveL(lid);
                 return;
             }
 
-            await myschool.StartTransaction();
+            await _myschool.StartTransaction();
             if (source.SelectedItems != null)
             {
                 foreach (var lulstring in source.SelectedItems.Cast<string>())
                 {
                     var krz = lulstring.Split(';')[0];
-                    await myschool.RemoveL(krz);
+                    await _myschool.RemoveL(krz);
                 }
             }
 
-            await myschool.StopTransaction();
+            await _myschool.StopTransaction();
             OnLeftDataChanged(true);
             OnRightDataChanged(true);
         }
@@ -819,18 +819,18 @@ namespace StS_GUI_Avalonia
             if (CboxDataLeft == null || CboxDataRight == null) return;
             CboxDataLeft.SelectedIndex = 0;
             CboxDataRight.SelectedIndex = 1;
-            var llist = myschool.GetSchuelerListe().Result.Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID))
+            var llist = _myschool.GetSchuelerListe().Result.Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID))
                 .ToList();
             llist.Sort(Comparer<string>.Default);
             ResetItemsSource(LeftListBox, llist);
-            var settings = myschool.GetSettings().Result;
+            var settings = _myschool.GetSettings().Result;
             tbSettingMailplatzhalter.Text = settings.Mailsuffix;
             tbSettingKursersetzung.Text = string.IsNullOrEmpty(settings.Fachersetzung)
                 ? ""
                 : settings.Fachersetzung.Split(';')[1];
             tbSettingKurssuffix.Text = settings.Kurssuffix;
-            var kurzfach = myschool.GetFachersatz().Result.Select(t => t.Split(';')[0]);
-            var langfach = myschool.GetFachersatz().Result.Select(t => t.Split(';')[1]);
+            var kurzfach = _myschool.GetFachersatz().Result.Select(t => t.Split(';')[0]);
+            var langfach = _myschool.GetFachersatz().Result.Select(t => t.Split(';')[1]);
             tbSettingFachkurz.Text = "";
             foreach (var fachk in kurzfach)
             {
@@ -854,9 +854,9 @@ namespace StS_GUI_Avalonia
         private void CboxDataLeft_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
         {
             ClearTextFields();
-            rightMutex = true;
+            _rightMutex = true;
             OnLeftDataChanged(true);
-            rightMutex = false;
+            _rightMutex = false;
         }
 
         private void ClearTextFields()
@@ -905,9 +905,9 @@ namespace StS_GUI_Avalonia
 
         private void CboxDataRight_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
         {
-            rightMutex = true;
+            _rightMutex = true;
             OnRightDataChanged(true);
-            rightMutex = false;
+            _rightMutex = false;
         }
 
         private void LeftListBox_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
@@ -926,13 +926,14 @@ namespace StS_GUI_Avalonia
             if (LeftListBox == null || RightListBox == null || CboxDataLeft == null || CboxDataRight == null) return;
             if (LeftListBox.SelectedItems == null) return;
             SetStatusText();
-            if (rightMutex && !hasComboBoxChanged) return;
+            if (_rightMutex && !hasComboBoxChanged) return;
             if (hasComboBoxChanged)
             {
                 ResetItemsSource(RightListBox, new List<string>());
             }
 
-            mnuItemCopySuSID.IsVisible = mnuItemCopySuSMail.IsVisible = CboxDataLeft.SelectedIndex == 0;
+            _mnuItemCopySuSid.IsVisible = _mnuItemCopySuSMail.IsVisible = CboxDataLeft.SelectedIndex == 0;
+            _mnuItemCopyKursBez.IsVisible = CboxDataLeft.SelectedIndex == 2;
             switch (CboxDataLeft.SelectedIndex)
             {
                 //s=0;l==1;k==2
@@ -944,7 +945,7 @@ namespace StS_GUI_Avalonia
 
                     if (LeftListBox.SelectedItems.Count < 1 || LeftListBox.SelectedItems == null || hasComboBoxChanged)
                     {
-                        var slist = myschool.GetSchuelerListe().Result
+                        var slist = _myschool.GetSchuelerListe().Result
                             .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID)).Distinct().ToList();
                         slist.Sort(Comparer<string>.Default);
                         ResetItemsSource(LeftListBox, slist);
@@ -953,14 +954,14 @@ namespace StS_GUI_Avalonia
                     else
                     {
                         var sid = LeftListBox.SelectedItems[0]?.ToString()?.Split(';')[1];
-                        var sus = myschool.GetSchueler(Convert.ToInt32(sid)).Result;
+                        var sus = _myschool.GetSchueler(Convert.ToInt32(sid)).Result;
                         LoadSuSData(sus);
                         if (sus.ID == 0) return;
                         switch (CboxDataRight.SelectedIndex)
                         {
                             case 1:
                             {
-                                var rlist = myschool.GetLuLvonSuS(sus.ID).Result
+                                var rlist = _myschool.GetLuLvonSuS(sus.ID).Result
                                     .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).Distinct().ToList();
                                 rlist.Sort(Comparer<string>.Default);
                                 ResetItemsSource(RightListBox, rlist);
@@ -968,7 +969,7 @@ namespace StS_GUI_Avalonia
                             }
                             case 2:
                             {
-                                var rlist = myschool.GetKursVonSuS(sus.ID).Result.Select(k => (k.Bezeichnung))
+                                var rlist = _myschool.GetKursVonSuS(sus.ID).Result.Select(k => (k.Bezeichnung))
                                     .Distinct()
                                     .ToList();
                                 ResetItemsSource(RightListBox, rlist);
@@ -986,7 +987,7 @@ namespace StS_GUI_Avalonia
 
                     if (LeftListBox.SelectedItems.Count < 1 || LeftListBox.SelectedItems == null || hasComboBoxChanged)
                     {
-                        var lullist = myschool.GetLehrerListe().Result
+                        var lullist = _myschool.GetLehrerListe().Result
                             .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).Distinct().ToList();
                         lullist.Sort(Comparer<string>.Default);
                         ResetItemsSource(LeftListBox, lullist);
@@ -996,13 +997,13 @@ namespace StS_GUI_Avalonia
                     {
                         var lulkrz = LeftListBox.SelectedItems[0]?.ToString()?.Split(';')[0];
                         if (string.IsNullOrEmpty(lulkrz)) return;
-                        var lul = myschool.GetLehrkraft(lulkrz).Result;
+                        var lul = _myschool.GetLehrkraft(lulkrz).Result;
                         LoadLuLData(lul);
                         switch (CboxDataRight.SelectedIndex)
                         {
                             case 0:
                             {
-                                var rlist = myschool.GetSuSVonLuL(lul.ID).Result
+                                var rlist = _myschool.GetSuSVonLuL(lul.ID).Result
                                     .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID)).Distinct().ToList();
                                 rlist.Sort(Comparer<string>.Default);
                                 ResetItemsSource(RightListBox, rlist);
@@ -1011,7 +1012,7 @@ namespace StS_GUI_Avalonia
                             }
                             case 2:
                             {
-                                var rlist = myschool.GetKursVonLuL(lul.ID).Result.Select(k => (k.Bezeichnung))
+                                var rlist = _myschool.GetKursVonLuL(lul.ID).Result.Select(k => (k.Bezeichnung))
                                     .Distinct()
                                     .ToList();
                                 rlist.Sort(Comparer<string>.Default);
@@ -1030,7 +1031,7 @@ namespace StS_GUI_Avalonia
 
                     if (LeftListBox.SelectedItems.Count < 1 || LeftListBox.SelectedItems == null || hasComboBoxChanged)
                     {
-                        var klist = myschool.GetKursListe().Result.Select(k => (k.Bezeichnung)).Distinct().ToList();
+                        var klist = _myschool.GetKursListe().Result.Select(k => (k.Bezeichnung)).Distinct().ToList();
                         klist.Sort(Comparer<string>.Default);
                         ResetItemsSource(LeftListBox, klist);
                         ResetItemsSource(RightListBox, new List<string>());
@@ -1039,13 +1040,13 @@ namespace StS_GUI_Avalonia
                     {
                         var kurzbez = LeftListBox.SelectedItems[0]?.ToString();
                         if (string.IsNullOrEmpty(kurzbez)) return;
-                        var kurs = myschool.GetKurs(kurzbez).Result;
+                        var kurs = _myschool.GetKurs(kurzbez).Result;
                         LoadKursData(kurs);
                         switch (CboxDataRight.SelectedIndex)
                         {
                             case 0:
                             {
-                                var rlist = myschool.GetSuSAusKurs(kurs.Bezeichnung).Result
+                                var rlist = _myschool.GetSuSAusKurs(kurs.Bezeichnung).Result
                                     .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID)).Distinct().ToList();
                                 rlist.Sort(Comparer<string>.Default);
                                 ResetItemsSource(RightListBox, rlist);
@@ -1053,7 +1054,7 @@ namespace StS_GUI_Avalonia
                             }
                             case 1:
                             {
-                                var rlist = myschool.GetLuLAusKurs(kurs.Bezeichnung).Result
+                                var rlist = _myschool.GetLuLAusKurs(kurs.Bezeichnung).Result
                                     .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).Distinct().ToList();
                                 rlist.Sort(Comparer<string>.Default);
                                 ResetItemsSource(RightListBox, rlist);
@@ -1097,7 +1098,7 @@ namespace StS_GUI_Avalonia
                     break;
             }
 
-            tbStatusBar.Text = myschool.GetStat().Result + leftcounter + rightcounter + " markiert";
+            tbStatusBar.Text = _myschool.GetStat().Result + leftcounter + rightcounter + " markiert";
         }
 
         private void OnRightDataChanged(bool hasComboBoxChanged)
@@ -1105,7 +1106,7 @@ namespace StS_GUI_Avalonia
             if (LeftListBox == null || RightListBox == null || CboxDataLeft == null || CboxDataRight == null) return;
             if (RightListBox.SelectedItems == null) return;
             SetStatusText();
-            if (rightMutex && !hasComboBoxChanged) return;
+            if (_rightMutex && !hasComboBoxChanged) return;
             if (hasComboBoxChanged)
             {
                 ResetItemsSource(LeftListBox, new List<string>());
@@ -1124,18 +1125,18 @@ namespace StS_GUI_Avalonia
                         {
                             var lulkrz = LeftListBox.SelectedItems[0]?.ToString()?.Split(';')[0];
                             if (string.IsNullOrEmpty(lulkrz)) return;
-                            var lul = myschool.GetLehrkraft(lulkrz).Result;
+                            var lul = _myschool.GetLehrkraft(lulkrz).Result;
                             LoadLuLData(lul);
                             if (RightListBox.SelectedItems.Count > 0)
                             {
                                 var sid = RightListBox.SelectedItems[0]?.ToString()?.Split(';')[1];
-                                var sus = myschool.GetSchueler(Convert.ToInt32(sid)).Result;
+                                var sus = _myschool.GetSchueler(Convert.ToInt32(sid)).Result;
                                 if (sus.ID == 0) return;
                                 LoadSuSData(sus);
                             }
 
                             if (!hasComboBoxChanged) return;
-                            var rlist = myschool.GetSuSVonLuL(lul.ID).Result
+                            var rlist = _myschool.GetSuSVonLuL(lul.ID).Result
                                 .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID)).Distinct().ToList();
                             rlist.Sort(Comparer<string>.Default);
                             ResetItemsSource(LeftListBox, rlist);
@@ -1145,18 +1146,18 @@ namespace StS_GUI_Avalonia
                         {
                             var kurzbez = LeftListBox.SelectedItems[0]?.ToString();
                             if (string.IsNullOrEmpty(kurzbez)) return;
-                            var kurs = myschool.GetKurs(kurzbez).Result;
+                            var kurs = _myschool.GetKurs(kurzbez).Result;
                             LoadKursData(kurs);
                             if (RightListBox.SelectedItems.Count > 0)
                             {
                                 var sid = RightListBox.SelectedItems[0]?.ToString()?.Split(';')[1];
-                                var sus = myschool.GetSchueler(Convert.ToInt32(sid)).Result;
+                                var sus = _myschool.GetSchueler(Convert.ToInt32(sid)).Result;
                                 if (sus.ID == 0) return;
                                 LoadSuSData(sus);
                             }
 
                             if (!hasComboBoxChanged) return;
-                            var rlist = myschool.GetSuSAusKurs(kurs.Bezeichnung).Result
+                            var rlist = _myschool.GetSuSAusKurs(kurs.Bezeichnung).Result
                                 .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID)).Distinct().ToList();
                             rlist.Sort(Comparer<string>.Default);
                             ResetItemsSource(LeftListBox, rlist);
@@ -1174,19 +1175,19 @@ namespace StS_GUI_Avalonia
                         case 0:
                         {
                             var sid = LeftListBox.SelectedItems[0]?.ToString()?.Split(';')[1];
-                            var sus = myschool.GetSchueler(Convert.ToInt32(sid)).Result;
+                            var sus = _myschool.GetSchueler(Convert.ToInt32(sid)).Result;
                             if (sus.ID == 0) return;
                             LoadSuSData(sus);
                             if (RightListBox.SelectedItems.Count > 0)
                             {
                                 var lulkrz = RightListBox.SelectedItems[0]?.ToString()?.Split(';')[0];
                                 if (string.IsNullOrEmpty(lulkrz)) return;
-                                var lul = myschool.GetLehrkraft(lulkrz).Result;
+                                var lul = _myschool.GetLehrkraft(lulkrz).Result;
                                 LoadLuLData(lul);
                             }
 
                             if (!hasComboBoxChanged) return;
-                            var rlist = myschool.GetLuLvonSuS(sus.ID).Result
+                            var rlist = _myschool.GetLuLvonSuS(sus.ID).Result
                                 .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).Distinct().ToList();
                             rlist.Sort(Comparer<string>.Default);
                             ResetItemsSource(LeftListBox, rlist);
@@ -1196,18 +1197,18 @@ namespace StS_GUI_Avalonia
                         {
                             var kurzbez = LeftListBox.SelectedItems[0]?.ToString();
                             if (string.IsNullOrEmpty(kurzbez)) return;
-                            var kurs = myschool.GetKurs(kurzbez).Result;
+                            var kurs = _myschool.GetKurs(kurzbez).Result;
                             LoadKursData(kurs);
                             if (RightListBox.SelectedItems.Count > 0)
                             {
                                 var lulkrz = RightListBox.SelectedItems[0]?.ToString()?.Split(';')[0];
                                 if (string.IsNullOrEmpty(lulkrz)) return;
-                                var lul = myschool.GetLehrkraft(lulkrz).Result;
+                                var lul = _myschool.GetLehrkraft(lulkrz).Result;
                                 LoadLuLData(lul);
                             }
 
                             if (!hasComboBoxChanged) return;
-                            var rlist = myschool.GetLuLAusKurs(kurs.Bezeichnung).Result
+                            var rlist = _myschool.GetLuLAusKurs(kurs.Bezeichnung).Result
                                 .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).Distinct().ToList();
                             rlist.Sort(Comparer<string>.Default);
                             ResetItemsSource(LeftListBox, rlist);
@@ -1225,19 +1226,19 @@ namespace StS_GUI_Avalonia
                         case 0:
                         {
                             var sid = LeftListBox.SelectedItems[0]?.ToString()?.Split(';')[1];
-                            var sus = myschool.GetSchueler(Convert.ToInt32(sid)).Result;
+                            var sus = _myschool.GetSchueler(Convert.ToInt32(sid)).Result;
                             if (sus.ID == 0) return;
                             LoadSuSData(sus);
                             if (RightListBox.SelectedItems.Count > 0)
                             {
                                 var kurzbez = RightListBox.SelectedItems[0]?.ToString();
                                 if (string.IsNullOrEmpty(kurzbez)) return;
-                                var kurs = myschool.GetKurs(kurzbez).Result;
+                                var kurs = _myschool.GetKurs(kurzbez).Result;
                                 LoadKursData(kurs);
                             }
 
                             if (!hasComboBoxChanged) return;
-                            var rlist = myschool.GetKursVonSuS(sus.ID).Result.Select(k => (k.Bezeichnung))
+                            var rlist = _myschool.GetKursVonSuS(sus.ID).Result.Select(k => (k.Bezeichnung))
                                 .Distinct()
                                 .ToList();
                             ResetItemsSource(LeftListBox, rlist);
@@ -1247,18 +1248,18 @@ namespace StS_GUI_Avalonia
                         {
                             var lulkrz = LeftListBox.SelectedItems[0]?.ToString()?.Split(';')[0];
                             if (string.IsNullOrEmpty(lulkrz)) return;
-                            var lul = myschool.GetLehrkraft(lulkrz).Result;
+                            var lul = _myschool.GetLehrkraft(lulkrz).Result;
                             LoadLuLData(lul);
                             if (RightListBox.SelectedItems.Count > 0)
                             {
                                 var kurzbez = RightListBox.SelectedItems[0]?.ToString();
                                 if (string.IsNullOrEmpty(kurzbez)) return;
-                                var kurs = myschool.GetKurs(kurzbez).Result;
+                                var kurs = _myschool.GetKurs(kurzbez).Result;
                                 LoadKursData(kurs);
                             }
 
                             if (!hasComboBoxChanged) return;
-                            var rlist = myschool.GetKursVonLuL(lul.ID).Result.Select(k => (k.Bezeichnung))
+                            var rlist = _myschool.GetKursVonLuL(lul.ID).Result.Select(k => (k.Bezeichnung))
                                 .Distinct()
                                 .ToList();
                             rlist.Sort(Comparer<string>.Default);
@@ -1282,7 +1283,7 @@ namespace StS_GUI_Avalonia
             tbSuSAIXMail.Text = s.Aixmail;
             tbSuSElternadresse.Text = s.Mail;
             tbSuSZweitadresse.Text = s.Zweitmail;
-            tbSuSKurse.Text = myschool.GetKursVonSuS(s.ID).Result
+            tbSuSKurse.Text = _myschool.GetKursVonSuS(s.ID).Result
                 .Aggregate("", (current, kurs) => current + (kurs.Bezeichnung + ",")).TrimEnd(',');
             cbSuSZweitaccount.IsChecked = s.Zweitaccount;
         }
@@ -1297,7 +1298,7 @@ namespace StS_GUI_Avalonia
             tbLuLFach.Text = l.Fakultas;
             tbLuLMail.Text = l.Mail;
             tbLuLtmpPwd.Text = l.Pwttemp;
-            tbLuLKurse.Text = myschool.GetKursVonLuL(l.ID).Result
+            tbLuLKurse.Text = _myschool.GetKursVonLuL(l.ID).Result
                 .Aggregate("", (current, kurs) => current + (kurs.Bezeichnung + ",")).TrimEnd(',');
         }
 
@@ -1305,7 +1306,7 @@ namespace StS_GUI_Avalonia
         {
             if (k.Bezeichnung == "") return;
             tbKursbezeichnung.Text = k.Bezeichnung;
-            tbKursLuL.Text = myschool.GetLuLAusKurs(k.Bezeichnung).Result
+            tbKursLuL.Text = _myschool.GetLuLAusKurs(k.Bezeichnung).Result
                 .Aggregate("", (current, lul) => current + (lul.Kuerzel + ";")).TrimEnd(';');
             tbKursFach.Text = k.Fach;
             tbKursSuffix.Text = k.Suffix;
@@ -1329,7 +1330,7 @@ namespace StS_GUI_Avalonia
                                 ContentMessage =
                                     "Bitte wählen Sie entweder Moodle und/oder AIX als Zielsystem!",
                                 Icon = MsBox.Avalonia.Enums.Icon.Error,
-                                WindowIcon = msgBoxWindowIcon
+                                WindowIcon = _msgBoxWindowIcon
                             }).ShowAsPopupAsync(this);
                     }
                 );
@@ -1356,7 +1357,7 @@ namespace StS_GUI_Avalonia
                             ContentMessage =
                                 "Im Ordner existieren schon eine/mehrere Exportdateien.\nSollen diese überschrieben werden?",
                             Icon = MsBox.Avalonia.Enums.Icon.Question,
-                            WindowIcon = msgBoxWindowIcon
+                            WindowIcon = _msgBoxWindowIcon
                         });
                     var dialogResult = await overwriteFilesDialog.ShowAsPopupAsync(this);
                     expandFiles = dialogResult switch
@@ -1410,11 +1411,11 @@ namespace StS_GUI_Avalonia
                     }
                 }
 
-                var res = await myschool.ExportCSV(folderpath, destsys, whattoexport,
+                var res = await _myschool.ExportCSV(folderpath, destsys, whattoexport,
                     cbExportwithPasswort.IsChecked != null && cbExportwithPasswort.IsChecked.Value,
                     expandFiles, nurMoodleSuffix, kursvorlagen,
-                    await myschool.GetSchuelerIDListe(), await myschool.GetLehrerIDListe(),
-                    await myschool.GetKursBezListe());
+                    await _myschool.GetSchuelerIDListe(), await _myschool.GetLehrerIDListe(),
+                    await _myschool.GetKursBezListe());
                 await CheckSuccesfulExport(res);
             };
 
@@ -1425,20 +1426,20 @@ namespace StS_GUI_Avalonia
         {
             try
             {
-                var kursliste = myschool.GetKursListe().Result;
-                var susliste = myschool.GetSchuelerListe().Result;
+                var kursliste = _myschool.GetKursListe().Result;
+                var susliste = _myschool.GetSchuelerListe().Result;
                 pbFehlersuche.Maximum = kursliste.Count + susliste.Count;
                 var ergebnisliste = new List<string>();
                 if (cbFehlerLeereKurse.IsChecked != null && cbFehlerLeereKurse.IsChecked.Value)
                 {
                     foreach (var k in kursliste)
                     {
-                        if (myschool.GetSuSAusKurs(k.Bezeichnung).Result.Count == 0)
+                        if (_myschool.GetSuSAusKurs(k.Bezeichnung).Result.Count == 0)
                         {
                             ergebnisliste.Add(k.Bezeichnung + " ohne SuS");
                         }
 
-                        if (myschool.GetLuLAusKurs(k.Bezeichnung).Result.Count == 0)
+                        if (_myschool.GetLuLAusKurs(k.Bezeichnung).Result.Count == 0)
                         {
                             ergebnisliste.Add(k.Bezeichnung + " ohne LuL");
                         }
@@ -1449,28 +1450,28 @@ namespace StS_GUI_Avalonia
 
                 if (cbFehlerSuSoK.IsChecked != null && cbFehlerSuSoK.IsChecked.Value)
                 {
-                    ergebnisliste.AddRange(from sus in myschool.GetSchuelerListe().Result
-                        where myschool.GetKursVonSuS(Convert.ToInt32(sus.ID)).Result.Count == 0
+                    ergebnisliste.AddRange(from sus in _myschool.GetSchuelerListe().Result
+                        where _myschool.GetKursVonSuS(Convert.ToInt32(sus.ID)).Result.Count == 0
                         select sus.Nachname + ", " + sus.Vorname + ";" + sus.ID + ";ohne Kurs");
                 }
 
                 if (cbFehlerLuLoK.IsChecked != null && cbFehlerLuLoK.IsChecked.Value)
                 {
-                    ergebnisliste.AddRange(from lul in myschool.GetLehrerListe().Result
-                        where myschool.GetKursVonLuL(Convert.ToInt32(lul.ID)).Result.Count == 0
+                    ergebnisliste.AddRange(from lul in _myschool.GetLehrerListe().Result
+                        where _myschool.GetKursVonLuL(Convert.ToInt32(lul.ID)).Result.Count == 0
                         select lul.Nachname + ", " + lul.Vorname + ";" + lul.ID + ";ohne Kurs");
                 }
 
                 if (cbFehlerLuL.IsChecked != null && cbFehlerLuL.IsChecked.Value)
                 {
-                    ergebnisliste.AddRange(from lul in myschool.GetLehrerListe().Result
+                    ergebnisliste.AddRange(from lul in _myschool.GetLehrerListe().Result
                         where lul.Fakultas.Contains("NV")
                         select lul.Nachname + ", " + lul.Vorname + ";" + lul.ID + ";mit fehlerhafter Fakultas");
                 }
 
                 if (cbFehlerKurse.IsChecked != null && cbFehlerKurse.IsChecked.Value)
                 {
-                    ergebnisliste.AddRange(from kurs in myschool.GetKursListe().Result
+                    ergebnisliste.AddRange(from kurs in _myschool.GetKursListe().Result
                         where kurs.Fach.Length == 0 || kurs.Fach.Equals("---")
                         select kurs.Bezeichnung + " mit fehlerhaftem Fach");
                 }
@@ -1485,7 +1486,7 @@ namespace StS_GUI_Avalonia
                                               sus.ID + ";ohne Nutzernamen");
                         }
 
-                        if (sus.Aixmail.Contains(myschool.GetSettings().Result.Mailsuffix.Split(';')[1]))
+                        if (sus.Aixmail.Contains(_myschool.GetSettings().Result.Mailsuffix.Split(';')[1]))
                         {
                             ergebnisliste.Add(sus.Nachname + ", " + sus.Vorname + ";Klasse " + sus.Klasse + ";" +
                                               sus.ID + ";ohne gültige Mailadresse");
@@ -1511,9 +1512,9 @@ namespace StS_GUI_Avalonia
             catch (Exception ex)
             {
 #if DEBUG
-                _ = myschool.AddLogMessage("Debug", ex.StackTrace + ";" + ex.Message);
+                _ = _myschool.AddLogMessage("Debug", ex.StackTrace + ";" + ex.Message);
 #endif
-                _ = myschool.AddLogMessage("Fehler", "Fehler bei der Fehlersuche " + ex.Message);
+                _ = _myschool.AddLogMessage("Fehler", "Fehler bei der Fehlersuche " + ex.Message);
             }
         }
 
@@ -1548,8 +1549,8 @@ namespace StS_GUI_Avalonia
                 if (!tbExportStufenkurse.Text.Contains(';'))
                 {
                     var stufe = tbExportStufenkurse.Text;
-                    susidlist.AddRange(myschool.GetSusAusStufe(stufe).Result.Select(s => s.ID).ToList());
-                    res = await myschool.ExportCSV(folderpath, "all", "s", false, false, nurMoodleSuffix,
+                    susidlist.AddRange(_myschool.GetSusAusStufe(stufe).Result.Select(s => s.ID).ToList());
+                    res = await _myschool.ExportCSV(folderpath, "all", "s", false, false, nurMoodleSuffix,
                         new[] { "", "" },
                         new ReadOnlyCollection<int>(susidlist),
                         new ReadOnlyCollection<int>(new List<int>()),
@@ -1560,10 +1561,10 @@ namespace StS_GUI_Avalonia
                     var stufen = tbExportStufenkurse.Text.Split(';');
                     foreach (var stufe in stufen)
                     {
-                        susidlist.AddRange(myschool.GetSusAusStufe(stufe).Result.Select(s => s.ID).ToList());
+                        susidlist.AddRange(_myschool.GetSusAusStufe(stufe).Result.Select(s => s.ID).ToList());
                     }
 
-                    res = await myschool.ExportCSV(folderpath, "all", "s", false, false, nurMoodleSuffix,
+                    res = await _myschool.ExportCSV(folderpath, "all", "s", false, false, nurMoodleSuffix,
                         new[] { "", "" },
                         new ReadOnlyCollection<int>(susidlist),
                         new ReadOnlyCollection<int>(new List<int>()),
@@ -1589,7 +1590,7 @@ namespace StS_GUI_Avalonia
                             ContentMessage =
                                 "Der Export war erfolgreich",
                             Icon = MsBox.Avalonia.Enums.Icon.Info,
-                            WindowIcon = msgBoxWindowIcon
+                            WindowIcon = _msgBoxWindowIcon
                         }).ShowAsPopupAsync(this);
                 });
             }
@@ -1605,7 +1606,7 @@ namespace StS_GUI_Avalonia
                             ContentMessage =
                                 "Export war nicht erfolgreiche. Bitte im Log nachschauen",
                             Icon = MsBox.Avalonia.Enums.Icon.Error,
-                            WindowIcon = msgBoxWindowIcon
+                            WindowIcon = _msgBoxWindowIcon
                         }).ShowAsPopupAsync(this);
                 });
             }
@@ -1619,9 +1620,9 @@ namespace StS_GUI_Avalonia
                 if (folder == null) return;
                 var folderpath = folder.Path.AbsolutePath;
                 var nurMoodleSuffix = cbNurMoodleSuffix.IsChecked is not false;
-                var res = await myschool.ExportCSV(folderpath, "all", "s", false, false, nurMoodleSuffix,
+                var res = await _myschool.ExportCSV(folderpath, "all", "s", false, false, nurMoodleSuffix,
                     new[] { "", "" },
-                    new ReadOnlyCollection<int>(myschool.GetSusAusStufe("5").Result.Select(s => s.ID).ToList()),
+                    new ReadOnlyCollection<int>(_myschool.GetSusAusStufe("5").Result.Select(s => s.ID).ToList()),
                     new ReadOnlyCollection<int>(new List<int>()), new ReadOnlyCollection<string>(new List<string>()));
                 await CheckSuccesfulExport(res);
             };
@@ -1667,25 +1668,25 @@ namespace StS_GUI_Avalonia
                     : tbSettingOberstufenkoordination.Text.TrimEnd(','),
             };
 
-            await myschool.SetSettings(settings);
-            await myschool.StartTransaction();
-            if (!await myschool.GibtEsKurs("Erprobungsstufe" + settings.Kurssuffix))
+            await _myschool.SetSettings(settings);
+            await _myschool.StartTransaction();
+            if (!await _myschool.GibtEsKurs("Erprobungsstufe" + settings.Kurssuffix))
             {
-                await myschool.AddKurs("Erprobungsstufe", "", "", "", settings.Kurssuffix, 1);
-                foreach (var s in await myschool.GetSusAusStufe("5"))
+                await _myschool.AddKurs("Erprobungsstufe", "", "", "", settings.Kurssuffix, 1);
+                foreach (var s in await _myschool.GetSusAusStufe("5"))
                 {
-                    await myschool.AddStoK(s.ID, "Erprobungsstufe");
+                    await _myschool.AddStoK(s.ID, "Erprobungsstufe");
                 }
 
-                foreach (var s in await myschool.GetSusAusStufe("6"))
+                foreach (var s in await _myschool.GetSusAusStufe("6"))
                 {
-                    await myschool.AddStoK(s.ID, "Erprobungsstufe");
+                    await _myschool.AddStoK(s.ID, "Erprobungsstufe");
                 }
             }
 
-            foreach (var l in await myschool.GetLuLAusKurs("Erprobungsstufe"))
+            foreach (var l in await _myschool.GetLuLAusKurs("Erprobungsstufe"))
             {
-                await myschool.RemoveLfromK(l.ID, "Erprobungsstufe");
+                await _myschool.RemoveLfromK(l.ID, "Erprobungsstufe");
             }
 
             if (!string.IsNullOrEmpty(tbSettingErprobungsstufenleitung.Text))
@@ -1694,38 +1695,38 @@ namespace StS_GUI_Avalonia
                 {
                     foreach (var krz in tbSettingErprobungsstufenleitung.Text.Split(','))
                     {
-                        await myschool.AddLtoK(await myschool.GetLehrkraft(krz),
-                            await myschool.GetKurs("Erprobungsstufe"));
+                        await _myschool.AddLtoK(await _myschool.GetLehrkraft(krz),
+                            await _myschool.GetKurs("Erprobungsstufe"));
                     }
                 }
                 else
                 {
-                    await myschool.AddLtoK(await myschool.GetLehrkraft(tbSettingErprobungsstufenleitung.Text),
-                        await myschool.GetKurs("Erprobungsstufe"));
+                    await _myschool.AddLtoK(await _myschool.GetLehrkraft(tbSettingErprobungsstufenleitung.Text),
+                        await _myschool.GetKurs("Erprobungsstufe"));
                 }
             }
 
-            if (!myschool.GibtEsKurs("Mittelstufe" + settings.Kurssuffix).Result)
+            if (!_myschool.GibtEsKurs("Mittelstufe" + settings.Kurssuffix).Result)
             {
-                await myschool.AddKurs("Mittelstufe", "", "", "", settings.Kurssuffix, 1);
-                foreach (var s in await myschool.GetSusAusStufe("7"))
+                await _myschool.AddKurs("Mittelstufe", "", "", "", settings.Kurssuffix, 1);
+                foreach (var s in await _myschool.GetSusAusStufe("7"))
                 {
-                    await myschool.AddStoK(s.ID, "Mittelstufe");
+                    await _myschool.AddStoK(s.ID, "Mittelstufe");
                 }
 
-                foreach (var s in await myschool.GetSusAusStufe("8"))
+                foreach (var s in await _myschool.GetSusAusStufe("8"))
                 {
-                    await myschool.AddStoK(s.ID, "Mittelstufe");
+                    await _myschool.AddStoK(s.ID, "Mittelstufe");
                 }
 
-                foreach (var s in await myschool.GetSusAusStufe("9"))
+                foreach (var s in await _myschool.GetSusAusStufe("9"))
                 {
-                    await myschool.AddStoK(s.ID, "Mittelstufe");
+                    await _myschool.AddStoK(s.ID, "Mittelstufe");
                 }
 
-                foreach (var s in await myschool.GetSusAusStufe("10"))
+                foreach (var s in await _myschool.GetSusAusStufe("10"))
                 {
-                    await myschool.AddStoK(s.ID, "Mittelstufe");
+                    await _myschool.AddStoK(s.ID, "Mittelstufe");
                 }
             }
 
@@ -1735,23 +1736,23 @@ namespace StS_GUI_Avalonia
                 {
                     foreach (var krz in tbSettingMittelstufenleitung.Text.Split(','))
                     {
-                        await myschool.AddLtoK(await myschool.GetLehrkraft(krz),
-                            await myschool.GetKurs("Mittelstufe"));
+                        await _myschool.AddLtoK(await _myschool.GetLehrkraft(krz),
+                            await _myschool.GetKurs("Mittelstufe"));
                     }
                 }
                 else
                 {
-                    await myschool.AddLtoK(await myschool.GetLehrkraft(tbSettingMittelstufenleitung.Text),
-                        await myschool.GetKurs("Mittelstufe"));
+                    await _myschool.AddLtoK(await _myschool.GetLehrkraft(tbSettingMittelstufenleitung.Text),
+                        await _myschool.GetKurs("Mittelstufe"));
                 }
             }
 
-            if (!myschool.GibtEsKurs("Einführungsphase" + settings.Kurssuffix).Result)
+            if (!_myschool.GibtEsKurs("Einführungsphase" + settings.Kurssuffix).Result)
             {
-                await myschool.AddKurs("Einführungsphase", "", "EF", "EF", settings.Kurssuffix, 1);
-                foreach (var s in await myschool.GetSusAusStufe("EF"))
+                await _myschool.AddKurs("Einführungsphase", "", "EF", "EF", settings.Kurssuffix, 1);
+                foreach (var s in await _myschool.GetSusAusStufe("EF"))
                 {
-                    await myschool.AddStoK(s.ID, "Einführungsphase");
+                    await _myschool.AddStoK(s.ID, "Einführungsphase");
                 }
             }
 
@@ -1761,23 +1762,23 @@ namespace StS_GUI_Avalonia
                 {
                     foreach (var krz in tbSettingEFstufenleitung.Text.Split(','))
                     {
-                        await myschool.AddLtoK(await myschool.GetLehrkraft(krz),
-                            await myschool.GetKurs("Einführungsphase"));
+                        await _myschool.AddLtoK(await _myschool.GetLehrkraft(krz),
+                            await _myschool.GetKurs("Einführungsphase"));
                     }
                 }
                 else
                 {
-                    await myschool.AddLtoK(await myschool.GetLehrkraft(tbSettingEFstufenleitung.Text),
-                        await myschool.GetKurs("Einführungsphase"));
+                    await _myschool.AddLtoK(await _myschool.GetLehrkraft(tbSettingEFstufenleitung.Text),
+                        await _myschool.GetKurs("Einführungsphase"));
                 }
             }
 
-            if (!myschool.GibtEsKurs("Qualifikationsphase 1" + settings.Kurssuffix).Result)
+            if (!_myschool.GibtEsKurs("Qualifikationsphase 1" + settings.Kurssuffix).Result)
             {
-                await myschool.AddKurs("Qualifikationsphase 1", "", "Q1", "Q1", settings.Kurssuffix, 1);
-                foreach (var s in await myschool.GetSusAusStufe("Q1"))
+                await _myschool.AddKurs("Qualifikationsphase 1", "", "Q1", "Q1", settings.Kurssuffix, 1);
+                foreach (var s in await _myschool.GetSusAusStufe("Q1"))
                 {
-                    await myschool.AddStoK(s.ID, "Qualifikationsphase 1");
+                    await _myschool.AddStoK(s.ID, "Qualifikationsphase 1");
                 }
             }
 
@@ -1787,23 +1788,23 @@ namespace StS_GUI_Avalonia
                 {
                     foreach (var krz in tbSettingQ1stufenleitung.Text.Split(','))
                     {
-                        await myschool.AddLtoK(await myschool.GetLehrkraft(krz),
-                            await myschool.GetKurs("Qualifikationsphase 1"));
+                        await _myschool.AddLtoK(await _myschool.GetLehrkraft(krz),
+                            await _myschool.GetKurs("Qualifikationsphase 1"));
                     }
                 }
                 else
                 {
-                    await myschool.AddLtoK(await myschool.GetLehrkraft(tbSettingQ1stufenleitung.Text),
-                        await myschool.GetKurs("Qualifikationsphase 1"));
+                    await _myschool.AddLtoK(await _myschool.GetLehrkraft(tbSettingQ1stufenleitung.Text),
+                        await _myschool.GetKurs("Qualifikationsphase 1"));
                 }
             }
 
-            if (!myschool.GibtEsKurs("Qualifikationsphase 2" + settings.Kurssuffix).Result)
+            if (!_myschool.GibtEsKurs("Qualifikationsphase 2" + settings.Kurssuffix).Result)
             {
-                await myschool.AddKurs("Qualifikationsphase 2", "", "Q2", "Q2", settings.Kurssuffix, 1);
-                foreach (var s in await myschool.GetSusAusStufe("Q2"))
+                await _myschool.AddKurs("Qualifikationsphase 2", "", "Q2", "Q2", settings.Kurssuffix, 1);
+                foreach (var s in await _myschool.GetSusAusStufe("Q2"))
                 {
-                    await myschool.AddStoK(s.ID, "Qualifikationsphase 2");
+                    await _myschool.AddStoK(s.ID, "Qualifikationsphase 2");
                 }
             }
 
@@ -1813,14 +1814,14 @@ namespace StS_GUI_Avalonia
                 {
                     foreach (var krz in tbSettingQ2stufenleitung.Text.Split(','))
                     {
-                        await myschool.AddLtoK(await myschool.GetLehrkraft(krz),
-                            await myschool.GetKurs("Qualifikationsphase 2"));
+                        await _myschool.AddLtoK(await _myschool.GetLehrkraft(krz),
+                            await _myschool.GetKurs("Qualifikationsphase 2"));
                     }
                 }
                 else
                 {
-                    await myschool.AddLtoK(await myschool.GetLehrkraft(tbSettingQ2stufenleitung.Text),
-                        await myschool.GetKurs("Qualifikationsphase 2"));
+                    await _myschool.AddLtoK(await _myschool.GetLehrkraft(tbSettingQ2stufenleitung.Text),
+                        await _myschool.GetKurs("Qualifikationsphase 2"));
                 }
             }
 
@@ -1830,32 +1831,32 @@ namespace StS_GUI_Avalonia
                 {
                     foreach (var krz in tbSettingOberstufenkoordination.Text.Split(','))
                     {
-                        await myschool.AddLtoK(await myschool.GetLehrkraft(krz),
-                            await myschool.GetKurs("Einführungsphase"));
-                        await myschool.AddLtoK(await myschool.GetLehrkraft(krz),
-                            await myschool.GetKurs("Qualifikationsphase 1"));
-                        await myschool.AddLtoK(await myschool.GetLehrkraft(krz),
-                            await myschool.GetKurs("Qualifikationsphase 2"));
+                        await _myschool.AddLtoK(await _myschool.GetLehrkraft(krz),
+                            await _myschool.GetKurs("Einführungsphase"));
+                        await _myschool.AddLtoK(await _myschool.GetLehrkraft(krz),
+                            await _myschool.GetKurs("Qualifikationsphase 1"));
+                        await _myschool.AddLtoK(await _myschool.GetLehrkraft(krz),
+                            await _myschool.GetKurs("Qualifikationsphase 2"));
                     }
                 }
                 else
                 {
-                    await myschool.AddLtoK(await myschool.GetLehrkraft(tbSettingOberstufenkoordination.Text),
-                        await myschool.GetKurs("Einführungsphase"));
-                    await myschool.AddLtoK(await myschool.GetLehrkraft(tbSettingOberstufenkoordination.Text),
-                        await myschool.GetKurs("Qualifikationsphase 1"));
-                    await myschool.AddLtoK(await myschool.GetLehrkraft(tbSettingOberstufenkoordination.Text),
-                        await myschool.GetKurs("Qualifikationsphase 2"));
+                    await _myschool.AddLtoK(await _myschool.GetLehrkraft(tbSettingOberstufenkoordination.Text),
+                        await _myschool.GetKurs("Einführungsphase"));
+                    await _myschool.AddLtoK(await _myschool.GetLehrkraft(tbSettingOberstufenkoordination.Text),
+                        await _myschool.GetKurs("Qualifikationsphase 1"));
+                    await _myschool.AddLtoK(await _myschool.GetLehrkraft(tbSettingOberstufenkoordination.Text),
+                        await _myschool.GetKurs("Qualifikationsphase 2"));
                 }
             }
 
-            foreach (var kurs in myschool.GetKursListe().Result)
+            foreach (var kurs in _myschool.GetKursListe().Result)
             {
-                await myschool.UpdateKurs(kurs.Bezeichnung, kurs.Fach, kurs.Klasse, kurs.Stufe, settings.Kurssuffix,
+                await _myschool.UpdateKurs(kurs.Bezeichnung, kurs.Fach, kurs.Klasse, kurs.Stufe, settings.Kurssuffix,
                     kurs.Istkurs ? 1 : 0);
             }
 
-            await myschool.StopTransaction();
+            await _myschool.StopTransaction();
         }
 
         private async void BtnLogDelete_OnClick(object? sender, RoutedEventArgs e)
@@ -1869,17 +1870,17 @@ namespace StS_GUI_Avalonia
                     ContentMessage =
                         "Möchten Sie das Log wirklich löschen?",
                     Icon = MsBox.Avalonia.Enums.Icon.Question,
-                    WindowIcon = msgBoxWindowIcon
+                    WindowIcon = _msgBoxWindowIcon
                 });
             var dialogResult = await reallyDeleteLog.ShowAsPopupAsync(this);
             if (dialogResult == ButtonResult.No) return;
             ResetItemsSource(lbLogDisplay, new List<string>());
-            await myschool.LoescheLog();
+            await _myschool.LoescheLog();
         }
 
         private async void BtnLogReload_OnClick(object? sender, RoutedEventArgs e)
         {
-            var items = await myschool.GetLog();
+            var items = await _myschool.GetLog();
             ResetItemsSource(lbLogDisplay, items.Select(message => message.Replace('\t', ' ').TrimEnd('\t')));
         }
 
@@ -1889,7 +1890,7 @@ namespace StS_GUI_Avalonia
             var lehrkraefte = tbKursLuL.Text;
             var kursfach = tbKursFach.Text;
             var kurssuffix = string.IsNullOrEmpty(tbKursSuffix.Text)
-                ? myschool.GetSettings().Result.Kurssuffix
+                ? _myschool.GetSettings().Result.Kurssuffix
                 : tbKursSuffix.Text;
             var kursklasse = tbKursKlasse.Text;
             var kursstufe = tbKursStufe.Text;
@@ -1907,56 +1908,56 @@ namespace StS_GUI_Avalonia
                             ContentMessage =
                                 "Nicht alle erforderlichen Informationen angegeben!\nStellen Sie sicher, dass Kursbezeichnung, mind. ein Kürzel, das Fach, die Klasse und die Stufe ausgefüllt sind.",
                             Icon = MsBox.Avalonia.Enums.Icon.Error,
-                            WindowIcon = msgBoxWindowIcon
+                            WindowIcon = _msgBoxWindowIcon
                         }).ShowAsPopupAsync(this);
                 });
                 return;
             }
 
-            if (await myschool.GibtEsKurs(kursbez))
+            if (await _myschool.GibtEsKurs(kursbez))
             {
-                await myschool.UpdateKurs(kursbez, kursfach, kursklasse, kursstufe, kurssuffix,
+                await _myschool.UpdateKurs(kursbez, kursfach, kursklasse, kursstufe, kurssuffix,
                     Convert.ToInt32(istKurs));
                 List<LuL> tList = new();
                 foreach (var lehrkraft in lehrkraefte.Split((';')))
                 {
-                    tList.Add(await myschool.GetLehrkraft(lehrkraft));
+                    tList.Add(await _myschool.GetLehrkraft(lehrkraft));
                 }
 
-                var tListAusKurs = await myschool.GetLuLAusKurs(kursbez);
+                var tListAusKurs = await _myschool.GetLuLAusKurs(kursbez);
                 foreach (var lehrkraft in tListAusKurs.Where(lehrkraft => !tList.Contains(lehrkraft)))
                 {
-                    await myschool.RemoveLfromK(lehrkraft, await myschool.GetKurs(kursbez));
+                    await _myschool.RemoveLfromK(lehrkraft, await _myschool.GetKurs(kursbez));
                 }
 
                 foreach (var lehrkraft in tList)
                 {
-                    await myschool.AddLtoK(lehrkraft, await myschool.GetKurs(kursbez));
+                    await _myschool.AddLtoK(lehrkraft, await _myschool.GetKurs(kursbez));
                 }
             }
             else
             {
-                await myschool.AddKurs(kursbez, kursfach, kursklasse, kursstufe, kurssuffix, Convert.ToInt32(istKurs));
+                await _myschool.AddKurs(kursbez, kursfach, kursklasse, kursstufe, kurssuffix, Convert.ToInt32(istKurs));
             }
 
             foreach (var lehrkraft in lehrkraefte.Split((';')))
             {
-                await myschool.AddLtoK(await myschool.GetLehrkraft(lehrkraft), await myschool.GetKurs(kursbez));
+                await _myschool.AddLtoK(await _myschool.GetLehrkraft(lehrkraft), await _myschool.GetKurs(kursbez));
             }
 
             if (cbKursSuSdKlasseEinschreiben.IsChecked != null && cbKursSuSdKlasseEinschreiben.IsChecked.Value)
             {
-                foreach (var sus in await myschool.GetSuSAusKlasse(kursklasse))
+                foreach (var sus in await _myschool.GetSuSAusKlasse(kursklasse))
                 {
-                    await myschool.AddStoK(sus, await myschool.GetKurs(kursbez));
+                    await _myschool.AddStoK(sus, await _myschool.GetKurs(kursbez));
                 }
             }
 
             if (cbKursSuSdStufeEinschreiben.IsChecked != null && !cbKursSuSdStufeEinschreiben.IsChecked.Value) return;
             {
-                foreach (var sus in await myschool.GetSusAusStufe(kursklasse))
+                foreach (var sus in await _myschool.GetSusAusStufe(kursklasse))
                 {
-                    await myschool.AddStoK(sus, await myschool.GetKurs(kursbez));
+                    await _myschool.AddStoK(sus, await _myschool.GetKurs(kursbez));
                 }
             }
             OnLeftDataChanged(true);
@@ -1978,19 +1979,19 @@ namespace StS_GUI_Avalonia
             }
             else
             {
-                await myschool.RemoveK(kursbez);
+                await _myschool.RemoveK(kursbez);
                 return;
             }
 
             if (source.SelectedItems == null) return;
-            await myschool.StartTransaction();
+            await _myschool.StartTransaction();
             foreach (var kurs in source.SelectedItems.Cast<string>())
             {
                 if (kurs == null) return;
-                await myschool.RemoveK(kurs);
+                await _myschool.RemoveK(kurs);
             }
 
-            await myschool.StopTransaction();
+            await _myschool.StopTransaction();
             OnLeftDataChanged(true);
             OnRightDataChanged(true);
         }
@@ -2021,7 +2022,7 @@ namespace StS_GUI_Avalonia
                     {
                         case 0:
                             var sliste = new List<SuS>();
-                            var scachelist = myschool.GetSchuelerListe().Result;
+                            var scachelist = _myschool.GetSchuelerListe().Result;
                             foreach (var eingabe in eingabeliste)
                             {
                                 sliste.AddRange(scachelist.Where(s =>
@@ -2036,7 +2037,7 @@ namespace StS_GUI_Avalonia
                             break;
                         case 1:
                             var lliste = new List<LuL>();
-                            var cachlist = myschool.GetLehrerListe().Result;
+                            var cachlist = _myschool.GetLehrerListe().Result;
                             foreach (var eingabe in eingabeliste)
                             {
                                 lliste.AddRange(cachlist.Where(l =>
@@ -2052,7 +2053,7 @@ namespace StS_GUI_Avalonia
                             break;
                         case 2:
                             var kliste = new List<Kurs>();
-                            var kcachelist = myschool.GetKursListe().Result;
+                            var kcachelist = _myschool.GetKursListe().Result;
                             foreach (var eingabe in eingabeliste)
                             {
                                 kliste.AddRange(kcachelist.Where(s =>
@@ -2068,7 +2069,7 @@ namespace StS_GUI_Avalonia
                 }
             };
             await Dispatcher.UIThread.InvokeAsync(updateLeftList);
-            leftInputTimer.Enabled = false;
+            _leftInputTimer.Enabled = false;
         }
 
         private async void OnRightTimedEvent(object? source, ElapsedEventArgs e)
@@ -2097,7 +2098,7 @@ namespace StS_GUI_Avalonia
                     {
                         case 0:
                             var sliste = new List<SuS>();
-                            var scachelist = myschool.GetSchuelerListe().Result;
+                            var scachelist = _myschool.GetSchuelerListe().Result;
                             foreach (var eingabe in eingabeliste)
                             {
                                 sliste.AddRange(scachelist.Where(s =>
@@ -2112,7 +2113,7 @@ namespace StS_GUI_Avalonia
                             break;
                         case 1:
                             var lliste = new List<LuL>();
-                            var cachlist = myschool.GetLehrerListe().Result;
+                            var cachlist = _myschool.GetLehrerListe().Result;
                             foreach (var eingabe in eingabeliste)
                             {
                                 lliste.AddRange(cachlist.Where(l =>
@@ -2128,7 +2129,7 @@ namespace StS_GUI_Avalonia
                             break;
                         case 2:
                             var kliste = new List<Kurs>();
-                            var kcachelist = myschool.GetKursListe().Result;
+                            var kcachelist = _myschool.GetKursListe().Result;
                             foreach (var eingabe in eingabeliste)
                             {
                                 kliste.AddRange(kcachelist.Where(s =>
@@ -2144,19 +2145,19 @@ namespace StS_GUI_Avalonia
                 }
             };
             await Dispatcher.UIThread.InvokeAsync(updateRightList);
-            rightInputTimer.Enabled = false;
+            _rightInputTimer.Enabled = false;
         }
 
         private void TbLeftSearch_OnKeyUp(object? sender, KeyEventArgs e)
         {
-            leftInputTimer.Enabled = true;
-            leftInputTimer.Start();
+            _leftInputTimer.Enabled = true;
+            _leftInputTimer.Start();
         }
 
         private void TbRightSearch_OnKeyUp(object? sender, KeyEventArgs e)
         {
-            rightInputTimer.Enabled = true;
-            rightInputTimer.Start();
+            _rightInputTimer.Enabled = true;
+            _rightInputTimer.Start();
         }
 
         private async void OnMnuSerienbriefClick(object? sender, RoutedEventArgs e)
@@ -2176,7 +2177,7 @@ namespace StS_GUI_Avalonia
                 {
                     case 0:
                         susausgabe.AddRange(LeftListBox.SelectedItems.Cast<string>().ToList()
-                            .Select(sus => myschool.GetSchueler(Convert.ToInt32(sus.Split(';')[1])).Result).Select(s =>
+                            .Select(sus => _myschool.GetSchueler(Convert.ToInt32(sus.Split(';')[1])).Result).Select(s =>
                                 s.Vorname + ";" + s.Nachname + ";" + s.Nutzername + ";" + "Klasse" + s.Klasse +
                                 DateTime.Now.Year + "!;" + s.Aixmail + ";" + s.Klasse));
                         await File.WriteAllLinesAsync(folder, susausgabe.Distinct().ToList(), Encoding.UTF8);
@@ -2184,7 +2185,7 @@ namespace StS_GUI_Avalonia
                     case 2:
                         foreach (string kursbez in LeftListBox.SelectedItems)
                         {
-                            susausgabe.AddRange(myschool.GetSuSAusKurs(kursbez).Result.Distinct().Select(s =>
+                            susausgabe.AddRange(_myschool.GetSuSAusKurs(kursbez).Result.Distinct().Select(s =>
                                 s.Vorname + ";" + s.Nachname + ";" + s.Nutzername + ";" + "Klasse" + s.Klasse +
                                 DateTime.Now.Year + "!;" + s.Aixmail + ";" + s.Klasse));
                         }
@@ -2216,7 +2217,7 @@ namespace StS_GUI_Avalonia
                 var fileentries = File.ReadAllLinesAsync(filepath).Result.ToList();
                 if (fileentries.Count < 1) return;
                 fileentries.RemoveAt(0);
-                var susToDel = fileentries.Select(line => myschool.GetSchueler(Convert.ToInt32(line.Split(';')[0])))
+                var susToDel = fileentries.Select(line => _myschool.GetSchueler(Convert.ToInt32(line.Split(';')[0])))
                     .ToList();
                 List<string> susausgabe = new() { "Vorname;Nachname;Anmeldename;Kennwort;E-Mail;Klasse" };
                 switch (CboxDataLeft.SelectedIndex)
@@ -2224,7 +2225,7 @@ namespace StS_GUI_Avalonia
                     case 2:
                         foreach (string kursbez in LeftListBox.SelectedItems)
                         {
-                            var suslist = myschool.GetSuSAusKurs(kursbez).Result.Distinct().ToList();
+                            var suslist = _myschool.GetSuSAusKurs(kursbez).Result.Distinct().ToList();
                             if (suslist.Count < 1) continue;
                             foreach (var s in susToDel)
                             {
@@ -2248,14 +2249,14 @@ namespace StS_GUI_Avalonia
         {
             if (LeftListBox.SelectedItems == null) return;
             if (CboxDataLeft.SelectedIndex != 1) return;
-            await myschool.StartTransaction();
+            await _myschool.StartTransaction();
             foreach (string luleintrag in LeftListBox.SelectedItems)
             {
-                var lul = await myschool.GetLehrkraft(luleintrag.Split(';')[0]);
-                myschool.SetTPwd(lul.ID, Schuldatenbank.GeneratePasswort(8));
+                var lul = await _myschool.GetLehrkraft(luleintrag.Split(';')[0]);
+                _myschool.SetTPwd(lul.ID, Schuldatenbank.GeneratePasswort(8));
             }
 
-            await myschool.StopTransaction();
+            await _myschool.StopTransaction();
         }
 
         private async void OnMnuExportClick(object? sender, RoutedEventArgs e)
@@ -2282,7 +2283,7 @@ namespace StS_GUI_Avalonia
                             ContentMessage =
                                 "Im Ordner existieren schon eine/mehrere Exportdateien.\nSollen diese überschrieben werden?",
                             Icon = MsBox.Avalonia.Enums.Icon.Question,
-                            WindowIcon = msgBoxWindowIcon
+                            WindowIcon = _msgBoxWindowIcon
                         });
                     var dialogResult = await overwriteFilesDialog.ShowAsPopupAsync(this);
                     expandFiles = dialogResult switch
@@ -2304,7 +2305,7 @@ namespace StS_GUI_Avalonia
                         whattoexport += "s";
                         foreach (string suseintrag in LeftListBox.SelectedItems)
                         {
-                            suslist.Add(await myschool.GetSchueler(Convert.ToInt32(suseintrag.Split(';')[1])));
+                            suslist.Add(await _myschool.GetSchueler(Convert.ToInt32(suseintrag.Split(';')[1])));
                         }
 
                         break;
@@ -2319,7 +2320,7 @@ namespace StS_GUI_Avalonia
 
                         foreach (string luleintrag in LeftListBox.SelectedItems)
                         {
-                            lullist.Add(await myschool.GetLehrkraft(luleintrag.Split(';')[0]));
+                            lullist.Add(await _myschool.GetLehrkraft(luleintrag.Split(';')[0]));
                         }
 
                         break;
@@ -2327,10 +2328,10 @@ namespace StS_GUI_Avalonia
                         whattoexport += "ksl";
                         foreach (string kurseintrag in LeftListBox.SelectedItems)
                         {
-                            var kurs = await myschool.GetKurs(kurseintrag);
+                            var kurs = await _myschool.GetKurs(kurseintrag);
                             kurslist.Add(kurs);
-                            suslist.AddRange(myschool.GetSuSAusKurs(kurs.Bezeichnung).Result);
-                            lullist.AddRange(myschool.GetLuLAusKurs(kurs.Bezeichnung).Result);
+                            suslist.AddRange(_myschool.GetSuSAusKurs(kurs.Bezeichnung).Result);
+                            lullist.AddRange(_myschool.GetLuLAusKurs(kurs.Bezeichnung).Result);
                         }
 
                         break;
@@ -2360,7 +2361,7 @@ namespace StS_GUI_Avalonia
                     var isAnfangsPasswortChecked = ((CheckBox)LeftListBox.ContextMenu.Items.Cast<Control>()
                         .Where(c => c.Name == "cbMnuLeftContextAnfangsPasswort").ToList().First()).IsChecked;
                     var nurMoodleSuffix = cbNurMoodleSuffix.IsChecked is not false;
-                    var res = await myschool.ExportCSV(folderpath, destsys, whattoexport,
+                    var res = await _myschool.ExportCSV(folderpath, destsys, whattoexport,
                         isAnfangsPasswortChecked != null && isAnfangsPasswortChecked.Value,
                         expandFiles, nurMoodleSuffix, kursvorlagen,
                         new ReadOnlyCollection<int>(suslist.Select(s => s.ID).Distinct().ToList()),
@@ -2383,7 +2384,7 @@ namespace StS_GUI_Avalonia
             var file = await ShowOpenFileDialog("Lade Elternmailadressen", extx);
             if (file is null) return;
             var filepath = file.Path.AbsolutePath;
-            await myschool.ElternEinlesen(filepath);
+            await _myschool.ElternEinlesen(filepath);
         }
 
         private async void MnuExportLKtoHP_OnClick(object? sender, RoutedEventArgs e)
@@ -2401,7 +2402,7 @@ namespace StS_GUI_Avalonia
                 {
                     "Kürzel;Nachname;Vorname;Fächer;Mailadresse"
                 };
-                lulliste.AddRange(myschool.GetLehrerListe().Result.Select(lehrer =>
+                lulliste.AddRange(_myschool.GetLehrerListe().Result.Select(lehrer =>
                     lehrer.Kuerzel + ";" + lehrer.Nachname + ";" + lehrer.Vorname + ";" +
                     lehrer.Fakultas + ";" + lehrer.Mail).OrderBy(s => s.Split(';')[0]));
                 await File.WriteAllLinesAsync(filepath, lulliste, Encoding.UTF8);
@@ -2424,17 +2425,17 @@ namespace StS_GUI_Avalonia
             if (sender == null) return;
             if (sender.Equals(rbD))
             {
-                Background = darkBackgroundColor;
-                LeftListBox.Background = darkBackgroundColor;
-                RightListBox.Background = darkBackgroundColor;
-                lbFehlerliste.Background = darkBackgroundColor;
+                Background = _darkBackgroundColor;
+                LeftListBox.Background = _darkBackgroundColor;
+                RightListBox.Background = _darkBackgroundColor;
+                lbFehlerliste.Background = _darkBackgroundColor;
             }
             else if (sender.Equals(rbL))
             {
-                Background = lightBackgroundColor;
-                LeftListBox.Background = lightBackgroundColor;
-                RightListBox.Background = lightBackgroundColor;
-                lbFehlerliste.Background = lightBackgroundColor;
+                Background = _lightBackgroundColor;
+                LeftListBox.Background = _lightBackgroundColor;
+                RightListBox.Background = _lightBackgroundColor;
+                lbFehlerliste.Background = _lightBackgroundColor;
             }
         }
 
@@ -2442,9 +2443,9 @@ namespace StS_GUI_Avalonia
         {
             if (tbLuLKuerzel == null || tbLuLID == null || string.IsNullOrEmpty(tbLuLKuerzel.Text) ||
                 string.IsNullOrEmpty(tbLuLID.Text)) return;
-            var lul = await myschool.GetLehrkraft(tbLuLKuerzel.Text);
+            var lul = await _myschool.GetLehrkraft(tbLuLKuerzel.Text);
             var pwd = Schuldatenbank.GeneratePasswort(8);
-            myschool.SetTPwd(lul.ID, pwd);
+            _myschool.SetTPwd(lul.ID, pwd);
             tbLuLtmpPwd.Text = pwd;
         }
 
@@ -2457,88 +2458,88 @@ namespace StS_GUI_Avalonia
 
         private async void BtnSonstOberstufenLuLKurse_OnClick(object? sender, RoutedEventArgs e)
         {
-            await myschool.StartTransaction();
+            await _myschool.StartTransaction();
             var kursBez = "Jahrgangsstufenkonferenz EF";
-            var settingsCache = await myschool.GetSettings();
+            var settingsCache = await _myschool.GetSettings();
             if (!string.IsNullOrEmpty(settingsCache.EFStufenleitung))
             {
-                if (!myschool.GibtEsKurs(kursBez).Result)
+                if (!_myschool.GibtEsKurs(kursBez).Result)
                 {
-                    await myschool.AddKurs(kursBez, "-", "EF", "EF", settingsCache.Kurssuffix, 1);
+                    await _myschool.AddKurs(kursBez, "-", "EF", "EF", settingsCache.Kurssuffix, 1);
                 }
 
                 foreach (var krz in settingsCache.EFStufenleitung.Split(','))
                 {
-                    await myschool.AddLtoK(myschool.GetLehrkraft(krz).Result.ID, kursBez);
+                    await _myschool.AddLtoK(_myschool.GetLehrkraft(krz).Result.ID, kursBez);
                 }
 
                 foreach (var krz in settingsCache.Oberstufenkoordination.Split(','))
                 {
-                    await myschool.AddLtoK(myschool.GetLehrkraft(krz).Result.ID, kursBez);
+                    await _myschool.AddLtoK(_myschool.GetLehrkraft(krz).Result.ID, kursBez);
                 }
 
-                foreach (var lid in myschool.GetLuLAusStufe("EF").Result)
+                foreach (var lid in _myschool.GetLuLAusStufe("EF").Result)
                 {
-                    await myschool.AddLtoK(lid.ID, kursBez);
+                    await _myschool.AddLtoK(lid.ID, kursBez);
                 }
             }
 
             kursBez = "Jahrgangsstufenkonferenz Q1";
             if (!string.IsNullOrEmpty(settingsCache.Q1Stufenleitung))
             {
-                if (!myschool.GibtEsKurs(kursBez).Result)
+                if (!_myschool.GibtEsKurs(kursBez).Result)
                 {
-                    await myschool.AddKurs(kursBez, "-", "Q1", "Q1", settingsCache.Kurssuffix, 1);
+                    await _myschool.AddKurs(kursBez, "-", "Q1", "Q1", settingsCache.Kurssuffix, 1);
                 }
 
                 foreach (var krz in settingsCache.Q1Stufenleitung.Split(','))
                 {
-                    await myschool.AddLtoK(myschool.GetLehrkraft(krz).Result.ID, kursBez);
+                    await _myschool.AddLtoK(_myschool.GetLehrkraft(krz).Result.ID, kursBez);
                 }
 
                 foreach (var krz in settingsCache.Oberstufenkoordination.Split(','))
                 {
-                    await myschool.AddLtoK(myschool.GetLehrkraft(krz).Result.ID, kursBez);
+                    await _myschool.AddLtoK(_myschool.GetLehrkraft(krz).Result.ID, kursBez);
                 }
 
-                foreach (var lid in myschool.GetLuLAusStufe("Q1").Result)
+                foreach (var lid in _myschool.GetLuLAusStufe("Q1").Result)
                 {
-                    await myschool.AddLtoK(lid.ID, kursBez);
+                    await _myschool.AddLtoK(lid.ID, kursBez);
                 }
             }
 
             kursBez = "Jahrgangsstufenkonferenz Q2";
             if (string.IsNullOrEmpty(settingsCache.Q2Stufenleitung)) return;
-            if (!myschool.GibtEsKurs(kursBez).Result)
+            if (!_myschool.GibtEsKurs(kursBez).Result)
             {
-                await myschool.AddKurs(kursBez, "-", "Q2", "Q2", settingsCache.Kurssuffix, 1);
+                await _myschool.AddKurs(kursBez, "-", "Q2", "Q2", settingsCache.Kurssuffix, 1);
             }
 
             foreach (var krz in settingsCache.Q2Stufenleitung.Split(','))
             {
-                await myschool.AddLtoK(myschool.GetLehrkraft(krz).Result.ID, kursBez);
+                await _myschool.AddLtoK(_myschool.GetLehrkraft(krz).Result.ID, kursBez);
             }
 
             foreach (var krz in settingsCache.Oberstufenkoordination.Split(','))
             {
-                await myschool.AddLtoK(myschool.GetLehrkraft(krz).Result.ID, kursBez);
+                await _myschool.AddLtoK(_myschool.GetLehrkraft(krz).Result.ID, kursBez);
             }
 
-            foreach (var lid in myschool.GetLuLAusStufe("Q2").Result)
+            foreach (var lid in _myschool.GetLuLAusStufe("Q2").Result)
             {
-                await myschool.AddLtoK(lid.ID, kursBez);
+                await _myschool.AddLtoK(lid.ID, kursBez);
             }
 
-            await myschool.StopTransaction();
+            await _myschool.StopTransaction();
         }
 
         private async void BtnModErstellung_OnClick(object? sender, RoutedEventArgs e)
         {
             if (cbSonst1 == null || cbSonst2 == null ||
                 cbSonst3 == null || string.IsNullOrEmpty(tbSonst3.Text) || string.IsNullOrEmpty(tbSonst2.Text)) return;
-            var suscache = await myschool.GetSchuelerListe();
-            var lulcache = await myschool.GetLehrerListe();
-            var kurscache = await myschool.GetKursListe();
+            var suscache = await _myschool.GetSchuelerListe();
+            var lulcache = await _myschool.GetLehrerListe();
+            var kurscache = await _myschool.GetKursListe();
             var susliste = new List<SuS>();
             var lulliste = new List<LuL>();
             switch (cbSonst1.SelectedIndex)
@@ -2574,32 +2575,32 @@ namespace StS_GUI_Avalonia
                     return;
                 case 0 or 1:
                 {
-                    await myschool.StartTransaction();
+                    await _myschool.StartTransaction();
                     foreach (var kurs in kursliste)
                     {
                         foreach (var sus in susliste)
                         {
-                            await myschool.AddStoK(sus, kurs);
+                            await _myschool.AddStoK(sus, kurs);
                         }
                     }
 
-                    await myschool.StopTransaction();
+                    await _myschool.StopTransaction();
                     return;
                 }
                 case 2 or 3 when lulliste.Count < 1:
                     return;
                 case 2 or 3:
                 {
-                    await myschool.StartTransaction();
+                    await _myschool.StartTransaction();
                     foreach (var kurs in kursliste)
                     {
                         foreach (var lul in lulliste)
                         {
-                            await myschool.AddLtoK(lul, kurs);
+                            await _myschool.AddLtoK(lul, kurs);
                         }
                     }
 
-                    await myschool.StopTransaction();
+                    await _myschool.StopTransaction();
                     return;
                 }
             }
@@ -2659,7 +2660,7 @@ namespace StS_GUI_Avalonia
         {
             var sus = LeftListBox.SelectedItems.Cast<string>().Aggregate("",
                 (current, item) =>
-                    current + myschool.GetSchueler(Convert.ToInt32(item.Split(';')[1])).Result.Mail + ",");
+                    current + _myschool.GetSchueler(Convert.ToInt32(item.Split(';')[1])).Result.Mail + ",");
             var clipboard = Clipboard;
             if (clipboard == null) return;
             await clipboard.SetTextAsync(sus.TrimEnd(','));
