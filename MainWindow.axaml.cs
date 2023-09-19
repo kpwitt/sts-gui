@@ -38,6 +38,8 @@ namespace StS_GUI_Avalonia
         private MenuItem _mnuItemCopySuSid;
         private MenuItem _mnuItemCopySuSMail;
         private MenuItem _mnuItemCopyKursBez;
+        private MenuItem _mnuItemCopyLuLKrz;
+        private MenuItem _mnuItemCopyLuLMails;
 
         public MainWindow()
         {
@@ -154,10 +156,24 @@ namespace StS_GUI_Avalonia
                 Header = "Kursbezeichnungen"
             };
             _mnuItemCopyKursBez.Click += MnuItemCopyKursBezOnClick;
+            _mnuItemCopyLuLKrz = new MenuItem
+            {
+                Name = "mnuItemCopyLuLKrz",
+                Header = "Kürzel"
+            };
+            _mnuItemCopyLuLKrz.Click += MnuItemCopyLuLKrzOnClick;
+            _mnuItemCopyLuLMails = new MenuItem
+            {
+                Name = "mnuItemCopyLuLMails",
+                Header = "Mail-Adressen"
+            };
+            _mnuItemCopyLuLMails.Click += MnuItemCopyLuLMailsOnClick;
 
             copyContextItems.Add(_mnuItemCopySuSid);
             copyContextItems.Add(_mnuItemCopySuSMail);
             copyContextItems.Add(_mnuItemCopyKursBez);
+            copyContextItems.Add(_mnuItemCopyLuLKrz);
+            copyContextItems.Add(_mnuItemCopyLuLMails);
             mnuItemCopyMenu.ItemsSource = copyContextItems;
             leftContextItems.Add(mnuItemCopyMenu);
             leftContextItems.Add(cbMAnfangsPassword);
@@ -934,6 +950,7 @@ namespace StS_GUI_Avalonia
             }
 
             _mnuItemCopySuSid.IsVisible = _mnuItemCopySuSMail.IsVisible = CboxDataLeft.SelectedIndex == 0;
+            _mnuItemCopyLuLKrz.IsVisible = _mnuItemCopyLuLMails.IsVisible = CboxDataLeft.SelectedIndex == 1;
             _mnuItemCopyKursBez.IsVisible = CboxDataLeft.SelectedIndex == 2;
             switch (CboxDataLeft.SelectedIndex)
             {
@@ -2674,6 +2691,24 @@ namespace StS_GUI_Avalonia
             var clipboard = Clipboard;
             if (clipboard == null) return;
             await clipboard.SetTextAsync(bezliste.TrimEnd(','));
+        }
+
+        private async void MnuItemCopyLuLMailsOnClick(object? sender, RoutedEventArgs e)
+        {
+            var mails = LeftListBox.SelectedItems.Cast<string>().Aggregate("",
+                (current, line) => current + (_myschool.GetLehrkraft(line.Split(';')[0]).Result.Mail + ","));
+            var clipboard = Clipboard;
+            if (clipboard == null) return;
+            await clipboard.SetTextAsync(mails.TrimEnd(','));
+        }
+
+        private async void MnuItemCopyLuLKrzOnClick(object? sender, RoutedEventArgs e)
+        {
+            var krzs = LeftListBox.SelectedItems.Cast<string>()
+                .Aggregate("", (current, line) => current + (line.Split(';')[0] + ","));
+            var clipboard = Clipboard;
+            if (clipboard == null) return;
+            await clipboard.SetTextAsync(krzs.TrimEnd(','));
         }
     }
 }
