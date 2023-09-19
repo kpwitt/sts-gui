@@ -19,25 +19,24 @@ namespace SchulDB
     /// </summary>
     public class Schuldatenbank : IDisposable
     {
-        private readonly string dbpath;
-        private SQLiteTransaction dbtrans;
-        private readonly SQLiteConnection sqlite_conn;
-        private bool trans;
-        private int status = 100;
+        private readonly string _dbpath;
+        private SQLiteTransaction _dbtrans;
+        private readonly SQLiteConnection _sqliteConn;
+        private bool _trans;
 
         /// <summary>
         /// erstellt, falls nicht vorhanden, die Datenbankstruktur und öffnet die Verbindung
         /// </summary>
         public Schuldatenbank(string path)
         {
-            dbpath = path;
-            var strconnection = "Data Source=" + dbpath + ";Version=3;Pooling=True;Max Pool Size=100;";
-            sqlite_conn = new SQLiteConnection(strconnection);
-            sqlite_conn.Open();
-            var sqlite_cmd = sqlite_conn.CreateCommand();
+            _dbpath = path;
+            var strconnection = "Data Source=" + _dbpath + ";Version=3;Pooling=True;Max Pool Size=100;";
+            _sqliteConn = new SQLiteConnection(strconnection);
+            _sqliteConn.Open();
+            var sqliteCmd = _sqliteConn.CreateCommand();
             try
             {
-                sqlite_cmd.CommandText = @"CREATE TABLE IF NOT EXISTS
+                sqliteCmd.CommandText = @"CREATE TABLE IF NOT EXISTS
         [lehrkraft] (
         [id]   INTEGER NOT NULL PRIMARY KEY,
         [nachname]  NVARCHAR(512) NOT NULL,
@@ -47,12 +46,12 @@ namespace SchulDB
         [fakultas]  NVARCHAR(16) NOT NULL,
         [pwtemp] NVARCHAR(16) NOT NULL
       )";
-                sqlite_cmd.ExecuteNonQuery();
+                sqliteCmd.ExecuteNonQuery();
 
-                sqlite_cmd.CommandText = @"CREATE INDEX IF NOT EXISTS lindex ON lehrkraft(id);";
-                sqlite_cmd.ExecuteNonQuery();
+                sqliteCmd.CommandText = @"CREATE INDEX IF NOT EXISTS lindex ON lehrkraft(id);";
+                sqliteCmd.ExecuteNonQuery();
 
-                sqlite_cmd.CommandText = @"CREATE TABLE IF NOT EXISTS
+                sqliteCmd.CommandText = @"CREATE TABLE IF NOT EXISTS
         [schueler] (
         [id]   INTEGER NOT NULL PRIMARY KEY,
         [nachname]  NVARCHAR(512) NOT NULL,
@@ -64,12 +63,12 @@ namespace SchulDB
         [zweitaccount] INTEGER DEFAULT 0,
         [zweitmail] NVARCHAR(512)
       )";
-                sqlite_cmd.ExecuteNonQuery();
+                sqliteCmd.ExecuteNonQuery();
 
-                sqlite_cmd.CommandText = @"CREATE INDEX IF NOT EXISTS sindex ON schueler(id);";
-                sqlite_cmd.ExecuteNonQuery();
+                sqliteCmd.CommandText = @"CREATE INDEX IF NOT EXISTS sindex ON schueler(id);";
+                sqliteCmd.ExecuteNonQuery();
 
-                sqlite_cmd.CommandText = @"CREATE TABLE IF NOT EXISTS
+                sqliteCmd.CommandText = @"CREATE TABLE IF NOT EXISTS
         [kurse] (
         [bez]   NVARCHAR(512) NOT NULL PRIMARY KEY,
         [fach]  NVARCHAR(512) NOT NULL,
@@ -78,12 +77,12 @@ namespace SchulDB
         [suffix]  NVARCHAR(16) NOT NULL,
         [istkurs]  INTEGER NOT NULL
       )";
-                sqlite_cmd.ExecuteNonQuery();
+                sqliteCmd.ExecuteNonQuery();
 
-                sqlite_cmd.CommandText = @"CREATE INDEX IF NOT EXISTS kindex ON kurse(bez);";
-                sqlite_cmd.ExecuteNonQuery();
+                sqliteCmd.CommandText = @"CREATE INDEX IF NOT EXISTS kindex ON kurse(bez);";
+                sqliteCmd.ExecuteNonQuery();
 
-                sqlite_cmd.CommandText = @"CREATE TABLE IF NOT EXISTS
+                sqliteCmd.CommandText = @"CREATE TABLE IF NOT EXISTS
         [unterrichtet] (
         [lehrerid]   INTEGER NOT NULL,
         [kursbez]  NVARCHAR(32) NOT NULL,
@@ -91,9 +90,9 @@ namespace SchulDB
         FOREIGN KEY(lehrerid) REFERENCES lehrkraft(id),
         FOREIGN KEY(kursbez) REFERENCES kurse(bez)
       )";
-                sqlite_cmd.ExecuteNonQuery();
+                sqliteCmd.ExecuteNonQuery();
 
-                sqlite_cmd.CommandText = @"CREATE TABLE IF NOT EXISTS
+                sqliteCmd.CommandText = @"CREATE TABLE IF NOT EXISTS
         [nimmtteil] (
         [schuelerid]   INTEGER NOT NULL,
         [kursbez]  NVARCHAR(32) NOT NULL,
@@ -101,31 +100,31 @@ namespace SchulDB
         FOREIGN KEY(schuelerid) REFERENCES schueler(id),
         FOREIGN KEY(kursbez) REFERENCES kurse(bez)
       )";
-                sqlite_cmd.ExecuteNonQuery();
+                sqliteCmd.ExecuteNonQuery();
 
-                sqlite_cmd.CommandText = @"CREATE TABLE IF NOT EXISTS
+                sqliteCmd.CommandText = @"CREATE TABLE IF NOT EXISTS
         [settings] (
         [setting]   NVARCHAR(512) NOT NULL UNIQUE,
         [value]  NVARCHAR(512) NOT NULL
       )";
-                sqlite_cmd.ExecuteNonQuery();
+                sqliteCmd.ExecuteNonQuery();
 
-                sqlite_cmd.CommandText = @"CREATE TABLE IF NOT EXISTS
+                sqliteCmd.CommandText = @"CREATE TABLE IF NOT EXISTS
         [fachersatz] (
         [kurzfach]   NVARCHAR(16) NOT NULL,
         [langfach]  NVARCHAR(64) NOT NULL,
         PRIMARY KEY(kurzfach,langfach)
       )";
-                sqlite_cmd.ExecuteNonQuery();
+                sqliteCmd.ExecuteNonQuery();
 
-                sqlite_cmd.CommandText = @"CREATE TABLE IF NOT EXISTS
+                sqliteCmd.CommandText = @"CREATE TABLE IF NOT EXISTS
         [log] (
         [id]  INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
         [stufe]   NVARCHAR(16) NOT NULL,
         [datum]    NVARCHAR(128) NOT NULL,   
         [nachricht]  NVARCHAR(4096) NOT NULL
       )";
-                sqlite_cmd.ExecuteNonQuery();
+                sqliteCmd.ExecuteNonQuery();
 
                 var fachk = new[]
                 {
@@ -138,8 +137,8 @@ namespace SchulDB
                     "Informatik", "Italienisch", "Kunst", "Latein", "Musik", "Physik", "Politik", "Psychologie",
                     "Schwimmen", "Sport"
                 };
-                if (dbpath != ":memory:") return;
-                var calc_suffix = DateTime.Now.Month < 8
+                if (_dbpath != ":memory:") return;
+                var calcSuffix = DateTime.Now.Month < 8
                     ? (DateTime.Now.Year - 2001) + "" + (DateTime.Now.Year - 2000)
                     : (DateTime.Now.Year - 2000) + "" + (DateTime.Now.Year - 1999);
                 Settings settings = new()
@@ -148,7 +147,7 @@ namespace SchulDB
                     Fachersetzung = "",
                     Kurzfaecher = fachk,
                     Langfaecher = fachl,
-                    Kurssuffix = "_" + calc_suffix,
+                    Kurssuffix = "_" + calcSuffix,
                     Erprobungstufenleitung = "",
                     Mittelstufenleitung = "",
                     EFStufenleitung = "",
@@ -156,60 +155,60 @@ namespace SchulDB
                     Q2Stufenleitung = "",
                     Oberstufenkoordination = ""
                 };
-                // sqlite_cmd.CommandText = "INSERT OR IGNORE INTO settings (mailsuffix, kurssuffix, fachersetzung) VALUES (@mailsuffix, @kurssuffix, @fachersatz);";
-                sqlite_cmd.Parameters.Add(new SQLiteParameter("@mailsuffixparam", settings.Mailsuffix));
-                sqlite_cmd.Parameters.Add(new SQLiteParameter("@kurssuffixparam", settings.Kurssuffix));
-                sqlite_cmd.Parameters.Add(new SQLiteParameter("@fachersatzparam", settings.Fachersetzung));
+                // sqliteCmd.CommandText = "INSERT OR IGNORE INTO settings (mailsuffix, kurssuffix, fachersetzung) VALUES (@mailsuffix, @kurssuffix, @fachersatz);";
+                sqliteCmd.Parameters.Add(new SQLiteParameter("@mailsuffixparam", settings.Mailsuffix));
+                sqliteCmd.Parameters.Add(new SQLiteParameter("@kurssuffixparam", settings.Kurssuffix));
+                sqliteCmd.Parameters.Add(new SQLiteParameter("@fachersatzparam", settings.Fachersetzung));
 
-                sqlite_cmd.Parameters.Add(new SQLiteParameter("@mailsuffix", "mailsuffix"));
-                sqlite_cmd.Parameters.Add(new SQLiteParameter("@kurssuffix", "kurssuffix"));
-                sqlite_cmd.Parameters.Add(new SQLiteParameter("@fachersatz", "fachersatz"));
+                sqliteCmd.Parameters.Add(new SQLiteParameter("@mailsuffix", "mailsuffix"));
+                sqliteCmd.Parameters.Add(new SQLiteParameter("@kurssuffix", "kurssuffix"));
+                sqliteCmd.Parameters.Add(new SQLiteParameter("@fachersatz", "fachersatz"));
 
-                sqlite_cmd.Parameters.Add(new SQLiteParameter("@erprobungstufenleitung",
+                sqliteCmd.Parameters.Add(new SQLiteParameter("@erprobungstufenleitung",
                     "erprobungsstufenleitung"));
-                sqlite_cmd.Parameters.Add(new SQLiteParameter("@mittelstufenleitung", "mittelstufenleitung"));
-                sqlite_cmd.Parameters.Add(new SQLiteParameter("@efstufenleitung", "efstufenleitung"));
-                sqlite_cmd.Parameters.Add(new SQLiteParameter("@q1stufenleitung", "q1stufenleitung"));
-                sqlite_cmd.Parameters.Add(new SQLiteParameter("@q2stufenleitung", "q2stufenleitung"));
-                sqlite_cmd.Parameters.Add(new SQLiteParameter("@oberstufenkoordination", "oberstufenkoordination"));
+                sqliteCmd.Parameters.Add(new SQLiteParameter("@mittelstufenleitung", "mittelstufenleitung"));
+                sqliteCmd.Parameters.Add(new SQLiteParameter("@efstufenleitung", "efstufenleitung"));
+                sqliteCmd.Parameters.Add(new SQLiteParameter("@q1stufenleitung", "q1stufenleitung"));
+                sqliteCmd.Parameters.Add(new SQLiteParameter("@q2stufenleitung", "q2stufenleitung"));
+                sqliteCmd.Parameters.Add(new SQLiteParameter("@oberstufenkoordination", "oberstufenkoordination"));
 
-                sqlite_cmd.Parameters.Add(new SQLiteParameter("@erprobungstufenleitungparam",
+                sqliteCmd.Parameters.Add(new SQLiteParameter("@erprobungstufenleitungparam",
                     settings.Erprobungstufenleitung));
-                sqlite_cmd.Parameters.Add(new SQLiteParameter("@mittelstufenleitungparam",
+                sqliteCmd.Parameters.Add(new SQLiteParameter("@mittelstufenleitungparam",
                     settings.Mittelstufenleitung));
-                sqlite_cmd.Parameters.Add(new SQLiteParameter("@efstufenleitungparam", settings.EFStufenleitung));
-                sqlite_cmd.Parameters.Add(new SQLiteParameter("@q1stufenleitungparam", settings.Q1Stufenleitung));
-                sqlite_cmd.Parameters.Add(new SQLiteParameter("@q2stufenleitungparam", settings.Q2Stufenleitung));
-                sqlite_cmd.Parameters.Add(new SQLiteParameter("@oberstufenkoordinationparam",
+                sqliteCmd.Parameters.Add(new SQLiteParameter("@efstufenleitungparam", settings.EFStufenleitung));
+                sqliteCmd.Parameters.Add(new SQLiteParameter("@q1stufenleitungparam", settings.Q1Stufenleitung));
+                sqliteCmd.Parameters.Add(new SQLiteParameter("@q2stufenleitungparam", settings.Q2Stufenleitung));
+                sqliteCmd.Parameters.Add(new SQLiteParameter("@oberstufenkoordinationparam",
                     settings.Oberstufenkoordination));
-                // sqlite_cmd.ExecuteNonQuery();
-                sqlite_cmd.CommandText =
+                // sqliteCmd.ExecuteNonQuery();
+                sqliteCmd.CommandText =
                     "INSERT OR REPLACE INTO settings (setting,value) VALUES(@mailsuffix, @mailsuffixparam)";
-                sqlite_cmd.ExecuteNonQuery();
-                sqlite_cmd.CommandText =
+                sqliteCmd.ExecuteNonQuery();
+                sqliteCmd.CommandText =
                     "INSERT OR REPLACE INTO settings (setting,value) VALUES(@kurssuffix, @kurssuffixparam)";
-                sqlite_cmd.ExecuteNonQuery();
-                sqlite_cmd.CommandText =
+                sqliteCmd.ExecuteNonQuery();
+                sqliteCmd.CommandText =
                     "INSERT OR REPLACE INTO settings (setting,value) VALUES(@fachersatz, @fachersatzparam)";
-                sqlite_cmd.ExecuteNonQuery();
-                sqlite_cmd.CommandText =
+                sqliteCmd.ExecuteNonQuery();
+                sqliteCmd.CommandText =
                     "INSERT OR REPLACE INTO settings (setting,value) VALUES(@erprobungstufenleitung, @erprobungstufenleitungparam)";
-                sqlite_cmd.ExecuteNonQuery();
-                sqlite_cmd.CommandText =
+                sqliteCmd.ExecuteNonQuery();
+                sqliteCmd.CommandText =
                     "INSERT OR REPLACE INTO settings (setting,value) VALUES(@mittelstufenleitung, @mittelstufenleitungparam)";
-                sqlite_cmd.ExecuteNonQuery();
-                sqlite_cmd.CommandText =
+                sqliteCmd.ExecuteNonQuery();
+                sqliteCmd.CommandText =
                     "INSERT OR REPLACE INTO settings (setting,value) VALUES(@efstufenleitung, @efstufenleitungparam)";
-                sqlite_cmd.ExecuteNonQuery();
-                sqlite_cmd.CommandText =
+                sqliteCmd.ExecuteNonQuery();
+                sqliteCmd.CommandText =
                     "INSERT OR REPLACE INTO settings (setting,value) VALUES(@q1stufenleitung, @q1stufenleitungparam)";
-                sqlite_cmd.ExecuteNonQuery();
-                sqlite_cmd.CommandText =
+                sqliteCmd.ExecuteNonQuery();
+                sqliteCmd.CommandText =
                     "INSERT OR REPLACE INTO settings (setting,value) VALUES(@q2stufenleitung, @q2stufenleitungparam)";
-                sqlite_cmd.ExecuteNonQuery();
-                sqlite_cmd.CommandText =
+                sqliteCmd.ExecuteNonQuery();
+                sqliteCmd.CommandText =
                     "INSERT OR REPLACE INTO settings (setting,value) VALUES(@oberstufenkoordination, @oberstufenkoordinationparam)";
-                sqlite_cmd.ExecuteNonQuery();
+                sqliteCmd.ExecuteNonQuery();
 
                 if (fachk.Length != fachl.Length) return;
                 for (var i = 0; i < fachk.Length; i++)
@@ -217,11 +216,11 @@ namespace SchulDB
                     if (fachl[i] == "" || fachk[i] == "") continue;
                     var kurzesfach = fachk[i];
                     var langesfach = fachl[i];
-                    sqlite_cmd.CommandText =
+                    sqliteCmd.CommandText =
                         "INSERT OR IGNORE INTO fachersatz (kurzfach, langfach) VALUES (@kfach, @lfach);";
-                    sqlite_cmd.Parameters.Add(new SQLiteParameter("@kfach", kurzesfach));
-                    sqlite_cmd.Parameters.Add(new SQLiteParameter("@lfach", langesfach));
-                    sqlite_cmd.ExecuteNonQuery();
+                    sqliteCmd.Parameters.Add(new SQLiteParameter("@kfach", kurzesfach));
+                    sqliteCmd.Parameters.Add(new SQLiteParameter("@lfach", langesfach));
+                    sqliteCmd.ExecuteNonQuery();
                 }
             }
             catch (SQLiteException ex)
@@ -241,16 +240,16 @@ namespace SchulDB
         /// <param name="istkurs"></param>
         public async Task AddKurs(string bez, string fach, string klasse, string stufe, string suffix, int istkurs)
         {
-            var sqlite_cmd = sqlite_conn.CreateCommand();
-            sqlite_cmd.CommandText =
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText =
                 "INSERT OR IGNORE INTO kurse (bez, fach, klasse, stufe, suffix, istkurs) VALUES (@bez, @fach, @klasse, @stufe, @suffix, @istkurs);";
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@fach", fach));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@bez", bez));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@klasse", klasse));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@stufe", stufe));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@suffix", suffix));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@istkurs", istkurs));
-            sqlite_cmd.ExecuteNonQuery();
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@fach", fach));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@bez", bez));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@klasse", klasse));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@stufe", stufe));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@suffix", suffix));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@istkurs", istkurs));
+            sqliteCmd.ExecuteNonQuery();
         }
 
         /// <summary>
@@ -260,16 +259,16 @@ namespace SchulDB
         /// <returns></returns>
         public async Task AddKurs(Kurs kurs)
         {
-            var sqlite_cmd = sqlite_conn.CreateCommand();
-            sqlite_cmd.CommandText =
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText =
                 "INSERT OR IGNORE INTO kurse (bez, fach, klasse, stufe, suffix, istkurs) VALUES (@bez, @fach, @klasse, @stufe, @suffix, @istkurs);";
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@fach", kurs.Fach));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@bez", kurs.Bezeichnung));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@klasse", kurs.Klasse));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@stufe", kurs.Stufe));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@suffix", kurs.Suffix));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@istkurs", kurs.Istkurs));
-            sqlite_cmd.ExecuteNonQuery();
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@fach", kurs.Fach));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@bez", kurs.Bezeichnung));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@klasse", kurs.Klasse));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@stufe", kurs.Stufe));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@suffix", kurs.Suffix));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@istkurs", kurs.Istkurs));
+            sqliteCmd.ExecuteNonQuery();
         }
 
         /// <summary>
@@ -284,17 +283,17 @@ namespace SchulDB
         public async Task Addlehrkraft(int id, string vorname, string nachname, string kuerzel, string mail,
             string fakultas)
         {
-            var sqlite_cmd = sqlite_conn.CreateCommand();
-            sqlite_cmd.CommandText =
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText =
                 "INSERT OR IGNORE INTO lehrkraft (id, nachname, vorname, kuerzel, mail, fakultas, pwtemp) VALUES (@id, @nachname, @vorname, @kuerzel, @mail, @fakultas, @pwtemp);";
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@id", id));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@vorname", vorname));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@nachname", nachname));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@kuerzel", kuerzel.ToUpper()));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@mail", mail));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@fakultas", fakultas.TrimEnd(';')));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@pwtemp", GeneratePasswort(8)));
-            sqlite_cmd.ExecuteNonQuery();
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@id", id));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@vorname", vorname));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@nachname", nachname));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@kuerzel", kuerzel.ToUpper()));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@mail", mail));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@fakultas", fakultas.TrimEnd(';')));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@pwtemp", GeneratePasswort(8)));
+            sqliteCmd.ExecuteNonQuery();
         }
 
         /// <summary>
@@ -304,18 +303,18 @@ namespace SchulDB
         /// <returns></returns>
         public async Task Addlehrkraft(LuL lehrkraft)
         {
-            var sqlite_cmd = sqlite_conn.CreateCommand();
-            sqlite_cmd.CommandText =
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText =
                 "INSERT OR IGNORE INTO lehrkraft (id, nachname, vorname, kuerzel, mail, fakultas, pwtemp) VALUES (@id, @nachname, @vorname, @kuerzel, @mail, @fakultas, @pwtemp);";
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@id", lehrkraft.ID));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@vorname", lehrkraft.Vorname));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@nachname", lehrkraft.Nachname));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@kuerzel", lehrkraft.Kuerzel.ToUpper()));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@mail", lehrkraft.Mail));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@fakultas", lehrkraft.Fakultas.TrimEnd(';')));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@pwtemp",
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@id", lehrkraft.ID));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@vorname", lehrkraft.Vorname));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@nachname", lehrkraft.Nachname));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@kuerzel", lehrkraft.Kuerzel.ToUpper()));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@mail", lehrkraft.Mail));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@fakultas", lehrkraft.Fakultas.TrimEnd(';')));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@pwtemp",
                 lehrkraft.Pwttemp.Length > 7 ? lehrkraft.Pwttemp : GeneratePasswort(8)));
-            sqlite_cmd.ExecuteNonQuery();
+            sqliteCmd.ExecuteNonQuery();
         }
 
         /// <summary>
@@ -325,15 +324,15 @@ namespace SchulDB
         /// <param name="nachricht"></param>
         public async Task<int> AddLogMessage(string stufe, string nachricht)
         {
-            var sqlite_cmd = sqlite_conn.CreateCommand();
+            var sqliteCmd = _sqliteConn.CreateCommand();
             var dnow = DateTime.Now.ToLongDateString() + " " + DateTime.Now.Hour + ":" + DateTime.Now.Minute + ":" +
                        DateTime.Now.Second;
-            sqlite_cmd.CommandText =
+            sqliteCmd.CommandText =
                 "INSERT OR IGNORE INTO log (stufe, datum, nachricht) VALUES (@stufe, @dnow, @nachricht);";
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@stufe", stufe));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@dnow", dnow));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@nachricht", nachricht));
-            sqlite_cmd.ExecuteNonQuery();
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@stufe", stufe));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@dnow", dnow));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@nachricht", nachricht));
+            sqliteCmd.ExecuteNonQuery();
             return 0;
         }
 
@@ -345,11 +344,11 @@ namespace SchulDB
         public async Task AddLtoK(int lid, string kbez)
         {
             if (lid == 0 || kbez == "") return;
-            var sqlite_cmd = sqlite_conn.CreateCommand();
-            sqlite_cmd.CommandText = "INSERT OR IGNORE INTO unterrichtet (lehrerid, kursbez) VALUES (@lid, @kbez);";
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@lid", lid));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@kbez", kbez));
-            sqlite_cmd.ExecuteNonQuery();
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText = "INSERT OR IGNORE INTO unterrichtet (lehrerid, kursbez) VALUES (@lid, @kbez);";
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@lid", lid));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@kbez", kbez));
+            sqliteCmd.ExecuteNonQuery();
         }
 
         /// <summary>
@@ -361,11 +360,11 @@ namespace SchulDB
         public async Task AddLtoK(LuL lehrkraft, Kurs kurs)
         {
             if (string.IsNullOrEmpty(kurs.Bezeichnung)) return;
-            var sqlite_cmd = sqlite_conn.CreateCommand();
-            sqlite_cmd.CommandText = "INSERT OR IGNORE INTO unterrichtet (lehrerid, kursbez) VALUES (@lid, @kbez);";
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@lid", lehrkraft.ID));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@kbez", kurs.Bezeichnung));
-            sqlite_cmd.ExecuteNonQuery();
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText = "INSERT OR IGNORE INTO unterrichtet (lehrerid, kursbez) VALUES (@lid, @kbez);";
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@lid", lehrkraft.ID));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@kbez", kurs.Bezeichnung));
+            sqliteCmd.ExecuteNonQuery();
         }
 
         /// <summary>
@@ -383,19 +382,19 @@ namespace SchulDB
         public async Task AddSchuelerIn(int id, string vorname, string nachname, string mail, string klasse,
             string nutzername, string aixmail, int zweitaccount, string zweitmail)
         {
-            var sqlite_cmd = sqlite_conn.CreateCommand();
-            sqlite_cmd.CommandText =
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText =
                 "INSERT OR IGNORE INTO schueler (id, vorname, nachname, mail, klasse, nutzername, aixmail, zweitaccount, zweitmail) VALUES (@id, @vorname, @nachname, @mail, @klasse, @nutzername, @aixmail,@zweitaccount, @zweitmail);";
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@id", id));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@vorname", vorname));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@nachname", nachname));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@mail", mail));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@klasse", klasse));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@nutzername", nutzername));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@aixmail", aixmail));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@zweitaccount", zweitaccount));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@zweitmail", zweitmail));
-            sqlite_cmd.ExecuteNonQuery();
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@id", id));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@vorname", vorname));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@nachname", nachname));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@mail", mail));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@klasse", klasse));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@nutzername", nutzername));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@aixmail", aixmail));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@zweitaccount", zweitaccount));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@zweitmail", zweitmail));
+            sqliteCmd.ExecuteNonQuery();
         }
 
         /// <summary>
@@ -405,19 +404,19 @@ namespace SchulDB
         /// <returns></returns>
         public async Task AddSchuelerIn(SuS schulerin)
         {
-            var sqlite_cmd = sqlite_conn.CreateCommand();
-            sqlite_cmd.CommandText =
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText =
                 "INSERT OR IGNORE INTO schueler (id, vorname, nachname, mail, klasse, nutzername, aixmail, zweitaccount, zweitmail) VALUES (@id, @vorname, @nachname, @mail, @klasse, @nutzername, @aixmail,@zweitaccount, @zweitmail);";
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@id", schulerin.ID));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@vorname", schulerin.Vorname));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@nachname", schulerin.Nachname));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@mail", schulerin.Mail));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@klasse", schulerin.Klasse));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@nutzername", schulerin.Nutzername));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@aixmail", schulerin.Aixmail));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@zweitaccount", schulerin.Zweitaccount));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@zweitmail", schulerin.Zweitmail));
-            sqlite_cmd.ExecuteNonQuery();
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@id", schulerin.ID));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@vorname", schulerin.Vorname));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@nachname", schulerin.Nachname));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@mail", schulerin.Mail));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@klasse", schulerin.Klasse));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@nutzername", schulerin.Nutzername));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@aixmail", schulerin.Aixmail));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@zweitaccount", schulerin.Zweitaccount));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@zweitmail", schulerin.Zweitmail));
+            sqliteCmd.ExecuteNonQuery();
         }
 
         /// <summary>
@@ -428,11 +427,11 @@ namespace SchulDB
         public async Task AddStoK(int sid, string kbez)
         {
             if (sid == 0 || kbez == "") return;
-            var sqlite_cmd = sqlite_conn.CreateCommand();
-            sqlite_cmd.CommandText = "INSERT OR IGNORE INTO nimmtteil (schuelerid, kursbez) VALUES (@sid, @kbez);";
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@sid", sid));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@kbez", kbez));
-            sqlite_cmd.ExecuteNonQuery();
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText = "INSERT OR IGNORE INTO nimmtteil (schuelerid, kursbez) VALUES (@sid, @kbez);";
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@sid", sid));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@kbez", kbez));
+            sqliteCmd.ExecuteNonQuery();
         }
 
         /// <summary>
@@ -444,11 +443,11 @@ namespace SchulDB
         public async Task AddStoK(SuS schulerin, Kurs kurs)
         {
             if (schulerin.ID == 0 || string.IsNullOrEmpty(kurs.Bezeichnung)) return;
-            var sqlite_cmd = sqlite_conn.CreateCommand();
-            sqlite_cmd.CommandText = "INSERT OR IGNORE INTO nimmtteil (schuelerid, kursbez) VALUES (@sid, @kbez);";
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@sid", schulerin.ID));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@kbez", kurs.Bezeichnung));
-            sqlite_cmd.ExecuteNonQuery();
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText = "INSERT OR IGNORE INTO nimmtteil (schuelerid, kursbez) VALUES (@sid, @kbez);";
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@sid", schulerin.ID));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@kbez", kurs.Bezeichnung));
+            sqliteCmd.ExecuteNonQuery();
         }
 
         /// <summary>
@@ -467,12 +466,12 @@ namespace SchulDB
                 kliste = kliste.FindAll(k => k.Bezeichnung.StartsWith(klasse) && k.Istkurs == false);
                 foreach (var k in kliste)
                 {
-                    var sqlite_cmd = sqlite_conn.CreateCommand();
-                    sqlite_cmd.CommandText =
+                    var sqliteCmd = _sqliteConn.CreateCommand();
+                    sqliteCmd.CommandText =
                         "INSERT OR IGNORE INTO nimmtteil (schuelerid, kursbez) VALUES (@sid, @kbez);";
-                    sqlite_cmd.Parameters.Add(new SQLiteParameter("@sid", schulerin.ID));
-                    sqlite_cmd.Parameters.Add(new SQLiteParameter("@kbez", k.Bezeichnung));
-                    sqlite_cmd.ExecuteNonQuery();
+                    sqliteCmd.Parameters.Add(new SQLiteParameter("@sid", schulerin.ID));
+                    sqliteCmd.Parameters.Add(new SQLiteParameter("@kbez", k.Bezeichnung));
+                    sqliteCmd.ExecuteNonQuery();
                 }
             }
         }
@@ -482,17 +481,17 @@ namespace SchulDB
         /// </summary>
         private void CloseDB()
         {
-            if (trans)
+            if (_trans)
             {
-                dbtrans.Commit();
-                trans = false;
+                _dbtrans.Commit();
+                _trans = false;
             }
 
-            if (sqlite_conn.State != System.Data.ConnectionState.Open) return;
-            var sqlite_cmd = sqlite_conn.CreateCommand();
-            sqlite_cmd.CommandText = "pragma optimize;";
-            sqlite_cmd.ExecuteNonQuery();
-            sqlite_conn.Close();
+            if (_sqliteConn.State != System.Data.ConnectionState.Open) return;
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText = "pragma optimize;";
+            sqliteCmd.ExecuteNonQuery();
+            _sqliteConn.Close();
         }
 
         /// <summary>
@@ -552,9 +551,6 @@ namespace SchulDB
                 {
                     "Interne ID-Nummer"
                 };
-                status = 0;
-                var mystatus = 0;
-                var maxstatus = susliste.Count;
                 foreach (var schueler in susliste)
                 {
                     sliste.Add(schueler.Vorname + ";" + schueler.Nachname + ";" + schueler.ID + ";" + schueler.Mail +
@@ -576,9 +572,6 @@ namespace SchulDB
                                   "|" + (kurs.Istkurs ? "PUK|" : "GKM|") +
                                   (kurs.Istkurs == false ? "" : kurs.Fach));
                     }
-
-                    mystatus++;
-                    status = mystatus / maxstatus;
                 }
 
                 await File.WriteAllLinesAsync(folder + "/sus.csv", sliste.Distinct().ToList(), Encoding.UTF8);
@@ -827,9 +820,6 @@ namespace SchulDB
                     ausgabeAIXL.Add("\"Vorname\";\"Nachname\";\"Referenz-ID\";\"Arbeitsgruppen\"");
                 }
 
-                status = 0;
-                var mystatus = 0;
-                var maxstatus = susidliste.Count + lulidliste.Count + kursliste.Count;
                 string[] sekI = { "5", "6", "7", "8", "9", "10" };
                 if (whattoexport.Contains('k'))
                 {
@@ -917,9 +907,6 @@ namespace SchulDB
                                                        ";tiles;" + strkursvorlage);
                             }
                         }
-
-                        mystatus++;
-                        status = 100 * mystatus / maxstatus;
                     }
                 }
 
@@ -989,9 +976,6 @@ namespace SchulDB
                             ausgabeAIXS.Add("\"" + s.Vorname + "\";\"" + s.Nachname + "\";\"" + s.Klasse + "\";\"" +
                                             s.ID + "\";\"" + kListe + "\"");
                         }
-
-                        mystatus++;
-                        status = mystatus * 100 / maxstatus;
                     }
                 }
 
@@ -1002,7 +986,6 @@ namespace SchulDB
                         whattoexport += "m";
                     }
 
-                    maxstatus += susidliste.Count;
                     foreach (var s in susidliste)
                     {
                         var sus = GetSchueler(s).Result;
@@ -1055,9 +1038,6 @@ namespace SchulDB
                             ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + ",mittelstufe" +
                                                              GetKursSuffix().Result);
                         }
-
-                        mystatus++;
-                        status = mystatus * 100 / maxstatus;
                     }
                 }
 
@@ -1096,7 +1076,7 @@ namespace SchulDB
                                                                  kurs.Bezeichnung + kurs.Suffix);
                             }
 
-                            if (kurs.Bezeichnung.Length>20) continue;
+                            if (kurs.Bezeichnung.Length > 20) continue;
                             kListe += "^" + kurs.Bezeichnung + kurs.Suffix + "|";
                         }
 
@@ -1124,16 +1104,11 @@ namespace SchulDB
                             ausgabeAIXL.Add("\"" + lt.Vorname + "\";\"" + lt.Nachname + "\";\"" + lt.ID + "\";\"*|" +
                                             kListe + fak + "\"");
                         }
-
-                        //kListe = kListe.TrimEnd('|');
-                        mystatus++;
-                        status = mystatus * 100 / maxstatus;
                     }
                 }
 
                 if (destsys.Contains('i'))
                 {
-                    maxstatus += lulidliste.Count;
                     foreach (var l in lulidliste)
                     {
                         var lt = await GetLehrkraft(l);
@@ -1157,8 +1132,6 @@ namespace SchulDB
                                           maildienst + ";;;" + lt.Mail + ";" + fakult + ";;" +
                                           GetTempPasswort(l).Result + ";1;;;;;" + lt.Nachname + ";" +
                                           maildienst.ToLower() + ";1");
-                        mystatus++;
-                        status = 100 * mystatus / maxstatus;
                     }
                 }
 
@@ -1170,18 +1143,18 @@ namespace SchulDB
                         {
                             if (File.Exists(folder + "/aix_sus.csv"))
                             {
-                                var aix_sus = (await File.ReadAllLinesAsync(folder + "/aix_sus.csv")).ToList();
-                                aix_sus.RemoveAt(0);
-                                ausgabeAIXS.AddRange(aix_sus);
+                                var aixSus = (await File.ReadAllLinesAsync(folder + "/aix_sus.csv")).ToList();
+                                aixSus.RemoveAt(0);
+                                ausgabeAIXS.AddRange(aixSus);
                                 await File.WriteAllLinesAsync(folder + "/aix_sus.csv", ausgabeAIXS.Distinct().ToList(),
                                     Encoding.UTF8);
                             }
 
                             if (File.Exists(folder + "/aix_lul.csv"))
                             {
-                                var aix_lul = (await File.ReadAllLinesAsync(folder + "/aix_lul.csv")).ToList();
-                                aix_lul.RemoveAt(0);
-                                ausgabeAIXL.AddRange(aix_lul);
+                                var aixLul = (await File.ReadAllLinesAsync(folder + "/aix_lul.csv")).ToList();
+                                aixLul.RemoveAt(0);
+                                ausgabeAIXL.AddRange(aixLul);
                                 await File.WriteAllLinesAsync(folder + "/aix_lul.csv", ausgabeAIXL.Distinct().ToList(),
                                     Encoding.UTF8);
                             }
@@ -1191,23 +1164,23 @@ namespace SchulDB
                         {
                             if (File.Exists(folder + "/mdl_einschreibungen.csv"))
                             {
-                                var mdl_ein =
+                                var mdlEin =
                                     (await File.ReadAllLinesAsync(folder + "/mdl_einschreibungen.csv")).ToList();
                                 ausgabeMoodleKurse.RemoveAt(0);
-                                ausgabeMoodleEinschreibungen.AddRange(mdl_ein);
+                                ausgabeMoodleEinschreibungen.AddRange(mdlEin);
                                 await File.WriteAllLinesAsync(folder + "/mdl_einschreibungen.csv",
                                     ausgabeMoodleEinschreibungen.Distinct().ToList(), Encoding.UTF8);
                             }
 
                             if (File.Exists(folder + "/mdl_kurse.csv"))
                             {
-                                var mdl_kurse = (await File.ReadAllLinesAsync(folder + "/mdl_kurse.csv")).ToList();
-                                if (mdl_kurse.Count > 0)
+                                var mdlKurse = (await File.ReadAllLinesAsync(folder + "/mdl_kurse.csv")).ToList();
+                                if (mdlKurse.Count > 0)
                                 {
-                                    mdl_kurse.RemoveAt(0);
+                                    mdlKurse.RemoveAt(0);
                                 }
 
-                                ausgabeMoodleKurse.AddRange(mdl_kurse);
+                                ausgabeMoodleKurse.AddRange(mdlKurse);
                                 await File.WriteAllLinesAsync(folder + "/mdl_kurse.csv",
                                     ausgabeMoodleKurse.Distinct().ToList(),
                                     Encoding.UTF8);
@@ -1215,13 +1188,13 @@ namespace SchulDB
 
                             if (File.Exists(folder + "/mdl_nutzer.csv"))
                             {
-                                var mdl_nutzer = (await File.ReadAllLinesAsync(folder + "/mdl_nutzer.csv")).ToList();
-                                if (mdl_nutzer.Count > 0)
+                                var mdlNutzer = (await File.ReadAllLinesAsync(folder + "/mdl_nutzer.csv")).ToList();
+                                if (mdlNutzer.Count > 0)
                                 {
-                                    mdl_nutzer.RemoveAt(0);
+                                    mdlNutzer.RemoveAt(0);
                                 }
 
-                                ausgabeMoodleUser.AddRange(mdl_nutzer);
+                                ausgabeMoodleUser.AddRange(mdlNutzer);
                                 await File.WriteAllLinesAsync(folder + "/mdl_nutzer.csv",
                                     ausgabeMoodleUser.Distinct().ToList(),
                                     Encoding.UTF8);
@@ -1232,10 +1205,10 @@ namespace SchulDB
                         {
                             if (File.Exists(folder + "/Lehrerdaten_anschreiben.csv"))
                             {
-                                var llg_intern =
+                                var llgIntern =
                                     (await File.ReadAllLinesAsync(folder + "/Lehrerdaten_anschreiben.csv")).ToList();
-                                llg_intern.RemoveAt(0);
-                                ausgabeIntern.AddRange(llg_intern);
+                                llgIntern.RemoveAt(0);
+                                ausgabeIntern.AddRange(llgIntern);
                                 await File.WriteAllLinesAsync(folder + "/Lehrerdaten_anschreiben.csv",
                                     ausgabeIntern.Distinct().ToList(), Encoding.UTF8);
                             }
@@ -1314,15 +1287,15 @@ namespace SchulDB
         public async Task<ReadOnlyCollection<string>> GetFachersatz()
         {
             List<string> flist = new();
-            var sqlite_cmd = sqlite_conn.CreateCommand();
-            sqlite_cmd.CommandText = "SELECT kurzfach,langfach FROM fachersatz;";
-            var sqlite_datareader = sqlite_cmd.ExecuteReader();
-            while (sqlite_datareader.Read())
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText = "SELECT kurzfach,langfach FROM fachersatz;";
+            var sqliteDatareader = sqliteCmd.ExecuteReader();
+            while (sqliteDatareader.Read())
             {
                 var returnstr = "";
-                for (var i = 0; i < sqlite_datareader.FieldCount; i++)
+                for (var i = 0; i < sqliteDatareader.FieldCount; i++)
                 {
-                    returnstr += sqlite_datareader.GetString(i) + ";";
+                    returnstr += sqliteDatareader.GetString(i) + ";";
                 }
 
                 flist.Add(returnstr);
@@ -1336,7 +1309,7 @@ namespace SchulDB
         /// </summary>
         public async Task<string> GetFilePath()
         {
-            return dbpath;
+            return _dbpath;
         }
 
         /// <summary>
@@ -1345,19 +1318,19 @@ namespace SchulDB
         /// <param name="kbez"></param>
         public async Task<Kurs> GetKurs(string kbez)
         {
-            var sqlite_cmd = sqlite_conn.CreateCommand();
-            sqlite_cmd.CommandText =
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText =
                 "SELECT bez,fach,klasse,stufe,suffix,istkurs FROM kurse WHERE bez = '" + kbez + "';";
-            var sqlite_datareader = sqlite_cmd.ExecuteReader();
+            var sqliteDatareader = sqliteCmd.ExecuteReader();
             Kurs retKurs = new();
-            while (sqlite_datareader.Read())
+            while (sqliteDatareader.Read())
             {
-                retKurs.Bezeichnung = sqlite_datareader.GetString(0);
-                retKurs.Fach = sqlite_datareader.GetString(1);
-                retKurs.Klasse = sqlite_datareader.GetString(2);
-                retKurs.Stufe = sqlite_datareader.GetString(3);
-                retKurs.Suffix = sqlite_datareader.GetString(4);
-                retKurs.Istkurs = Convert.ToBoolean(sqlite_datareader.GetInt32(5));
+                retKurs.Bezeichnung = sqliteDatareader.GetString(0);
+                retKurs.Fach = sqliteDatareader.GetString(1);
+                retKurs.Klasse = sqliteDatareader.GetString(2);
+                retKurs.Stufe = sqliteDatareader.GetString(3);
+                retKurs.Suffix = sqliteDatareader.GetString(4);
+                retKurs.Istkurs = Convert.ToBoolean(sqliteDatareader.GetInt32(5));
                 retKurs.Art = retKurs.Istkurs ? "PUT" : "PUK";
 
                 if (retKurs.Istkurs)
@@ -1375,12 +1348,12 @@ namespace SchulDB
         public async Task<ReadOnlyCollection<string>> GetKursBezListe()
         {
             List<string> klist = new();
-            var sqlite_cmd = sqlite_conn.CreateCommand();
-            sqlite_cmd.CommandText = "SELECT bez FROM kurse;";
-            var sqlite_datareader = sqlite_cmd.ExecuteReader();
-            while (sqlite_datareader.Read())
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText = "SELECT bez FROM kurse;";
+            var sqliteDatareader = sqliteCmd.ExecuteReader();
+            while (sqliteDatareader.Read())
             {
-                klist.Add(sqlite_datareader.GetString(0));
+                klist.Add(sqliteDatareader.GetString(0));
             }
 
             return new ReadOnlyCollection<string>(klist);
@@ -1392,19 +1365,19 @@ namespace SchulDB
         public async Task<ReadOnlyCollection<Kurs>> GetKursListe()
         {
             List<Kurs> kliste = new();
-            var sqlite_cmd = sqlite_conn.CreateCommand();
-            sqlite_cmd.CommandText = "SELECT bez,fach,klasse,stufe,suffix,istkurs FROM kurse;";
-            var sqlite_datareader = sqlite_cmd.ExecuteReader();
-            while (sqlite_datareader.Read())
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText = "SELECT bez,fach,klasse,stufe,suffix,istkurs FROM kurse;";
+            var sqliteDatareader = sqliteCmd.ExecuteReader();
+            while (sqliteDatareader.Read())
             {
                 Kurs retKurs = new()
                 {
-                    Bezeichnung = sqlite_datareader.GetString(0),
-                    Fach = sqlite_datareader.GetString(1),
-                    Klasse = sqlite_datareader.GetString(2),
-                    Stufe = sqlite_datareader.GetString(3),
-                    Suffix = sqlite_datareader.GetString(4),
-                    Istkurs = Convert.ToBoolean(sqlite_datareader.GetInt32(5))
+                    Bezeichnung = sqliteDatareader.GetString(0),
+                    Fach = sqliteDatareader.GetString(1),
+                    Klasse = sqliteDatareader.GetString(2),
+                    Stufe = sqliteDatareader.GetString(3),
+                    Suffix = sqliteDatareader.GetString(4),
+                    Istkurs = Convert.ToBoolean(sqliteDatareader.GetInt32(5))
                 };
                 retKurs.Art = retKurs.Istkurs ? "PUT" : "PUK";
 
@@ -1431,13 +1404,13 @@ namespace SchulDB
         public async Task<ReadOnlyCollection<Kurs>> GetKursVonLuL(int lulid)
         {
             List<Kurs> kliste = new();
-            var sqlite_cmd = sqlite_conn.CreateCommand();
-            sqlite_cmd.CommandText = "SELECT DISTINCT kursbez FROM unterrichtet WHERE lehrerid = @lulid;";
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@lulid", lulid));
-            var sqlite_datareader = sqlite_cmd.ExecuteReader();
-            while (sqlite_datareader.Read())
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText = "SELECT DISTINCT kursbez FROM unterrichtet WHERE lehrerid = @lulid;";
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@lulid", lulid));
+            var sqliteDatareader = sqliteCmd.ExecuteReader();
+            while (sqliteDatareader.Read())
             {
-                kliste.Add(await GetKurs(sqlite_datareader.GetString(0)));
+                kliste.Add(await GetKurs(sqliteDatareader.GetString(0)));
             }
 
             return new ReadOnlyCollection<Kurs>(kliste);
@@ -1451,13 +1424,13 @@ namespace SchulDB
         public async Task<ReadOnlyCollection<Kurs>> GetKursVonSuS(int susid)
         {
             List<Kurs> kliste = new();
-            var sqlite_cmd = sqlite_conn.CreateCommand();
-            sqlite_cmd.CommandText = "SELECT kursbez FROM nimmtteil WHERE schuelerid = @susid;";
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@susid", susid));
-            var sqlite_datareader = sqlite_cmd.ExecuteReader();
-            while (sqlite_datareader.Read())
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText = "SELECT kursbez FROM nimmtteil WHERE schuelerid = @susid;";
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@susid", susid));
+            var sqliteDatareader = sqliteCmd.ExecuteReader();
+            while (sqliteDatareader.Read())
             {
-                kliste.Add(await GetKurs(sqlite_datareader.GetString(0)));
+                kliste.Add(await GetKurs(sqliteDatareader.GetString(0)));
             }
 
             return new ReadOnlyCollection<Kurs>(kliste);
@@ -1469,21 +1442,21 @@ namespace SchulDB
         /// <param name="id"></param>
         private async Task<LuL> GetLehrkraft(int id)
         {
-            var sqlite_cmd = sqlite_conn.CreateCommand();
-            sqlite_cmd.CommandText =
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText =
                 "SELECT id,nachname,vorname,mail,kuerzel,fakultas,pwtemp FROM lehrkraft WHERE id = @id;";
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@id", id));
-            var sqlite_datareader = sqlite_cmd.ExecuteReader();
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@id", id));
+            var sqliteDatareader = sqliteCmd.ExecuteReader();
             LuL lehrkraft = new();
-            while (sqlite_datareader.Read())
+            while (sqliteDatareader.Read())
             {
-                lehrkraft.ID = sqlite_datareader.GetInt32(0);
-                lehrkraft.Nachname = sqlite_datareader.GetString(1);
-                lehrkraft.Vorname = sqlite_datareader.GetString(2);
-                lehrkraft.Mail = sqlite_datareader.GetString(3);
-                lehrkraft.Kuerzel = sqlite_datareader.GetString(4);
-                lehrkraft.Fakultas = sqlite_datareader.GetString(5);
-                lehrkraft.Pwttemp = sqlite_datareader.GetString(6);
+                lehrkraft.ID = sqliteDatareader.GetInt32(0);
+                lehrkraft.Nachname = sqliteDatareader.GetString(1);
+                lehrkraft.Vorname = sqliteDatareader.GetString(2);
+                lehrkraft.Mail = sqliteDatareader.GetString(3);
+                lehrkraft.Kuerzel = sqliteDatareader.GetString(4);
+                lehrkraft.Fakultas = sqliteDatareader.GetString(5);
+                lehrkraft.Pwttemp = sqliteDatareader.GetString(6);
             }
 
             return lehrkraft;
@@ -1495,21 +1468,21 @@ namespace SchulDB
         /// <param name="kuerzel"></param>
         public async Task<LuL> GetLehrkraft(string kuerzel)
         {
-            var sqlite_cmd = sqlite_conn.CreateCommand();
-            sqlite_cmd.CommandText =
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText =
                 "SELECT id,nachname,vorname,mail,kuerzel,fakultas,pwtemp FROM lehrkraft WHERE kuerzel = @kuerzel;";
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@kuerzel", kuerzel));
-            var sqlite_datareader = sqlite_cmd.ExecuteReader();
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@kuerzel", kuerzel));
+            var sqliteDatareader = sqliteCmd.ExecuteReader();
             LuL lehrkraft = new();
-            while (sqlite_datareader.Read())
+            while (sqliteDatareader.Read())
             {
-                lehrkraft.ID = sqlite_datareader.GetInt32(0);
-                lehrkraft.Nachname = sqlite_datareader.GetString(1);
-                lehrkraft.Vorname = sqlite_datareader.GetString(2);
-                lehrkraft.Mail = sqlite_datareader.GetString(3);
-                lehrkraft.Kuerzel = sqlite_datareader.GetString(4);
-                lehrkraft.Fakultas = sqlite_datareader.GetString(5);
-                lehrkraft.Pwttemp = sqlite_datareader.GetString(6);
+                lehrkraft.ID = sqliteDatareader.GetInt32(0);
+                lehrkraft.Nachname = sqliteDatareader.GetString(1);
+                lehrkraft.Vorname = sqliteDatareader.GetString(2);
+                lehrkraft.Mail = sqliteDatareader.GetString(3);
+                lehrkraft.Kuerzel = sqliteDatareader.GetString(4);
+                lehrkraft.Fakultas = sqliteDatareader.GetString(5);
+                lehrkraft.Pwttemp = sqliteDatareader.GetString(6);
             }
 
             return lehrkraft;
@@ -1521,12 +1494,12 @@ namespace SchulDB
         public async Task<ReadOnlyCollection<int>> GetLehrerIDListe()
         {
             List<int> llist = new();
-            var sqlite_cmd = sqlite_conn.CreateCommand();
-            sqlite_cmd.CommandText = "SELECT id FROM lehrkraft;";
-            var sqlite_datareader = sqlite_cmd.ExecuteReader();
-            while (sqlite_datareader.Read())
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText = "SELECT id FROM lehrkraft;";
+            var sqliteDatareader = sqliteCmd.ExecuteReader();
+            while (sqliteDatareader.Read())
             {
-                llist.Add(sqlite_datareader.GetInt32(0));
+                llist.Add(sqliteDatareader.GetInt32(0));
             }
 
             return new ReadOnlyCollection<int>(llist);
@@ -1538,20 +1511,20 @@ namespace SchulDB
         public async Task<ReadOnlyCollection<LuL>> GetLehrerListe()
         {
             List<LuL> llist = new();
-            var sqlite_cmd = sqlite_conn.CreateCommand();
-            sqlite_cmd.CommandText = "SELECT id,nachname,vorname,mail,kuerzel,fakultas,pwtemp FROM lehrkraft;";
-            var sqlite_datareader = sqlite_cmd.ExecuteReader();
-            while (sqlite_datareader.Read())
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText = "SELECT id,nachname,vorname,mail,kuerzel,fakultas,pwtemp FROM lehrkraft;";
+            var sqliteDatareader = sqliteCmd.ExecuteReader();
+            while (sqliteDatareader.Read())
             {
                 LuL lehrkraft = new()
                 {
-                    ID = sqlite_datareader.GetInt32(0),
-                    Nachname = sqlite_datareader.GetString(1),
-                    Vorname = sqlite_datareader.GetString(2),
-                    Mail = sqlite_datareader.GetString(3),
-                    Kuerzel = sqlite_datareader.GetString(4),
-                    Fakultas = sqlite_datareader.GetString(5),
-                    Pwttemp = sqlite_datareader.GetString(6)
+                    ID = sqliteDatareader.GetInt32(0),
+                    Nachname = sqliteDatareader.GetString(1),
+                    Vorname = sqliteDatareader.GetString(2),
+                    Mail = sqliteDatareader.GetString(3),
+                    Kuerzel = sqliteDatareader.GetString(4),
+                    Fakultas = sqliteDatareader.GetString(5),
+                    Pwttemp = sqliteDatareader.GetString(6)
                 };
                 llist.Add(lehrkraft);
             }
@@ -1566,15 +1539,15 @@ namespace SchulDB
         public async Task<ReadOnlyCollection<string>> GetLog()
         {
             List<string> log = new();
-            var sqlite_cmd = sqlite_conn.CreateCommand();
-            sqlite_cmd.CommandText = "SELECT stufe,datum, nachricht FROM log;";
-            var sqlite_datareader = sqlite_cmd.ExecuteReader();
-            while (sqlite_datareader.Read())
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText = "SELECT stufe,datum, nachricht FROM log;";
+            var sqliteDatareader = sqliteCmd.ExecuteReader();
+            while (sqliteDatareader.Read())
             {
                 var returnstr = "";
-                for (var i = 0; i < sqlite_datareader.FieldCount; i++)
+                for (var i = 0; i < sqliteDatareader.FieldCount; i++)
                 {
-                    returnstr += sqlite_datareader.GetString(i) + "\t";
+                    returnstr += sqliteDatareader.GetString(i) + "\t";
                 }
 
                 log.Add(returnstr);
@@ -1591,16 +1564,16 @@ namespace SchulDB
         public async Task<ReadOnlyCollection<string>> GetLog(string stufe)
         {
             List<string> log = new();
-            var sqlite_cmd = sqlite_conn.CreateCommand();
-            sqlite_cmd.CommandText = "SELECT stufe,datum, nachricht FROM log WHERE stufe = @stufe;";
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@stufe", stufe));
-            var sqlite_datareader = sqlite_cmd.ExecuteReader();
-            while (sqlite_datareader.Read())
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText = "SELECT stufe,datum, nachricht FROM log WHERE stufe = @stufe;";
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@stufe", stufe));
+            var sqliteDatareader = sqliteCmd.ExecuteReader();
+            while (sqliteDatareader.Read())
             {
                 var returnstr = "";
-                for (var i = 0; i < sqlite_datareader.FieldCount; i++)
+                for (var i = 0; i < sqliteDatareader.FieldCount; i++)
                 {
-                    returnstr += sqlite_datareader.GetString(i) + "\t";
+                    returnstr += sqliteDatareader.GetString(i) + "\t";
                 }
 
                 log.Add(returnstr);
@@ -1616,13 +1589,13 @@ namespace SchulDB
         /// <returns>String Langfach-Bezeichnung</returns>
         private async Task<string> GetLangeFachbezeichnung(string shortsubject)
         {
-            var sqlite_cmd = sqlite_conn.CreateCommand();
-            sqlite_cmd.CommandText = "SELECT langfach FROM fachersatz WHERE kurzfach = @shortsubject;";
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@shortsubject", shortsubject));
-            var sqlite_datareader = sqlite_cmd.ExecuteReader();
-            while (sqlite_datareader.Read())
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText = "SELECT langfach FROM fachersatz WHERE kurzfach = @shortsubject;";
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@shortsubject", shortsubject));
+            var sqliteDatareader = sqliteCmd.ExecuteReader();
+            while (sqliteDatareader.Read())
             {
-                return sqlite_datareader.GetString(0);
+                return sqliteDatareader.GetString(0);
             }
 
             return shortsubject;
@@ -1636,13 +1609,13 @@ namespace SchulDB
         public async Task<ReadOnlyCollection<LuL>> GetLuLAusKurs(string kbez)
         {
             List<LuL> lliste = new();
-            var sqlite_cmd = sqlite_conn.CreateCommand();
-            sqlite_cmd.CommandText = "SELECT lehrerid FROM unterrichtet WHERE kursbez = @kbez;";
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@kbez", kbez));
-            var sqlite_datareader = sqlite_cmd.ExecuteReader();
-            while (sqlite_datareader.Read())
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText = "SELECT lehrerid FROM unterrichtet WHERE kursbez = @kbez;";
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@kbez", kbez));
+            var sqliteDatareader = sqliteCmd.ExecuteReader();
+            while (sqliteDatareader.Read())
             {
-                lliste.Add(await GetLehrkraft(sqlite_datareader.GetInt32(0)));
+                lliste.Add(await GetLehrkraft(sqliteDatareader.GetInt32(0)));
             }
 
             return new ReadOnlyCollection<LuL>(lliste);
@@ -1656,16 +1629,16 @@ namespace SchulDB
         public async Task<ReadOnlyCollection<LuL>> GetLuLvonSuS(int susid)
         {
             List<LuL> lliste = new();
-            var sqlite_cmd = sqlite_conn.CreateCommand();
-            sqlite_cmd.CommandText =
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText =
                 "SELECT unterrichtet.lehrerid FROM unterrichtet JOIN nimmtteil ON nimmtteil.kursbez = unterrichtet.kursbez WHERE schuelerid = @susid;";
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@susid", susid));
-            var sqlite_datareader = sqlite_cmd.ExecuteReader();
-            while (sqlite_datareader.Read())
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@susid", susid));
+            var sqliteDatareader = sqliteCmd.ExecuteReader();
+            while (sqliteDatareader.Read())
             {
-                for (var i = 0; i < sqlite_datareader.FieldCount; i++)
+                for (var i = 0; i < sqliteDatareader.FieldCount; i++)
                 {
-                    lliste.Add(await GetLehrkraft(sqlite_datareader.GetInt32(0)));
+                    lliste.Add(await GetLehrkraft(sqliteDatareader.GetInt32(0)));
                 }
             }
 
@@ -1680,16 +1653,16 @@ namespace SchulDB
         public async Task<ReadOnlyCollection<LuL>> GetLuLAusStufe(string stufe)
         {
             List<LuL> lliste = new();
-            var sqlite_cmd = sqlite_conn.CreateCommand();
-            sqlite_cmd.CommandText =
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText =
                 "SELECT DISTINCT unterrichtet.lehrerid FROM unterrichtet WHERE kursbez LIKE @stufe;";
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@stufe", stufe + "%"));
-            var sqlite_datareader = sqlite_cmd.ExecuteReader();
-            while (sqlite_datareader.Read())
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@stufe", stufe + "%"));
+            var sqliteDatareader = sqliteCmd.ExecuteReader();
+            while (sqliteDatareader.Read())
             {
-                for (var i = 0; i < sqlite_datareader.FieldCount; i++)
+                for (var i = 0; i < sqliteDatareader.FieldCount; i++)
                 {
-                    lliste.Add(await GetLehrkraft(sqlite_datareader.GetInt32(0)));
+                    lliste.Add(await GetLehrkraft(sqliteDatareader.GetInt32(0)));
                 }
             }
 
@@ -1702,23 +1675,23 @@ namespace SchulDB
         /// <param name="id"></param>
         public async Task<SuS> GetSchueler(int id)
         {
-            var sqlite_cmd = sqlite_conn.CreateCommand();
-            sqlite_cmd.CommandText =
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText =
                 "SELECT id,nachname,vorname,mail,klasse,nutzername,aixmail,zweitaccount,zweitmail FROM schueler WHERE id = @id;";
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@id", id));
-            var sqlite_datareader = sqlite_cmd.ExecuteReader();
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@id", id));
+            var sqliteDatareader = sqliteCmd.ExecuteReader();
             SuS schuelerin = new();
-            while (sqlite_datareader.Read())
+            while (sqliteDatareader.Read())
             {
-                schuelerin.ID = sqlite_datareader.GetInt32(0);
-                schuelerin.Nachname = sqlite_datareader.GetString(1);
-                schuelerin.Vorname = sqlite_datareader.GetString(2);
-                schuelerin.Mail = sqlite_datareader.GetString(3);
-                schuelerin.Klasse = sqlite_datareader.GetString(4);
-                schuelerin.Nutzername = sqlite_datareader.GetString(5);
-                schuelerin.Aixmail = sqlite_datareader.GetString(6);
-                schuelerin.Zweitaccount = Convert.ToBoolean(sqlite_datareader.GetInt32(7));
-                schuelerin.Zweitmail = sqlite_datareader.GetString(8);
+                schuelerin.ID = sqliteDatareader.GetInt32(0);
+                schuelerin.Nachname = sqliteDatareader.GetString(1);
+                schuelerin.Vorname = sqliteDatareader.GetString(2);
+                schuelerin.Mail = sqliteDatareader.GetString(3);
+                schuelerin.Klasse = sqliteDatareader.GetString(4);
+                schuelerin.Nutzername = sqliteDatareader.GetString(5);
+                schuelerin.Aixmail = sqliteDatareader.GetString(6);
+                schuelerin.Zweitaccount = Convert.ToBoolean(sqliteDatareader.GetInt32(7));
+                schuelerin.Zweitmail = sqliteDatareader.GetString(8);
             }
 
             return schuelerin;
@@ -1731,24 +1704,24 @@ namespace SchulDB
         /// <param name="nachname"></param>
         private async Task<SuS> GetSchueler(string vorname, string nachname)
         {
-            var sqlite_cmd = sqlite_conn.CreateCommand();
-            sqlite_cmd.CommandText =
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText =
                 "SELECT id,nachname,vorname,mail,klasse,nutzername,aixmail,zweitaccount,zweitmail FROM schueler WHERE vorname = @vorname AND nachname = @nachname;";
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@vorname", vorname));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@nachname", nachname));
-            var sqlite_datareader = sqlite_cmd.ExecuteReader();
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@vorname", vorname));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@nachname", nachname));
+            var sqliteDatareader = sqliteCmd.ExecuteReader();
             SuS schuelerin = new();
-            while (sqlite_datareader.Read())
+            while (sqliteDatareader.Read())
             {
-                schuelerin.ID = sqlite_datareader.GetInt32(0);
-                schuelerin.Nachname = sqlite_datareader.GetString(1);
-                schuelerin.Vorname = sqlite_datareader.GetString(2);
-                schuelerin.Mail = sqlite_datareader.GetString(3);
-                schuelerin.Klasse = sqlite_datareader.GetString(4);
-                schuelerin.Nutzername = sqlite_datareader.GetString(5);
-                schuelerin.Aixmail = sqlite_datareader.GetString(6);
-                schuelerin.Zweitaccount = Convert.ToBoolean(sqlite_datareader.GetInt32(7));
-                schuelerin.Zweitmail = sqlite_datareader.GetString(8);
+                schuelerin.ID = sqliteDatareader.GetInt32(0);
+                schuelerin.Nachname = sqliteDatareader.GetString(1);
+                schuelerin.Vorname = sqliteDatareader.GetString(2);
+                schuelerin.Mail = sqliteDatareader.GetString(3);
+                schuelerin.Klasse = sqliteDatareader.GetString(4);
+                schuelerin.Nutzername = sqliteDatareader.GetString(5);
+                schuelerin.Aixmail = sqliteDatareader.GetString(6);
+                schuelerin.Zweitaccount = Convert.ToBoolean(sqliteDatareader.GetInt32(7));
+                schuelerin.Zweitmail = sqliteDatareader.GetString(8);
             }
 
             return schuelerin;
@@ -1760,12 +1733,12 @@ namespace SchulDB
         public async Task<ReadOnlyCollection<int>> GetSchuelerIDListe()
         {
             List<int> slist = new();
-            var sqlite_cmd = sqlite_conn.CreateCommand();
-            sqlite_cmd.CommandText = "SELECT id FROM schueler;";
-            var sqlite_datareader = sqlite_cmd.ExecuteReader();
-            while (sqlite_datareader.Read())
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText = "SELECT id FROM schueler;";
+            var sqliteDatareader = sqliteCmd.ExecuteReader();
+            while (sqliteDatareader.Read())
             {
-                slist.Add(sqlite_datareader.GetInt32(0));
+                slist.Add(sqliteDatareader.GetInt32(0));
             }
 
             return new ReadOnlyCollection<int>(slist);
@@ -1777,23 +1750,23 @@ namespace SchulDB
         public async Task<ReadOnlyCollection<SuS>> GetSchuelerListe()
         {
             List<SuS> slist = new();
-            var sqlite_cmd = sqlite_conn.CreateCommand();
-            sqlite_cmd.CommandText =
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText =
                 "SELECT id,nachname,vorname,mail,klasse,nutzername,aixmail,zweitaccount,zweitmail FROM schueler;";
-            var sqlite_datareader = sqlite_cmd.ExecuteReader();
-            while (sqlite_datareader.Read())
+            var sqliteDatareader = sqliteCmd.ExecuteReader();
+            while (sqliteDatareader.Read())
             {
                 SuS schuelerin = new()
                 {
-                    ID = sqlite_datareader.GetInt32(0),
-                    Nachname = sqlite_datareader.GetString(1),
-                    Vorname = sqlite_datareader.GetString(2),
-                    Mail = sqlite_datareader.GetString(3),
-                    Klasse = sqlite_datareader.GetString(4),
-                    Nutzername = sqlite_datareader.GetString(5),
-                    Aixmail = sqlite_datareader.GetString(6),
-                    Zweitaccount = Convert.ToBoolean(sqlite_datareader.GetInt32(7)),
-                    Zweitmail = sqlite_datareader.GetString(8)
+                    ID = sqliteDatareader.GetInt32(0),
+                    Nachname = sqliteDatareader.GetString(1),
+                    Vorname = sqliteDatareader.GetString(2),
+                    Mail = sqliteDatareader.GetString(3),
+                    Klasse = sqliteDatareader.GetString(4),
+                    Nutzername = sqliteDatareader.GetString(5),
+                    Aixmail = sqliteDatareader.GetString(6),
+                    Zweitaccount = Convert.ToBoolean(sqliteDatareader.GetInt32(7)),
+                    Zweitmail = sqliteDatareader.GetString(8)
                 };
                 slist.Add(schuelerin);
             }
@@ -1806,56 +1779,56 @@ namespace SchulDB
         /// </summary>
         public async Task<Settings> GetSettings()
         {
-            var sqlite_cmd = sqlite_conn.CreateCommand();
-            sqlite_cmd.CommandText = "SELECT setting,value FROM settings;";
-            var sqlite_datareader = sqlite_cmd.ExecuteReader();
-            Settings settings_result = new();
-            while (sqlite_datareader.Read())
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText = "SELECT setting,value FROM settings;";
+            var sqliteDatareader = sqliteCmd.ExecuteReader();
+            Settings settingsResult = new();
+            while (sqliteDatareader.Read())
             {
-                var key = sqlite_datareader.GetString(0);
-                var value = string.IsNullOrEmpty(sqlite_datareader.GetString(1)) ? "" : sqlite_datareader.GetString(1);
+                var key = sqliteDatareader.GetString(0);
+                var value = string.IsNullOrEmpty(sqliteDatareader.GetString(1)) ? "" : sqliteDatareader.GetString(1);
                 switch (key)
                 {
                     case "mailsuffix":
-                        settings_result.Mailsuffix = value;
+                        settingsResult.Mailsuffix = value;
                         break;
                     case "kurssuffix":
-                        settings_result.Kurssuffix = value;
+                        settingsResult.Kurssuffix = value;
                         break;
                     case "fachersatz":
-                        settings_result.Fachersetzung = value;
+                        settingsResult.Fachersetzung = value;
                         break;
                     case "erprobungsstufenleitung":
-                        settings_result.Erprobungstufenleitung = value;
+                        settingsResult.Erprobungstufenleitung = value;
                         break;
                     case "mittelstufenleitung":
-                        settings_result.Mittelstufenleitung = value;
+                        settingsResult.Mittelstufenleitung = value;
                         break;
                     case "efstufenleitung":
-                        settings_result.EFStufenleitung = value;
+                        settingsResult.EFStufenleitung = value;
                         break;
                     case "q1stufenleitung":
-                        settings_result.Q1Stufenleitung = value;
+                        settingsResult.Q1Stufenleitung = value;
                         break;
                     case "q2stufenleitung":
-                        settings_result.Q2Stufenleitung = value;
+                        settingsResult.Q2Stufenleitung = value;
                         break;
                     case "oberstufenkoordination":
-                        settings_result.Oberstufenkoordination = value;
+                        settingsResult.Oberstufenkoordination = value;
                         break;
                 }
             }
 
             List<string> flist = new();
-            sqlite_cmd = sqlite_conn.CreateCommand();
-            sqlite_cmd.CommandText = "SELECT kurzfach,langfach FROM fachersatz;";
-            sqlite_datareader = sqlite_cmd.ExecuteReader();
-            while (sqlite_datareader.Read())
+            sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText = "SELECT kurzfach,langfach FROM fachersatz;";
+            sqliteDatareader = sqliteCmd.ExecuteReader();
+            while (sqliteDatareader.Read())
             {
                 var returnstr = "";
-                for (var i = 0; i < sqlite_datareader.FieldCount; i++)
+                for (var i = 0; i < sqliteDatareader.FieldCount; i++)
                 {
-                    returnstr += sqlite_datareader.GetString(i) + ";";
+                    returnstr += sqliteDatareader.GetString(i) + ";";
                 }
 
                 flist.Add(returnstr);
@@ -1869,10 +1842,10 @@ namespace SchulDB
                 fachl.Add(faecher.Split(';')[1]);
             }
 
-            settings_result.Kurzfaecher = fachk.ToArray();
-            settings_result.Langfaecher = fachl.ToArray();
+            settingsResult.Kurzfaecher = fachk.ToArray();
+            settingsResult.Langfaecher = fachl.ToArray();
 
-            return settings_result;
+            return settingsResult;
         }
 
         /// <summary>
@@ -1917,13 +1890,13 @@ namespace SchulDB
         public async Task<ReadOnlyCollection<SuS>> GetSuSAusKlasse(string klasse)
         {
             List<SuS> sliste = new();
-            var sqlite_cmd = sqlite_conn.CreateCommand();
-            sqlite_cmd.CommandText = "SELECT id FROM schueler WHERE klasse = @klasse;";
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@klasse", klasse));
-            var sqlite_datareader = sqlite_cmd.ExecuteReader();
-            while (sqlite_datareader.Read())
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText = "SELECT id FROM schueler WHERE klasse = @klasse;";
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@klasse", klasse));
+            var sqliteDatareader = sqliteCmd.ExecuteReader();
+            while (sqliteDatareader.Read())
             {
-                sliste.Add(await GetSchueler(sqlite_datareader.GetInt32(0)));
+                sliste.Add(await GetSchueler(sqliteDatareader.GetInt32(0)));
             }
 
             return new ReadOnlyCollection<SuS>(sliste);
@@ -1937,15 +1910,15 @@ namespace SchulDB
         public async Task<ReadOnlyCollection<SuS>> GetSuSAusKurs(string kbez)
         {
             List<SuS> sliste = new();
-            var sqlite_cmd = sqlite_conn.CreateCommand();
-            sqlite_cmd.CommandText = "SELECT schuelerid FROM nimmtteil WHERE kursbez = @kbez;";
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@kbez", kbez));
-            var sqlite_datareader = sqlite_cmd.ExecuteReader();
-            while (sqlite_datareader.Read())
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText = "SELECT schuelerid FROM nimmtteil WHERE kursbez = @kbez;";
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@kbez", kbez));
+            var sqliteDatareader = sqliteCmd.ExecuteReader();
+            while (sqliteDatareader.Read())
             {
-                for (var i = 0; i < sqlite_datareader.FieldCount; i++)
+                for (var i = 0; i < sqliteDatareader.FieldCount; i++)
                 {
-                    sliste.Add(await GetSchueler(sqlite_datareader.GetInt32(0)));
+                    sliste.Add(await GetSchueler(sqliteDatareader.GetInt32(0)));
                 }
             }
 
@@ -1960,13 +1933,13 @@ namespace SchulDB
         public async Task<ReadOnlyCollection<SuS>> GetSusAusStufe(string stufe)
         {
             List<SuS> sliste = new();
-            var sqlite_cmd = sqlite_conn.CreateCommand();
-            sqlite_cmd.CommandText = "SELECT DISTINCT id FROM schueler WHERE klasse LIKE @stufe;";
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@stufe", stufe + "%"));
-            var sqlite_datareader = sqlite_cmd.ExecuteReader();
-            while (sqlite_datareader.Read())
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText = "SELECT DISTINCT id FROM schueler WHERE klasse LIKE @stufe;";
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@stufe", stufe + "%"));
+            var sqliteDatareader = sqliteCmd.ExecuteReader();
+            while (sqliteDatareader.Read())
             {
-                sliste.Add(await GetSchueler(sqlite_datareader.GetInt32(0)));
+                sliste.Add(await GetSchueler(sqliteDatareader.GetInt32(0)));
             }
 
             return new ReadOnlyCollection<SuS>(sliste);
@@ -1980,14 +1953,14 @@ namespace SchulDB
         public async Task<ReadOnlyCollection<SuS>> GetSuSVonLuL(int lulid)
         {
             List<SuS> sliste = new();
-            var sqlite_cmd = sqlite_conn.CreateCommand();
-            sqlite_cmd.CommandText =
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText =
                 "SELECT nimmtteil.schuelerid FROM unterrichtet JOIN nimmtteil ON nimmtteil.kursbez = unterrichtet.kursbez WHERE lehrerid = @lulid;";
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@lulid", lulid));
-            var sqlite_datareader = sqlite_cmd.ExecuteReader();
-            while (sqlite_datareader.Read())
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@lulid", lulid));
+            var sqliteDatareader = sqliteCmd.ExecuteReader();
+            while (sqliteDatareader.Read())
             {
-                sliste.Add(await GetSchueler(sqlite_datareader.GetInt32(0)));
+                sliste.Add(await GetSchueler(sqliteDatareader.GetInt32(0)));
             }
 
             return new ReadOnlyCollection<SuS>(sliste);
@@ -2244,9 +2217,9 @@ namespace SchulDB
         /// </summary>
         public async Task LoescheLog()
         {
-            var sqlite_cmd = sqlite_conn.CreateCommand();
-            sqlite_cmd.CommandText = "DELETE FROM log WHERE stufe = 'Info' OR stufe = 'Hinweis' OR stufe = 'Fehler';";
-            sqlite_cmd.ExecuteNonQuery();
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText = "DELETE FROM log WHERE stufe = 'Info' OR stufe = 'Hinweis' OR stufe = 'Fehler';";
+            sqliteCmd.ExecuteNonQuery();
         }
 
         /// <summary>
@@ -2255,10 +2228,10 @@ namespace SchulDB
         /// <param name="stufe">"Fehler", "Hinweis", oder "Info"</param>
         public async Task LoescheLog(string stufe)
         {
-            var sqlite_cmd = sqlite_conn.CreateCommand();
-            sqlite_cmd.CommandText = "DELETE FROM log WHERE stufe = @stufe;";
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@stufe", stufe));
-            sqlite_cmd.ExecuteNonQuery();
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText = "DELETE FROM log WHERE stufe = @stufe;";
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@stufe", stufe));
+            sqliteCmd.ExecuteNonQuery();
         }
 
         /// <summary>
@@ -2340,16 +2313,16 @@ namespace SchulDB
         /// <param name="kbez"></param>
         public async Task RemoveK(string kbez)
         {
-            var sqlite_cmd = sqlite_conn.CreateCommand();
-            sqlite_cmd.CommandText = "DELETE FROM nimmtteil WHERE kursbez = @kbez;";
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@kbez", kbez));
-            sqlite_cmd.ExecuteNonQuery();
-            sqlite_cmd.CommandText = "DELETE FROM unterrichtet WHERE kursbez = @kbez;";
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@kbez", kbez));
-            sqlite_cmd.ExecuteNonQuery();
-            sqlite_cmd.CommandText = "DELETE FROM kurse WHERE bez =@kbez;";
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@kbez", kbez));
-            sqlite_cmd.ExecuteNonQuery();
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText = "DELETE FROM nimmtteil WHERE kursbez = @kbez;";
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@kbez", kbez));
+            sqliteCmd.ExecuteNonQuery();
+            sqliteCmd.CommandText = "DELETE FROM unterrichtet WHERE kursbez = @kbez;";
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@kbez", kbez));
+            sqliteCmd.ExecuteNonQuery();
+            sqliteCmd.CommandText = "DELETE FROM kurse WHERE bez =@kbez;";
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@kbez", kbez));
+            sqliteCmd.ExecuteNonQuery();
             await AddLogMessage("Info", "Kurs mit der Bezeichnung " + kbez + " gelöscht");
         }
 
@@ -2369,13 +2342,13 @@ namespace SchulDB
         /// <param name="lid"></param>
         public async Task RemoveL(int lid)
         {
-            var sqlite_cmd = sqlite_conn.CreateCommand();
-            sqlite_cmd.CommandText = "DELETE FROM unterrichtet WHERE lehrerid = @lid;";
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@lid", lid));
-            sqlite_cmd.ExecuteNonQuery();
-            sqlite_cmd.CommandText = "DELETE FROM lehrkraft INDEXED BY lindex WHERE id = @lid;";
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@lid", lid));
-            sqlite_cmd.ExecuteNonQuery();
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText = "DELETE FROM unterrichtet WHERE lehrerid = @lid;";
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@lid", lid));
+            sqliteCmd.ExecuteNonQuery();
+            sqliteCmd.CommandText = "DELETE FROM lehrkraft INDEXED BY lindex WHERE id = @lid;";
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@lid", lid));
+            sqliteCmd.ExecuteNonQuery();
             await AddLogMessage("Info", "Lehrkraft mit der ID " + lid + " gelöscht");
         }
 
@@ -2406,11 +2379,11 @@ namespace SchulDB
         /// <param name="kbez"></param>
         public async Task RemoveLfromK(int lid, string kbez)
         {
-            var sqlite_cmd = sqlite_conn.CreateCommand();
-            sqlite_cmd.CommandText = "DELETE FROM unterrichtet WHERE lehrerid = @lid AND kursbez = @kbez;";
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@lid", lid));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@kbez", kbez));
-            sqlite_cmd.ExecuteNonQuery();
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText = "DELETE FROM unterrichtet WHERE lehrerid = @lid AND kursbez = @kbez;";
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@lid", lid));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@kbez", kbez));
+            sqliteCmd.ExecuteNonQuery();
             await AddLogMessage("Info", "Lehrkraft mit der ID " + lid + " aus Kurs " + kbez + " gelöscht");
         }
 
@@ -2431,13 +2404,13 @@ namespace SchulDB
         /// <param name="sid"></param>
         public async Task RemoveS(int sid)
         {
-            var sqlite_cmd = sqlite_conn.CreateCommand();
-            sqlite_cmd.CommandText = "DELETE FROM nimmtteil WHERE schuelerid = @sid;";
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@sid", sid));
-            sqlite_cmd.ExecuteNonQuery();
-            sqlite_cmd.CommandText = "DELETE FROM schueler WHERE id = @sid;";
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@sid", sid));
-            sqlite_cmd.ExecuteNonQuery();
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText = "DELETE FROM nimmtteil WHERE schuelerid = @sid;";
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@sid", sid));
+            sqliteCmd.ExecuteNonQuery();
+            sqliteCmd.CommandText = "DELETE FROM schueler WHERE id = @sid;";
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@sid", sid));
+            sqliteCmd.ExecuteNonQuery();
             await AddLogMessage("Info", "SuS mit der ID " + sid + " gelöscht");
         }
 
@@ -2458,11 +2431,11 @@ namespace SchulDB
         /// <param name="kbez"></param>
         public async Task RemoveSfromK(int sid, string kbez)
         {
-            var sqlite_cmd = sqlite_conn.CreateCommand();
-            sqlite_cmd.CommandText = "DELETE FROM nimmtteil WHERE schuelerid = @sid AND kursbez = @kbez;";
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@sid", sid));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@kbez", kbez));
-            sqlite_cmd.ExecuteNonQuery();
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText = "DELETE FROM nimmtteil WHERE schuelerid = @sid AND kursbez = @kbez;";
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@sid", sid));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@kbez", kbez));
+            sqliteCmd.ExecuteNonQuery();
             await AddLogMessage("Info", "SuS mit der ID " + sid + " aus Kurs " + kbez + " gelöscht");
         }
 
@@ -2487,17 +2460,17 @@ namespace SchulDB
             if (fachk.Count == fachl.Count)
             {
                 await StartTransaction();
-                var sqlite_cmd = sqlite_conn.CreateCommand();
+                var sqliteCmd = _sqliteConn.CreateCommand();
                 for (var i = 0; i < fachk.Count; i++)
                 {
                     if (fachl[i] == "" || fachk[i] == "") continue;
                     var kurzesfach = fachk[i];
                     var langesfach = fachl[i];
-                    sqlite_cmd.CommandText =
+                    sqliteCmd.CommandText =
                         "INSERT OR IGNORE INTO fachersatz (kurzfach, langfach) VALUES (@kfach, @lfach);";
-                    sqlite_cmd.Parameters.Add(new SQLiteParameter("@kfach", kurzesfach));
-                    sqlite_cmd.Parameters.Add(new SQLiteParameter("@lfach", langesfach));
-                    sqlite_cmd.ExecuteNonQuery();
+                    sqliteCmd.Parameters.Add(new SQLiteParameter("@kfach", kurzesfach));
+                    sqliteCmd.Parameters.Add(new SQLiteParameter("@lfach", langesfach));
+                    sqliteCmd.ExecuteNonQuery();
                 }
 
                 await StopTransaction();
@@ -2510,58 +2483,58 @@ namespace SchulDB
         /// <param name="settings"></param>
         public async Task SetSettings(Settings settings)
         {
-            var sqlite_cmd = sqlite_conn.CreateCommand();
-            // sqlite_cmd.CommandText = "INSERT OR IGNORE INTO settings (mailsuffix, kurssuffix, fachersetzung) VALUES (@mailsuffix, @kurssuffix, @fachersatz);";
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@mailsuffixparam", settings.Mailsuffix));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@kurssuffixparam", settings.Kurssuffix));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@fachersatzparam", settings.Fachersetzung));
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            // sqliteCmd.CommandText = "INSERT OR IGNORE INTO settings (mailsuffix, kurssuffix, fachersetzung) VALUES (@mailsuffix, @kurssuffix, @fachersatz);";
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@mailsuffixparam", settings.Mailsuffix));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@kurssuffixparam", settings.Kurssuffix));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@fachersatzparam", settings.Fachersetzung));
 
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@mailsuffix", "mailsuffix"));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@kurssuffix", "kurssuffix"));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@fachersatz", "fachersatz"));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@mailsuffix", "mailsuffix"));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@kurssuffix", "kurssuffix"));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@fachersatz", "fachersatz"));
 
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@erprobungstufenleitung", "erprobungsstufenleitung"));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@mittelstufenleitung", "mittelstufenleitung"));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@efstufenleitung", "efstufenleitung"));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@q1stufenleitung", "q1stufenleitung"));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@q2stufenleitung", "q2stufenleitung"));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@oberstufenkoordination", "oberstufenkoordination"));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@erprobungstufenleitung", "erprobungsstufenleitung"));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@mittelstufenleitung", "mittelstufenleitung"));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@efstufenleitung", "efstufenleitung"));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@q1stufenleitung", "q1stufenleitung"));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@q2stufenleitung", "q2stufenleitung"));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@oberstufenkoordination", "oberstufenkoordination"));
 
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@erprobungstufenleitungparam",
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@erprobungstufenleitungparam",
                 settings.Erprobungstufenleitung));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@mittelstufenleitungparam", settings.Mittelstufenleitung));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@efstufenleitungparam", settings.EFStufenleitung));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@q1stufenleitungparam", settings.Q1Stufenleitung));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@q2stufenleitungparam", settings.Q2Stufenleitung));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@oberstufenkoordinationparam",
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@mittelstufenleitungparam", settings.Mittelstufenleitung));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@efstufenleitungparam", settings.EFStufenleitung));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@q1stufenleitungparam", settings.Q1Stufenleitung));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@q2stufenleitungparam", settings.Q2Stufenleitung));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@oberstufenkoordinationparam",
                 settings.Oberstufenkoordination));
-            sqlite_cmd.CommandText =
+            sqliteCmd.CommandText =
                 "INSERT OR REPLACE INTO settings (setting,value) VALUES(@mailsuffix, @mailsuffixparam)";
-            sqlite_cmd.ExecuteNonQuery();
-            sqlite_cmd.CommandText =
+            sqliteCmd.ExecuteNonQuery();
+            sqliteCmd.CommandText =
                 "INSERT OR REPLACE INTO settings (setting,value) VALUES(@kurssuffix, @kurssuffixparam)";
-            sqlite_cmd.ExecuteNonQuery();
-            sqlite_cmd.CommandText =
+            sqliteCmd.ExecuteNonQuery();
+            sqliteCmd.CommandText =
                 "INSERT OR REPLACE INTO settings (setting,value) VALUES(@fachersatz, @fachersatzparam)";
-            sqlite_cmd.ExecuteNonQuery();
-            sqlite_cmd.CommandText =
+            sqliteCmd.ExecuteNonQuery();
+            sqliteCmd.CommandText =
                 "INSERT OR REPLACE INTO settings (setting,value) VALUES(@erprobungstufenleitung, @erprobungstufenleitungparam)";
-            sqlite_cmd.ExecuteNonQuery();
-            sqlite_cmd.CommandText =
+            sqliteCmd.ExecuteNonQuery();
+            sqliteCmd.CommandText =
                 "INSERT OR REPLACE INTO settings (setting,value) VALUES(@mittelstufenleitung, @mittelstufenleitungparam)";
-            sqlite_cmd.ExecuteNonQuery();
-            sqlite_cmd.CommandText =
+            sqliteCmd.ExecuteNonQuery();
+            sqliteCmd.CommandText =
                 "INSERT OR REPLACE INTO settings (setting,value) VALUES(@efstufenleitung, @efstufenleitungparam)";
-            sqlite_cmd.ExecuteNonQuery();
-            sqlite_cmd.CommandText =
+            sqliteCmd.ExecuteNonQuery();
+            sqliteCmd.CommandText =
                 "INSERT OR REPLACE INTO settings (setting,value) VALUES(@q1stufenleitung, @q1stufenleitungparam)";
-            sqlite_cmd.ExecuteNonQuery();
-            sqlite_cmd.CommandText =
+            sqliteCmd.ExecuteNonQuery();
+            sqliteCmd.CommandText =
                 "INSERT OR REPLACE INTO settings (setting,value) VALUES(@q2stufenleitung, @q2stufenleitungparam)";
-            sqlite_cmd.ExecuteNonQuery();
-            sqlite_cmd.CommandText =
+            sqliteCmd.ExecuteNonQuery();
+            sqliteCmd.CommandText =
                 "INSERT OR REPLACE INTO settings (setting,value) VALUES(@oberstufenkoordination, @oberstufenkoordinationparam)";
-            sqlite_cmd.ExecuteNonQuery();
+            sqliteCmd.ExecuteNonQuery();
 
             await SetKurzLangFach(settings.Kurzfaecher, settings.Langfaecher);
         }
@@ -2572,8 +2545,8 @@ namespace SchulDB
         /// </summary>
         public async Task StartTransaction()
         {
-            trans = true;
-            dbtrans = sqlite_conn.BeginTransaction();
+            _trans = true;
+            _dbtrans = _sqliteConn.BeginTransaction();
         }
 
         /// <summary>
@@ -2581,8 +2554,8 @@ namespace SchulDB
         /// </summary>
         public async Task StopTransaction()
         {
-            trans = false;
-            await dbtrans.CommitAsync();
+            _trans = false;
+            await _dbtrans.CommitAsync();
         }
 
         /// <summary>
@@ -2688,16 +2661,16 @@ namespace SchulDB
         /// <param name="istkurs"></param>
         public async Task UpdateKurs(string bez, string fach, string klasse, string stufe, string suffix, int istkurs)
         {
-            var sqlite_cmd = sqlite_conn.CreateCommand();
-            sqlite_cmd.CommandText =
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText =
                 "UPDATE kurse SET fach = @fach, klasse = @klasse, stufe = @stufe, suffix = @suffix, istkurs = @istkurs WHERE bez=@bez;";
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@fach", fach));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@bez", bez));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@klasse", klasse));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@stufe", stufe));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@suffix", suffix));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@istkurs", istkurs));
-            sqlite_cmd.ExecuteNonQuery();
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@fach", fach));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@bez", bez));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@klasse", klasse));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@stufe", stufe));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@suffix", suffix));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@istkurs", istkurs));
+            sqliteCmd.ExecuteNonQuery();
         }
 
         /// <summary>
@@ -2713,18 +2686,18 @@ namespace SchulDB
         public async Task UpdateLehrkraft(int id, string vorname, string nachname, string kuerzel, string mail,
             string fakultas, string pwtemp)
         {
-            var sqlite_cmd = sqlite_conn.CreateCommand();
-            sqlite_cmd.CommandText =
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText =
                 "UPDATE lehrkraft SET nachname=@nachname, vorname=@vorname, kuerzel= @kuerzel, mail=@mail, fakultas=@fakultas,pwtemp = @pwtemp WHERE id=@id;";
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@id", id));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@vorname", vorname));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@nachname", nachname));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@kuerzel", kuerzel.ToUpper()));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@mail", mail));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@fakultas", fakultas.TrimEnd(';')));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@pwtemp", pwtemp));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@id", id));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@vorname", vorname));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@nachname", nachname));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@kuerzel", kuerzel.ToUpper()));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@mail", mail));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@fakultas", fakultas.TrimEnd(';')));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@pwtemp", pwtemp));
 
-            sqlite_cmd.ExecuteNonQuery();
+            sqliteCmd.ExecuteNonQuery();
         }
 
         /// <summary>
@@ -2742,19 +2715,19 @@ namespace SchulDB
         public async Task UpdateSchueler(int id, string vorname, string nachname, string mail, string klasse,
             string nutzername, string aixmail, int zweitaccount, string zweitmail)
         {
-            var sqlite_cmd = sqlite_conn.CreateCommand();
-            sqlite_cmd.CommandText =
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText =
                 "UPDATE schueler SET nachname=@nachname, vorname=@vorname, mail=@mail, klasse=@klasse, nutzername=@nutzername, aixmail=@aixmail, zweitaccount = @zweitaccount, zweitmail=@zweitmail WHERE id=@id;";
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@id", id));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@vorname", vorname));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@nachname", nachname));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@mail", mail));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@klasse", klasse));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@nutzername", nutzername));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@aixmail", aixmail));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@zweitaccount", zweitaccount));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@zweitmail", zweitmail));
-            sqlite_cmd.ExecuteNonQuery();
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@id", id));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@vorname", vorname));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@nachname", nachname));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@mail", mail));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@klasse", klasse));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@nutzername", nutzername));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@aixmail", aixmail));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@zweitaccount", zweitaccount));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@zweitmail", zweitmail));
+            sqliteCmd.ExecuteNonQuery();
         }
 
         /// <summary>
@@ -2764,11 +2737,11 @@ namespace SchulDB
         /// <param name="mail"></param>
         private void UpdateAIXSuSAdressen(int id, string mail)
         {
-            var sqlite_cmd = sqlite_conn.CreateCommand();
-            sqlite_cmd.CommandText = "UPDATE schueler SET aixmail = @mail WHERE id = @id;";
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@id", id));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@mail", mail));
-            sqlite_cmd.ExecuteNonQuery();
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText = "UPDATE schueler SET aixmail = @mail WHERE id = @id;";
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@id", id));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@mail", mail));
+            sqliteCmd.ExecuteNonQuery();
         }
 
         /// <summary>
@@ -2778,11 +2751,11 @@ namespace SchulDB
         /// <param name="nutzername"></param>
         private void UpdateSchuelerNutzername(int id, string nutzername)
         {
-            var sqlite_cmd = sqlite_conn.CreateCommand();
-            sqlite_cmd.CommandText = "UPDATE schueler SET nutzername = @nutzername WHERE id = @id;";
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@id", id));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@nutzername", nutzername));
-            sqlite_cmd.ExecuteNonQuery();
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText = "UPDATE schueler SET nutzername = @nutzername WHERE id = @id;";
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@id", id));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@nutzername", nutzername));
+            sqliteCmd.ExecuteNonQuery();
         }
 
         /// <summary>
@@ -2792,13 +2765,13 @@ namespace SchulDB
         /// <returns>String temporäre Passwort</returns>
         private async Task<string> GetTempPasswort(int lehrerid)
         {
-            var sqlite_cmd = sqlite_conn.CreateCommand();
-            sqlite_cmd.CommandText = "SELECT pwtemp FROM lehrkraft WHERE id=" + lehrerid + ";";
-            var sqlite_datareader = sqlite_cmd.ExecuteReader();
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText = "SELECT pwtemp FROM lehrkraft WHERE id=" + lehrerid + ";";
+            var sqliteDatareader = sqliteCmd.ExecuteReader();
             var tpwd = "";
-            while (sqlite_datareader.Read())
+            while (sqliteDatareader.Read())
             {
-                tpwd = sqlite_datareader.GetString(0);
+                tpwd = sqliteDatareader.GetString(0);
             }
 
             return tpwd;
@@ -2811,11 +2784,11 @@ namespace SchulDB
         /// <param name="pwd">das neue Passwort</param>
         public async void SetTPwd(int lehrerid, string pwd)
         {
-            var sqlite_cmd = sqlite_conn.CreateCommand();
-            sqlite_cmd.CommandText = "UPDATE lehrkraft SET pwtemp = @pwd WHERE id = @lehrerid;";
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@pwd", pwd));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@lehrerid", lehrerid));
-            sqlite_cmd.ExecuteNonQuery();
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText = "UPDATE lehrkraft SET pwtemp = @pwd WHERE id = @lehrerid;";
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@pwd", pwd));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@lehrerid", lehrerid));
+            sqliteCmd.ExecuteNonQuery();
         }
 
         /// <summary>
@@ -2871,20 +2844,11 @@ namespace SchulDB
         /// <param name="pStatus"></param>
         private async Task SetZweitAccount(int id, int pStatus)
         {
-            var sqlite_cmd = sqlite_conn.CreateCommand();
-            sqlite_cmd.CommandText = "UPDATE schueler SET zweitaccount = @status WHERE id = @susid;";
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@status", pStatus));
-            sqlite_cmd.Parameters.Add(new SQLiteParameter("@susid", id));
-            sqlite_cmd.ExecuteNonQuery();
-        }
-
-        /// <summary>
-        ///         /// 
-        /// </summary>
-        /// <returns></returns>
-        public async Task<int> GetCurrentStatusAsync()
-        {
-            return status;
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText = "UPDATE schueler SET zweitaccount = @status WHERE id = @susid;";
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@status", pStatus));
+            sqliteCmd.Parameters.Add(new SQLiteParameter("@susid", id));
+            sqliteCmd.ExecuteNonQuery();
         }
     }
 }
