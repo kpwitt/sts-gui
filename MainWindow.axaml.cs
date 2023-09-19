@@ -1873,7 +1873,7 @@ namespace StS_GUI_Avalonia
                             ButtonDefinitions = ButtonEnum.Ok,
                             ContentTitle = "Fehler",
                             ContentMessage =
-                                "Nicht alle erforderlichen Informationen angegeben!\nStellen Sie sicher, dass Kursbezeichnung, mind. einn Kürzel, das Fach, die Klasse und die Stufe ausgefüllt sind.",
+                                "Nicht alle erforderlichen Informationen angegeben!\nStellen Sie sicher, dass Kursbezeichnung, mind. ein Kürzel, das Fach, die Klasse und die Stufe ausgefüllt sind.",
                             Icon = MsBox.Avalonia.Enums.Icon.Error,
                             WindowIcon = msgBoxWindowIcon
                         }).ShowAsPopupAsync(this);
