@@ -124,12 +124,12 @@ namespace StS_GUI_Avalonia
                 Header = "Serienbrief-CSV exportieren (nur mit DV)"
             };
             mnuItemMSerienbriefDV.Click += OnMnuItemMSerienbriefDV;
-            var mnuItemExport = new MenuItem
+            var mnuItemMExport = new MenuItem
             {
                 Name = "mnuItemExport",
                 Header = "markierte Elemente exportieren"
             };
-            mnuItemExport.Click += OnMnuExportClick;
+            mnuItemMExport.Click += OnMnuExportClick;
             var mnuItemCopyMenu = new MenuItem
             {
                 Name = "mnuItemCopyMenu",
@@ -165,7 +165,7 @@ namespace StS_GUI_Avalonia
             leftContextItems.Add(mnuItemMSerienbrief);
             leftContextItems.Add(mnuItemMSerienbriefDV);
             leftContextItems.Add(mnuItemMPasswordGenerieren);
-            leftContextItems.Add(mnuItemExport);
+            leftContextItems.Add(mnuItemMExport);
             _leftContext.ItemsSource = leftContextItems;
             LeftListBox.ContextMenu = _leftContext;
             rbD.IsChecked = true;
