@@ -411,12 +411,12 @@ namespace StS_GUI_Avalonia
             if (string.IsNullOrEmpty(inputResult)) return;
             var saveDBFile = async () =>
             {
-                var extx = new List<FilePickerFileType>
+                var encFileType = new List<FilePickerFileType>
                 {
                     StSFileTypes.EncryptedFile
                 };
-                var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
-                var outputFilePath = files?.Path.AbsolutePath;
+                var saveFile = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", encFileType);
+                var outputFilePath = saveFile?.Path.AbsolutePath;
                 if (outputFilePath == null) return;
 
                 LocalCryptoServive.FileDecrypt(inputFilePath, outputFilePath, inputResult);
