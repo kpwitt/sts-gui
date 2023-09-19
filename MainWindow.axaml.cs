@@ -39,7 +39,6 @@ namespace StS_GUI_Avalonia
         private MenuItem _mnuItemCopySuSMail;
         private MenuItem _mnuItemCopyKursBez;
 
-
         public MainWindow()
         {
 #if DEBUG
