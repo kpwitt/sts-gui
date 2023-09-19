@@ -33,6 +33,8 @@ namespace StS_GUI_Avalonia
         private readonly Brush lightBackgroundColor = new SolidColorBrush(Color.FromRgb(242, 242, 242));
         private bool rightMutex;
         private WindowIcon msgBoxWindowIcon;
+        private MenuItem mnuItemCopySuSID;
+        private MenuItem mnuItemCopySuSMail;
 
 
         public MainWindow()
@@ -87,6 +89,7 @@ namespace StS_GUI_Avalonia
             rightInputTimer.Elapsed += OnRightTimedEvent;
 
             List<Control> leftContextItems = new();
+            List<Control> copyContextItems = new();
             var cbMAnfangsPassword = new CheckBox
             {
                 Name = "cbMnuLeftContextAnfangsPasswort",
@@ -120,20 +123,41 @@ namespace StS_GUI_Avalonia
                 Header = "Serienbrief-CSV exportieren (nur mit DV)"
             };
             mnuItemMSerienbriefDV.Click += OnMnuItemMSerienbriefDV;
-            var mnuItemMExport = new MenuItem
+            var mnuItemExport = new MenuItem
             {
-                Name = "mnuItemMExport",
+                Name = "mnuItemExport",
                 Header = "markierte Elemente exportieren"
             };
-            mnuItemMExport.Click += OnMnuExportClick;
+            mnuItemExport.Click += OnMnuExportClick;
+            var mnuItemCopyMenu = new MenuItem
+            {
+                Name = "mnuItemCopyMenu",
+                Header = "Kopiere..."
+            };
+            mnuItemCopySuSID = new MenuItem
+            {
+                Name = "mnuItemCopyMenu",
+                Header = "IDs"
+            };
+            mnuItemCopySuSID.Click += MnuItemCopySuSidOnClick;
+            mnuItemCopySuSMail = new MenuItem
+            {
+                Name = "mnuItemCopyMail",
+                Header = "Mail-Adressen"
+            };
+            mnuItemCopySuSMail.Click += MnuItemCopySuSMailOnClick;
 
+            copyContextItems.Add(mnuItemCopySuSID);
+            copyContextItems.Add(mnuItemCopySuSMail);
+            mnuItemCopyMenu.ItemsSource = copyContextItems;
+            leftContextItems.Add(mnuItemCopyMenu);
             leftContextItems.Add(cbMAnfangsPassword);
             leftContextItems.Add(cbMEltern);
             leftContextItems.Add(cbMLLGIntern);
             leftContextItems.Add(mnuItemMSerienbrief);
             leftContextItems.Add(mnuItemMSerienbriefDV);
             leftContextItems.Add(mnuItemMPasswordGenerieren);
-            leftContextItems.Add(mnuItemMExport);
+            leftContextItems.Add(mnuItemExport);
             leftContext.ItemsSource = leftContextItems;
             LeftListBox.ContextMenu = leftContext;
             rbD.IsChecked = true;
@@ -900,6 +924,7 @@ namespace StS_GUI_Avalonia
                 ResetItemsSource(RightListBox, new List<string>());
             }
 
+            mnuItemCopySuSID.IsVisible = mnuItemCopySuSMail.IsVisible = CboxDataLeft.SelectedIndex == 0;
             switch (CboxDataLeft.SelectedIndex)
             {
                 //s=0;l==1;k==2
@@ -2611,6 +2636,25 @@ namespace StS_GUI_Avalonia
             var clipboard = Clipboard;
             if (clipboard == null) return;
             await clipboard.SetTextAsync(ids);
+        }
+
+        private async void MnuItemCopySuSidOnClick(object? sender, RoutedEventArgs e)
+        {
+            var ids = LeftListBox.SelectedItems.Cast<string>()
+                .Aggregate("", (current, item) => current + item.Split(';')[1] + ",");
+            var clipboard = Clipboard;
+            if (clipboard == null) return;
+            await clipboard.SetTextAsync(ids.TrimEnd(','));
+        }
+
+        private async void MnuItemCopySuSMailOnClick(object? sender, RoutedEventArgs e)
+        {
+            var sus = LeftListBox.SelectedItems.Cast<string>().Aggregate("",
+                (current, item) =>
+                    current + myschool.GetSchueler(Convert.ToInt32(item.Split(';')[1])).Result.Mail + ",");
+            var clipboard = Clipboard;
+            if (clipboard == null) return;
+            await clipboard.SetTextAsync(sus.TrimEnd(','));
         }
     }
 }
