@@ -105,7 +105,7 @@ namespace StS_GUI_Avalonia
             var mnuItemMPasswordGenerieren = new MenuItem
             {
                 Name = "mnuItemMPasswordGenerieren",
-                Header = "neues temp. Passwort geneieren"
+                Header = "neues temp. Passwort generieren"
             };
             mnuItemMPasswordGenerieren.Click += OnMnuPasswordGenClick;
             var mnuItemMSerienbrief = new MenuItem
