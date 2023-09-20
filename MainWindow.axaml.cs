@@ -196,7 +196,7 @@ namespace StS_GUI_Avalonia
         private async Task<IStorageFile?> ShowSaveFileDialog(string dialogtitle,
             IReadOnlyList<FilePickerFileType> extensions)
         {
-            var topLevel = TopLevel.GetTopLevel(this);
+            var topLevel = GetTopLevel(this);
             if (topLevel == null) return null;
             var files = await topLevel.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
             {
@@ -209,7 +209,7 @@ namespace StS_GUI_Avalonia
         private async Task<IStorageFile?> ShowOpenFileDialog(string dialogtitle,
             IReadOnlyList<FilePickerFileType> extensions)
         {
-            var topLevel = TopLevel.GetTopLevel(this);
+            var topLevel = GetTopLevel(this);
             if (topLevel == null) return null;
             var files = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions()
             {
@@ -222,7 +222,7 @@ namespace StS_GUI_Avalonia
 
         private async Task<IStorageFolder?> ShowOpenFolderDialog(string dialogtitle)
         {
-            var topLevel = TopLevel.GetTopLevel(this);
+            var topLevel = GetTopLevel(this);
             if (topLevel == null) return null;
             var folders = await topLevel.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions()
             {
