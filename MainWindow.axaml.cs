@@ -2058,9 +2058,10 @@ namespace StS_GUI_Avalonia
                             var cachlist = _myschool.GetLehrerListe().Result;
                             foreach (var eingabe in eingabeliste)
                             {
+                                var lowereingabe = eingabe.ToLower();
                                 lliste.AddRange(cachlist.Where(l =>
-                                    l.Kuerzel.ToLower().Contains(eingabe) || l.Vorname.ToLower().Contains(eingabe) ||
-                                    l.Nachname.ToLower().Contains(eingabe)).ToList());
+                                    l.Kuerzel.ToLower().Contains(lowereingabe) || l.Vorname.ToLower().Contains(lowereingabe) ||
+                                    l.Nachname.ToLower().Contains(lowereingabe)).ToList());
                             }
 
                             var leliste = lliste.Distinct()
