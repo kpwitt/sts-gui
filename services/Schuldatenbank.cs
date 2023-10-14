@@ -926,13 +926,11 @@ namespace SchulDB
                             kListe += kk.Bezeichnung + kk.Suffix + "|";
                             if (kk.Fach.Equals("KL") || kk.Fach.Equals("StuBo"))
                             {
-                                ausgabeMoodleEinschreibungen.Add("add,schueler," + s.ID + "," + kk.Klasse + kk.Fach +
-                                                                 kk.Suffix);
+                                ausgabeMoodleEinschreibungen.Add("add,schueler," + s.ID + "," + kk.Bezeichnung + kk.Suffix);
                             }
                             else
                             {
-                                ausgabeMoodleEinschreibungen.Add("add,student," + s.ID + "," + kk.Bezeichnung +
-                                                                 kk.Suffix);
+                                ausgabeMoodleEinschreibungen.Add("add,student," + s.ID + "," + kk.Bezeichnung + kk.Suffix);
                             }
 
                             if (s.Klasse.StartsWith("5") || s.Klasse.StartsWith("6"))
