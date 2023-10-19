@@ -2110,11 +2110,23 @@ namespace SchulDB
                     }
 
                     var krz = tmpkurs[inl];
-                    var stmp = await GetSchueler(tmpkurs[inv].Replace("'", ""), tmpkurs[inn].Replace("'", ""));
+                    var nachname= "";
+                    var kursklasse = "";
+                    if (tmpkurs[inn].Contains('#'))
+                    {
+                        nachname = tmpkurs[inn].Split('#')[0];
+                        kursklasse = tmpkurs[inn].Split('#')[1];
+                    }
+                    else
+                    {
+                        nachname = tmpkurs[inn];
+                    }
+                    var stmp = await GetSchueler(tmpkurs[inv].Replace("'", ""), nachname.Replace("'", ""));
                     var ltmp = await GetLehrkraft(krz);
                     if (stmp.ID > 50000 && ltmp.ID > 0)
                     {
                         var klasse = stmp.Klasse;
+                        Debug.Assert(klasse == kursklasse);
                         var stufe = klasse[..2];
                         if (!(stufe.Equals("EF") || stufe.Equals("Q1") || stufe.Equals("Q2")))
                         {
