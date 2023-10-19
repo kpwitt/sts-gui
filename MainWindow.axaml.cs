@@ -1978,6 +1978,19 @@ namespace StS_GUI_Avalonia
                     await _myschool.AddStoK(sus, await _myschool.GetKurs(kursbez));
                 }
             }
+
+            if (cbKursMarkierteSuSEinschreiben.IsChecked != null &&
+                cbKursMarkierteSuSEinschreiben.IsChecked.Value&&LeftListBox.SelectedItems!=null)
+            {
+                foreach (var susstring in LeftListBox.SelectedItems.Cast<string>())
+                {
+                    if (susstring==null)continue;
+                    var id = Convert.ToInt32(susstring.Split(';')[1]);
+                    var sus = await _myschool.GetSchueler(id);
+                    await _myschool.AddStoK(sus, await _myschool.GetKurs(kursbez));
+                }
+            }
+            
             OnLeftDataChanged(true);
             OnRightDataChanged(true);
         }
