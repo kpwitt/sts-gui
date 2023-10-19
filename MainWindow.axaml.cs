@@ -217,7 +217,7 @@ namespace StS_GUI_Avalonia
                 FileTypeFilter = extensions,
                 AllowMultiple = false,
             });
-            return files[0];
+            return files.Count > 0 ? files[0] : null;
         }
 
         private async Task<IStorageFolder?> ShowOpenFolderDialog(string dialogtitle)
