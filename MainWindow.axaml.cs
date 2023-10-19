@@ -2681,6 +2681,7 @@ namespace StS_GUI_Avalonia
 
         private async void MnuItemCopySuSidOnClick(object? sender, RoutedEventArgs e)
         {
+            if (LeftListBox.SelectedItems == null) return;
             var ids = LeftListBox.SelectedItems.Cast<string>()
                 .Aggregate("", (current, item) => current + item.Split(';')[1] + ",");
             var clipboard = Clipboard;
@@ -2690,6 +2691,7 @@ namespace StS_GUI_Avalonia
 
         private async void MnuItemCopySuSMailOnClick(object? sender, RoutedEventArgs e)
         {
+            if (LeftListBox.SelectedItems == null) return;
             var sus = LeftListBox.SelectedItems.Cast<string>().Aggregate("",
                 (current, item) =>
                     current + _myschool.GetSchueler(Convert.ToInt32(item.Split(';')[1])).Result.Mail + ",");
@@ -2700,6 +2702,7 @@ namespace StS_GUI_Avalonia
 
         private async void MnuItemCopyKursBezOnClick(object? sender, RoutedEventArgs e)
         {
+            if (LeftListBox.SelectedItems == null) return;
             var bezliste = LeftListBox.SelectedItems.Cast<string>()
                 .Aggregate("", (current, bez) => current + bez + ",");
             var clipboard = Clipboard;
@@ -2709,6 +2712,7 @@ namespace StS_GUI_Avalonia
 
         private async void MnuItemCopyLuLMailsOnClick(object? sender, RoutedEventArgs e)
         {
+            if (LeftListBox.SelectedItems == null) return;
             var mails = LeftListBox.SelectedItems.Cast<string>().Aggregate("",
                 (current, line) => current + (_myschool.GetLehrkraft(line.Split(';')[0]).Result.Mail + ","));
             var clipboard = Clipboard;
@@ -2718,6 +2722,7 @@ namespace StS_GUI_Avalonia
 
         private async void MnuItemCopyLuLKrzOnClick(object? sender, RoutedEventArgs e)
         {
+            if (LeftListBox.SelectedItems == null) return;
             var krzs = LeftListBox.SelectedItems.Cast<string>()
                 .Aggregate("", (current, line) => current + (line.Split(';')[0] + ","));
             var clipboard = Clipboard;
