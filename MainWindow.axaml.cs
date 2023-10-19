@@ -1561,7 +1561,7 @@ namespace StS_GUI_Avalonia
                 var folder = await ShowOpenFolderDialog("Bitte den Ordner mit den Dateien auswählen");
                 if (folder == null) return;
                 var folderpath = folder.Path.AbsolutePath;
-                var res = -2;
+                int res;
                 var susidlist = new List<int>();
                 var nurMoodleSuffix = cbNurMoodleSuffix.IsChecked is not false;
                 if (!tbExportStufenkurse.Text.Contains(';'))
@@ -1980,17 +1980,17 @@ namespace StS_GUI_Avalonia
             }
 
             if (cbKursMarkierteSuSEinschreiben.IsChecked != null &&
-                cbKursMarkierteSuSEinschreiben.IsChecked.Value&&LeftListBox.SelectedItems!=null)
+                cbKursMarkierteSuSEinschreiben.IsChecked.Value && LeftListBox.SelectedItems != null)
             {
                 foreach (var susstring in LeftListBox.SelectedItems.Cast<string>())
                 {
-                    if (susstring==null)continue;
+                    if (susstring == null) continue;
                     var id = Convert.ToInt32(susstring.Split(';')[1]);
                     var sus = await _myschool.GetSchueler(id);
                     await _myschool.AddStoK(sus, await _myschool.GetKurs(kursbez));
                 }
             }
-            
+
             OnLeftDataChanged(true);
             OnRightDataChanged(true);
         }
@@ -2073,7 +2073,8 @@ namespace StS_GUI_Avalonia
                             {
                                 var lowereingabe = eingabe.ToLower();
                                 lliste.AddRange(cachlist.Where(l =>
-                                    l.Kuerzel.ToLower().Contains(lowereingabe) || l.Vorname.ToLower().Contains(lowereingabe) ||
+                                    l.Kuerzel.ToLower().Contains(lowereingabe) ||
+                                    l.Vorname.ToLower().Contains(lowereingabe) ||
                                     l.Nachname.ToLower().Contains(lowereingabe)).ToList());
                             }
 
