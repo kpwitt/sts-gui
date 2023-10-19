@@ -1971,7 +1971,7 @@ namespace StS_GUI_Avalonia
                 }
             }
 
-            if (cbKursSuSdStufeEinschreiben.IsChecked != null && !cbKursSuSdStufeEinschreiben.IsChecked.Value) return;
+            if (cbKursSuSdStufeEinschreiben.IsChecked != null && cbKursSuSdStufeEinschreiben.IsChecked.Value)
             {
                 foreach (var sus in await _myschool.GetSusAusStufe(kursklasse))
                 {
