@@ -101,7 +101,7 @@
                                         <ComboBoxItem Content="Klasse/Kurs" />
                                     </ComboBox>
                                     <TextBox Text="" Grid.Row="1" x:Name="tbLeftSearch"
-                                             KeyUp="TbLeftSearch_OnKeyUp" MaxWidth="500"/>
+                                             KeyUp="TbLeftSearch_OnKeyUp" PastingFromClipboard="TbLeftSearch_OnPastingFromClipboard" MaxWidth="500"/>
                                     
                                 </Grid><ListBox DockPanel.Dock="Bottom" x:Name="LeftListBox" SelectionMode="Multiple"
                                                 SelectionChanged="LeftListBox_OnSelectionChanged"

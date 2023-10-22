@@ -1430,7 +1430,7 @@ namespace StS_GUI_Avalonia
                 }
 
                 var res = await _myschool.ExportCSV(folderpath, destsys, whattoexport,
-                    cbExportwithPasswort.IsChecked != null && cbExportwithPasswort.IsChecked.Value,
+                    cbExportwithPasswort.IsChecked != null && cbExportwithPasswort.IsChecked.Value, "",
                     expandFiles, nurMoodleSuffix, kursvorlagen,
                     await _myschool.GetSchuelerIDListe(), await _myschool.GetLehrerIDListe(),
                     await _myschool.GetKursBezListe());
@@ -1568,7 +1568,7 @@ namespace StS_GUI_Avalonia
                 {
                     var stufe = tbExportStufenkurse.Text;
                     susidlist.AddRange(_myschool.GetSusAusStufe(stufe).Result.Select(s => s.ID).ToList());
-                    res = await _myschool.ExportCSV(folderpath, "all", "s", false, false, nurMoodleSuffix,
+                    res = await _myschool.ExportCSV(folderpath, "all", "s", false, "", false, nurMoodleSuffix,
                         new[] { "", "" },
                         new ReadOnlyCollection<int>(susidlist),
                         new ReadOnlyCollection<int>(new List<int>()),
@@ -1582,7 +1582,7 @@ namespace StS_GUI_Avalonia
                         susidlist.AddRange(_myschool.GetSusAusStufe(stufe).Result.Select(s => s.ID).ToList());
                     }
 
-                    res = await _myschool.ExportCSV(folderpath, "all", "s", false, false, nurMoodleSuffix,
+                    res = await _myschool.ExportCSV(folderpath, "all", "s", false, "", false, nurMoodleSuffix,
                         new[] { "", "" },
                         new ReadOnlyCollection<int>(susidlist),
                         new ReadOnlyCollection<int>(new List<int>()),
@@ -1638,7 +1638,7 @@ namespace StS_GUI_Avalonia
                 if (folder == null) return;
                 var folderpath = folder.Path.AbsolutePath;
                 var nurMoodleSuffix = cbNurMoodleSuffix.IsChecked is not false;
-                var res = await _myschool.ExportCSV(folderpath, "all", "s", false, false, nurMoodleSuffix,
+                var res = await _myschool.ExportCSV(folderpath, "all", "s", false, "", false, nurMoodleSuffix,
                     new[] { "", "" },
                     new ReadOnlyCollection<int>(_myschool.GetSusAusStufe("5").Result.Select(s => s.ID).ToList()),
                     new ReadOnlyCollection<int>(new List<int>()), new ReadOnlyCollection<string>(new List<string>()));
@@ -2395,7 +2395,7 @@ namespace StS_GUI_Avalonia
                         .Where(c => c.Name == "cbMnuLeftContextAnfangsPasswort").ToList().First()).IsChecked;
                     var nurMoodleSuffix = cbNurMoodleSuffix.IsChecked is not false;
                     var res = await _myschool.ExportCSV(folderpath, destsys, whattoexport,
-                        isAnfangsPasswortChecked != null && isAnfangsPasswortChecked.Value,
+                        isAnfangsPasswortChecked != null && isAnfangsPasswortChecked.Value, "",
                         expandFiles, nurMoodleSuffix, kursvorlagen,
                         new ReadOnlyCollection<int>(suslist.Select(s => s.ID).Distinct().ToList()),
                         new ReadOnlyCollection<int>(lullist.Select(l => l.ID).Distinct().ToList()),
@@ -2729,6 +2729,21 @@ namespace StS_GUI_Avalonia
             var clipboard = Clipboard;
             if (clipboard == null) return;
             await clipboard.SetTextAsync(krzs.TrimEnd(';'));
+        }
+
+        private async void TbLeftSearch_OnPastingFromClipboard(object? sender, RoutedEventArgs e)
+        {
+            var clipboard = Clipboard;
+            if (clipboard == null) return;
+            var text = await Clipboard.GetTextAsync();
+            if (text is null) return;
+            while (text.Contains('\r') || text.Contains('\n'))
+            {
+                text = text.Replace("\r", "").Replace("\n", ";");
+            }
+
+            tbLeftSearch.Text = "";
+            tbLeftSearch.Text = text.TrimEnd(';');
         }
     }
 }

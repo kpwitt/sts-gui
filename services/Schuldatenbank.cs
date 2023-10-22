@@ -760,14 +760,15 @@ namespace SchulDB
         /// <param name="folder">Zielordner</param>
         /// <param name="destsys">m für Moodle, a für AIX</param>
         /// <param name="whattoexport">s für SuS, l für Lehrkräfte, e für Eltern, k für Kurse</param>
-        /// <param name="passwort">mit Erstpasswort: true für ja, false für nein</param>
+        /// <param name="withPasswort">mit Erstpasswort: true für ja, false für nein</param>
         /// <param name="expandfiles">Dateien erweitern: true für ja, false für nein</param>
         /// <param name="nurMoodleSuffix">Soll das Suffix nur für Moodle-Kurse verwendet werden</param>
         /// <param name="kursvorlage">Stringarray mit ShortID aus Moodle für die Vorlagenkurse</param>
         /// <param name="susidliste">Liste mit SuS-IDs</param>
         /// <param name="lulidliste">Liste mit LuL-IDs</param>
         /// <param name="kursliste">Liste mit Kurs-Bezeichnungen</param>
-        public async Task<int> ExportCSV(string folder, string destsys, string whattoexport, bool passwort,
+        public async Task<int> ExportCSV(string folder, string destsys, string whattoexport, bool withPasswort,
+            string passwort,
             bool expandfiles, bool nurMoodleSuffix, string[] kursvorlage, ReadOnlyCollection<int> susidliste,
             ReadOnlyCollection<int> lulidliste,
             ReadOnlyCollection<string> kursliste)
@@ -776,21 +777,23 @@ namespace SchulDB
             {
                 if (destsys.Equals("all"))
                 {
-                    return await ExportCSV(folder, "ami", whattoexport, passwort, expandfiles, nurMoodleSuffix,
+                    return await ExportCSV(folder, "ami", whattoexport, withPasswort, passwort, expandfiles,
+                        nurMoodleSuffix,
                         kursvorlage, susidliste,
                         lulidliste, kursliste);
                 }
 
                 if (whattoexport.Equals("all"))
                 {
-                    return await ExportCSV(folder, destsys, "ksle", passwort, expandfiles, nurMoodleSuffix, kursvorlage,
+                    return await ExportCSV(folder, destsys, "ksle", withPasswort, passwort, expandfiles,
+                        nurMoodleSuffix, kursvorlage,
                         susidliste,
                         lulidliste, kursliste);
                 }
 
                 if (whattoexport.Contains('e'))
                 {
-                    passwort = true;
+                    withPasswort = true;
                 }
 
                 List<string> ausgabeAIXL = new();
@@ -807,7 +810,7 @@ namespace SchulDB
                     ? "shortname;fullname;idnumber;category_idnumber;format"
                     : "shortname;fullname;idnumber;category_idnumber;format;templatecourse");
 
-                if (passwort)
+                if (withPasswort)
                 {
                     ausgabeMoodleUser.Add("email;password;username;idnumber;lastname;firstname;cohort1");
                     ausgabeAIXS.Add(
@@ -927,11 +930,13 @@ namespace SchulDB
                             kListe += kk.Bezeichnung + kk.Suffix + "|";
                             if (kk.Fach.Equals("KL") || kk.Fach.Equals("StuBo"))
                             {
-                                ausgabeMoodleEinschreibungen.Add("add,schueler," + s.ID + "," + kk.Bezeichnung + kk.Suffix);
+                                ausgabeMoodleEinschreibungen.Add("add,schueler," + s.ID + "," + kk.Bezeichnung +
+                                                                 kk.Suffix);
                             }
                             else
                             {
-                                ausgabeMoodleEinschreibungen.Add("add,student," + s.ID + "," + kk.Bezeichnung + kk.Suffix);
+                                ausgabeMoodleEinschreibungen.Add("add,student," + s.ID + "," + kk.Bezeichnung +
+                                                                 kk.Suffix);
                             }
 
                             if (s.Klasse.StartsWith("5") || s.Klasse.StartsWith("6"))
@@ -959,14 +964,17 @@ namespace SchulDB
                         }
 
                         var susmail = s.Mail.Contains(' ') ? s.Mail.Split(' ')[0] : s.Mail;
-                        if (passwort)
+                        if (withPasswort)
                         {
-                            ausgabeMoodleUser.Add(susmail + ";Klasse" + s.Klasse + DateTime.Now.Year + "!;" +
+                            var pwd = passwort.Length > 7
+                                ? passwort
+                                : "Klasse\"" + s.Klasse + DateTime.Now.Year + "\"!";
+                            ausgabeMoodleUser.Add(susmail + ";" + pwd + ";" +
                                                   s.Nutzername + ";" + s.ID + ";" + s.Nachname + ";" + s.Vorname +
                                                   ";schueler");
                             ausgabeAIXS.Add("\"" + s.Vorname + "\";\"" + s.Nachname + "\";\"" + s.Klasse + "\";\"" +
-                                            s.ID + "\";\"Klasse" +
-                                            s.Klasse + DateTime.Now.Year + "!\";\"" + kListe + "\"");
+                                            s.ID + "\";\"" +
+                                            pwd + "\";\"" + kListe + "\"");
                         }
                         else
                         {
@@ -1089,7 +1097,7 @@ namespace SchulDB
                             kListe = kListe.Replace(GetKursSuffix().Result, "");
                         }
 
-                        if (passwort)
+                        if (withPasswort)
                         {
                             ausgabeMoodleUser.Add(lt.Mail + ";" + await GetTempPasswort(lt.ID) + ";" + lt.Kuerzel +
                                                   ";" + lt.ID + ";" + lt.Nachname + ";" + lt.Vorname + ";lehrer");
@@ -2110,7 +2118,7 @@ namespace SchulDB
                     }
 
                     var krz = tmpkurs[inl];
-                    var nachname= "";
+                    var nachname = "";
                     var kursklasse = "";
                     if (tmpkurs[inn].Contains('#'))
                     {
@@ -2121,6 +2129,7 @@ namespace SchulDB
                     {
                         nachname = tmpkurs[inn];
                     }
+
                     var stmp = await GetSchueler(tmpkurs[inv].Replace("'", ""), nachname.Replace("'", ""));
                     var ltmp = await GetLehrkraft(krz);
                     if (stmp.ID > 50000 && ltmp.ID > 0)
