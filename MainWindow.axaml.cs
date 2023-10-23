@@ -2735,13 +2735,14 @@ namespace StS_GUI_Avalonia
         {
             var clipboard = Clipboard;
             if (clipboard == null) return;
-            var text = await Clipboard.GetTextAsync();
+            var text = await clipboard.GetTextAsync();
             if (text is null) return;
             while (text.Contains('\r') || text.Contains('\n'))
             {
                 text = text.Replace("\r", "").Replace("\n", ";");
             }
 
+            await clipboard.SetTextAsync(text.TrimEnd(';'));
             tbLeftSearch.Text = "";
             tbLeftSearch.Text = text.TrimEnd(';');
         }
