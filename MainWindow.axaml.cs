@@ -168,7 +168,6 @@ namespace StS_GUI_Avalonia
                 Header = "Mail-Adressen"
             };
             _mnuItemCopyLuLMails.Click += MnuItemCopyLuLMailsOnClick;
-
             copyContextItems.Add(_mnuItemCopySuSid);
             copyContextItems.Add(_mnuItemCopySuSMail);
             copyContextItems.Add(_mnuItemCopyKursBez);
@@ -2056,9 +2055,10 @@ namespace StS_GUI_Avalonia
                             var scachelist = _myschool.GetSchuelerListe().Result;
                             foreach (var eingabe in eingabeliste)
                             {
+                                var lowereingabe = eingabe.ToLower();
                                 sliste.AddRange(scachelist.Where(s =>
-                                    (s.ID + "").Contains(eingabe) || s.Vorname.ToLower().Contains(eingabe) ||
-                                    s.Nachname.ToLower().Contains(eingabe)).ToList());
+                                    (s.ID + "").Contains(lowereingabe) || s.Vorname.ToLower().Contains(lowereingabe) ||
+                                    s.Nachname.ToLower().Contains(lowereingabe)).ToList());
                             }
 
                             var seliste = sliste.Distinct().Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID))
@@ -2743,8 +2743,8 @@ namespace StS_GUI_Avalonia
             }
 
             await clipboard.SetTextAsync(text.TrimEnd(';'));
-            tbLeftSearch.Text = "";
-            tbLeftSearch.Text = text.TrimEnd(';');
+            /*tbLeftSearch.Text = "";
+            tbLeftSearch.Text = text.TrimEnd(';');*/
         }
     }
 }
