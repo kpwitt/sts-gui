@@ -968,8 +968,8 @@ namespace SchulDB
                         {
                             var pwd = passwort.Length > 7
                                 ? passwort
-                                : "Klasse\"" + s.Klasse + DateTime.Now.Year + "\"!";
-                            ausgabeMoodleUser.Add(susmail + ";" + pwd + ";" +
+                                : "Klasse" + s.Klasse + DateTime.Now.Year + "!";
+                            ausgabeMoodleUser.Add(susmail + ";\"" + pwd + "\";" +
                                                   s.Nutzername + ";" + s.ID + ";" + s.Nachname + ";" + s.Vorname +
                                                   ";schueler");
                             ausgabeAIXS.Add("\"" + s.Vorname + "\";\"" + s.Nachname + "\";\"" + s.Klasse + "\";\"" +
