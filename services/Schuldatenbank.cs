@@ -2135,7 +2135,13 @@ namespace SchulDB
                     if (stmp.ID > 50000 && ltmp.ID > 0)
                     {
                         var klasse = stmp.Klasse;
-                        Debug.Assert(klasse == kursklasse);
+                        if (klasse != kursklasse)
+                        {
+                            AddLogMessage("Hinweis",
+                                $"Klassenmismatch bei {stmp.Nachname}, {stmp.Vorname}; {stmp.ID} aus Klasse {stmp.Klasse}: Gefunden Klasse: {kursklasse}");
+                            continue;
+                        }
+
                         var stufe = klasse[..2];
                         if (!(stufe.Equals("EF") || stufe.Equals("Q1") || stufe.Equals("Q2")))
                         {
