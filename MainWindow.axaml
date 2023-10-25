@@ -77,7 +77,7 @@
                         <MenuItem Header="Lehrkräfte für Homepage" x:Name="mnuExportLKtoHP"
                                   Click="MnuExportLKtoHP_OnClick" />
                     </MenuItem>
-                    <MenuItem Header = "Theme">
+                    <MenuItem Header="Theme">
                         <RadioButton x:Name="rbD" Click="Rb_OnClick" GroupName="Theme">Dark</RadioButton>
                         <RadioButton x:Name="rbL" Click="Rb_OnClick" GroupName="Theme">Light</RadioButton>
                     </MenuItem>
@@ -100,12 +100,14 @@
                                         <ComboBoxItem Content="Lehrkräfte" />
                                         <ComboBoxItem Content="Klasse/Kurs" />
                                     </ComboBox>
-                                    <TextBox Text="" Grid.Row="1" x:Name="tbLeftSearch"
-                                             KeyUp="TbLeftSearch_OnKeyUp" PastingFromClipboard="TbLeftSearch_OnPastingFromClipboard" MaxWidth="500" MaxLines="1"/>
-                                    
-                                </Grid><ListBox DockPanel.Dock="Bottom" x:Name="LeftListBox" SelectionMode="Multiple"
-                                                SelectionChanged="LeftListBox_OnSelectionChanged"
-                                                VerticalAlignment="Stretch" />
+                                    <TextBox Grid.Row="1" Text="" x:Name="tbLeftSearch"
+                                             KeyUp="TbLeftSearch_OnKeyUp"
+                                             PastingFromClipboard="TbLeftSearch_OnPastingFromClipboard"
+                                             MaxWidth="500" MaxLines="1" />
+                                </Grid>
+                                <ListBox DockPanel.Dock="Bottom" x:Name="LeftListBox" SelectionMode="Multiple"
+                                         SelectionChanged="LeftListBox_OnSelectionChanged"
+                                         VerticalAlignment="Stretch" />
                             </DockPanel>
                             <DockPanel Grid.Row="0" Grid.Column="1" Margin="2" VerticalAlignment="Stretch">
                                 <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto" RowDefinitions="Auto,Auto">
@@ -117,7 +119,7 @@
                                         <ComboBoxItem Content="Klasse/Kurs" />
                                     </ComboBox>
                                     <TextBox Text="" Grid.Row="1" x:Name="tbRightSearch"
-                                             KeyUp="TbRightSearch_OnKeyUp" MaxWidth="500"/>
+                                             KeyUp="TbRightSearch_OnKeyUp" MaxWidth="500" />
                                 </Grid>
                                 <ListBox DockPanel.Dock="Bottom" x:Name="RightListBox"
                                          SelectionMode="Multiple"
@@ -127,7 +129,7 @@
                                 </ListBox>
                             </DockPanel>
                         </Grid>
-                        
+
                         <TabControl Grid.Row="0" Grid.Column="1">
                             <TabItem Header="SuS" Classes="Header"> <!--Daten-SuS-Tab-->
                                 <Grid Margin="5" ColumnDefinitions="Auto,Auto"
@@ -178,12 +180,16 @@
                                     <TextBlock Classes="Header" Text="Fächer:" Grid.Column="0" Grid.Row="6" />
                                     <TextBox x:Name="tbLuLFach" Grid.Column="1" Grid.Row="6" />
                                     <TextBlock Classes="Header" Text="temp. Passwort:" Grid.Column="0" Grid.Row="7" />
-                                    <TextBox x:Name="tbLuLtmpPwd" Grid.Column="1" Grid.Row="7" PasswordChar="*" 
+                                    <TextBox x:Name="tbLuLtmpPwd" Grid.Column="1" Grid.Row="7" PasswordChar="*"
                                              PointerExited="TbLuLtmpPwd_OnPointerLeave"
                                              PointerEntered="TbLuLtmpPwd_OnPointerEnter" />
-                                    <Button Grid.Column="2" Grid.Row="7" x:Name="btnLuLNewTmpPasswort" Click="BtnLuLNewTmpPasswort_OnClick" ToolTip.Tip="neues temp. Passwort generieren"><Panel>
-                                        <Image Source="/Assets/gfx/reload.png" />
-                                    </Panel></Button>
+                                    <Button Grid.Column="2" Grid.Row="7" x:Name="btnLuLNewTmpPasswort"
+                                            Click="BtnLuLNewTmpPasswort_OnClick"
+                                            ToolTip.Tip="neues temp. Passwort generieren">
+                                        <Panel>
+                                            <Image Source="/Assets/gfx/reload.png" />
+                                        </Panel>
+                                    </Button>
                                     <TextBlock Classes="Header" Text="Kurse:" Grid.Column="0" Grid.Row="8" />
                                     <TextBox x:Name="tbLuLKurse" Grid.Column="1" Grid.Row="8" />
                                     <Button x:Name="btnLuLAdd" Grid.Column="0" Grid.Row="9" Click="OnBtnluladdClick">Hinzufügen/aktualisieren</Button>
@@ -272,7 +278,9 @@
                             <TextBlock Classes="Header" Text="Kursersetzungen" />
                             <TextBox x:Name="tbSettingKursersetzung" Width="150" />
                         </StackPanel>
-                        <TextBlock Margin="10" Grid.Row="1" Grid.Column="2" Classes="Header" TextWrapping = "Wrap" Width="200" Text="Falls mehrere Lehrkräfte eine Stufe betreuen, die Kürzel kommagetrennt eingeben" />
+                        <TextBlock Margin="10" Grid.Row="1" Grid.Column="2" Classes="Header" TextWrapping="Wrap"
+                                   Width="200"
+                                   Text="Falls mehrere Lehrkräfte eine Stufe betreuen, die Kürzel kommagetrennt eingeben" />
                         <StackPanel Grid.Row="2" Grid.Column="0">
                             <TextBlock Classes="Header" Text="Fächerkurzform" />
                             <TextBox x:Name="tbSettingFachkurz" MaxHeight="650" />
@@ -281,7 +289,7 @@
                             <TextBlock Classes="Header" Text="Fächerlangform" />
                             <TextBox x:Name="tbSettingFachlang" MaxHeight="650" />
                         </StackPanel>
-                        <StackPanel Grid.Row="2" Grid.Column="2" Margin = "10">
+                        <StackPanel Grid.Row="2" Grid.Column="2" Margin="10">
                             <TextBlock Classes="Header" Text="Erprobungstufenleitung:" />
                             <TextBox x:Name="tbSettingErprobungsstufenleitung" Width="200" />
                             <TextBlock Classes="Header" Text="Mittelstufenleitung:" />
@@ -321,12 +329,14 @@
                 <TabItem Header="Log" Classes="Header"> <!--Log-Tab-->
                     <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="Auto">
                         <StackPanel Grid.Row="0" Orientation="Horizontal">
-                            <Button x:Name="btnLogReload" Click="BtnLogReload_OnClick" ToolTip.Tip="Lädt das Log neu aus der Datenbank">
+                            <Button x:Name="btnLogReload" Click="BtnLogReload_OnClick"
+                                    ToolTip.Tip="Lädt das Log neu aus der Datenbank">
                                 <Panel>
                                     <Image Source="/Assets/gfx/reload.png" />
                                 </Panel>
                             </Button>
-                            <Button x:Name="btnLogDelete" Click="BtnLogDelete_OnClick" ToolTip.Tip="Löscht das komplette Log">
+                            <Button x:Name="btnLogDelete" Click="BtnLogDelete_OnClick"
+                                    ToolTip.Tip="Löscht das komplette Log">
                                 <Panel>
                                     <Image Source="/Assets/gfx/delete.png" />
                                 </Panel>
@@ -360,7 +370,10 @@
                             <TextBlock VerticalAlignment="Center"> einschreiben</TextBlock>
                             <Button x:Name="btnModErstellung" Click="BtnModErstellung_OnClick">Ausführen</Button>
                         </StackPanel>
-                        <Button Grid.Row="1" x:Name="btnSonstOberstufenLuLKurse" Click="BtnSonstOberstufenLuLKurse_OnClick">Erstelle Jahrgangsstufenkonferenzen (EF, Q1, Q2)</Button>
+                        <Button Grid.Row="1" x:Name="btnSonstOberstufenLuLKurse"
+                                Click="BtnSonstOberstufenLuLKurse_OnClick">
+                            Erstelle Jahrgangsstufenkonferenzen (EF, Q1, Q2)
+                        </Button>
                         <Button Grid.Row="2" x:Name="btnSonstDVIDs" Click="BtnSonstDVIDs_OnClick">ID's ohne DV kopieren</Button>
                     </Grid>
                 </TabItem> <!--Sonstiges-Tab-->
