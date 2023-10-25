@@ -30,7 +30,7 @@ namespace StS_GUI_Avalonia
         private readonly Timer _leftInputTimer = new(350);
         private readonly Timer _rightInputTimer = new(350);
         private Schuldatenbank _myschool;
-        private readonly ContextMenu _leftContext = new();
+        private readonly ContextMenu _leftListContext = new();
         private readonly Brush _darkBackgroundColor = new SolidColorBrush(Color.FromRgb(80, 80, 80));
         private readonly Brush _lightBackgroundColor = new SolidColorBrush(Color.FromRgb(242, 242, 242));
         private bool _rightMutex;
@@ -92,7 +92,8 @@ namespace StS_GUI_Avalonia
             _leftInputTimer.Elapsed += OnLeftTimedEvent;
             _rightInputTimer.Elapsed += OnRightTimedEvent;
 
-            List<Control> leftContextItems = new();
+            //ContextMenu für linkes ListBox
+            List<Control> leftListContextItems = new();
             List<Control> copyContextItems = new();
             var cbMAnfangsPassword = new CheckBox
             {
@@ -174,16 +175,60 @@ namespace StS_GUI_Avalonia
             copyContextItems.Add(_mnuItemCopyLuLKrz);
             copyContextItems.Add(_mnuItemCopyLuLMails);
             mnuItemCopyMenu.ItemsSource = copyContextItems;
-            leftContextItems.Add(mnuItemCopyMenu);
-            leftContextItems.Add(cbMAnfangsPassword);
-            leftContextItems.Add(cbMEltern);
-            leftContextItems.Add(cbMLLGIntern);
-            leftContextItems.Add(mnuItemMSerienbrief);
-            leftContextItems.Add(mnuItemMSerienbriefDV);
-            leftContextItems.Add(mnuItemMPasswordGenerieren);
-            leftContextItems.Add(mnuItemMExport);
-            _leftContext.ItemsSource = leftContextItems;
-            LeftListBox.ContextMenu = _leftContext;
+            leftListContextItems.Add(mnuItemCopyMenu);
+            leftListContextItems.Add(cbMAnfangsPassword);
+            leftListContextItems.Add(cbMEltern);
+            leftListContextItems.Add(cbMLLGIntern);
+            leftListContextItems.Add(mnuItemMSerienbrief);
+            leftListContextItems.Add(mnuItemMSerienbriefDV);
+            leftListContextItems.Add(mnuItemMPasswordGenerieren);
+            leftListContextItems.Add(mnuItemMExport);
+            _leftListContext.ItemsSource = leftListContextItems;
+            LeftListBox.ContextMenu = _leftListContext;
+
+            //Menu fuer linkenSuchButton
+            List<Control> leftListButtonContextItems = new();
+            var cbSucheVorname = new CheckBox
+            {
+                Name = "cbMnuSucheVorname",
+                Content = "Vorname",
+                IsChecked = true,
+            };
+            var cbSucheNachname = new CheckBox
+            {
+                Name = "cbMnuSucheNachname",
+                Content = "Nachname",
+                IsChecked = true,
+            };
+            var cbSucheMail = new CheckBox
+            {
+                Name = "cbMnuSucheMailadressen",
+                Content = "Mailadressen",
+                IsChecked = false,
+            };
+            var cbSucheAnmeldename = new CheckBox
+            {
+                Name = "cbMnuSucheAnmeldename",
+                Content = "Anmeldename/Kürzel",
+                IsChecked = false,
+            };
+            var cbSucheID = new CheckBox
+            {
+                Name = "cbMnuSucheID",
+                Content = "ID",
+                IsChecked = false,
+            };
+            leftListButtonContextItems.Add(cbSucheVorname);
+            leftListButtonContextItems.Add(cbSucheNachname);
+            leftListButtonContextItems.Add(cbSucheMail);
+            leftListButtonContextItems.Add(cbSucheAnmeldename);
+            leftListButtonContextItems.Add(cbSucheID);
+            tbLeftSearch.ContextMenu = new ContextMenu
+            {
+                ItemsSource = leftListButtonContextItems
+            };
+
+            //Rest
             rbD.IsChecked = true;
             Rb_OnClick(rbD, new RoutedEventArgs());
             LeftListBox.MaxHeight = ClientSize.Height * 1.1;
@@ -2039,66 +2084,76 @@ namespace StS_GUI_Avalonia
                         break;
                 }
 
-                if (!tbLeftSearch.Text.Contains(';'))
+                var eingabeliste = tbLeftSearch.Text.Split(";");
+                var searchContextMenu = tbLeftSearch.ContextMenu.ItemsSource.Cast<CheckBox>().ToList();
+                var searchFields = new bool[] { false, false, false, false, false }; //v,n,m,a/k,i
+                for (var i = 0; i < searchContextMenu.Count; ++i)
                 {
-                    var tmp = LeftListBox.Items.ToList();
-                    ResetItemsSource(LeftListBox, tmp.Cast<string>()
-                        .Where(listitem => listitem.ToLower().Contains(tbLeftSearch.Text.ToLower())));
-                }
-                else
-                {
-                    var eingabeliste = tbLeftSearch.Text.Split(";");
-                    switch (CboxDataLeft.SelectedIndex)
+                    if (searchContextMenu[i].IsChecked == true)
                     {
-                        case 0:
-                            var sliste = new List<SuS>();
-                            var scachelist = _myschool.GetSchuelerListe().Result;
-                            foreach (var eingabe in eingabeliste)
-                            {
-                                var lowereingabe = eingabe.ToLower();
-                                sliste.AddRange(scachelist.Where(s =>
-                                    (s.ID + "").Contains(lowereingabe) || s.Vorname.ToLower().Contains(lowereingabe) ||
-                                    s.Nachname.ToLower().Contains(lowereingabe)).ToList());
-                            }
-
-                            var seliste = sliste.Distinct().Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID))
-                                .ToList();
-                            seliste.Sort(Comparer<string>.Default);
-                            ResetItemsSource(LeftListBox, seliste);
-                            break;
-                        case 1:
-                            var lliste = new List<LuL>();
-                            var cachlist = _myschool.GetLehrerListe().Result;
-                            foreach (var eingabe in eingabeliste)
-                            {
-                                var lowereingabe = eingabe.ToLower();
-                                lliste.AddRange(cachlist.Where(l =>
-                                    l.Kuerzel.ToLower().Contains(lowereingabe) ||
-                                    l.Vorname.ToLower().Contains(lowereingabe) ||
-                                    l.Nachname.ToLower().Contains(lowereingabe)).ToList());
-                            }
-
-                            var leliste = lliste.Distinct()
-                                .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname))
-                                .ToList();
-                            leliste.Sort(Comparer<string>.Default);
-                            ResetItemsSource(LeftListBox, leliste);
-                            break;
-                        case 2:
-                            var kliste = new List<Kurs>();
-                            var kcachelist = _myschool.GetKursListe().Result;
-                            foreach (var eingabe in eingabeliste)
-                            {
-                                kliste.AddRange(kcachelist.Where(s =>
-                                    s.Bezeichnung.ToLower().Contains(eingabe.ToLower())).ToList());
-                            }
-
-                            var keliste = kliste.Distinct().Select(k => k.Bezeichnung)
-                                .ToList();
-                            keliste.Sort(Comparer<string>.Default);
-                            ResetItemsSource(LeftListBox, keliste);
-                            break;
+                        searchFields[i] = true;
                     }
+                }
+
+                switch (CboxDataLeft.SelectedIndex)
+                {
+                    case 0:
+                        var sliste = new List<SuS>();
+                        var scachelist = _myschool.GetSchuelerListe().Result;
+                        foreach (var eingabe in eingabeliste)
+                        {
+                            var lowereingabe = eingabe.ToLower();
+                            sliste.AddRange(scachelist.Where(s =>
+                                searchFields[4] && (s.ID + "").Contains(lowereingabe) ||
+                                searchFields[0] && s.Vorname.ToLower().Contains(lowereingabe) ||
+                                searchFields[1] && s.Nachname.ToLower().Contains(lowereingabe) ||
+                                searchFields[2] && (s.Mail.Contains(lowereingabe) ||
+                                                    s.Aixmail.Contains(lowereingabe) ||
+                                                    s.Zweitmail.Contains(lowereingabe)) ||
+                                searchFields[3] && s.Nutzername.Contains(lowereingabe)
+                            ).ToList());
+                        }
+
+                        var seliste = sliste.Distinct().Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID))
+                            .ToList();
+                        seliste.Sort(Comparer<string>.Default);
+                        ResetItemsSource(LeftListBox, seliste);
+                        break;
+                    case 1:
+                        var lliste = new List<LuL>();
+                        var cachlist = _myschool.GetLehrerListe().Result;
+                        foreach (var eingabe in eingabeliste)
+                        {
+                            var lowereingabe = eingabe.ToLower();
+                            lliste.AddRange(cachlist.Where(l =>
+                                l.Kuerzel.ToLower().Contains(lowereingabe) ||
+                                searchFields[0] && l.Vorname.ToLower().Contains(lowereingabe) ||
+                                searchFields[1] && l.Nachname.ToLower().Contains(lowereingabe) ||
+                                searchFields[2] && l.Mail.Contains(lowereingabe) ||
+                                searchFields[3] && l.Kuerzel.Contains(lowereingabe) ||
+                                searchFields[4] && (l.ID + "").Contains(lowereingabe)).ToList());
+                        }
+
+                        var leliste = lliste.Distinct()
+                            .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname))
+                            .ToList();
+                        leliste.Sort(Comparer<string>.Default);
+                        ResetItemsSource(LeftListBox, leliste);
+                        break;
+                    case 2:
+                        var kliste = new List<Kurs>();
+                        var kcachelist = _myschool.GetKursListe().Result;
+                        foreach (var eingabe in eingabeliste)
+                        {
+                            kliste.AddRange(kcachelist.Where(s =>
+                                s.Bezeichnung.ToLower().Contains(eingabe.ToLower())).ToList());
+                        }
+
+                        var keliste = kliste.Distinct().Select(k => k.Bezeichnung)
+                            .ToList();
+                        keliste.Sort(Comparer<string>.Default);
+                        ResetItemsSource(LeftListBox, keliste);
+                        break;
                 }
             };
             await Dispatcher.UIThread.InvokeAsync(updateLeftList);
@@ -2118,63 +2173,76 @@ namespace StS_GUI_Avalonia
                         break;
                 }
 
-                if (!tbRightSearch.Text.Contains(';'))
+                var eingabeliste = tbRightSearch.Text.Split(";");
+                var searchContextMenu = tbLeftSearch.ContextMenu.ItemsSource.Cast<CheckBox>().ToList();
+                var searchFields = new bool[] { false, false, false, false, false }; //v,n,m,a/k,i
+                for (var i = 0; i < searchContextMenu.Count; ++i)
                 {
-                    var tmp = RightListBox.Items.ToList();
-                    ResetItemsSource(RightListBox, tmp.Cast<string>()
-                        .Where(listitem => listitem.ToLower().Contains(tbRightSearch.Text.ToLower())));
-                }
-                else
-                {
-                    var eingabeliste = tbRightSearch.Text.Split(";");
-                    switch (CboxDataRight.SelectedIndex)
+                    if (searchContextMenu[i].IsChecked == true)
                     {
-                        case 0:
-                            var sliste = new List<SuS>();
-                            var scachelist = _myschool.GetSchuelerListe().Result;
-                            foreach (var eingabe in eingabeliste)
-                            {
-                                sliste.AddRange(scachelist.Where(s =>
-                                    (s.ID + "").Contains(eingabe) || s.Vorname.ToLower().Contains(eingabe) ||
-                                    s.Nachname.ToLower().Contains(eingabe)).ToList());
-                            }
-
-                            var seliste = sliste.Distinct().Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID))
-                                .ToList();
-                            seliste.Sort(Comparer<string>.Default);
-                            ResetItemsSource(RightListBox, seliste);
-                            break;
-                        case 1:
-                            var lliste = new List<LuL>();
-                            var cachlist = _myschool.GetLehrerListe().Result;
-                            foreach (var eingabe in eingabeliste)
-                            {
-                                lliste.AddRange(cachlist.Where(l =>
-                                    l.Kuerzel.ToLower().Contains(eingabe) || l.Vorname.ToLower().Contains(eingabe) ||
-                                    l.Nachname.ToLower().Contains(eingabe)).ToList());
-                            }
-
-                            var leliste = lliste.Distinct()
-                                .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname))
-                                .ToList();
-                            leliste.Sort(Comparer<string>.Default);
-                            ResetItemsSource(RightListBox, leliste);
-                            break;
-                        case 2:
-                            var kliste = new List<Kurs>();
-                            var kcachelist = _myschool.GetKursListe().Result;
-                            foreach (var eingabe in eingabeliste)
-                            {
-                                kliste.AddRange(kcachelist.Where(s =>
-                                    s.Bezeichnung.Contains(eingabe)).ToList());
-                            }
-
-                            var keliste = kliste.Distinct().Select(k => k.Bezeichnung)
-                                .ToList();
-                            keliste.Sort(Comparer<string>.Default);
-                            ResetItemsSource(RightListBox, keliste);
-                            break;
+                        searchFields[i] = true;
                     }
+                }
+
+                switch (CboxDataRight.SelectedIndex)
+                {
+                    case 0:
+                        var sliste = new List<SuS>();
+                        var scachelist = _myschool.GetSchuelerListe().Result;
+                        foreach (var eingabe in eingabeliste)
+                        {
+                            var lowereingabe = eingabe.ToLower();
+                            sliste.AddRange(scachelist.Where(s =>
+                                searchFields[4] && (s.ID + "").Contains(lowereingabe) ||
+                                searchFields[0] && s.Vorname.ToLower().Contains(lowereingabe) ||
+                                searchFields[1] && s.Nachname.ToLower().Contains(lowereingabe) ||
+                                searchFields[2] && (s.Mail.Contains(lowereingabe) ||
+                                                    s.Aixmail.Contains(lowereingabe) ||
+                                                    s.Zweitmail.Contains(lowereingabe)) ||
+                                searchFields[3] && s.Nutzername.Contains(lowereingabe)
+                            ).ToList());
+                        }
+
+                        var seliste = sliste.Distinct().Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID))
+                            .ToList();
+                        seliste.Sort(Comparer<string>.Default);
+                        ResetItemsSource(RightListBox, seliste);
+                        break;
+                    case 1:
+                        var lliste = new List<LuL>();
+                        var cachlist = _myschool.GetLehrerListe().Result;
+                        foreach (var eingabe in eingabeliste)
+                        {
+                            var lowereingabe = eingabe.ToLower();
+                            lliste.AddRange(cachlist.Where(l =>
+                                l.Kuerzel.ToLower().Contains(lowereingabe) ||
+                                searchFields[0] && l.Vorname.ToLower().Contains(lowereingabe) ||
+                                searchFields[1] && l.Nachname.ToLower().Contains(lowereingabe) ||
+                                searchFields[2] && l.Mail.Contains(lowereingabe) ||
+                                searchFields[3] && l.Kuerzel.Contains(lowereingabe) ||
+                                searchFields[4] && (l.ID + "").Contains(lowereingabe)).ToList());
+                        }
+
+                        var leliste = lliste.Distinct()
+                            .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname))
+                            .ToList();
+                        leliste.Sort(Comparer<string>.Default);
+                        ResetItemsSource(RightListBox, leliste);
+                        break;
+                    case 2:
+                        var kliste = new List<Kurs>();
+                        var kcachelist = _myschool.GetKursListe().Result;
+                        foreach (var eingabe in eingabeliste)
+                        {
+                            kliste.AddRange(kcachelist.Where(s =>
+                                s.Bezeichnung.Contains(eingabe)).ToList());
+                        }
+
+                        var keliste = kliste.Distinct().Select(k => k.Bezeichnung)
+                            .ToList();
+                        keliste.Sort(Comparer<string>.Default);
+                        ResetItemsSource(RightListBox, keliste);
+                        break;
                 }
             };
             await Dispatcher.UIThread.InvokeAsync(updateRightList);
