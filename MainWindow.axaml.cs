@@ -2304,26 +2304,27 @@ namespace StS_GUI_Avalonia
             var readFileTask = async () =>
             {
                 if (LeftListBox.SelectedItems == null) return;
-                var extx = new List<FilePickerFileType>
-                {
-                    StSFileTypes.CSVFile,
-                    FilePickerFileTypes.All
-                };
-                var files = await ShowSaveFileDialog("Serienbriefdatei auswählen", extx);
-                if (files == null) return;
-                var folder = files.Path.AbsolutePath;
-                var file = await ShowOpenFileDialog("Nutzer ohne DV-Zustimmung", extx);
-                if (file is null) return;
-                var filepath = file.Path.AbsolutePath;
-                var fileentries = File.ReadAllLinesAsync(filepath).Result.ToList();
-                if (fileentries.Count < 1) return;
-                fileentries.RemoveAt(0);
-                var susToDel = fileentries.Select(line => _myschool.GetSchueler(Convert.ToInt32(line.Split(';')[0])))
-                    .ToList();
-                List<string> susausgabe = new() { "Vorname;Nachname;Anmeldename;Kennwort;E-Mail;Klasse" };
                 switch (CboxDataLeft.SelectedIndex)
                 {
                     case 2:
+                        var extx = new List<FilePickerFileType>
+                        {
+                            StSFileTypes.CSVFile,
+                            FilePickerFileTypes.All
+                        };
+                        var files = await ShowSaveFileDialog("Serienbriefdatei auswählen", extx);
+                        if (files == null) return;
+                        var folder = files.Path.AbsolutePath;
+                        var file = await ShowOpenFileDialog("Nutzer ohne DV-Zustimmung", extx);
+                        if (file is null) return;
+                        var filepath = file.Path.AbsolutePath;
+                        var fileentries = File.ReadAllLinesAsync(filepath).Result.ToList();
+                        if (fileentries.Count < 1) return;
+                        fileentries.RemoveAt(0);
+                        var susToDel = fileentries
+                            .Select(line => _myschool.GetSchueler(Convert.ToInt32(line.Split(';')[0])))
+                            .ToList();
+                        List<string> susausgabe = new() { "Vorname;Nachname;Anmeldename;Kennwort;E-Mail;Klasse" };
                         foreach (string kursbez in LeftListBox.SelectedItems)
                         {
                             var suslist = _myschool.GetSuSAusKurs(kursbez).Result.Distinct().ToList();
