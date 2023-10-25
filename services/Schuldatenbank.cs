@@ -23,7 +23,7 @@ namespace SchulDB
         private readonly string _dbpath;
         private SQLiteTransaction _dbtrans;
         private readonly SQLiteConnection _sqliteConn;
-        private bool _trans;
+        private bool _ActiveTransaction;
 
         /// <summary>
         /// erstellt, falls nicht vorhanden, die Datenbankstruktur und öffnet die Verbindung
@@ -482,10 +482,10 @@ namespace SchulDB
         /// </summary>
         private void CloseDB()
         {
-            if (_trans)
+            if (_ActiveTransaction)
             {
                 _dbtrans.Commit();
-                _trans = false;
+                _ActiveTransaction = false;
             }
 
             if (_sqliteConn.State != System.Data.ConnectionState.Open) return;
@@ -1277,11 +1277,11 @@ namespace SchulDB
         public static string GeneratePasswort(int laenge)
         {
             //erlaubt beim Hoster: /-_#*+!§,()=:.@äöüÄÖÜß
-            const string valid = "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ1234567890+-.,()!*/_#";
+            const string validPasswordChars = "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ1234567890+-.,()!*/_#";
             StringBuilder res = new();
             while (0 < laenge--)
             {
-                res.Append(valid[RandomNumberGenerator.GetInt32(valid.Length)]);
+                res.Append(validPasswordChars[RandomNumberGenerator.GetInt32(validPasswordChars.Length)]);
             }
 
             return res.ToString();
@@ -2565,7 +2565,7 @@ namespace SchulDB
         /// </summary>
         public async Task StartTransaction()
         {
-            _trans = true;
+            _ActiveTransaction = true;
             _dbtrans = _sqliteConn.BeginTransaction();
         }
 
@@ -2574,7 +2574,7 @@ namespace SchulDB
         /// </summary>
         public async Task StopTransaction()
         {
-            _trans = false;
+            _ActiveTransaction = false;
             await _dbtrans.CommitAsync();
         }
 
