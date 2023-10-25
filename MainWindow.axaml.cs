@@ -2812,8 +2812,6 @@ namespace StS_GUI_Avalonia
             }
 
             await clipboard.SetTextAsync(text.TrimEnd(';'));
-            /*tbLeftSearch.Text = "";
-            tbLeftSearch.Text = text.TrimEnd(';');*/
         }
     }
 }
