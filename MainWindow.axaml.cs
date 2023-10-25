@@ -186,7 +186,7 @@ namespace StS_GUI_Avalonia
             _leftListContext.ItemsSource = leftListContextItems;
             LeftListBox.ContextMenu = _leftListContext;
 
-            //Menu fuer linkenSuchButton
+            //Kontextmenu fuer tbleftSearch
             List<Control> leftListButtonContextItems = new();
             var cbSucheVorname = new CheckBox
             {
