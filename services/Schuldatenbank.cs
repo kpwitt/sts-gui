@@ -2118,7 +2118,7 @@ namespace SchulDB
                     }
 
                     var krz = tmpkurs[inl];
-                    var nachname = "";
+                    string nachname;
                     var kursklasse = "";
                     if (tmpkurs[inn].Contains('#'))
                     {
