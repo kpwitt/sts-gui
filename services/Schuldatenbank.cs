@@ -2137,7 +2137,7 @@ namespace SchulDB
                         var klasse = stmp.Klasse;
                         if (klasse != kursklasse)
                         {
-                            AddLogMessage("Hinweis",
+                            await AddLogMessage("Hinweis",
                                 $"Klassenmismatch bei {stmp.Nachname}, {stmp.Vorname}; {stmp.ID} aus Klasse {stmp.Klasse}: Gefunden Klasse: {kursklasse}");
                             continue;
                         }
