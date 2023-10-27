@@ -760,6 +760,7 @@ namespace SchulDB
         /// <param name="destsys">m für Moodle, a für AIX</param>
         /// <param name="whattoexport">s für SuS, l für Lehrkräfte, e für Eltern, k für Kurse</param>
         /// <param name="withPasswort">mit Erstpasswort: true für ja, false für nein</param>
+        /// <param name="passwort">das Passwort, welches gesetzt werden soll</param>
         /// <param name="expandfiles">Dateien erweitern: true für ja, false für nein</param>
         /// <param name="nurMoodleSuffix">Soll das Suffix nur für Moodle-Kurse verwendet werden</param>
         /// <param name="kursvorlage">Stringarray mit ShortID aus Moodle für die Vorlagenkurse</param>
