@@ -2086,7 +2086,7 @@ namespace StS_GUI_Avalonia
 
                 var eingabeliste = tbLeftSearch.Text.Split(";");
                 var searchContextMenu = tbLeftSearch.ContextMenu.ItemsSource.Cast<CheckBox>().ToList();
-                var searchFields = new bool[] { false, false, false, false, false }; //v,n,m,a/k,i
+                var searchFields = new[] { false, false, false, false, false }; //v,n,m,a/k,i
                 for (var i = 0; i < searchContextMenu.Count; ++i)
                 {
                     if (searchContextMenu[i].IsChecked == true)
@@ -2175,7 +2175,7 @@ namespace StS_GUI_Avalonia
 
                 var eingabeliste = tbRightSearch.Text.Split(";");
                 var searchContextMenu = tbLeftSearch.ContextMenu.ItemsSource.Cast<CheckBox>().ToList();
-                var searchFields = new bool[] { false, false, false, false, false }; //v,n,m,a/k,i
+                var searchFields = new[] { false, false, false, false, false }; //v,n,m,a/k,i
                 for (var i = 0; i < searchContextMenu.Count; ++i)
                 {
                     if (searchContextMenu[i].IsChecked == true)
