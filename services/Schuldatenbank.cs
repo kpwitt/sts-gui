@@ -1865,7 +1865,7 @@ namespace SchulDB
             return result;
         }
 
-        public async Task<List<LuL>> getOberstufenleitung(string stufe)
+        private async Task<List<LuL>> getOberstufenleitung(string stufe)
         {
             if (string.IsNullOrEmpty(stufe) || (stufe != "EF" && stufe != "Q1" && stufe != "Q2"))
                 return new List<LuL>();
