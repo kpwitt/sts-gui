@@ -218,11 +218,20 @@ namespace StS_GUI_Avalonia
                 Content = "ID",
                 IsChecked = false,
             };
+            var cbSucheSeperator = new Separator();
+            var cbSucheExact = new CheckBox
+            {
+                Name = "cbMnuSucheExact",
+                Content = "Exakte Suche",
+                IsChecked = false,
+            };
             leftListButtonContextItems.Add(cbSucheVorname);
             leftListButtonContextItems.Add(cbSucheNachname);
             leftListButtonContextItems.Add(cbSucheMail);
             leftListButtonContextItems.Add(cbSucheAnmeldename);
             leftListButtonContextItems.Add(cbSucheID);
+            leftListButtonContextItems.Add(cbSucheSeperator);
+            leftListButtonContextItems.Add(cbSucheExact);
             tbLeftSearch.ContextMenu = new ContextMenu
             {
                 ItemsSource = leftListButtonContextItems
