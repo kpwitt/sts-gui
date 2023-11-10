@@ -218,7 +218,6 @@ namespace StS_GUI_Avalonia
                 Content = "ID",
                 IsChecked = false,
             };
-            var cbSucheSeperator = new Separator();
             var cbSucheExact = new CheckBox
             {
                 Name = "cbMnuSucheExact",
@@ -230,7 +229,6 @@ namespace StS_GUI_Avalonia
             leftListButtonContextItems.Add(cbSucheMail);
             leftListButtonContextItems.Add(cbSucheAnmeldename);
             leftListButtonContextItems.Add(cbSucheID);
-            leftListButtonContextItems.Add(cbSucheSeperator);
             leftListButtonContextItems.Add(cbSucheExact);
             tbLeftSearch.ContextMenu = new ContextMenu
             {
@@ -2095,7 +2093,7 @@ namespace StS_GUI_Avalonia
 
                 var eingabeliste = tbLeftSearch.Text.Split(";");
                 var searchContextMenu = tbLeftSearch.ContextMenu.ItemsSource.Cast<CheckBox>().ToList();
-                var searchFields = new[] { false, false, false, false, false }; //v,n,m,a/k,i
+                var searchFields = new[] { false, false, false, false, false, false }; //v,n,m,a/k,i,e
                 for (var i = 0; i < searchContextMenu.Count; ++i)
                 {
                     if (searchContextMenu[i].IsChecked == true)
@@ -2112,15 +2110,30 @@ namespace StS_GUI_Avalonia
                         foreach (var eingabe in eingabeliste)
                         {
                             var lowereingabe = eingabe.ToLower();
-                            sliste.AddRange(scachelist.Where(s =>
-                                searchFields[4] && (s.ID + "").Contains(lowereingabe) ||
-                                searchFields[0] && s.Vorname.ToLower().Contains(lowereingabe) ||
-                                searchFields[1] && s.Nachname.ToLower().Contains(lowereingabe) ||
-                                searchFields[2] && (s.Mail.Contains(lowereingabe) ||
-                                                    s.Aixmail.Contains(lowereingabe) ||
-                                                    s.Zweitmail.Contains(lowereingabe)) ||
-                                searchFields[3] && s.Nutzername.Contains(lowereingabe)
-                            ).ToList());
+                            if (searchFields[5])
+                            {
+                                sliste.AddRange(scachelist.Where(s =>
+                                    searchFields[4] && (s.ID + "").Equals(lowereingabe) ||
+                                    searchFields[0] && s.Vorname.ToLower().Equals(lowereingabe) ||
+                                    searchFields[1] && s.Nachname.ToLower().Equals(lowereingabe) ||
+                                    searchFields[2] && (s.Mail.Equals(lowereingabe) ||
+                                                        s.Aixmail.Equals(lowereingabe) ||
+                                                        s.Zweitmail.Equals(lowereingabe)) ||
+                                    searchFields[3] && s.Nutzername.Equals(lowereingabe)
+                                ).ToList());
+                            }
+                            else
+                            {
+                                sliste.AddRange(scachelist.Where(s =>
+                                    searchFields[4] && (s.ID + "").Contains(lowereingabe) ||
+                                    searchFields[0] && s.Vorname.ToLower().Contains(lowereingabe) ||
+                                    searchFields[1] && s.Nachname.ToLower().Contains(lowereingabe) ||
+                                    searchFields[2] && (s.Mail.Contains(lowereingabe) ||
+                                                        s.Aixmail.Contains(lowereingabe) ||
+                                                        s.Zweitmail.Contains(lowereingabe)) ||
+                                    searchFields[3] && s.Nutzername.Contains(lowereingabe)
+                                ).ToList());
+                            }
                         }
 
                         var seliste = sliste.Distinct().Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID))
@@ -2134,13 +2147,26 @@ namespace StS_GUI_Avalonia
                         foreach (var eingabe in eingabeliste)
                         {
                             var lowereingabe = eingabe.ToLower();
-                            lliste.AddRange(cachlist.Where(l =>
-                                l.Kuerzel.ToLower().Contains(lowereingabe) ||
-                                searchFields[0] && l.Vorname.ToLower().Contains(lowereingabe) ||
-                                searchFields[1] && l.Nachname.ToLower().Contains(lowereingabe) ||
-                                searchFields[2] && l.Mail.Contains(lowereingabe) ||
-                                searchFields[3] && l.Kuerzel.Contains(lowereingabe) ||
-                                searchFields[4] && (l.ID + "").Contains(lowereingabe)).ToList());
+                            if (searchFields[5])
+                            {
+                                lliste.AddRange(cachlist.Where(l =>
+                                    l.Kuerzel.ToLower().Equals(lowereingabe) ||
+                                    searchFields[0] && l.Vorname.ToLower().Equals(lowereingabe) ||
+                                    searchFields[1] && l.Nachname.ToLower().Equals(lowereingabe) ||
+                                    searchFields[2] && l.Mail.Equals(lowereingabe) ||
+                                    searchFields[3] && l.Kuerzel.Equals(lowereingabe) ||
+                                    searchFields[4] && (l.ID + "").Equals(lowereingabe)).ToList());
+                            }
+                            else
+                            {
+                                lliste.AddRange(cachlist.Where(l =>
+                                    l.Kuerzel.ToLower().Contains(lowereingabe) ||
+                                    searchFields[0] && l.Vorname.ToLower().Contains(lowereingabe) ||
+                                    searchFields[1] && l.Nachname.ToLower().Contains(lowereingabe) ||
+                                    searchFields[2] && l.Mail.Contains(lowereingabe) ||
+                                    searchFields[3] && l.Kuerzel.Contains(lowereingabe) ||
+                                    searchFields[4] && (l.ID + "").Contains(lowereingabe)).ToList());
+                            }
                         }
 
                         var leliste = lliste.Distinct()
@@ -2184,7 +2210,7 @@ namespace StS_GUI_Avalonia
 
                 var eingabeliste = tbRightSearch.Text.Split(";");
                 var searchContextMenu = tbLeftSearch.ContextMenu.ItemsSource.Cast<CheckBox>().ToList();
-                var searchFields = new[] { false, false, false, false, false }; //v,n,m,a/k,i
+                var searchFields = new[] { false, false, false, false, false, false }; //v,n,m,a/k,i,e
                 for (var i = 0; i < searchContextMenu.Count; ++i)
                 {
                     if (searchContextMenu[i].IsChecked == true)
@@ -2201,15 +2227,30 @@ namespace StS_GUI_Avalonia
                         foreach (var eingabe in eingabeliste)
                         {
                             var lowereingabe = eingabe.ToLower();
-                            sliste.AddRange(scachelist.Where(s =>
-                                searchFields[4] && (s.ID + "").Contains(lowereingabe) ||
-                                searchFields[0] && s.Vorname.ToLower().Contains(lowereingabe) ||
-                                searchFields[1] && s.Nachname.ToLower().Contains(lowereingabe) ||
-                                searchFields[2] && (s.Mail.Contains(lowereingabe) ||
-                                                    s.Aixmail.Contains(lowereingabe) ||
-                                                    s.Zweitmail.Contains(lowereingabe)) ||
-                                searchFields[3] && s.Nutzername.Contains(lowereingabe)
-                            ).ToList());
+                            if (searchFields[5])
+                            {
+                                sliste.AddRange(scachelist.Where(s =>
+                                    searchFields[4] && (s.ID + "").Equals(lowereingabe) ||
+                                    searchFields[0] && s.Vorname.ToLower().Equals(lowereingabe) ||
+                                    searchFields[1] && s.Nachname.ToLower().Equals(lowereingabe) ||
+                                    searchFields[2] && (s.Mail.Equals(lowereingabe) ||
+                                                        s.Aixmail.Equals(lowereingabe) ||
+                                                        s.Zweitmail.Equals(lowereingabe)) ||
+                                    searchFields[3] && s.Nutzername.Equals(lowereingabe)
+                                ).ToList());
+                            }
+                            else
+                            {
+                                sliste.AddRange(scachelist.Where(s =>
+                                    searchFields[4] && (s.ID + "").Contains(lowereingabe) ||
+                                    searchFields[0] && s.Vorname.ToLower().Contains(lowereingabe) ||
+                                    searchFields[1] && s.Nachname.ToLower().Contains(lowereingabe) ||
+                                    searchFields[2] && (s.Mail.Contains(lowereingabe) ||
+                                                        s.Aixmail.Contains(lowereingabe) ||
+                                                        s.Zweitmail.Contains(lowereingabe)) ||
+                                    searchFields[3] && s.Nutzername.Contains(lowereingabe)
+                                ).ToList());
+                            }
                         }
 
                         var seliste = sliste.Distinct().Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID))
@@ -2223,13 +2264,26 @@ namespace StS_GUI_Avalonia
                         foreach (var eingabe in eingabeliste)
                         {
                             var lowereingabe = eingabe.ToLower();
-                            lliste.AddRange(cachlist.Where(l =>
-                                l.Kuerzel.ToLower().Contains(lowereingabe) ||
-                                searchFields[0] && l.Vorname.ToLower().Contains(lowereingabe) ||
-                                searchFields[1] && l.Nachname.ToLower().Contains(lowereingabe) ||
-                                searchFields[2] && l.Mail.Contains(lowereingabe) ||
-                                searchFields[3] && l.Kuerzel.Contains(lowereingabe) ||
-                                searchFields[4] && (l.ID + "").Contains(lowereingabe)).ToList());
+                            if (searchFields[5])
+                            {
+                                lliste.AddRange(cachlist.Where(l =>
+                                    l.Kuerzel.ToLower().Equals(lowereingabe) ||
+                                    searchFields[0] && l.Vorname.ToLower().Equals(lowereingabe) ||
+                                    searchFields[1] && l.Nachname.ToLower().Equals(lowereingabe) ||
+                                    searchFields[2] && l.Mail.Equals(lowereingabe) ||
+                                    searchFields[3] && l.Kuerzel.Equals(lowereingabe) ||
+                                    searchFields[4] && (l.ID + "").Equals(lowereingabe)).ToList());
+                            }
+                            else
+                            {
+                                lliste.AddRange(cachlist.Where(l =>
+                                    l.Kuerzel.ToLower().Contains(lowereingabe) ||
+                                    searchFields[0] && l.Vorname.ToLower().Contains(lowereingabe) ||
+                                    searchFields[1] && l.Nachname.ToLower().Contains(lowereingabe) ||
+                                    searchFields[2] && l.Mail.Contains(lowereingabe) ||
+                                    searchFields[3] && l.Kuerzel.Contains(lowereingabe) ||
+                                    searchFields[4] && (l.ID + "").Contains(lowereingabe)).ToList());
+                            }
                         }
 
                         var leliste = lliste.Distinct()
