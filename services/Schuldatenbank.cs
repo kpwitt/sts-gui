@@ -21,7 +21,7 @@ namespace SchulDB
     {
         private readonly string _dbpath;
         private readonly SqliteConnection _sqliteConn;
-        private SqliteTransaction _dbtrans;
+        private SqliteTransaction? _dbtrans;
         private bool _ActiveTransaction;
 
         /// <summary>
@@ -484,7 +484,7 @@ namespace SchulDB
         {
             if (_ActiveTransaction)
             {
-                _dbtrans.Commit();
+                _dbtrans?.Commit();
                 _ActiveTransaction = false;
             }
 
@@ -2582,6 +2582,7 @@ namespace SchulDB
         public async Task StopTransaction()
         {
             _ActiveTransaction = false;
+            if (_dbtrans == null) return;
             await _dbtrans.CommitAsync();
         }
 
