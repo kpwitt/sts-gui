@@ -313,12 +313,12 @@ namespace StS_GUI_Avalonia
                 return;
             }
 
-            var saveDBFile = async () =>
+            await Task.Run(SaveDbFile);
+            return;
+
+            async Task SaveDbFile()
             {
-                var extx = new List<FilePickerFileType>
-                {
-                    StSFileTypes.DataBaseFile
-                };
+                var extx = new List<FilePickerFileType> { StSFileTypes.DataBaseFile };
                 var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
                 if (files == null)
                 {
@@ -339,45 +339,40 @@ namespace StS_GUI_Avalonia
                     if (res == 0)
                     {
                         _myschool = tempDB;
-                        var saveDBInPath = MessageBoxManager.GetMessageBoxStandard(
-                            new MessageBoxStandardParams
-                            {
-                                ButtonDefinitions = ButtonEnum.Ok,
-                                ContentTitle = "Erfolg",
-                                ContentMessage =
-                                    "Datenbank erfolgreich gespeichert",
-                                Icon = MsBox.Avalonia.Enums.Icon.Success,
-                                WindowIcon = _msgBoxWindowIcon
-                            });
+                        var saveDBInPath = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
+                        {
+                            ButtonDefinitions = ButtonEnum.Ok,
+                            ContentTitle = "Erfolg",
+                            ContentMessage = "Datenbank erfolgreich gespeichert",
+                            Icon = MsBox.Avalonia.Enums.Icon.Success,
+                            WindowIcon = _msgBoxWindowIcon
+                        });
                         await saveDBInPath.ShowAsPopupAsync(this);
                     }
                     else
                     {
-                        var errorNoSystemDialog = MessageBoxManager.GetMessageBoxStandard(
-                            new MessageBoxStandardParams
-                            {
-                                ButtonDefinitions = ButtonEnum.Ok,
-                                ContentTitle = "Fehler",
-                                ContentMessage =
-                                    "Schließen fehlgeschlagen",
-                                Icon = MsBox.Avalonia.Enums.Icon.Error,
-                                WindowIcon = _msgBoxWindowIcon
-                            });
+                        var errorNoSystemDialog = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
+                        {
+                            ButtonDefinitions = ButtonEnum.Ok,
+                            ContentTitle = "Fehler",
+                            ContentMessage = "Schließen fehlgeschlagen",
+                            Icon = MsBox.Avalonia.Enums.Icon.Error,
+                            WindowIcon = _msgBoxWindowIcon
+                        });
                         await errorNoSystemDialog.ShowAsPopupAsync(this);
                     }
                 });
-            };
-            await Task.Run(saveDBFile);
+            }
         }
 
         public async void OnMnuschulespeichernunterClick(object? sender, RoutedEventArgs e)
         {
-            var saveDBFile = async () =>
+            await Task.Run(SaveDbFile);
+            return;
+
+            async Task SaveDbFile()
             {
-                var extx = new List<FilePickerFileType>
-                {
-                    StSFileTypes.DataBaseFile
-                };
+                var extx = new List<FilePickerFileType> { StSFileTypes.DataBaseFile };
                 var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
                 if (files == null) return;
                 var filepath = files.Path.AbsolutePath;
@@ -387,55 +382,43 @@ namespace StS_GUI_Avalonia
                 {
                     if (res != 0)
                     {
-                        var errorNoSystemDialog = MessageBoxManager.GetMessageBoxStandard(
-                            new MessageBoxStandardParams
-                            {
-                                ButtonDefinitions = ButtonEnum.Ok,
-                                ContentTitle = "Fehler",
-                                ContentMessage =
-                                    "Speichern unter fehlgeschlagen",
-                                Icon = MsBox.Avalonia.Enums.Icon.Error,
-                                WindowIcon = _msgBoxWindowIcon
-                            });
+                        var errorNoSystemDialog = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
+                        {
+                            ButtonDefinitions = ButtonEnum.Ok,
+                            ContentTitle = "Fehler",
+                            ContentMessage = "Speichern unter fehlgeschlagen",
+                            Icon = MsBox.Avalonia.Enums.Icon.Error,
+                            WindowIcon = _msgBoxWindowIcon
+                        });
                         await errorNoSystemDialog.ShowAsPopupAsync(this);
                     }
                     else
                     {
                         _myschool = tempDB;
-                        var saveDBInPath = MessageBoxManager.GetMessageBoxStandard(
-                            new MessageBoxStandardParams
-                            {
-                                ButtonDefinitions = ButtonEnum.Ok,
-                                ContentTitle = "Erfolg",
-                                ContentMessage =
-                                    "Datenbank erfolgreich gespeichert",
-                                Icon = MsBox.Avalonia.Enums.Icon.Success,
-                                WindowIcon = _msgBoxWindowIcon
-                            });
+                        var saveDBInPath = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
+                        {
+                            ButtonDefinitions = ButtonEnum.Ok,
+                            ContentTitle = "Erfolg",
+                            ContentMessage = "Datenbank erfolgreich gespeichert",
+                            Icon = MsBox.Avalonia.Enums.Icon.Success,
+                            WindowIcon = _msgBoxWindowIcon
+                        });
                         await saveDBInPath.ShowAsPopupAsync(this);
                     }
                 });
-            };
-            await Task.Run(saveDBFile);
+            }
         }
 
         public async void OnMnuschuleversspeichernClick(object? sender, RoutedEventArgs e)
         {
             if (_myschool.GetFilePath().Result == ":memory:") return;
-            var getPasswordInput = async () =>
-            {
-                var pwiWindow = new PasswordInput();
-                var test = await pwiWindow.ShowPWDDialog(this);
-                return test;
-            };
-            var inputResult = await Dispatcher.UIThread.InvokeAsync(getPasswordInput, DispatcherPriority.Input);
+
+            var inputResult = await Dispatcher.UIThread.InvokeAsync(GetPasswordInput, DispatcherPriority.Input);
             if (string.IsNullOrEmpty(inputResult)) return;
-            var saveDBFile = async () =>
+
+            async Task SaveDbFile()
             {
-                var extx = new List<FilePickerFileType>
-                {
-                    StSFileTypes.EncryptedFile
-                };
+                var extx = new List<FilePickerFileType> { StSFileTypes.EncryptedFile };
                 var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
                 if (files == null) return;
                 var filepath = files.Path.AbsolutePath;
@@ -443,8 +426,9 @@ namespace StS_GUI_Avalonia
                 _myschool.Dispose();
                 LocalCryptoServive.FileEncrypt(dbPath, filepath, inputResult);
                 _myschool = new Schuldatenbank(dbPath);
-            };
-            await Task.Run(saveDBFile);
+            }
+
+            await Task.Run(SaveDbFile);
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
                 MessageBoxManager.GetMessageBoxStandard(
@@ -458,6 +442,14 @@ namespace StS_GUI_Avalonia
                         WindowIcon = _msgBoxWindowIcon
                     }).ShowAsPopupAsync(this);
             });
+            return;
+
+            async Task<string?> GetPasswordInput()
+            {
+                var pwiWindow = new PasswordInput();
+                var test = await pwiWindow.ShowPWDDialog(this);
+                return test;
+            }
         }
 
         public async void OnMnuversschuleladenClick(object? sender, RoutedEventArgs e)
@@ -469,28 +461,30 @@ namespace StS_GUI_Avalonia
             var files = await ShowOpenFileDialog("Bitte einen Dateipfad angeben...", extx);
             if (files == null) return;
             var inputFilePath = files.Path.AbsolutePath;
-            var getPasswordInput = async () =>
+
+            var inputResult = await Dispatcher.UIThread.InvokeAsync(GetPasswordInput, DispatcherPriority.Input);
+            if (string.IsNullOrEmpty(inputResult)) return;
+
+            await Task.Run(SaveDbFile);
+            return;
+
+            async Task<string?> GetPasswordInput()
             {
                 var pwiWindow = new PasswordInput();
                 var test = await pwiWindow.ShowPWDDialog(this);
                 return test;
-            };
-            var inputResult = await Dispatcher.UIThread.InvokeAsync(getPasswordInput, DispatcherPriority.Input);
-            if (string.IsNullOrEmpty(inputResult)) return;
-            var saveDBFile = async () =>
+            }
+
+            async Task SaveDbFile()
             {
-                var encFileType = new List<FilePickerFileType>
-                {
-                    StSFileTypes.EncryptedFile
-                };
+                var encFileType = new List<FilePickerFileType> { StSFileTypes.EncryptedFile };
                 var saveFile = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", encFileType);
                 var outputFilePath = saveFile?.Path.AbsolutePath;
                 if (outputFilePath == null) return;
 
                 LocalCryptoServive.FileDecrypt(inputFilePath, outputFilePath, inputResult);
                 _myschool = new Schuldatenbank(outputFilePath);
-            };
-            await Task.Run(saveDBFile);
+            }
         }
 
         public void OnMnuexitClick(object? sender, RoutedEventArgs e)
@@ -501,7 +495,7 @@ namespace StS_GUI_Avalonia
 
         public async void OnMnuloadfolderClick(object? sender, RoutedEventArgs e)
         {
-            var readFileTask = async () =>
+            async Task ReadFileTask()
             {
                 var folder = await ShowOpenFolderDialog("Bitte den Ordner mit den Dateien auswählen");
                 if (folder == null) return;
@@ -530,20 +524,20 @@ namespace StS_GUI_Avalonia
                     await Dispatcher.UIThread.InvokeAsync(() =>
                     {
                         InitData();
-                        MessageBoxManager.GetMessageBoxStandard(
-                            new MessageBoxStandardParams
+                        MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
                             {
                                 ButtonDefinitions = ButtonEnum.Ok,
                                 ContentTitle = "Information",
-                                ContentMessage =
-                                    "Import erfolgreich",
+                                ContentMessage = "Import erfolgreich",
                                 Icon = MsBox.Avalonia.Enums.Icon.Info,
                                 WindowIcon = _msgBoxWindowIcon
-                            }).ShowAsPopupAsync(this);
+                            })
+                            .ShowAsPopupAsync(this);
                     });
                 }
-            };
-            await Task.Run(readFileTask);
+            }
+
+            await Task.Run(ReadFileTask);
         }
 
         public async void OnMnuloadsusfromfileClick(object? sender, RoutedEventArgs e)
@@ -613,7 +607,7 @@ namespace StS_GUI_Avalonia
 
         public async void OnMnuexporttocsvClick(object? sender, RoutedEventArgs e)
         {
-            var readFileTask = async () =>
+            async Task ReadFileTask()
             {
                 var folder = await ShowOpenFolderDialog("Bitte den Ordner mit den Dateien auswählen");
                 if (folder == null) return;
@@ -623,8 +617,9 @@ namespace StS_GUI_Avalonia
                 {
                     await _myschool.DumpDataToCSVs(folderpath);
                 }
-            };
-            await Task.Run(readFileTask);
+            }
+
+            await Task.Run(ReadFileTask);
         }
 
         public async void OnMnuaboutClick(object? sender, RoutedEventArgs e)
@@ -1406,7 +1401,10 @@ namespace StS_GUI_Avalonia
                 return;
             }
 
-            var readFileTask = async () =>
+            await Dispatcher.UIThread.InvokeAsync(ReadFileTask);
+            return;
+
+            async Task ReadFileTask()
             {
                 var folder = await ShowOpenFolderDialog("Bitte den Ordner mit den Dateien auswählen");
                 if (folder == null) return;
@@ -1414,20 +1412,18 @@ namespace StS_GUI_Avalonia
                 var expandFiles = false;
                 if (File.Exists(folderpath + "/aix_sus.csv") || File.Exists(folderpath + "/aix_lul.csv") ||
                     File.Exists(folderpath + "/mdl_einschreibungen.csv") ||
-                    File.Exists(folderpath + "/mdl_kurse.csv") ||
-                    File.Exists(folderpath + "/mdl_nutzer.csv"))
+                    File.Exists(folderpath + "/mdl_kurse.csv") || File.Exists(folderpath + "/mdl_nutzer.csv"))
                 {
-                    var overwriteFilesDialog = MessageBoxManager.GetMessageBoxStandard(
-                        new MessageBoxStandardParams
-                        {
-                            ButtonDefinitions = ButtonEnum.YesNo,
-                            ContentTitle = "Dateien gefunden",
-                            ContentHeader = "Überschreiben?",
-                            ContentMessage =
-                                "Im Ordner existieren schon eine/mehrere Exportdateien.\nSollen diese überschrieben werden?",
-                            Icon = MsBox.Avalonia.Enums.Icon.Question,
-                            WindowIcon = _msgBoxWindowIcon
-                        });
+                    var overwriteFilesDialog = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
+                    {
+                        ButtonDefinitions = ButtonEnum.YesNo,
+                        ContentTitle = "Dateien gefunden",
+                        ContentHeader = "Überschreiben?",
+                        ContentMessage =
+                            "Im Ordner existieren schon eine/mehrere Exportdateien.\nSollen diese überschrieben werden?",
+                        Icon = MsBox.Avalonia.Enums.Icon.Question,
+                        WindowIcon = _msgBoxWindowIcon
+                    });
                     var dialogResult = await overwriteFilesDialog.ShowAsPopupAsync(this);
                     expandFiles = dialogResult switch
                     {
@@ -1481,14 +1477,11 @@ namespace StS_GUI_Avalonia
                 }
 
                 var res = await _myschool.ExportCSV(folderpath, destsys, whattoexport,
-                    cbExportwithPasswort.IsChecked != null && cbExportwithPasswort.IsChecked.Value, "",
-                    expandFiles, nurMoodleSuffix, kursvorlagen,
-                    await _myschool.GetSchuelerIDListe(), await _myschool.GetLehrerIDListe(),
-                    await _myschool.GetKursBezListe());
+                    cbExportwithPasswort.IsChecked != null && cbExportwithPasswort.IsChecked.Value, "", expandFiles,
+                    nurMoodleSuffix, kursvorlagen, await _myschool.GetSchuelerIDListe(),
+                    await _myschool.GetLehrerIDListe(), await _myschool.GetKursBezListe());
                 await CheckSuccesfulExport(res);
-            };
-
-            await Dispatcher.UIThread.InvokeAsync(readFileTask);
+            }
         }
 
         private void BtnFehlerSuche_OnClick(object? sender, RoutedEventArgs e)
@@ -1589,24 +1582,22 @@ namespace StS_GUI_Avalonia
 
         private async void BtnFehlerExport_OnClick(object? sender, RoutedEventArgs e)
         {
-            var saveDBFile = async () =>
+            async Task SaveDbFile()
             {
-                var extx = new List<FilePickerFileType>
-                {
-                    StSFileTypes.CSVFile
-                };
+                var extx = new List<FilePickerFileType> { StSFileTypes.CSVFile };
                 var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
                 if (files == null) return;
                 var filepath = files.Path.AbsolutePath;
 
                 await File.WriteAllLinesAsync(filepath, lbFehlerliste.Items.Cast<string>(), Encoding.UTF8);
-            };
-            await Task.Run(saveDBFile);
+            }
+
+            await Task.Run(SaveDbFile);
         }
 
         private async void BtnExportStufenkurs_OnClick(object? sender, RoutedEventArgs e)
         {
-            var readFileTask = async () =>
+            async Task ReadFileTask()
             {
                 if (string.IsNullOrEmpty(tbExportStufenkurse.Text)) return;
                 var folder = await ShowOpenFolderDialog("Bitte den Ordner mit den Dateien auswählen");
@@ -1620,8 +1611,7 @@ namespace StS_GUI_Avalonia
                     var stufe = tbExportStufenkurse.Text;
                     susidlist.AddRange(_myschool.GetSusAusStufe(stufe).Result.Select(s => s.ID).ToList());
                     res = await _myschool.ExportCSV(folderpath, "all", "s", false, "", false, nurMoodleSuffix,
-                        new[] { "", "" },
-                        new ReadOnlyCollection<int>(susidlist),
+                        new[] { "", "" }, new ReadOnlyCollection<int>(susidlist),
                         new ReadOnlyCollection<int>(new List<int>()),
                         new ReadOnlyCollection<string>(new List<string>()));
                 }
@@ -1634,15 +1624,15 @@ namespace StS_GUI_Avalonia
                     }
 
                     res = await _myschool.ExportCSV(folderpath, "all", "s", false, "", false, nurMoodleSuffix,
-                        new[] { "", "" },
-                        new ReadOnlyCollection<int>(susidlist),
+                        new[] { "", "" }, new ReadOnlyCollection<int>(susidlist),
                         new ReadOnlyCollection<int>(new List<int>()),
                         new ReadOnlyCollection<string>(new List<string>()));
                 }
 
                 await CheckSuccesfulExport(res);
-            };
-            await Dispatcher.UIThread.InvokeAsync(readFileTask);
+            }
+
+            await Dispatcher.UIThread.InvokeAsync(ReadFileTask);
         }
 
         private async Task CheckSuccesfulExport(int res)
@@ -1683,7 +1673,10 @@ namespace StS_GUI_Avalonia
 
         private async void BtnExport5InklPasswort_OnClick(object? sender, RoutedEventArgs e)
         {
-            var readFileTask = async () =>
+            await Dispatcher.UIThread.InvokeAsync(ReadFileTask);
+            return;
+
+            async Task ReadFileTask()
             {
                 var folder = await ShowOpenFolderDialog("Bitte den Ordner mit den Dateien auswählen");
                 if (folder == null) return;
@@ -1694,8 +1687,7 @@ namespace StS_GUI_Avalonia
                     new ReadOnlyCollection<int>(_myschool.GetSusAusStufe("5").Result.Select(s => s.ID).ToList()),
                     new ReadOnlyCollection<int>(new List<int>()), new ReadOnlyCollection<string>(new List<string>()));
                 await CheckSuccesfulExport(res);
-            };
-            await Dispatcher.UIThread.InvokeAsync(readFileTask);
+            }
         }
 
         private async void BtnSettingSave_OnClick(object? sender, RoutedEventArgs e)
@@ -2080,7 +2072,11 @@ namespace StS_GUI_Avalonia
 
         private async void OnLeftTimedEvent(object? source, ElapsedEventArgs e)
         {
-            var updateLeftList = () =>
+            await Dispatcher.UIThread.InvokeAsync(UpdateLeftList);
+            _leftInputTimer.Enabled = false;
+            return;
+
+            void UpdateLeftList()
             {
                 switch (tbLeftSearch.Text)
                 {
@@ -2110,33 +2106,26 @@ namespace StS_GUI_Avalonia
                         foreach (var eingabe in eingabeliste)
                         {
                             var lowereingabe = eingabe.ToLower();
-                            if (searchFields[5])
-                            {
-                                sliste.AddRange(scachelist.Where(s =>
+                            sliste.AddRange(searchFields[5]
+                                ? scachelist.Where(s =>
                                     searchFields[4] && (s.ID + "").Equals(lowereingabe) ||
                                     searchFields[0] && s.Vorname.ToLower().Equals(lowereingabe) ||
                                     searchFields[1] && s.Nachname.ToLower().Equals(lowereingabe) ||
-                                    searchFields[2] && (s.Mail.Equals(lowereingabe) ||
-                                                        s.Aixmail.Equals(lowereingabe) ||
+                                    searchFields[2] && (s.Mail.Equals(lowereingabe) || s.Aixmail.Equals(lowereingabe) ||
                                                         s.Zweitmail.Equals(lowereingabe)) ||
-                                    searchFields[3] && s.Nutzername.Equals(lowereingabe)
-                                ).ToList());
-                            }
-                            else
-                            {
-                                sliste.AddRange(scachelist.Where(s =>
+                                    searchFields[3] && s.Nutzername.Equals(lowereingabe)).ToList()
+                                : scachelist.Where(s =>
                                     searchFields[4] && (s.ID + "").Contains(lowereingabe) ||
                                     searchFields[0] && s.Vorname.ToLower().Contains(lowereingabe) ||
                                     searchFields[1] && s.Nachname.ToLower().Contains(lowereingabe) ||
                                     searchFields[2] && (s.Mail.Contains(lowereingabe) ||
                                                         s.Aixmail.Contains(lowereingabe) ||
                                                         s.Zweitmail.Contains(lowereingabe)) ||
-                                    searchFields[3] && s.Nutzername.Contains(lowereingabe)
-                                ).ToList());
-                            }
+                                    searchFields[3] && s.Nutzername.Contains(lowereingabe)).ToList());
                         }
 
-                        var seliste = sliste.Distinct().Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID))
+                        var seliste = sliste.Distinct()
+                            .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID))
                             .ToList();
                         seliste.Sort(Comparer<string>.Default);
                         ResetItemsSource(LeftListBox, seliste);
@@ -2147,26 +2136,21 @@ namespace StS_GUI_Avalonia
                         foreach (var eingabe in eingabeliste)
                         {
                             var lowereingabe = eingabe.ToLower();
-                            if (searchFields[5])
-                            {
-                                lliste.AddRange(cachlist.Where(l =>
+                            lliste.AddRange(searchFields[5]
+                                ? cachlist.Where(l =>
                                     l.Kuerzel.ToLower().Equals(lowereingabe) ||
                                     searchFields[0] && l.Vorname.ToLower().Equals(lowereingabe) ||
                                     searchFields[1] && l.Nachname.ToLower().Equals(lowereingabe) ||
                                     searchFields[2] && l.Mail.Equals(lowereingabe) ||
                                     searchFields[3] && l.Kuerzel.Equals(lowereingabe) ||
-                                    searchFields[4] && (l.ID + "").Equals(lowereingabe)).ToList());
-                            }
-                            else
-                            {
-                                lliste.AddRange(cachlist.Where(l =>
+                                    searchFields[4] && (l.ID + "").Equals(lowereingabe)).ToList()
+                                : cachlist.Where(l =>
                                     l.Kuerzel.ToLower().Contains(lowereingabe) ||
                                     searchFields[0] && l.Vorname.ToLower().Contains(lowereingabe) ||
                                     searchFields[1] && l.Nachname.ToLower().Contains(lowereingabe) ||
                                     searchFields[2] && l.Mail.Contains(lowereingabe) ||
                                     searchFields[3] && l.Kuerzel.Contains(lowereingabe) ||
                                     searchFields[4] && (l.ID + "").Contains(lowereingabe)).ToList());
-                            }
                         }
 
                         var leliste = lliste.Distinct()
@@ -2180,24 +2164,23 @@ namespace StS_GUI_Avalonia
                         var kcachelist = _myschool.GetKursListe().Result;
                         foreach (var eingabe in eingabeliste)
                         {
-                            kliste.AddRange(kcachelist.Where(s =>
-                                s.Bezeichnung.ToLower().Contains(eingabe.ToLower())).ToList());
+                            kliste.AddRange(kcachelist.Where(s => s.Bezeichnung.ToLower().Contains(eingabe.ToLower()))
+                                .ToList());
                         }
 
-                        var keliste = kliste.Distinct().Select(k => k.Bezeichnung)
+                        var keliste = kliste.Distinct()
+                            .Select(k => k.Bezeichnung)
                             .ToList();
                         keliste.Sort(Comparer<string>.Default);
                         ResetItemsSource(LeftListBox, keliste);
                         break;
                 }
-            };
-            await Dispatcher.UIThread.InvokeAsync(updateLeftList);
-            _leftInputTimer.Enabled = false;
+            }
         }
 
         private async void OnRightTimedEvent(object? source, ElapsedEventArgs e)
         {
-            var updateRightList = () =>
+            void UpdateRightList()
             {
                 switch (tbRightSearch.Text)
                 {
@@ -2227,33 +2210,26 @@ namespace StS_GUI_Avalonia
                         foreach (var eingabe in eingabeliste)
                         {
                             var lowereingabe = eingabe.ToLower();
-                            if (searchFields[5])
-                            {
-                                sliste.AddRange(scachelist.Where(s =>
+                            sliste.AddRange(searchFields[5]
+                                ? scachelist.Where(s =>
                                     searchFields[4] && (s.ID + "").Equals(lowereingabe) ||
                                     searchFields[0] && s.Vorname.ToLower().Equals(lowereingabe) ||
                                     searchFields[1] && s.Nachname.ToLower().Equals(lowereingabe) ||
-                                    searchFields[2] && (s.Mail.Equals(lowereingabe) ||
-                                                        s.Aixmail.Equals(lowereingabe) ||
+                                    searchFields[2] && (s.Mail.Equals(lowereingabe) || s.Aixmail.Equals(lowereingabe) ||
                                                         s.Zweitmail.Equals(lowereingabe)) ||
-                                    searchFields[3] && s.Nutzername.Equals(lowereingabe)
-                                ).ToList());
-                            }
-                            else
-                            {
-                                sliste.AddRange(scachelist.Where(s =>
+                                    searchFields[3] && s.Nutzername.Equals(lowereingabe)).ToList()
+                                : scachelist.Where(s =>
                                     searchFields[4] && (s.ID + "").Contains(lowereingabe) ||
                                     searchFields[0] && s.Vorname.ToLower().Contains(lowereingabe) ||
                                     searchFields[1] && s.Nachname.ToLower().Contains(lowereingabe) ||
                                     searchFields[2] && (s.Mail.Contains(lowereingabe) ||
                                                         s.Aixmail.Contains(lowereingabe) ||
                                                         s.Zweitmail.Contains(lowereingabe)) ||
-                                    searchFields[3] && s.Nutzername.Contains(lowereingabe)
-                                ).ToList());
-                            }
+                                    searchFields[3] && s.Nutzername.Contains(lowereingabe)).ToList());
                         }
 
-                        var seliste = sliste.Distinct().Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID))
+                        var seliste = sliste.Distinct()
+                            .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID))
                             .ToList();
                         seliste.Sort(Comparer<string>.Default);
                         ResetItemsSource(RightListBox, seliste);
@@ -2264,26 +2240,21 @@ namespace StS_GUI_Avalonia
                         foreach (var eingabe in eingabeliste)
                         {
                             var lowereingabe = eingabe.ToLower();
-                            if (searchFields[5])
-                            {
-                                lliste.AddRange(cachlist.Where(l =>
+                            lliste.AddRange(searchFields[5]
+                                ? cachlist.Where(l =>
                                     l.Kuerzel.ToLower().Equals(lowereingabe) ||
                                     searchFields[0] && l.Vorname.ToLower().Equals(lowereingabe) ||
                                     searchFields[1] && l.Nachname.ToLower().Equals(lowereingabe) ||
                                     searchFields[2] && l.Mail.Equals(lowereingabe) ||
                                     searchFields[3] && l.Kuerzel.Equals(lowereingabe) ||
-                                    searchFields[4] && (l.ID + "").Equals(lowereingabe)).ToList());
-                            }
-                            else
-                            {
-                                lliste.AddRange(cachlist.Where(l =>
+                                    searchFields[4] && (l.ID + "").Equals(lowereingabe)).ToList()
+                                : cachlist.Where(l =>
                                     l.Kuerzel.ToLower().Contains(lowereingabe) ||
                                     searchFields[0] && l.Vorname.ToLower().Contains(lowereingabe) ||
                                     searchFields[1] && l.Nachname.ToLower().Contains(lowereingabe) ||
                                     searchFields[2] && l.Mail.Contains(lowereingabe) ||
                                     searchFields[3] && l.Kuerzel.Contains(lowereingabe) ||
                                     searchFields[4] && (l.ID + "").Contains(lowereingabe)).ToList());
-                            }
                         }
 
                         var leliste = lliste.Distinct()
@@ -2297,18 +2268,19 @@ namespace StS_GUI_Avalonia
                         var kcachelist = _myschool.GetKursListe().Result;
                         foreach (var eingabe in eingabeliste)
                         {
-                            kliste.AddRange(kcachelist.Where(s =>
-                                s.Bezeichnung.Contains(eingabe)).ToList());
+                            kliste.AddRange(kcachelist.Where(s => s.Bezeichnung.Contains(eingabe)).ToList());
                         }
 
-                        var keliste = kliste.Distinct().Select(k => k.Bezeichnung)
+                        var keliste = kliste.Distinct()
+                            .Select(k => k.Bezeichnung)
                             .ToList();
                         keliste.Sort(Comparer<string>.Default);
                         ResetItemsSource(RightListBox, keliste);
                         break;
                 }
-            };
-            await Dispatcher.UIThread.InvokeAsync(updateRightList);
+            }
+
+            await Dispatcher.UIThread.InvokeAsync(UpdateRightList);
             _rightInputTimer.Enabled = false;
         }
 
@@ -2326,13 +2298,10 @@ namespace StS_GUI_Avalonia
 
         private async void OnMnuSerienbriefClick(object? sender, RoutedEventArgs e)
         {
-            var readFileTask = async () =>
+            async Task ReadFileTask()
             {
                 if (LeftListBox.SelectedItems == null) return;
-                var extx = new List<FilePickerFileType>
-                {
-                    StSFileTypes.CSVFile
-                };
+                var extx = new List<FilePickerFileType> { StSFileTypes.CSVFile };
                 var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
                 if (files == null) return;
                 var folder = files.Path.AbsolutePath;
@@ -2340,8 +2309,10 @@ namespace StS_GUI_Avalonia
                 switch (CboxDataLeft.SelectedIndex)
                 {
                     case 0:
-                        susausgabe.AddRange(LeftListBox.SelectedItems.Cast<string>().ToList()
-                            .Select(sus => _myschool.GetSchueler(Convert.ToInt32(sus.Split(';')[1])).Result).Select(s =>
+                        susausgabe.AddRange(LeftListBox.SelectedItems.Cast<string>()
+                            .ToList()
+                            .Select(sus => _myschool.GetSchueler(Convert.ToInt32(sus.Split(';')[1])).Result)
+                            .Select(s =>
                                 s.Vorname + ";" + s.Nachname + ";" + s.Nutzername + ";" + "Klasse" + s.Klasse +
                                 DateTime.Now.Year + "!;" + s.Aixmail + ";" + s.Klasse));
                         await File.WriteAllLinesAsync(folder, susausgabe.Distinct().ToList(), Encoding.UTF8);
@@ -2356,25 +2327,26 @@ namespace StS_GUI_Avalonia
 
                         await File.WriteAllLinesAsync(folder, susausgabe.Distinct().ToList(), Encoding.UTF8);
                         break;
-                    default: return;
+                    default:
+                        return;
                 }
-            };
-            await Task.Run(readFileTask);
+            }
+
+            await Task.Run(ReadFileTask);
         }
 
         private async void OnMnuItemMSerienbriefDV(object? sender, RoutedEventArgs e)
         {
-            var readFileTask = async () =>
+            await Dispatcher.UIThread.InvokeAsync(ReadFileTask);
+            return;
+
+            async Task ReadFileTask()
             {
                 if (LeftListBox.SelectedItems == null) return;
                 switch (CboxDataLeft.SelectedIndex)
                 {
                     case 2:
-                        var extx = new List<FilePickerFileType>
-                        {
-                            StSFileTypes.CSVFile,
-                            FilePickerFileTypes.All
-                        };
+                        var extx = new List<FilePickerFileType> { StSFileTypes.CSVFile, FilePickerFileTypes.All };
                         var files = await ShowSaveFileDialog("Serienbriefdatei auswählen", extx);
                         if (files == null) return;
                         var folder = files.Path.AbsolutePath;
@@ -2404,10 +2376,10 @@ namespace StS_GUI_Avalonia
 
                         await File.WriteAllLinesAsync(folder, susausgabe.Distinct().ToList(), Encoding.UTF8);
                         break;
-                    default: return;
+                    default:
+                        return;
                 }
-            };
-            await Dispatcher.UIThread.InvokeAsync(readFileTask);
+            }
         }
 
         private async void OnMnuPasswordGenClick(object? sender, RoutedEventArgs e)
@@ -2426,7 +2398,10 @@ namespace StS_GUI_Avalonia
 
         private async void OnMnuExportClick(object? sender, RoutedEventArgs e)
         {
-            var readFileTask = async () =>
+            await Dispatcher.UIThread.InvokeAsync(ReadFileTask);
+            return;
+
+            async Task ReadFileTask()
             {
                 if (LeftListBox.SelectedItems == null) return;
 
@@ -2436,20 +2411,18 @@ namespace StS_GUI_Avalonia
                 var expandFiles = false;
                 if (File.Exists(folderpath + "/aix_sus.csv") || File.Exists(folderpath + "/aix_lul.csv") ||
                     File.Exists(folderpath + "/mdl_einschreibungen.csv") ||
-                    File.Exists(folderpath + "/mdl_kurse.csv") ||
-                    File.Exists(folderpath + "/mdl_nutzer.csv"))
+                    File.Exists(folderpath + "/mdl_kurse.csv") || File.Exists(folderpath + "/mdl_nutzer.csv"))
                 {
-                    var overwriteFilesDialog = MessageBoxManager.GetMessageBoxStandard(
-                        new MessageBoxStandardParams
-                        {
-                            ButtonDefinitions = ButtonEnum.YesNo,
-                            ContentTitle = "Dateien gefunden",
-                            ContentHeader = "Überschreiben?",
-                            ContentMessage =
-                                "Im Ordner existieren schon eine/mehrere Exportdateien.\nSollen diese überschrieben werden?",
-                            Icon = MsBox.Avalonia.Enums.Icon.Question,
-                            WindowIcon = _msgBoxWindowIcon
-                        });
+                    var overwriteFilesDialog = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
+                    {
+                        ButtonDefinitions = ButtonEnum.YesNo,
+                        ContentTitle = "Dateien gefunden",
+                        ContentHeader = "Überschreiben?",
+                        ContentMessage =
+                            "Im Ordner existieren schon eine/mehrere Exportdateien.\nSollen diese überschrieben werden?",
+                        Icon = MsBox.Avalonia.Enums.Icon.Question,
+                        WindowIcon = _msgBoxWindowIcon
+                    });
                     var dialogResult = await overwriteFilesDialog.ShowAsPopupAsync(this);
                     expandFiles = dialogResult switch
                     {
@@ -2479,7 +2452,9 @@ namespace StS_GUI_Avalonia
                         if (LeftListBox.ContextMenu != null)
                         {
                             var isllginternChecked = ((CheckBox)LeftListBox.ContextMenu.Items.Cast<Control>()
-                                .Where(c => c.Name == "cbMnuLeftContextLLGIntern").ToList().First()).IsChecked;
+                                .Where(c => c.Name == "cbMnuLeftContextLLGIntern")
+                                .ToList()
+                                .First()).IsChecked;
                             if (isllginternChecked != null && isllginternChecked.Value) whattoexport += "i";
                         }
 
@@ -2507,7 +2482,9 @@ namespace StS_GUI_Avalonia
                 if (LeftListBox.ContextMenu != null)
                 {
                     var isElternChecked = ((CheckBox)LeftListBox.ContextMenu.Items.Cast<Control>()
-                        .Where(c => c.Name == "cbMnuLeftContextEltern").ToList().First()).IsChecked;
+                        .Where(c => c.Name == "cbMnuLeftContextEltern")
+                        .ToList()
+                        .First()).IsChecked;
                     if (isElternChecked != null && isElternChecked.Value) whattoexport += "e";
                 }
 
@@ -2524,19 +2501,19 @@ namespace StS_GUI_Avalonia
                 if (LeftListBox.ContextMenu != null)
                 {
                     var isAnfangsPasswortChecked = ((CheckBox)LeftListBox.ContextMenu.Items.Cast<Control>()
-                        .Where(c => c.Name == "cbMnuLeftContextAnfangsPasswort").ToList().First()).IsChecked;
+                        .Where(c => c.Name == "cbMnuLeftContextAnfangsPasswort")
+                        .ToList()
+                        .First()).IsChecked;
                     var nurMoodleSuffix = cbNurMoodleSuffix.IsChecked is not false;
                     var res = await _myschool.ExportCSV(folderpath, destsys, whattoexport,
-                        isAnfangsPasswortChecked != null && isAnfangsPasswortChecked.Value, "",
-                        expandFiles, nurMoodleSuffix, kursvorlagen,
+                        isAnfangsPasswortChecked != null && isAnfangsPasswortChecked.Value, "", expandFiles,
+                        nurMoodleSuffix, kursvorlagen,
                         new ReadOnlyCollection<int>(suslist.Select(s => s.ID).Distinct().ToList()),
                         new ReadOnlyCollection<int>(lullist.Select(l => l.ID).Distinct().ToList()),
                         new ReadOnlyCollection<string>(kurslist.Select(k => k.Bezeichnung).Distinct().ToList()));
                     await CheckSuccesfulExport(res);
                 }
-            };
-
-            await Dispatcher.UIThread.InvokeAsync(readFileTask);
+            }
         }
 
         private async void MnuLoadElternMails_OnClick(object? sender, RoutedEventArgs e)
@@ -2554,25 +2531,21 @@ namespace StS_GUI_Avalonia
 
         private async void MnuExportLKtoHP_OnClick(object? sender, RoutedEventArgs e)
         {
-            var saveLKtoHP = async () =>
+            await Task.Run(SaveLKtoHp);
+            return;
+
+            async Task SaveLKtoHp()
             {
-                var extx = new List<FilePickerFileType>
-                {
-                    StSFileTypes.CSVFile
-                };
+                var extx = new List<FilePickerFileType> { StSFileTypes.CSVFile };
                 var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
                 if (files == null) return;
                 var filepath = files.Path.AbsolutePath;
-                List<string> lulliste = new()
-                {
-                    "Kürzel;Nachname;Vorname;Fächer;Mailadresse"
-                };
+                List<string> lulliste = new() { "Kürzel;Nachname;Vorname;Fächer;Mailadresse" };
                 lulliste.AddRange(_myschool.GetLehrerListe().Result.Select(lehrer =>
-                    lehrer.Kuerzel + ";" + lehrer.Nachname + ";" + lehrer.Vorname + ";" +
-                    lehrer.Fakultas + ";" + lehrer.Mail).OrderBy(s => s.Split(';')[0]));
+                    lehrer.Kuerzel + ";" + lehrer.Nachname + ";" + lehrer.Vorname + ";" + lehrer.Fakultas + ";" +
+                    lehrer.Mail).OrderBy(s => s.Split(';')[0]));
                 await File.WriteAllLinesAsync(filepath, lulliste, Encoding.UTF8);
-            };
-            await Task.Run(saveLKtoHP);
+            }
         }
 
         private void TbLuLtmpPwd_OnPointerEnter(object? sender, PointerEventArgs e)
