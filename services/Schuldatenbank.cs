@@ -473,6 +473,7 @@ namespace SchulDB
                     sqliteCmd.Parameters.AddWithValue("$sid", schulerin.ID);
                     sqliteCmd.Parameters.AddWithValue("$kbez", k.Bezeichnung);
                     sqliteCmd.ExecuteNonQuery();
+                    sqliteCmd.Parameters.Clear();
                 }
             }
         }
@@ -1329,7 +1330,7 @@ namespace SchulDB
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText =
                 "SELECT bez,fach,klasse,stufe,suffix,istkurs FROM kurse WHERE bez = '" + kbez + "';";
-            var sqliteDatareader = sqliteCmd.ExecuteReader();
+            var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
             Kurs retKurs = new();
             while (sqliteDatareader.Read())
             {
@@ -1358,7 +1359,7 @@ namespace SchulDB
             List<string> klist = new();
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText = "SELECT bez FROM kurse;";
-            var sqliteDatareader = sqliteCmd.ExecuteReader();
+            var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
             while (sqliteDatareader.Read())
             {
                 klist.Add(sqliteDatareader.GetString(0));
@@ -1375,7 +1376,7 @@ namespace SchulDB
             List<Kurs> kliste = new();
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText = "SELECT bez,fach,klasse,stufe,suffix,istkurs FROM kurse;";
-            var sqliteDatareader = sqliteCmd.ExecuteReader();
+            var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
             while (sqliteDatareader.Read())
             {
                 Kurs retKurs = new()
@@ -1415,7 +1416,7 @@ namespace SchulDB
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText = "SELECT DISTINCT kursbez FROM unterrichtet WHERE lehrerid = $lulid;";
             sqliteCmd.Parameters.AddWithValue("$lulid", lulid);
-            var sqliteDatareader = sqliteCmd.ExecuteReader();
+            var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
             while (sqliteDatareader.Read())
             {
                 kliste.Add(await GetKurs(sqliteDatareader.GetString(0)));
@@ -1435,7 +1436,7 @@ namespace SchulDB
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText = "SELECT kursbez FROM nimmtteil WHERE schuelerid = $susid;";
             sqliteCmd.Parameters.AddWithValue("$susid", susid);
-            var sqliteDatareader = sqliteCmd.ExecuteReader();
+            var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
             while (sqliteDatareader.Read())
             {
                 kliste.Add(await GetKurs(sqliteDatareader.GetString(0)));
@@ -1454,7 +1455,7 @@ namespace SchulDB
             sqliteCmd.CommandText =
                 "SELECT id,nachname,vorname,mail,kuerzel,fakultas,pwtemp FROM lehrkraft WHERE id = $id;";
             sqliteCmd.Parameters.AddWithValue("$id", id);
-            var sqliteDatareader = sqliteCmd.ExecuteReader();
+            var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
             LuL lehrkraft = new();
             while (sqliteDatareader.Read())
             {
@@ -1480,7 +1481,7 @@ namespace SchulDB
             sqliteCmd.CommandText =
                 "SELECT id,nachname,vorname,mail,kuerzel,fakultas,pwtemp FROM lehrkraft WHERE kuerzel = $kuerzel;";
             sqliteCmd.Parameters.AddWithValue("$kuerzel", kuerzel);
-            var sqliteDatareader = sqliteCmd.ExecuteReader();
+            var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
             LuL lehrkraft = new();
             while (sqliteDatareader.Read())
             {
@@ -1504,7 +1505,7 @@ namespace SchulDB
             List<int> llist = new();
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText = "SELECT id FROM lehrkraft;";
-            var sqliteDatareader = sqliteCmd.ExecuteReader();
+            var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
             while (sqliteDatareader.Read())
             {
                 llist.Add(sqliteDatareader.GetInt32(0));
@@ -1521,7 +1522,7 @@ namespace SchulDB
             List<LuL> llist = new();
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText = "SELECT id,nachname,vorname,mail,kuerzel,fakultas,pwtemp FROM lehrkraft;";
-            var sqliteDatareader = sqliteCmd.ExecuteReader();
+            var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
             while (sqliteDatareader.Read())
             {
                 LuL lehrkraft = new()
@@ -1549,7 +1550,7 @@ namespace SchulDB
             List<string> log = new();
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText = "SELECT stufe,datum, nachricht FROM log;";
-            var sqliteDatareader = sqliteCmd.ExecuteReader();
+            var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
             while (sqliteDatareader.Read())
             {
                 var returnstr = "";
@@ -1575,7 +1576,7 @@ namespace SchulDB
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText = "SELECT stufe,datum, nachricht FROM log WHERE stufe = $stufe;";
             sqliteCmd.Parameters.AddWithValue("$stufe", stufe);
-            var sqliteDatareader = sqliteCmd.ExecuteReader();
+            var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
             while (sqliteDatareader.Read())
             {
                 var returnstr = "";
@@ -1600,7 +1601,7 @@ namespace SchulDB
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText = "SELECT langfach FROM fachersatz WHERE kurzfach = $shortsubject;";
             sqliteCmd.Parameters.AddWithValue("$shortsubject", shortsubject);
-            var sqliteDatareader = sqliteCmd.ExecuteReader();
+            var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
             while (sqliteDatareader.Read())
             {
                 return sqliteDatareader.GetString(0);
@@ -1620,7 +1621,7 @@ namespace SchulDB
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText = "SELECT lehrerid FROM unterrichtet WHERE kursbez = $kbez;";
             sqliteCmd.Parameters.AddWithValue("$kbez", kbez);
-            var sqliteDatareader = sqliteCmd.ExecuteReader();
+            var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
             while (sqliteDatareader.Read())
             {
                 lliste.Add(await GetLehrkraft(sqliteDatareader.GetInt32(0)));
@@ -1641,7 +1642,7 @@ namespace SchulDB
             sqliteCmd.CommandText =
                 "SELECT unterrichtet.lehrerid FROM unterrichtet JOIN nimmtteil ON nimmtteil.kursbez = unterrichtet.kursbez WHERE schuelerid = $susid;";
             sqliteCmd.Parameters.AddWithValue("$susid", susid);
-            var sqliteDatareader = sqliteCmd.ExecuteReader();
+            var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
             while (sqliteDatareader.Read())
             {
                 for (var i = 0; i < sqliteDatareader.FieldCount; i++)
@@ -1665,7 +1666,7 @@ namespace SchulDB
             sqliteCmd.CommandText =
                 "SELECT DISTINCT unterrichtet.lehrerid FROM unterrichtet WHERE kursbez LIKE $stufe;";
             sqliteCmd.Parameters.AddWithValue("$stufe", stufe + "%");
-            var sqliteDatareader = sqliteCmd.ExecuteReader();
+            var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
             while (sqliteDatareader.Read())
             {
                 for (var i = 0; i < sqliteDatareader.FieldCount; i++)
@@ -1687,7 +1688,7 @@ namespace SchulDB
             sqliteCmd.CommandText =
                 "SELECT id,nachname,vorname,mail,klasse,nutzername,aixmail,zweitaccount,zweitmail FROM schueler WHERE id = $id;";
             sqliteCmd.Parameters.AddWithValue("$id", id);
-            var sqliteDatareader = sqliteCmd.ExecuteReader();
+            var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
             SuS schuelerin = new();
             while (sqliteDatareader.Read())
             {
@@ -1717,7 +1718,7 @@ namespace SchulDB
                 "SELECT id,nachname,vorname,mail,klasse,nutzername,aixmail,zweitaccount,zweitmail FROM schueler WHERE vorname = $vorname AND nachname = $nachname;";
             sqliteCmd.Parameters.AddWithValue("$vorname", vorname);
             sqliteCmd.Parameters.AddWithValue("$nachname", nachname);
-            var sqliteDatareader = sqliteCmd.ExecuteReader();
+            var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
             SuS schuelerin = new();
             while (sqliteDatareader.Read())
             {
@@ -1743,7 +1744,7 @@ namespace SchulDB
             List<int> slist = new();
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText = "SELECT id FROM schueler;";
-            var sqliteDatareader = sqliteCmd.ExecuteReader();
+            var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
             while (sqliteDatareader.Read())
             {
                 slist.Add(sqliteDatareader.GetInt32(0));
@@ -1761,7 +1762,7 @@ namespace SchulDB
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText =
                 "SELECT id,nachname,vorname,mail,klasse,nutzername,aixmail,zweitaccount,zweitmail FROM schueler;";
-            var sqliteDatareader = sqliteCmd.ExecuteReader();
+            var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
             while (sqliteDatareader.Read())
             {
                 SuS schuelerin = new()
@@ -1789,7 +1790,7 @@ namespace SchulDB
         {
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText = "SELECT setting,value FROM settings;";
-            var sqliteDatareader = sqliteCmd.ExecuteReader();
+            var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
             Settings settingsResult = new();
             while (sqliteDatareader.Read())
             {
@@ -1830,7 +1831,7 @@ namespace SchulDB
             List<string> flist = new();
             sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText = "SELECT kurzfach,langfach FROM fachersatz;";
-            sqliteDatareader = sqliteCmd.ExecuteReader();
+            sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
             while (sqliteDatareader.Read())
             {
                 var returnstr = "";
@@ -1901,7 +1902,7 @@ namespace SchulDB
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText = "SELECT id FROM schueler WHERE klasse = $klasse;";
             sqliteCmd.Parameters.AddWithValue("$klasse", klasse);
-            var sqliteDatareader = sqliteCmd.ExecuteReader();
+            var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
             while (sqliteDatareader.Read())
             {
                 sliste.Add(await GetSchueler(sqliteDatareader.GetInt32(0)));
@@ -1921,7 +1922,7 @@ namespace SchulDB
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText = "SELECT schuelerid FROM nimmtteil WHERE kursbez = $kbez;";
             sqliteCmd.Parameters.AddWithValue("$kbez", kbez);
-            var sqliteDatareader = sqliteCmd.ExecuteReader();
+            var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
             while (sqliteDatareader.Read())
             {
                 for (var i = 0; i < sqliteDatareader.FieldCount; i++)
@@ -1944,7 +1945,7 @@ namespace SchulDB
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText = "SELECT DISTINCT id FROM schueler WHERE klasse LIKE $stufe;";
             sqliteCmd.Parameters.AddWithValue("$stufe", stufe + "%");
-            var sqliteDatareader = sqliteCmd.ExecuteReader();
+            var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
             while (sqliteDatareader.Read())
             {
                 sliste.Add(await GetSchueler(sqliteDatareader.GetInt32(0)));
@@ -1965,7 +1966,7 @@ namespace SchulDB
             sqliteCmd.CommandText =
                 "SELECT nimmtteil.schuelerid FROM unterrichtet JOIN nimmtteil ON nimmtteil.kursbez = unterrichtet.kursbez WHERE lehrerid = $lulid;";
             sqliteCmd.Parameters.AddWithValue("$lulid", lulid);
-            var sqliteDatareader = sqliteCmd.ExecuteReader();
+            var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
             while (sqliteDatareader.Read())
             {
                 sliste.Add(await GetSchueler(sqliteDatareader.GetInt32(0)));
@@ -2344,12 +2345,15 @@ namespace SchulDB
             sqliteCmd.CommandText = "DELETE FROM nimmtteil WHERE kursbez = $kbez;";
             sqliteCmd.Parameters.AddWithValue("$kbez", kbez);
             sqliteCmd.ExecuteNonQuery();
+            sqliteCmd.Parameters.Clear();
             sqliteCmd.CommandText = "DELETE FROM unterrichtet WHERE kursbez = $kbez;";
             sqliteCmd.Parameters.AddWithValue("$kbez", kbez);
             sqliteCmd.ExecuteNonQuery();
+            sqliteCmd.Parameters.Clear();
             sqliteCmd.CommandText = "DELETE FROM kurse WHERE bez =$kbez;";
             sqliteCmd.Parameters.AddWithValue("$kbez", kbez);
             sqliteCmd.ExecuteNonQuery();
+            sqliteCmd.Parameters.Clear();
             await AddLogMessage("Info", "Kurs mit der Bezeichnung " + kbez + " gelöscht");
         }
 
@@ -2373,9 +2377,11 @@ namespace SchulDB
             sqliteCmd.CommandText = "DELETE FROM unterrichtet WHERE lehrerid = $lid;";
             sqliteCmd.Parameters.AddWithValue("$lid", lid);
             sqliteCmd.ExecuteNonQuery();
+            sqliteCmd.Parameters.Clear();
             sqliteCmd.CommandText = "DELETE FROM lehrkraft INDEXED BY lindex WHERE id = $lid;";
             sqliteCmd.Parameters.AddWithValue("$lid", lid);
             sqliteCmd.ExecuteNonQuery();
+            sqliteCmd.Parameters.Clear();
             await AddLogMessage("Info", "Lehrkraft mit der ID " + lid + " gelöscht");
         }
 
@@ -2435,9 +2441,11 @@ namespace SchulDB
             sqliteCmd.CommandText = "DELETE FROM nimmtteil WHERE schuelerid = $sid;";
             sqliteCmd.Parameters.AddWithValue("$sid", sid);
             sqliteCmd.ExecuteNonQuery();
+            sqliteCmd.Parameters.Clear();
             sqliteCmd.CommandText = "DELETE FROM schueler WHERE id = $sid;";
             sqliteCmd.Parameters.AddWithValue("$sid", sid);
             sqliteCmd.ExecuteNonQuery();
+            sqliteCmd.Parameters.Clear();
             await AddLogMessage("Info", "SuS mit der ID " + sid + " gelöscht");
         }
 
@@ -2498,6 +2506,7 @@ namespace SchulDB
                     sqliteCmd.Parameters.AddWithValue("$kfach", kurzesfach);
                     sqliteCmd.Parameters.AddWithValue("$lfach", langesfach);
                     sqliteCmd.ExecuteNonQuery();
+                    sqliteCmd.Parameters.Clear();
                 }
 
                 await StopTransaction();
@@ -2562,7 +2571,7 @@ namespace SchulDB
             sqliteCmd.CommandText =
                 "INSERT OR REPLACE INTO settings (setting,value) VALUES($oberstufenkoordination, $oberstufenkoordinationparam)";
             sqliteCmd.ExecuteNonQuery();
-
+            sqliteCmd.Parameters.Clear();
             await SetKurzLangFach(settings.Kurzfaecher, settings.Langfaecher);
         }
 
@@ -2724,7 +2733,6 @@ namespace SchulDB
             sqliteCmd.Parameters.AddWithValue("$mail", mail);
             sqliteCmd.Parameters.AddWithValue("$fakultas", fakultas.TrimEnd(';'));
             sqliteCmd.Parameters.AddWithValue("$pwtemp", pwtemp);
-
             sqliteCmd.ExecuteNonQuery();
         }
 
@@ -2795,7 +2803,7 @@ namespace SchulDB
         {
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText = "SELECT pwtemp FROM lehrkraft WHERE id=" + lehrerid + ";";
-            var sqliteDatareader = sqliteCmd.ExecuteReader();
+            var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
             var tpwd = "";
             while (sqliteDatareader.Read())
             {
