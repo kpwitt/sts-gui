@@ -1300,7 +1300,7 @@ namespace SchulDB
             List<string> flist = new();
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText = "SELECT kurzfach,langfach FROM fachersatz;";
-            var sqliteDatareader = sqliteCmd.ExecuteReader();
+            var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
             while (sqliteDatareader.Read())
             {
                 var returnstr = "";
