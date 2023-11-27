@@ -971,7 +971,7 @@ namespace SchulDB
                             var pwd = passwort.Length > 7
                                 ? passwort
                                 : "Klasse" + s.Klasse + DateTime.Now.Year + "!";
-                            ausgabeMoodleUser.Add(susmail + ";\"" + pwd + "\";" +
+                            ausgabeMoodleUser.Add(susmail + ";" + pwd + ";" +
                                                   s.Nutzername + ";" + s.ID + ";" + s.Nachname + ";" + s.Vorname +
                                                   ";schueler");
                             ausgabeAIXS.Add("\"" + s.Vorname + "\";\"" + s.Nachname + "\";\"" + s.Klasse + "\";\"" +
@@ -1003,7 +1003,9 @@ namespace SchulDB
                         {
                             if (sus.Klasse.StartsWith("5") || sus.Klasse.StartsWith("6"))
                             {
-                                ausgabeMoodleUser.Add(sus.Zweitmail.Split(',')[0] + ";Klasse" + sus.Klasse +
+                                var zweitmails = sus.Zweitmail.Split(',');
+                                var zweitmail = zweitmails[0].Trim() != sus.Mail.Trim() ? zweitmails[0].Trim() : zweitmails[1].Trim();
+                                ausgabeMoodleUser.Add(zweitmail + ";Klasse" + sus.Klasse +
                                                       DateTime.Now.Year + "!" + ";" + sus.Nutzername + "_E1;" + "E_" +
                                                       sus.ID + "1;" + sus.Nachname + "_Eltern;" + sus.Vorname +
                                                       ";eltern");
