@@ -2139,7 +2139,7 @@ namespace SchulDB
                     if (stmp.ID > 50000 && ltmp.ID > 0)
                     {
                         var klasse = stmp.Klasse;
-                        if (klasse != kursklasse)
+                        if (klasse != kursklasse&& kursklasse!="")
                         {
                             await AddLogMessage("Hinweis",
                                 $"Klassenmismatch bei {stmp.Nachname}, {stmp.Vorname}; {stmp.ID} aus Klasse {stmp.Klasse}: Gefunden Klasse: {kursklasse}");
