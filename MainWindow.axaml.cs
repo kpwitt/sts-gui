@@ -2540,10 +2540,10 @@ namespace StS_GUI_Avalonia
                 var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
                 if (files == null) return;
                 var filepath = files.Path.AbsolutePath;
-                List<string> lulliste = new() { "Kürzel;Nachname;Vorname;Fächer;Mailadresse" };
+                List<string> lulliste = new() { "Kürzel;Nachname;Fächer;Mailadresse" };
                 lulliste.AddRange(_myschool.GetLehrerListe().Result.Select(lehrer =>
-                    lehrer.Kuerzel + ";" + lehrer.Nachname + ";" + lehrer.Vorname + ";" + lehrer.Fakultas + ";" +
-                    lehrer.Mail).OrderBy(s => s.Split(';')[0]));
+                    lehrer.Kuerzel + ";" + lehrer.Nachname + ";" + lehrer.Fakultas + ";" +
+                    lehrer.Mail.ToLower()).OrderBy(s => s.Split(';')[0]));
                 await File.WriteAllLinesAsync(filepath, lulliste, Encoding.UTF8);
             }
         }
