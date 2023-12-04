@@ -280,7 +280,7 @@ namespace StS_GUI_Avalonia
                 Title = dialogtitle,
                 AllowMultiple = false,
             });
-            return folders[0];
+            return folders.Count > 0 ? folders[0] : null;
         }
 
         public async void OnMnuSchoolLoadClick(object? sender, RoutedEventArgs e)
