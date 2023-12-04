@@ -2542,23 +2542,28 @@ namespace StS_GUI_Avalonia
                 var filepath = files.Path.AbsolutePath;
                 List<string> header = new() { "Kürzel;Nachname;Fächer;Mailadresse;Kürzel;Nachname;Fächer;Mailadresse" };
                 List<string> lulliste = new();
-                var llist =  _myschool.GetLehrerListe().Result.OrderBy(lk=>lk.Kuerzel).ToList();
-                for (var i = 0; i < llist.Count; ++i)
+                var llist = _myschool.GetLehrerListe().Result.OrderBy(lk => lk.Kuerzel).ToList();
+                var half = llist.Count / 2;
+                for (var i = 0; i < llist.Count / 2+1; ++i)
                 {
                     var lehrer = llist[i];
                     var res = "";
-                    res+=lehrer.Kuerzel + ";" + lehrer.Nachname + ";" + lehrer.Fakultas + ";" +
-                                 lehrer.Mail.ToLower();
-                    if (i < llist.Count / 2)
+                    res += lehrer.Kuerzel + ";" + lehrer.Nachname + ";" + lehrer.Fakultas.TrimEnd(',') + ";" +
+                           lehrer.Mail.ToLower();
+                    lulliste.Add(res);
+                    var index = i+half+1;
+                    if (index < llist.Count)
                     {
-                        lulliste.Add(res);
-                    }
-                    else
-                    {
-                        var index = i % (llist.Count / 2);
-                        lulliste[index] += ";" + res;
+                        lehrer = llist[index];
+                        lulliste[i] += ";" + lehrer.Kuerzel + ";" + lehrer.Nachname + ";" + lehrer.Fakultas.TrimEnd(',') + ";" +
+                                       lehrer.Mail.ToLower();
                     }
                 }
+                if (llist.Count % 2 == 1)
+                {
+                    lulliste[^1] += ";;;;";
+                }
+
                 /*lulliste.AddRange(_myschool.GetLehrerListe().Result.Select(lehrer =>
                     lehrer.Kuerzel + ";" + lehrer.Nachname + ";" + lehrer.Fakultas + ";" +
                     lehrer.Mail.ToLower()).OrderBy(s => s.Split(';')[0]));*/
