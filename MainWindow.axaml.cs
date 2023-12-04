@@ -2544,21 +2544,21 @@ namespace StS_GUI_Avalonia
                 List<string> lulliste = new();
                 var llist = _myschool.GetLehrerListe().Result.OrderBy(lk => lk.Kuerzel).ToList();
                 var half = llist.Count / 2;
-                for (var i = 0; i < llist.Count / 2+1; ++i)
+                for (var i = 0; i < llist.Count / 2 + 1; ++i)
                 {
                     var lehrer = llist[i];
                     var res = "";
                     res += lehrer.Kuerzel + ";" + lehrer.Nachname + ";" + lehrer.Fakultas.TrimEnd(',') + ";" +
                            lehrer.Mail.ToLower();
                     lulliste.Add(res);
-                    var index = i+half+1;
-                    if (index < llist.Count)
-                    {
-                        lehrer = llist[index];
-                        lulliste[i] += ";" + lehrer.Kuerzel + ";" + lehrer.Nachname + ";" + lehrer.Fakultas.TrimEnd(',') + ";" +
-                                       lehrer.Mail.ToLower();
-                    }
+                    var index = i + half + 1;
+                    if (index >= llist.Count) continue;
+                    lehrer = llist[index];
+                    lulliste[i] += ";" + lehrer.Kuerzel + ";" + lehrer.Nachname + ";" + lehrer.Fakultas.TrimEnd(',') +
+                                   ";" +
+                                   lehrer.Mail.ToLower();
                 }
+
                 if (llist.Count % 2 == 1)
                 {
                     lulliste[^1] += ";;;;";
