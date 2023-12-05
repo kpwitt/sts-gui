@@ -74,16 +74,21 @@
                         <MenuItem Header="Änderungen _einlesen" x:Name="mnuReadDiffs" IsVisible="False" />
                         <MenuItem Header="Export als Ausgangsdaten" x:Name="mnuExportToCSV"
                                   Click="OnMnuexporttocsvClick" />
-                        <MenuItem Header="Lehrkräfte für Homepage" x:Name="mnuExportLKtoHP"
-                                  Click="MnuExportLKtoHP_OnClick" />
+                        <MenuItem Header="Lehrkräfte für Homepage">
+                            <MenuItem Header="Einspaltig" x:Name="mnuExportLKtoHP1Spalte"
+                                      Click="mnuExportLKtoHP1Spalte_OnClick" />
+                            <MenuItem Header="Zweispaltig" x:Name="mnuExportLKtoHP2Spalte"
+                                      Click="mnuExportLKtoHP2Spalte_OnClick" />
+                        </MenuItem>
                     </MenuItem>
-                    <MenuItem Header="Theme">
-                        <RadioButton x:Name="rbD" Click="Rb_OnClick" GroupName="Theme">Dark</RadioButton>
-                        <RadioButton x:Name="rbL" Click="Rb_OnClick" GroupName="Theme">Light</RadioButton>
-                    </MenuItem>
-                    <MenuItem Header="_Hilfe">
-                        <MenuItem Header="Über" x:Name="mnuAbout" Click="OnMnuaboutClick" />
-                    </MenuItem>
+                        <MenuItem Header="Theme">
+                            <RadioButton x:Name="rbD" Click="Rb_OnClick" GroupName="Theme">Dark</RadioButton>
+                            <RadioButton x:Name="rbL" Click="Rb_OnClick" GroupName="Theme">Light</RadioButton>
+                        </MenuItem>
+                        <MenuItem Header="_Hilfe">
+                            <MenuItem Header="Über" x:Name="mnuAbout" Click="OnMnuaboutClick" />
+                        </MenuItem>
+                    
                 </Menu>
             </DockPanel>
             <TabControl Grid.Row="1" VerticalAlignment="Stretch">

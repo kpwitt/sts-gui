@@ -2529,7 +2529,7 @@ namespace StS_GUI_Avalonia
             await _myschool.ElternEinlesen(filepath);
         }
 
-        private async void MnuExportLKtoHP_OnClick(object? sender, RoutedEventArgs e)
+        private async void mnuExportLKtoHP1Spalte_OnClick(object? sender, RoutedEventArgs e)
         {
             await Task.Run(SaveLKtoHp);
             return;
@@ -2540,35 +2540,52 @@ namespace StS_GUI_Avalonia
                 var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
                 if (files == null) return;
                 var filepath = files.Path.AbsolutePath;
-                List<string> lulliste = new(){ "Kürzel;Nachname;Fächer;Mailadresse"};
-                /*List<string> header = new() { "Kürzel;Nachname;Fächer;Mailadresse;Kürzel;Nachname;Fächer;Mailadresse" };
+                List<string> lulliste = new() { "Kürzel;Nachname;Fächer;Mailadresse" };
+                lulliste.AddRange(_myschool.GetLehrerListe().Result.Select(lehrer =>
+                    lehrer.Kuerzel + ";" + lehrer.Nachname + ";" + lehrer.Fakultas + @";\underline{\href{mailto:" +
+                    lehrer.Mail.ToLower() + "}{" + lehrer.Mail.ToLower() + "}}").OrderBy(s => s.Split(';')[0]));
+                await File.WriteAllLinesAsync(filepath, lulliste, Encoding.UTF8);
+            }
+        }
+
+        private async void mnuExportLKtoHP2Spalte_OnClick(object? sender, RoutedEventArgs e)
+        {
+            await Task.Run(SaveLKtoHp);
+            return;
+
+            async Task SaveLKtoHp()
+            {
+                var extx = new List<FilePickerFileType> { StSFileTypes.CSVFile };
+                var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
+                if (files == null) return;
+                var filepath = files.Path.AbsolutePath;
+                List<string> header = new() { "Kürzel;Nachname;Fächer;Mailadresse;Kürzel;Nachname;Fächer;Mailadresse" };
+                List<string> lulliste = new() { };
                 var llist = _myschool.GetLehrerListe().Result.OrderBy(lk => lk.Kuerzel).ToList();
                 var half = llist.Count / 2;
                 for (var i = 0; i < llist.Count / 2 + 1; ++i)
                 {
                     var lehrer = llist[i];
                     var res = "";
-                    res += lehrer.Kuerzel + ";" + lehrer.Nachname + ";" + lehrer.Fakultas.TrimEnd(',') + ";" +
-                           lehrer.Mail.ToLower();
+                    res += lehrer.Kuerzel + ";" + lehrer.Nachname + ";" + lehrer.Fakultas.TrimEnd(',') +
+                           @";\underline{\href{mailto:" +
+                            lehrer.Mail.ToLower() + "}{" + lehrer.Mail.ToLower() + "}}";
                     lulliste.Add(res);
                     var index = i + half + 1;
                     if (index >= llist.Count) continue;
                     lehrer = llist[index];
                     lulliste[i] += ";" + lehrer.Kuerzel + ";" + lehrer.Nachname + ";" + lehrer.Fakultas.TrimEnd(',') +
-                                   ";" +
-                                   lehrer.Mail.ToLower();
+                                   @";\underline{\href{mailto:" +
+                                   lehrer.Mail.ToLower() + "}{" + lehrer.Mail.ToLower() + "}}";
                 }
 
                 if (llist.Count % 2 == 1)
                 {
                     lulliste[^1] += ";;;;";
-                }*/
+                }
 
-                lulliste.AddRange(_myschool.GetLehrerListe().Result.Select(lehrer =>
-                    lehrer.Kuerzel + ";" + lehrer.Nachname + ";" + lehrer.Fakultas + ";" +
-                    lehrer.Mail.ToLower()).OrderBy(s => s.Split(';')[0]));
-                //header.AddRange(lulliste);
-                await File.WriteAllLinesAsync(filepath, lulliste, Encoding.UTF8);
+                header.AddRange(lulliste);
+                await File.WriteAllLinesAsync(filepath, header, Encoding.UTF8);
             }
         }
 
