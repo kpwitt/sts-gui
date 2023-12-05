@@ -2540,8 +2540,8 @@ namespace StS_GUI_Avalonia
                 var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
                 if (files == null) return;
                 var filepath = files.Path.AbsolutePath;
-                List<string> header = new() { "Kürzel;Nachname;Fächer;Mailadresse;Kürzel;Nachname;Fächer;Mailadresse" };
-                List<string> lulliste = new();
+                List<string> lulliste = new(){ "Kürzel;Nachname;Fächer;Mailadresse"};
+                /*List<string> header = new() { "Kürzel;Nachname;Fächer;Mailadresse;Kürzel;Nachname;Fächer;Mailadresse" };
                 var llist = _myschool.GetLehrerListe().Result.OrderBy(lk => lk.Kuerzel).ToList();
                 var half = llist.Count / 2;
                 for (var i = 0; i < llist.Count / 2 + 1; ++i)
@@ -2562,13 +2562,13 @@ namespace StS_GUI_Avalonia
                 if (llist.Count % 2 == 1)
                 {
                     lulliste[^1] += ";;;;";
-                }
+                }*/
 
-                /*lulliste.AddRange(_myschool.GetLehrerListe().Result.Select(lehrer =>
+                lulliste.AddRange(_myschool.GetLehrerListe().Result.Select(lehrer =>
                     lehrer.Kuerzel + ";" + lehrer.Nachname + ";" + lehrer.Fakultas + ";" +
-                    lehrer.Mail.ToLower()).OrderBy(s => s.Split(';')[0]));*/
-                header.AddRange(lulliste);
-                await File.WriteAllLinesAsync(filepath, header, Encoding.UTF8);
+                    lehrer.Mail.ToLower()).OrderBy(s => s.Split(';')[0]));
+                //header.AddRange(lulliste);
+                await File.WriteAllLinesAsync(filepath, lulliste, Encoding.UTF8);
             }
         }
 
