@@ -2887,6 +2887,10 @@ namespace StS_GUI_Avalonia
             {
                 text = text.Replace("\r", "").Replace("\n", ";");
             }
+            while( text.Contains(";;"))
+            {
+                text = text.Replace(";;", ";");
+            }
 
             await clipboard.SetTextAsync(text.TrimEnd(';'));
         }
