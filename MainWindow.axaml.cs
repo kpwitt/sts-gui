@@ -240,6 +240,8 @@ namespace StS_GUI_Avalonia
             Rb_OnClick(rbD, new RoutedEventArgs());
             LeftListBox.MaxHeight = ClientSize.Height * 1.1;
             RightListBox.MaxHeight = LeftListBox.MaxHeight;
+            lbLogDisplay.MaxHeight = ClientSize.Height * 1.1;
+            lbLogDisplay.MaxWidth= ClientSize.Width * 1.1;
             _msgBoxWindowIcon =
                 new WindowIcon(AssetLoader.Open(new Uri("avares://StS-GUI-Avalonia/Assets/gfx/school-building.png")));
         }

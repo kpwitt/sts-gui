@@ -347,7 +347,7 @@
                                 </Panel>
                             </Button>
                         </StackPanel>
-                        <ListBox Grid.Row="1" x:Name="lbLogDisplay" MaxHeight="750" MaxWidth="800" />
+                        <ListBox Grid.Row="1" x:Name="lbLogDisplay"/>
                     </Grid>
                 </TabItem>
                 <TabItem Header="Sonstiges" Classes="Header">
