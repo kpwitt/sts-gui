@@ -40,6 +40,7 @@ namespace StS_GUI_Avalonia
         private MenuItem _mnuItemCopyKursBez;
         private MenuItem _mnuItemCopyLuLKrz;
         private MenuItem _mnuItemCopyLuLMails;
+        private readonly ContextMenu _logListContextMenu = new();
 
         public MainWindow()
         {
@@ -186,6 +187,16 @@ namespace StS_GUI_Avalonia
             _leftListContext.ItemsSource = leftListContextItems;
             LeftListBox.ContextMenu = _leftListContext;
 
+            var _mnuItemCopyLog = new MenuItem
+            {
+                Name = "mnuItemCopyLog",
+                Header = "Kopieren"
+            };
+            _mnuItemCopyLog.Click += MnuItemCopyLogOnClick;
+
+            _logListContextMenu.ItemsSource = new List<Control> { _mnuItemCopyLog };
+            lbLogDisplay.ContextMenu = _logListContextMenu;
+
             //Kontextmenu fuer tbleftSearch
             List<Control> leftListButtonContextItems = new();
             var cbSucheVorname = new CheckBox
@@ -240,9 +251,12 @@ namespace StS_GUI_Avalonia
             Rb_OnClick(rbD, new RoutedEventArgs());
             LeftListBox.MaxHeight = ClientSize.Height * 1.1;
             RightListBox.MaxHeight = LeftListBox.MaxHeight;
+            lbLogDisplay.MaxHeight = LeftListBox.MaxHeight;
+            lbLogDisplay.MaxWidth = ClientSize.Width * 1.1;
             _msgBoxWindowIcon =
                 new WindowIcon(AssetLoader.Open(new Uri("avares://StS-GUI-Avalonia/Assets/gfx/school-building.png")));
         }
+
 
         private async Task<IStorageFile?> ShowSaveFileDialog(string dialogtitle,
             IReadOnlyList<FilePickerFileType> extensions)
@@ -2569,7 +2583,7 @@ namespace StS_GUI_Avalonia
                     var res = "";
                     res += lehrer.Kuerzel + ";" + lehrer.Nachname + ";" + lehrer.Fakultas.TrimEnd(',') +
                            @";\underline{\href{mailto:" +
-                            lehrer.Mail.ToLower() + "}{" + lehrer.Mail.ToLower() + "}}";
+                           lehrer.Mail.ToLower() + "}{" + lehrer.Mail.ToLower() + "}}";
                     lulliste.Add(res);
                     var index = i + half + 1;
                     if (index >= llist.Count) continue;
@@ -2875,6 +2889,16 @@ namespace StS_GUI_Avalonia
             var clipboard = Clipboard;
             if (clipboard == null) return;
             await clipboard.SetTextAsync(krzs.TrimEnd(';'));
+        }
+
+        private async void MnuItemCopyLogOnClick(object? sender, RoutedEventArgs e)
+        {
+            if (lbLogDisplay.SelectedItems == null) return;
+            var logentries = lbLogDisplay.SelectedItems.Cast<string>()
+                .Aggregate("", (current, line) => current + (line.Split(';')[0] + "\n"));
+            var clipboard = Clipboard;
+            if (clipboard == null) return;
+            await clipboard.SetTextAsync(logentries);
         }
 
         private async void TbLeftSearch_OnPastingFromClipboard(object? sender, RoutedEventArgs e)
