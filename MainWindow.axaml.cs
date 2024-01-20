@@ -2101,6 +2101,7 @@ namespace StS_GUI_Avalonia
                 }
 
                 var eingabeliste = tbLeftSearch.Text.Split(";");
+                if (tbLeftSearch.ContextMenu == null || tbLeftSearch.ContextMenu.ItemsSource == null) return;
                 var searchContextMenu = tbLeftSearch.ContextMenu.ItemsSource.Cast<CheckBox>().ToList();
                 var searchFields = new[] { false, false, false, false, false, false }; //v,n,m,a/k,i,e
                 for (var i = 0; i < searchContextMenu.Count; ++i)
@@ -2124,8 +2125,9 @@ namespace StS_GUI_Avalonia
                                     searchFields[4] && (s.ID + "").Equals(lowereingabe) ||
                                     searchFields[0] && s.Vorname.ToLower().Equals(lowereingabe) ||
                                     searchFields[1] && s.Nachname.ToLower().Equals(lowereingabe) ||
-                                    searchFields[2] && (s.Mail.Equals(lowereingabe) || s.Aixmail.Equals(lowereingabe) ||
-                                                        s.Zweitmail.Equals(lowereingabe)) ||
+                                    searchFields[2] &&
+                                    (s.Mail.Equals(lowereingabe) || s.Aixmail.Equals(lowereingabe) ||
+                                     s.Zweitmail.Equals(lowereingabe)) ||
                                     searchFields[3] && s.Nutzername.Equals(lowereingabe)).ToList()
                                 : scachelist.Where(s =>
                                     searchFields[4] && (s.ID + "").Contains(lowereingabe) ||
@@ -2177,7 +2179,8 @@ namespace StS_GUI_Avalonia
                         var kcachelist = _myschool.GetKursListe().Result;
                         foreach (var eingabe in eingabeliste)
                         {
-                            kliste.AddRange(kcachelist.Where(s => s.Bezeichnung.ToLower().Contains(eingabe.ToLower()))
+                            kliste.AddRange(kcachelist
+                                .Where(s => s.Bezeichnung.ToLower().Contains(eingabe.ToLower()))
                                 .ToList());
                         }
 
