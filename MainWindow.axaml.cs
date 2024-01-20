@@ -2894,7 +2894,7 @@ namespace StS_GUI_Avalonia
         {
             if (lbLogDisplay.SelectedItems == null) return;
             var logentries = lbLogDisplay.SelectedItems.Cast<string>()
-                .Aggregate("", (current, line) => current + (line.Split(';')[0] + "\n"));
+                .Aggregate("", (current, line) => current + (line.Split(';')[0].Trim() + "\n"));
             var clipboard = Clipboard;
             if (clipboard == null) return;
             await clipboard.SetTextAsync(logentries);
