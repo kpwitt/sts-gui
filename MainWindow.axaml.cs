@@ -257,7 +257,6 @@ namespace StS_GUI_Avalonia
                 new WindowIcon(AssetLoader.Open(new Uri("avares://StS-GUI-Avalonia/Assets/gfx/school-building.png")));
         }
 
-
         private async Task<IStorageFile?> ShowSaveFileDialog(string dialogtitle,
             IReadOnlyList<FilePickerFileType> extensions)
         {
@@ -327,7 +326,7 @@ namespace StS_GUI_Avalonia
                 return;
             }
 
-            await Task.Run(SaveDbFile);
+            await Dispatcher.UIThread.InvokeAsync(SaveDbFile);
             return;
 
             async Task SaveDbFile()
@@ -381,7 +380,7 @@ namespace StS_GUI_Avalonia
 
         public async void OnMnuschulespeichernunterClick(object? sender, RoutedEventArgs e)
         {
-            await Task.Run(SaveDbFile);
+            await Dispatcher.UIThread.InvokeAsync(SaveDbFile);
             return;
 
             async Task SaveDbFile()
@@ -442,7 +441,7 @@ namespace StS_GUI_Avalonia
                 _myschool = new Schuldatenbank(dbPath);
             }
 
-            await Task.Run(SaveDbFile);
+            await Dispatcher.UIThread.InvokeAsync(SaveDbFile);
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
                 MessageBoxManager.GetMessageBoxStandard(
@@ -479,7 +478,7 @@ namespace StS_GUI_Avalonia
             var inputResult = await Dispatcher.UIThread.InvokeAsync(GetPasswordInput, DispatcherPriority.Input);
             if (string.IsNullOrEmpty(inputResult)) return;
 
-            await Task.Run(SaveDbFile);
+            await Dispatcher.UIThread.InvokeAsync(SaveDbFile);
             return;
 
             async Task<string?> GetPasswordInput()
@@ -551,7 +550,7 @@ namespace StS_GUI_Avalonia
                 }
             }
 
-            await Task.Run(ReadFileTask);
+            await Dispatcher.UIThread.InvokeAsync(ReadFileTask);
         }
 
         public async void OnMnuloadsusfromfileClick(object? sender, RoutedEventArgs e)
@@ -633,7 +632,7 @@ namespace StS_GUI_Avalonia
                 }
             }
 
-            await Task.Run(ReadFileTask);
+            await Dispatcher.UIThread.InvokeAsync(ReadFileTask);
         }
 
         public async void OnMnuaboutClick(object? sender, RoutedEventArgs e)
@@ -1606,7 +1605,7 @@ namespace StS_GUI_Avalonia
                 await File.WriteAllLinesAsync(filepath, lbFehlerliste.Items.Cast<string>(), Encoding.UTF8);
             }
 
-            await Task.Run(SaveDbFile);
+            await Dispatcher.UIThread.InvokeAsync(SaveDbFile);
         }
 
         private async void BtnExportStufenkurs_OnClick(object? sender, RoutedEventArgs e)
@@ -2346,7 +2345,7 @@ namespace StS_GUI_Avalonia
                 }
             }
 
-            await Task.Run(ReadFileTask);
+            await Dispatcher.UIThread.InvokeAsync(ReadFileTask);
         }
 
         private async void OnMnuItemMSerienbriefDV(object? sender, RoutedEventArgs e)
@@ -2545,7 +2544,7 @@ namespace StS_GUI_Avalonia
 
         private async void mnuExportLKtoHP1Spalte_OnClick(object? sender, RoutedEventArgs e)
         {
-            await Task.Run(SaveLKtoHp);
+            await Dispatcher.UIThread.InvokeAsync(SaveLKtoHp);
             return;
 
             async Task SaveLKtoHp()
@@ -2564,7 +2563,7 @@ namespace StS_GUI_Avalonia
 
         private async void mnuExportLKtoHP2Spalte_OnClick(object? sender, RoutedEventArgs e)
         {
-            await Task.Run(SaveLKtoHp);
+            await Dispatcher.UIThread.InvokeAsync(SaveLKtoHp);
             return;
 
             async Task SaveLKtoHp()
@@ -2910,6 +2909,11 @@ namespace StS_GUI_Avalonia
             while (text.Contains('\r') || text.Contains('\n'))
             {
                 text = text.Replace("\r", "").Replace("\n", ";");
+            }
+
+            while (text.Contains(";;"))
+            {
+                text = text.Replace(";;", ";");
             }
 
             await clipboard.SetTextAsync(text.TrimEnd(';'));
