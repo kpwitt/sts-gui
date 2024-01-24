@@ -304,7 +304,7 @@ namespace StS_GUI_Avalonia
             };
             var files = await ShowOpenFileDialog("Bitte einen Dateipfad angeben...", extx);
             if (files == null) return;
-            var filepath = files.Path.AbsolutePath;
+            var filepath = files.Path.LocalPath;
             _myschool = new Schuldatenbank(filepath);
             Title = "SchildToSchule - " + await _myschool.GetFilePath();
             InitData();
@@ -344,7 +344,7 @@ namespace StS_GUI_Avalonia
                     return;
                 }
 
-                var filepath = files.Path.AbsolutePath;
+                var filepath = files.Path.LocalPath;
                 var tempDB = new Schuldatenbank(filepath);
                 var res = await tempDB.Import(_myschool);
                 await Dispatcher.UIThread.InvokeAsync(async () =>
@@ -388,7 +388,7 @@ namespace StS_GUI_Avalonia
                 var extx = new List<FilePickerFileType> { StSFileTypes.DataBaseFile };
                 var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
                 if (files == null) return;
-                var filepath = files.Path.AbsolutePath;
+                var filepath = files.Path.LocalPath;
                 var tempDB = new Schuldatenbank(filepath);
                 var res = await tempDB.Import(_myschool);
                 await Dispatcher.UIThread.InvokeAsync(async () =>
@@ -434,7 +434,7 @@ namespace StS_GUI_Avalonia
                 var extx = new List<FilePickerFileType> { StSFileTypes.EncryptedFile };
                 var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
                 if (files == null) return;
-                var filepath = files.Path.AbsolutePath;
+                var filepath = files.Path.LocalPath;
                 var dbPath = await _myschool.GetFilePath();
                 _myschool.Dispose();
                 LocalCryptoServive.FileEncrypt(dbPath, filepath, inputResult);
@@ -473,7 +473,7 @@ namespace StS_GUI_Avalonia
             };
             var files = await ShowOpenFileDialog("Bitte einen Dateipfad angeben...", extx);
             if (files == null) return;
-            var inputFilePath = files.Path.AbsolutePath;
+            var inputFilePath = files.Path.LocalPath;
 
             var inputResult = await Dispatcher.UIThread.InvokeAsync(GetPasswordInput, DispatcherPriority.Input);
             if (string.IsNullOrEmpty(inputResult)) return;
@@ -492,7 +492,7 @@ namespace StS_GUI_Avalonia
             {
                 var encFileType = new List<FilePickerFileType> { StSFileTypes.EncryptedFile };
                 var saveFile = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", encFileType);
-                var outputFilePath = saveFile?.Path.AbsolutePath;
+                var outputFilePath = saveFile?.Path.LocalPath;
                 if (outputFilePath == null) return;
 
                 LocalCryptoServive.FileDecrypt(inputFilePath, outputFilePath, inputResult);
@@ -512,7 +512,7 @@ namespace StS_GUI_Avalonia
             {
                 var folder = await ShowOpenFolderDialog("Bitte den Ordner mit den Dateien auswählen");
                 if (folder == null) return;
-                var folderpath = folder.Path.AbsolutePath;
+                var folderpath = folder.Path.LocalPath;
                 if (File.Exists(folderpath + "/sus.csv") && File.Exists(folderpath + "/lul.csv") &&
                     File.Exists(folderpath + "/kurse.csv"))
                 {
@@ -562,7 +562,7 @@ namespace StS_GUI_Avalonia
             };
             var files = await ShowOpenFileDialog("Lade Schüler:innendaten", extx);
             if (files == null) return;
-            var filePath = files.Path.AbsolutePath;
+            var filePath = files.Path.LocalPath;
             await _myschool.SusEinlesen(filePath);
         }
 
@@ -575,7 +575,7 @@ namespace StS_GUI_Avalonia
             };
             var files = await ShowOpenFileDialog("Lade Lehrer:innendaten", extx);
             if (files == null) return;
-            var filePath = files.Path.AbsolutePath;
+            var filePath = files.Path.LocalPath;
             await _myschool.LulEinlesen(filePath);
         }
 
@@ -588,7 +588,7 @@ namespace StS_GUI_Avalonia
             };
             var files = await ShowOpenFileDialog("Lade Kursdaten", extx);
             if (files == null) return;
-            var filePath = files.Path.AbsolutePath;
+            var filePath = files.Path.LocalPath;
             await _myschool.KurseEinlesen(filePath);
         }
 
@@ -601,7 +601,7 @@ namespace StS_GUI_Avalonia
             };
             var files = await ShowOpenFileDialog("Lade Nutzernamen & Mailadressen", extx);
             if (files == null) return;
-            var filePath = files.Path.AbsolutePath;
+            var filePath = files.Path.LocalPath;
             await _myschool.IdsEinlesen(filePath);
         }
 
@@ -614,7 +614,7 @@ namespace StS_GUI_Avalonia
             };
             var files = await ShowOpenFileDialog("Lade Zweitaccountdaten", extx);
             if (files == null) return;
-            var filePath = files.Path.AbsolutePath;
+            var filePath = files.Path.LocalPath;
             await _myschool.ZweitAccountsEinlesen(filePath);
         }
 
@@ -624,7 +624,7 @@ namespace StS_GUI_Avalonia
             {
                 var folder = await ShowOpenFolderDialog("Bitte den Ordner mit den Dateien auswählen");
                 if (folder == null) return;
-                var folderpath = folder.Path.AbsolutePath;
+                var folderpath = folder.Path.LocalPath;
                 if (!File.Exists(folderpath + "/sus.csv") && !File.Exists(folderpath + "/lul.csv") &&
                     !File.Exists(folderpath + "/kurse.csv"))
                 {
@@ -1421,7 +1421,7 @@ namespace StS_GUI_Avalonia
             {
                 var folder = await ShowOpenFolderDialog("Bitte den Ordner mit den Dateien auswählen");
                 if (folder == null) return;
-                var folderpath = folder.Path.AbsolutePath;
+                var folderpath = folder.Path.LocalPath;
                 var expandFiles = false;
                 if (File.Exists(folderpath + "/aix_sus.csv") || File.Exists(folderpath + "/aix_lul.csv") ||
                     File.Exists(folderpath + "/mdl_einschreibungen.csv") ||
@@ -1600,7 +1600,7 @@ namespace StS_GUI_Avalonia
                 var extx = new List<FilePickerFileType> { StSFileTypes.CSVFile };
                 var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
                 if (files == null) return;
-                var filepath = files.Path.AbsolutePath;
+                var filepath = files.Path.LocalPath;
 
                 await File.WriteAllLinesAsync(filepath, lbFehlerliste.Items.Cast<string>(), Encoding.UTF8);
             }
@@ -1615,7 +1615,7 @@ namespace StS_GUI_Avalonia
                 if (string.IsNullOrEmpty(tbExportStufenkurse.Text)) return;
                 var folder = await ShowOpenFolderDialog("Bitte den Ordner mit den Dateien auswählen");
                 if (folder == null) return;
-                var folderpath = folder.Path.AbsolutePath;
+                var folderpath = folder.Path.LocalPath;
                 int res;
                 var susidlist = new List<int>();
                 var nurMoodleSuffix = cbNurMoodleSuffix.IsChecked is not false;
@@ -1693,7 +1693,7 @@ namespace StS_GUI_Avalonia
             {
                 var folder = await ShowOpenFolderDialog("Bitte den Ordner mit den Dateien auswählen");
                 if (folder == null) return;
-                var folderpath = folder.Path.AbsolutePath;
+                var folderpath = folder.Path.LocalPath;
                 var nurMoodleSuffix = cbNurMoodleSuffix.IsChecked is not false;
                 var res = await _myschool.ExportCSV(folderpath, "all", "s", false, "", false, nurMoodleSuffix,
                     new[] { "", "" },
@@ -2320,7 +2320,7 @@ namespace StS_GUI_Avalonia
                 var extx = new List<FilePickerFileType> { StSFileTypes.CSVFile };
                 var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
                 if (files == null) return;
-                var folder = files.Path.AbsolutePath;
+                var folder = files.Path.LocalPath;
                 List<string> susausgabe = new() { "Vorname;Nachname;Anmeldename;Kennwort;E-Mail;Klasse" };
                 switch (CboxDataLeft.SelectedIndex)
                 {
@@ -2365,10 +2365,10 @@ namespace StS_GUI_Avalonia
                         var extx = new List<FilePickerFileType> { StSFileTypes.CSVFile, FilePickerFileTypes.All };
                         var files = await ShowSaveFileDialog("Serienbriefdatei auswählen", extx);
                         if (files == null) return;
-                        var folder = files.Path.AbsolutePath;
+                        var folder = files.Path.LocalPath;
                         var file = await ShowOpenFileDialog("Nutzer ohne DV-Zustimmung", extx);
                         if (file is null) return;
-                        var filepath = file.Path.AbsolutePath;
+                        var filepath = file.Path.LocalPath;
                         var fileentries = File.ReadAllLinesAsync(filepath).Result.ToList();
                         if (fileentries.Count < 1) return;
                         fileentries.RemoveAt(0);
@@ -2423,7 +2423,7 @@ namespace StS_GUI_Avalonia
 
                 var folder = await ShowOpenFolderDialog("Bitte den Ordner zum Speichern angeben");
                 if (folder == null) return;
-                var folderpath = folder.Path.AbsolutePath;
+                var folderpath = folder.Path.LocalPath;
                 var expandFiles = false;
                 if (File.Exists(folderpath + "/aix_sus.csv") || File.Exists(folderpath + "/aix_lul.csv") ||
                     File.Exists(folderpath + "/mdl_einschreibungen.csv") ||
@@ -2541,7 +2541,7 @@ namespace StS_GUI_Avalonia
             };
             var file = await ShowOpenFileDialog("Lade Elternmailadressen", extx);
             if (file is null) return;
-            var filepath = file.Path.AbsolutePath;
+            var filepath = file.Path.LocalPath;
             await _myschool.ElternEinlesen(filepath);
         }
 
@@ -2555,7 +2555,7 @@ namespace StS_GUI_Avalonia
                 var extx = new List<FilePickerFileType> { StSFileTypes.CSVFile };
                 var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
                 if (files == null) return;
-                var filepath = files.Path.AbsolutePath;
+                var filepath = files.Path.LocalPath;
                 List<string> lulliste = new() { "Kürzel;Nachname;Fächer;Mailadresse" };
                 lulliste.AddRange(_myschool.GetLehrerListe().Result.Select(lehrer =>
                     lehrer.Kuerzel + ";" + lehrer.Nachname + ";" + lehrer.Fakultas + @";\underline{\href{mailto:" +
@@ -2574,7 +2574,7 @@ namespace StS_GUI_Avalonia
                 var extx = new List<FilePickerFileType> { StSFileTypes.CSVFile };
                 var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
                 if (files == null) return;
-                var filepath = files.Path.AbsolutePath;
+                var filepath = files.Path.LocalPath;
                 List<string> header = new() { "Kürzel;Nachname;Fächer;Mailadresse;Kürzel;Nachname;Fächer;Mailadresse" };
                 List<string> lulliste = new();
                 var llist = _myschool.GetLehrerListe().Result.OrderBy(lk => lk.Kuerzel).ToList();
@@ -2818,11 +2818,11 @@ namespace StS_GUI_Avalonia
             };
             var file = await ShowOpenFileDialog("Einwilligungen alt", extx);
             if (file is null) return;
-            var alterStatusFilePath = file.Path.AbsolutePath;
+            var alterStatusFilePath = file.Path.LocalPath;
             var alterstatus = await File.ReadAllLinesAsync(alterStatusFilePath);
             file = await ShowOpenFileDialog("Einwilligungen neu", extx);
             if (file is null) return;
-            var neuerStatusFilePath = file.Path.AbsolutePath;
+            var neuerStatusFilePath = file.Path.LocalPath;
             var neuerStatus = await File.ReadAllLinesAsync(neuerStatusFilePath);
 
             var alteIDListe = (from line in alterstatus
