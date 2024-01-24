@@ -49,7 +49,6 @@ namespace StS_GUI_Avalonia
 #else
             InitializeComponent();
 #endif
-
             InitGUI();
         }
 
@@ -429,18 +428,6 @@ namespace StS_GUI_Avalonia
             var inputResult = await Dispatcher.UIThread.InvokeAsync(GetPasswordInput, DispatcherPriority.Input);
             if (string.IsNullOrEmpty(inputResult)) return;
 
-            async Task SaveDbFile()
-            {
-                var extx = new List<FilePickerFileType> { StSFileTypes.EncryptedFile };
-                var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
-                if (files == null) return;
-                var filepath = files.Path.LocalPath;
-                var dbPath = await _myschool.GetFilePath();
-                _myschool.Dispose();
-                LocalCryptoServive.FileEncrypt(dbPath, filepath, inputResult);
-                _myschool = new Schuldatenbank(dbPath);
-            }
-
             await Dispatcher.UIThread.InvokeAsync(SaveDbFile);
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
@@ -456,6 +443,18 @@ namespace StS_GUI_Avalonia
                     }).ShowAsPopupAsync(this);
             });
             return;
+
+            async Task SaveDbFile()
+            {
+                var extx = new List<FilePickerFileType> { StSFileTypes.EncryptedFile };
+                var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
+                if (files == null) return;
+                var filepath = files.Path.LocalPath;
+                var dbPath = await _myschool.GetFilePath();
+                _myschool.Dispose();
+                LocalCryptoServive.FileEncrypt(dbPath, filepath, inputResult);
+                _myschool = new Schuldatenbank(dbPath);
+            }
 
             async Task<string?> GetPasswordInput()
             {
@@ -508,6 +507,9 @@ namespace StS_GUI_Avalonia
 
         public async void OnMnuloadfolderClick(object? sender, RoutedEventArgs e)
         {
+            await Dispatcher.UIThread.InvokeAsync(ReadFileTask);
+            return;
+
             async Task ReadFileTask()
             {
                 var folder = await ShowOpenFolderDialog("Bitte den Ordner mit den Dateien auswählen");
@@ -549,8 +551,6 @@ namespace StS_GUI_Avalonia
                     });
                 }
             }
-
-            await Dispatcher.UIThread.InvokeAsync(ReadFileTask);
         }
 
         public async void OnMnuloadsusfromfileClick(object? sender, RoutedEventArgs e)
@@ -653,8 +653,7 @@ namespace StS_GUI_Avalonia
                     }).ShowAsPopupAsync(this);
             });
         }
-
-
+        
         public async void OnBtnsusaddClick(object? sender, RoutedEventArgs e)
         {
             var susid = tbSuSID.Text;
@@ -2196,6 +2195,10 @@ namespace StS_GUI_Avalonia
 
         private async void OnRightTimedEvent(object? source, ElapsedEventArgs e)
         {
+            await Dispatcher.UIThread.InvokeAsync(UpdateRightList);
+            _rightInputTimer.Enabled = false;
+            return;
+
             void UpdateRightList()
             {
                 switch (tbRightSearch.Text)
@@ -2208,6 +2211,7 @@ namespace StS_GUI_Avalonia
                 }
 
                 var eingabeliste = tbRightSearch.Text.Split(";");
+                if (tbLeftSearch?.ContextMenu?.ItemsSource == null) return;
                 var searchContextMenu = tbLeftSearch.ContextMenu.ItemsSource.Cast<CheckBox>().ToList();
                 var searchFields = new[] { false, false, false, false, false, false }; //v,n,m,a/k,i,e
                 for (var i = 0; i < searchContextMenu.Count; ++i)
@@ -2295,9 +2299,6 @@ namespace StS_GUI_Avalonia
                         break;
                 }
             }
-
-            await Dispatcher.UIThread.InvokeAsync(UpdateRightList);
-            _rightInputTimer.Enabled = false;
         }
 
         private void TbLeftSearch_OnKeyUp(object? sender, KeyEventArgs e)
