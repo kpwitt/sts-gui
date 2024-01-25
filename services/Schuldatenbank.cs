@@ -999,33 +999,43 @@ namespace SchulDB
                     {
                         var sus = GetSchueler(s).Result;
                         var susmail = sus.Mail.Contains(' ') ? sus.Mail.Split(' ')[0] : sus.Mail;
-                        if (sus.Zweitaccount)
+                        switch (sus.Zweitaccount)
                         {
-                            if (sus.Klasse.StartsWith("5") || sus.Klasse.StartsWith("6"))
+                            case true when sus.Zweitmail.Contains(','):
                             {
-                                var zweitmails = sus.Zweitmail.Split(',');
-                                var zweitmail = zweitmails[0].Trim() != sus.Mail.Trim() ? zweitmails[0].Trim() : zweitmails[1].Trim();
-                                ausgabeMoodleUser.Add(zweitmail + ";Klasse" + sus.Klasse +
-                                                      DateTime.Now.Year + "!" + ";" + sus.Nutzername + "_E1;" + "E_" +
-                                                      sus.ID + "1;" + sus.Nachname + "_Eltern;" + sus.Vorname +
-                                                      ";eltern");
-                                ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + "1," + sus.Klasse + "KL" +
-                                                                 GetKursSuffix().Result);
-                                ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + "1,erprobungsstufe" +
-                                                                 GetKursSuffix().Result);
+                                if (sus.Klasse.StartsWith("5") || sus.Klasse.StartsWith("6"))
+                                {
+                                    var zweitmails = sus.Zweitmail.Split(',');
+                                    var zweitmail = zweitmails[0].Trim() != sus.Mail.Trim() ? zweitmails[0].Trim() : zweitmails[1].Trim();
+                                    ausgabeMoodleUser.Add(zweitmail + ";Klasse" + sus.Klasse +
+                                                          DateTime.Now.Year + "!" + ";" + sus.Nutzername + "_E1;" + "E_" +
+                                                          sus.ID + "1;" + sus.Nachname + "_Eltern;" + sus.Vorname +
+                                                          ";eltern");
+                                    ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + "1," + sus.Klasse + "KL" +
+                                                                     GetKursSuffix().Result);
+                                    ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + "1,erprobungsstufe" +
+                                                                     GetKursSuffix().Result);
+                                }
+                                else if (sus.Klasse.StartsWith("7") || sus.Klasse.StartsWith("8") ||
+                                         sus.Klasse.StartsWith("9") | sus.Klasse.StartsWith("10"))
+                                {
+                                    ausgabeMoodleUser.Add(sus.Zweitmail.Split(',')[0] + ";Klasse" + sus.Klasse +
+                                                          DateTime.Now.Year + "!" +
+                                                          ";" + sus.Nutzername + "_E1;" + "E_" + sus.ID + "1;" +
+                                                          sus.Nachname + "_Eltern;" + sus.Vorname + ";eltern");
+                                    ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + "1," + sus.Klasse + "KL" +
+                                                                     GetKursSuffix().Result);
+                                    ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + "1,mittelstufe" +
+                                                                     GetKursSuffix().Result);
+                                }
+
+                                break;
                             }
-                            else if (sus.Klasse.StartsWith("7") || sus.Klasse.StartsWith("8") ||
-                                     sus.Klasse.StartsWith("9") | sus.Klasse.StartsWith("10"))
-                            {
-                                ausgabeMoodleUser.Add(sus.Zweitmail.Split(',')[0] + ";Klasse" + sus.Klasse +
-                                                      DateTime.Now.Year + "!" +
-                                                      ";" + sus.Nutzername + "_E1;" + "E_" + sus.ID + "1;" +
-                                                      sus.Nachname + "_Eltern;" + sus.Vorname + ";eltern");
-                                ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + "1," + sus.Klasse + "KL" +
-                                                                 GetKursSuffix().Result);
-                                ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + "1,mittelstufe" +
-                                                                 GetKursSuffix().Result);
-                            }
+                            case true when !sus.Zweitmail.Contains(','):
+                                await AddLogMessage("Error",
+                                    sus.Klasse + ":" + sus.Nachname + ", " + sus.Vorname +
+                                    " ohne Zweitmail trotz gesetzter Flag");
+                                break;
                         }
 
                         if (sus.Klasse.StartsWith("5") || sus.Klasse.StartsWith("6"))
