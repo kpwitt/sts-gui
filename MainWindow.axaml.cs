@@ -655,7 +655,7 @@ namespace StS_GUI_Avalonia
                     }).ShowAsPopupAsync(this);
             });
         }
-        
+
         public async void OnBtnsusaddClick(object? sender, RoutedEventArgs e)
         {
             var susid = tbSuSID.Text;
@@ -1516,7 +1516,6 @@ namespace StS_GUI_Avalonia
             {
                 var kursliste = _myschool.GetKursListe().Result;
                 var susliste = _myschool.GetSchuelerListe().Result;
-                pbFehlersuche.Maximum = kursliste.Count + susliste.Count;
                 var ergebnisliste = new List<string>();
                 if (cbFehlerLeereKurse.IsChecked != null && cbFehlerLeereKurse.IsChecked.Value)
                 {
@@ -1531,23 +1530,31 @@ namespace StS_GUI_Avalonia
                         {
                             ergebnisliste.Add(k.Bezeichnung + " ohne LuL");
                         }
-
-                        ++pbFehlersuche.Value;
                     }
                 }
 
                 if (cbFehlerSuSoK.IsChecked != null && cbFehlerSuSoK.IsChecked.Value)
                 {
-                    ergebnisliste.AddRange(from sus in _myschool.GetSchuelerListe().Result
+                    var susOhneKurse = from sus in _myschool.GetSchuelerListe().Result
                         where _myschool.GetKursVonSuS(Convert.ToInt32(sus.ID)).Result.Count == 0
-                        select sus.Nachname + ", " + sus.Vorname + ";" + sus.ID + ";ohne Kurs");
+                        select sus.Nachname + ", " + sus.Vorname + ";" + sus.ID + ";ohne Kurs";
+                    var ohneKurse = susOhneKurse as string[] ?? susOhneKurse.ToArray();
+                    if (ohneKurse.Any())
+                    {
+                        ergebnisliste.AddRange(ohneKurse);
+                    }
                 }
 
                 if (cbFehlerLuLoK.IsChecked != null && cbFehlerLuLoK.IsChecked.Value)
                 {
-                    ergebnisliste.AddRange(from lul in _myschool.GetLehrerListe().Result
+                    var lulOhneKurse = from lul in _myschool.GetLehrerListe().Result
                         where _myschool.GetKursVonLuL(Convert.ToInt32(lul.ID)).Result.Count == 0
-                        select lul.Nachname + ", " + lul.Vorname + ";" + lul.ID + ";ohne Kurs");
+                        select lul.Nachname + ", " + lul.Vorname + ";" + lul.ID + ";ohne Kurs";
+                    var ohneKurse = lulOhneKurse as string[] ?? lulOhneKurse.ToArray();
+                    if (ohneKurse.Any())
+                    {
+                        ergebnisliste.AddRange(ohneKurse);
+                    }
                 }
 
                 if (cbFehlerLuL.IsChecked != null && cbFehlerLuL.IsChecked.Value)
@@ -1574,7 +1581,8 @@ namespace StS_GUI_Avalonia
                                               sus.ID + ";ohne Nutzernamen");
                         }
 
-                        if (sus.Aixmail.Contains(_myschool.GetSettings().Result.Mailsuffix.Split(';')[1]))
+                        var mailsuffixes = _myschool.GetSettings().Result.Mailsuffix;
+                        if (mailsuffixes.Contains(';') && sus.Aixmail.Contains(mailsuffixes.Split(';')[1]))
                         {
                             ergebnisliste.Add(sus.Nachname + ", " + sus.Vorname + ";Klasse " + sus.Klasse + ";" +
                                               sus.ID + ";ohne gültige Mailadresse");
@@ -1585,8 +1593,6 @@ namespace StS_GUI_Avalonia
                             ergebnisliste.Add(sus.Nachname + ", " + sus.Vorname + ";Klasse " + sus.Klasse + ";" +
                                               sus.ID + ";ohne gültige Zweitmailadresse");
                         }
-
-                        ++pbFehlersuche.Value;
                     }
                 }
 
