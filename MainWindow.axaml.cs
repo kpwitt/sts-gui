@@ -2936,5 +2936,20 @@ namespace StS_GUI_Avalonia
 
             await clipboard.SetTextAsync(text.TrimEnd(';'));
         }
+
+        private void BtnSuSClearTextFields_OnClick(object? sender, RoutedEventArgs e)
+        {
+            ClearSuSTextFields();
+        }
+
+        private void BtnLuLClearTextFields_OnClick(object? sender, RoutedEventArgs e)
+        {
+            ClearLuLTextFields();
+        }
+
+        private void BtnKursClearTextFields_OnClick(object? sender, RoutedEventArgs e)
+        {
+            ClearKursTextFields();
+        }
     }
 }

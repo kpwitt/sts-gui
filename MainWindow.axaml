@@ -167,11 +167,12 @@
                                             Click="OnbtnsuseinschreibenClick">
                                         In Klassenkurse einschreiben
                                     </Button>
+                                    <Button x:Name="btnSuSClearTextFields" Grid.Column="1" Grid.Row="12" Click="BtnSuSClearTextFields_OnClick">Clear</Button>
                                 </Grid>
                             </TabItem>
                             <TabItem Header="LuL" Classes="Header"><!--Daten-LuL-Tab-->
                                 <Grid Margin="5" ColumnDefinitions="Auto,Auto,Auto"
-                                      RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto">
+                                      RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto">
                                     <TextBlock Classes="Header" Text="ID:" Grid.Column="0" Grid.Row="1" />
                                     <TextBox x:Name="tbLuLID" Grid.Column="1" Grid.Row="1" />
                                     <TextBlock Classes="Header" Text="Vorname:" Grid.Column="0" Grid.Row="2" />
@@ -202,6 +203,7 @@
                                             Click="OnBtnluldelClick">
                                         markierte löschen
                                     </Button>
+                                    <Button x:Name="btnLuLClearTextFields" Grid.Column="0" Grid.Row="10" Click="BtnLuLClearTextFields_OnClick">Clear</Button>
                                 </Grid>
                             </TabItem>
                             <TabItem Header="Kurse" Classes="Header"> <!--Daten-Kurs-Tab-->
@@ -230,6 +232,7 @@
                                     <StackPanel Orientation="Horizontal" Grid.Row="2">
                                         <Button x:Name="btnKurseAdd" Click="BtnKurseAdd_OnClick">Hinzufügen/aktualisieren</Button>
                                         <Button x:Name="btnKurseDel" Margin="5" Click="BtnKurseDel_OnClick">markierte löschen</Button>
+                                        <Button x:Name="btnKursClearTextFields" Grid.Column="1" Grid.Row="12" Click="BtnKursClearTextFields_OnClick">Clear</Button>
                                     </StackPanel>
                                 </Grid>
                             </TabItem>
