@@ -41,6 +41,8 @@ namespace StS_GUI_Avalonia
         private MenuItem _mnuItemCopyLuLKrz;
         private MenuItem _mnuItemCopyLuLMails;
         private readonly ContextMenu _logListContextMenu = new();
+        private int leftLastComboIndex = -1;
+        private int rightLastComboIndex = -1;
 
         public MainWindow()
         {
@@ -930,7 +932,13 @@ namespace StS_GUI_Avalonia
         {
             ClearTextFields();
             _rightMutex = true;
-            OnLeftDataChanged(true);
+            if (leftLastComboIndex != CboxDataLeft.SelectedIndex)
+            {
+                LeftListBox.SelectedItems?.Clear();
+                OnLeftDataChanged(true);
+                leftLastComboIndex = CboxDataLeft.SelectedIndex;
+            }
+
             _rightMutex = false;
         }
 
@@ -981,7 +989,13 @@ namespace StS_GUI_Avalonia
         private void CboxDataRight_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
         {
             _rightMutex = true;
-            OnRightDataChanged(true);
+            if (rightLastComboIndex != CboxDataRight.SelectedIndex)
+            {
+                RightListBox.SelectedItems?.Clear();
+                OnRightDataChanged(true);
+                rightLastComboIndex = CboxDataRight.SelectedIndex;
+            }
+
             _rightMutex = false;
         }
 
