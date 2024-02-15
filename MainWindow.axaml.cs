@@ -2335,6 +2335,9 @@ namespace StS_GUI_Avalonia
 
         private async void OnMnuSerienbriefClick(object? sender, RoutedEventArgs e)
         {
+            await Dispatcher.UIThread.InvokeAsync(ReadFileTask);
+            return;
+
             async Task ReadFileTask()
             {
                 if (LeftListBox.SelectedItems == null) return;
@@ -2368,8 +2371,6 @@ namespace StS_GUI_Avalonia
                         return;
                 }
             }
-
-            await Dispatcher.UIThread.InvokeAsync(ReadFileTask);
         }
 
         private async void OnMnuItemMSerienbriefDV(object? sender, RoutedEventArgs e)
