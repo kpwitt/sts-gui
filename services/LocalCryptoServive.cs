@@ -5,7 +5,7 @@ using System.Security.Cryptography;
 
 namespace StS_GUI_Avalonia;
 
-public static class LocalCryptoServive
+public class LocalCryptoServive
 {
     //quelle: https://ourcodeworld.com/articles/read/471/how-to-encrypt-and-decrypt-files-using-the-aes-encryption-algorithm-in-c-sharp
     /// <summary>
@@ -58,7 +58,7 @@ public static class LocalCryptoServive
         }
         catch (Exception ex)
         {
-            File.WriteAllText( "error.log", "Error: " + ex.Message);
+            File.WriteAllText("error.log", "Error: " + ex.Message);
             Debug.WriteLine("Error: " + ex.Message);
         }
 
@@ -68,7 +68,7 @@ public static class LocalCryptoServive
         }
         catch (Exception ex)
         {
-            File.WriteAllText( "error.log", "Error: " + ex.Message);
+            File.WriteAllText("error.log", "Error: " + ex.Message);
             Debug.WriteLine("Error by closing CryptoStream: " + ex.Message);
         }
         finally
@@ -124,7 +124,7 @@ public static class LocalCryptoServive
         }
         catch (Exception ex)
         {
-            File.WriteAllText( "error.log", "Error: " + ex.Message);
+            File.WriteAllText("error.log", "Error: " + ex.Message);
             Debug.WriteLine("Error: " + ex.Message);
         }
         finally
