@@ -56,12 +56,9 @@ public class LocalCryptoServive
                 fsOut.Write(buffer, 0, read);
             }
         }
-        catch (CryptographicException exCryptographicException)
-        {
-            Debug.WriteLine("CryptographicException error: " + exCryptographicException.Message);
-        }
         catch (Exception ex)
         {
+            File.WriteAllText( "error.log", "Error: " + ex.Message);
             Debug.WriteLine("Error: " + ex.Message);
         }
 
@@ -71,6 +68,7 @@ public class LocalCryptoServive
         }
         catch (Exception ex)
         {
+            File.WriteAllText( "error.log", "Error: " + ex.Message);
             Debug.WriteLine("Error by closing CryptoStream: " + ex.Message);
         }
         finally
@@ -126,6 +124,7 @@ public class LocalCryptoServive
         }
         catch (Exception ex)
         {
+            File.WriteAllText( "error.log", "Error: " + ex.Message);
             Debug.WriteLine("Error: " + ex.Message);
         }
         finally
