@@ -126,6 +126,11 @@ namespace SchulDB
       )";
                 sqliteCmd.ExecuteNonQuery();
 
+                sqliteCmd.CommandText = @"CREATE TABLE IF NOT EXISTS [config] ([version] INTEGER NOT NULL PRIMARY KEY)";
+                sqliteCmd.ExecuteNonQuery();
+
+                sqliteCmd.CommandText = "INSERT OR IGNORE INTO config (version) VALUES (0.5)";
+
                 var fachk = new[]
                 {
                     "D", "E", "M", "BI", "CH", "EK", "F7", "GE", "IF", "I0", "KU", "L7", "MU", "PH", "PK", "PS",
@@ -497,7 +502,7 @@ namespace SchulDB
         }
 
         /// <summary>
-        /// Pflichtimplementierung um sicherzustellen, dass beim Löschen des Objekt Ressourcen etc. freigegeben werden 
+        /// Pflichtimplementierung um sicherzustellen, dass beim Löschen des Objekt Ressourcen etc. freigegeben werden. 
         /// Schließt die Datenbank
         /// </summary>
         public void Dispose()
@@ -1006,12 +1011,16 @@ namespace SchulDB
                                 if (sus.Klasse.StartsWith("5") || sus.Klasse.StartsWith("6"))
                                 {
                                     var zweitmails = sus.Zweitmail.Split(',');
-                                    var zweitmail = zweitmails[0].Trim() != sus.Mail.Trim() ? zweitmails[0].Trim() : zweitmails[1].Trim();
+                                    var zweitmail = zweitmails[0].Trim() != sus.Mail.Trim()
+                                        ? zweitmails[0].Trim()
+                                        : zweitmails[1].Trim();
                                     ausgabeMoodleUser.Add(zweitmail + ";Klasse" + sus.Klasse +
-                                                          DateTime.Now.Year + "!" + ";" + sus.Nutzername + "_E1;" + "E_" +
+                                                          DateTime.Now.Year + "!" + ";" + sus.Nutzername + "_E1;" +
+                                                          "E_" +
                                                           sus.ID + "1;" + sus.Nachname + "_Eltern;" + sus.Vorname +
                                                           ";eltern");
-                                    ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + "1," + sus.Klasse + "KL" +
+                                    ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + "1," + sus.Klasse +
+                                                                     "KL" +
                                                                      GetKursSuffix().Result);
                                     ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + "1,erprobungsstufe" +
                                                                      GetKursSuffix().Result);
@@ -1023,7 +1032,8 @@ namespace SchulDB
                                                           DateTime.Now.Year + "!" +
                                                           ";" + sus.Nutzername + "_E1;" + "E_" + sus.ID + "1;" +
                                                           sus.Nachname + "_Eltern;" + sus.Vorname + ";eltern");
-                                    ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + "1," + sus.Klasse + "KL" +
+                                    ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + "1," + sus.Klasse +
+                                                                     "KL" +
                                                                      GetKursSuffix().Result);
                                     ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + "1,mittelstufe" +
                                                                      GetKursSuffix().Result);
@@ -2149,7 +2159,7 @@ namespace SchulDB
                     if (stmp.ID > 50000 && ltmp.ID > 0)
                     {
                         var klasse = stmp.Klasse;
-                        if (klasse != kursklasse&& kursklasse!="")
+                        if (klasse != kursklasse && kursklasse != "")
                         {
                             await AddLogMessage("Hinweis",
                                 $"Klassenmismatch bei {stmp.Nachname}, {stmp.Vorname}; {stmp.ID} aus Klasse {stmp.Klasse}: Gefunden Klasse: {kursklasse}");
