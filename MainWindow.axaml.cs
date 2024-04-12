@@ -2048,9 +2048,12 @@ namespace StS_GUI_Avalonia
 
             if (cbKursSuSdStufeEinschreiben.IsChecked != null && cbKursSuSdStufeEinschreiben.IsChecked.Value)
             {
-                foreach (var sus in await _myschool.GetSusAusStufe(kursklasse))
+                foreach (var stufe in kursstufe.Split(';'))
                 {
-                    await _myschool.AddStoK(sus, await _myschool.GetKurs(kursbez));
+                    foreach (var sus in await _myschool.GetSusAusStufe(stufe))
+                    {
+                        await _myschool.AddStoK(sus, await _myschool.GetKurs(kursbez));
+                    }
                 }
             }
 
