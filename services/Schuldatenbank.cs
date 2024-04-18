@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 
 namespace SchulDB
 {
+    
     /// <summary>
     /// Wrapperklasse zur Verwaltung der SQLite-Datenbank
     /// </summary>
