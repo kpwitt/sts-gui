@@ -796,6 +796,8 @@ namespace StS_GUI_Avalonia
             var lulfakultas = tbLuLFach.Text;
             var lulmail = tbLuLMail.Text;
             var lulpwtemp = tbLuLtmpPwd.Text;
+            var favo = tbLuLFavo.Text;
+            var sfavo = tbLuLSFavo.Text;
             if (lulid == null || lulvname == null || lulnname == null || lulkrz == null || lulfakultas == null ||
                 lulmail == null || lulpwtemp == null || lulvname == "" || lulnname == "" ||
                 lulkrz == "" || lulfakultas == "" || lulmail == "" || tbLuLKurse.Text == null)
@@ -816,6 +818,14 @@ namespace StS_GUI_Avalonia
                 return;
             }
 
+            if (string.IsNullOrEmpty(favo))
+            {
+                favo = "";
+            }
+            if (string.IsNullOrEmpty(sfavo))
+            {
+                sfavo = "";
+            }
             var lulkurse = tbLuLKurse.Text.Split(',').ToList();
 
             if (lulid == "" || !lulid.All(char.IsDigit))
@@ -827,7 +837,8 @@ namespace StS_GUI_Avalonia
             var lid = Convert.ToInt32(lulid);
             if (await _myschool.GibtEsLehrkraft(lid))
             {
-                await _myschool.UpdateLehrkraft(lid, lulvname, lulnname, lulkrz, lulmail, lulfakultas, lulpwtemp);
+                await _myschool.UpdateLehrkraft(lid, lulvname, lulnname, lulkrz, lulmail, lulfakultas, lulpwtemp, favo,
+                    sfavo);
                 var alteKurse = _myschool.GetKursVonLuL(lid).Result;
                 foreach (var kurs in alteKurse.Where(kurs => !lulkurse.Contains(kurs.Bezeichnung)))
                 {
@@ -844,7 +855,7 @@ namespace StS_GUI_Avalonia
             }
             else
             {
-                await _myschool.Addlehrkraft(lid, lulvname, lulnname, lulkrz, lulmail, lulfakultas);
+                await _myschool.Addlehrkraft(lid, lulvname, lulnname, lulkrz, lulmail, lulfakultas, favo, sfavo);
                 if (lulkurse.Count == 0) return;
                 foreach (var kurs in lulkurse)
                 {
@@ -1390,6 +1401,8 @@ namespace StS_GUI_Avalonia
             tbLuLtmpPwd.Text = l.Pwttemp;
             tbLuLKurse.Text = _myschool.GetKursVonLuL(l.ID).Result
                 .Aggregate("", (current, kurs) => current + (kurs.Bezeichnung + ",")).TrimEnd(',');
+            tbLuLFavo.Text = l.Favo;
+            tbLuLSFavo.Text = l.SFavo;
         }
 
         private void LoadKursData(Kurs k)

@@ -14,11 +14,13 @@ using System.Threading.Tasks;
 
 namespace SchulDB
 {
+    
     /// <summary>
     /// Wrapperklasse zur Verwaltung der SQLite-Datenbank
     /// </summary>
     public class Schuldatenbank : IDisposable
     {
+        private const string version = "0.5";
         private readonly string _dbpath;
         private readonly SqliteConnection _sqliteConn;
         private SqliteTransaction? _dbtrans;
@@ -44,7 +46,9 @@ namespace SchulDB
         [mail]  NVARCHAR(512) NOT NULL UNIQUE,
         [kuerzel]  NVARCHAR(8) NOT NULL UNIQUE,
         [fakultas]  NVARCHAR(16) NOT NULL,
-        [pwtemp] NVARCHAR(16) NOT NULL
+        [pwtemp] NVARCHAR(16) NOT NULL,
+        [favo] NVARCHAR(8) NOT NULL,
+        [sfavo] NVARCHAR(8) NOT NULL
       )";
                 sqliteCmd.ExecuteNonQuery();
 
@@ -113,6 +117,7 @@ namespace SchulDB
         [fachersatz] (
         [kurzfach]   NVARCHAR(16) NOT NULL,
         [langfach]  NVARCHAR(64) NOT NULL,
+        [version] NVARCHAR(8) NOT NULL,
         PRIMARY KEY(kurzfach,langfach)
       )";
                 sqliteCmd.ExecuteNonQuery();
@@ -126,10 +131,10 @@ namespace SchulDB
       )";
                 sqliteCmd.ExecuteNonQuery();
 
-                sqliteCmd.CommandText = @"CREATE TABLE IF NOT EXISTS [config] ([version] INTEGER NOT NULL PRIMARY KEY)";
+                sqliteCmd.CommandText = @"CREATE TABLE IF NOT EXISTS [config] ([version] VARCHAR NOT NULL PRIMARY KEY)";
                 sqliteCmd.ExecuteNonQuery();
 
-                sqliteCmd.CommandText = "INSERT OR IGNORE INTO config (version) VALUES (0.5)";
+                sqliteCmd.CommandText = "INSERT OR IGNORE INTO config (version) VALUES (version)";
 
                 var fachk = new[]
                 {
@@ -158,7 +163,8 @@ namespace SchulDB
                     EFStufenleitung = "",
                     Q1Stufenleitung = "",
                     Q2Stufenleitung = "",
-                    Oberstufenkoordination = ""
+                    Oberstufenkoordination = "",
+                    Version = version
                 };
                 // sqliteCmd.CommandText = "INSERT OR IGNORE INTO settings (mailsuffix, kurssuffix, fachersetzung) VALUES ($mailsuffix, $kurssuffix, $fachersatz);";
                 sqliteCmd.Parameters.AddWithValue("$mailsuffixparam", settings.Mailsuffix);
@@ -287,11 +293,11 @@ namespace SchulDB
         /// <param name="mail"></param>
         /// <param name="fakultas"></param>
         public async Task Addlehrkraft(int id, string vorname, string nachname, string kuerzel, string mail,
-            string fakultas)
+            string fakultas, string favo, string sfavo)
         {
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText =
-                "INSERT OR IGNORE INTO lehrkraft (id, nachname, vorname, kuerzel, mail, fakultas, pwtemp) VALUES ($id, $nachname, $vorname, $kuerzel, $mail, $fakultas, $pwtemp);";
+                "INSERT OR IGNORE INTO lehrkraft (id, nachname, vorname, kuerzel, mail, fakultas, pwtemp, favo, sfavo) VALUES ($id, $nachname, $vorname, $kuerzel, $mail, $fakultas, $pwtemp, $favo, $sfavo);";
             sqliteCmd.Parameters.AddWithValue("$id", id);
             sqliteCmd.Parameters.AddWithValue("$vorname", vorname);
             sqliteCmd.Parameters.AddWithValue("$nachname", nachname);
@@ -299,6 +305,8 @@ namespace SchulDB
             sqliteCmd.Parameters.AddWithValue("$mail", mail);
             sqliteCmd.Parameters.AddWithValue("$fakultas", fakultas.TrimEnd(';'));
             sqliteCmd.Parameters.AddWithValue("$pwtemp", GeneratePasswort(8));
+            sqliteCmd.Parameters.AddWithValue("$favo", favo);
+            sqliteCmd.Parameters.AddWithValue("$sfavo", sfavo);
             sqliteCmd.ExecuteNonQuery();
         }
 
@@ -320,6 +328,8 @@ namespace SchulDB
             sqliteCmd.Parameters.AddWithValue("$fakultas", lehrkraft.Fakultas.TrimEnd(';'));
             sqliteCmd.Parameters.AddWithValue("$pwtemp",
                 lehrkraft.Pwttemp.Length > 7 ? lehrkraft.Pwttemp : GeneratePasswort(8));
+            sqliteCmd.Parameters.AddWithValue("$favo", lehrkraft.Favo);
+            sqliteCmd.Parameters.AddWithValue("$sfavo", lehrkraft.SFavo);
             sqliteCmd.ExecuteNonQuery();
         }
 
@@ -665,7 +675,7 @@ namespace SchulDB
             foreach (var lehrkraft in await importfrom.GetLehrerListe())
             {
                 await Addlehrkraft(Convert.ToInt32(lehrkraft.ID), lehrkraft.Vorname, lehrkraft.Nachname,
-                    lehrkraft.Kuerzel, lehrkraft.Mail, lehrkraft.Fakultas);
+                    lehrkraft.Kuerzel, lehrkraft.Mail, lehrkraft.Fakultas, lehrkraft.Favo, lehrkraft.SFavo);
                 foreach (var kurs in await importfrom.GetKursVonLuL(lehrkraft.ID))
                 {
                     await AddLtoK(Convert.ToInt32(lehrkraft.ID), kurs.Bezeichnung);
@@ -1488,6 +1498,8 @@ namespace SchulDB
                 lehrkraft.Kuerzel = sqliteDatareader.GetString(4);
                 lehrkraft.Fakultas = sqliteDatareader.GetString(5);
                 lehrkraft.Pwttemp = sqliteDatareader.GetString(6);
+                lehrkraft.Favo = sqliteDatareader.GetString(7);
+                lehrkraft.SFavo = sqliteDatareader.GetString(8);
             }
 
             return lehrkraft;
@@ -1514,6 +1526,8 @@ namespace SchulDB
                 lehrkraft.Kuerzel = sqliteDatareader.GetString(4);
                 lehrkraft.Fakultas = sqliteDatareader.GetString(5);
                 lehrkraft.Pwttemp = sqliteDatareader.GetString(6);
+                lehrkraft.Favo = sqliteDatareader.GetString(7);
+                lehrkraft.SFavo = sqliteDatareader.GetString(8);
             }
 
             return lehrkraft;
@@ -2340,7 +2354,7 @@ namespace SchulDB
                         }
 
                         await Addlehrkraft(Convert.ToInt32(tmpkuk[ini]), tmpkuk[inv], tmpkuk[inn],
-                            tmpkuk[inkrz].ToUpper(), tmpkuk[inm], tmpkuk[infak].TrimEnd(';'));
+                            tmpkuk[inkrz].ToUpper(), tmpkuk[inm], tmpkuk[infak].TrimEnd(';'), "", "");
                         await AddLogMessage("Info",
                             "LehrerIn\t" + tmpkuk[inn] + "\t" + tmpkuk[inv] + "\t" + tmpkuk[inm] + "\t angelegt");
                     }
@@ -2743,11 +2757,11 @@ namespace SchulDB
         /// <param name="fakultas"></param>
         /// <param name="pwtemp"></param>
         public async Task UpdateLehrkraft(int id, string vorname, string nachname, string kuerzel, string mail,
-            string fakultas, string pwtemp)
+            string fakultas, string pwtemp, string favo, string sfavo)
         {
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText =
-                "UPDATE lehrkraft SET nachname=$nachname, vorname=$vorname, kuerzel= $kuerzel, mail=$mail, fakultas=$fakultas,pwtemp = $pwtemp WHERE id=$id;";
+                "UPDATE lehrkraft SET nachname=$nachname, vorname=$vorname, kuerzel= $kuerzel, mail=$mail, fakultas=$fakultas,pwtemp = $pwtemp, favo = $favo, sfavo=$sfavo WHERE id=$id;";
             sqliteCmd.Parameters.AddWithValue("$id", id);
             sqliteCmd.Parameters.AddWithValue("$vorname", vorname);
             sqliteCmd.Parameters.AddWithValue("$nachname", nachname);
@@ -2755,6 +2769,8 @@ namespace SchulDB
             sqliteCmd.Parameters.AddWithValue("$mail", mail);
             sqliteCmd.Parameters.AddWithValue("$fakultas", fakultas.TrimEnd(';'));
             sqliteCmd.Parameters.AddWithValue("$pwtemp", pwtemp);
+            sqliteCmd.Parameters.AddWithValue("$favo", favo);
+            sqliteCmd.Parameters.AddWithValue("$sfavo", sfavo);
             sqliteCmd.ExecuteNonQuery();
         }
 
