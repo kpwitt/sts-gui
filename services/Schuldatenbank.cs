@@ -14,7 +14,6 @@ using System.Threading.Tasks;
 
 namespace SchulDB
 {
-    
     /// <summary>
     /// Wrapperklasse zur Verwaltung der SQLite-Datenbank
     /// </summary>
@@ -153,7 +152,7 @@ namespace SchulDB
                     : (DateTime.Now.Year - 2000) + "" + (DateTime.Now.Year - 1999);
                 Settings settings = new()
                 {
-                    Mailsuffix = "$schule.local",
+                    Mailsuffix = "@schule.local",
                     Fachersetzung = "",
                     Kurzfaecher = fachk,
                     Langfaecher = fachl,
@@ -292,6 +291,8 @@ namespace SchulDB
         /// <param name="kuerzel"></param>
         /// <param name="mail"></param>
         /// <param name="fakultas"></param>
+        /// <param name="favo"></param>
+        /// <param name="sfavo"></param>
         public async Task Addlehrkraft(int id, string vorname, string nachname, string kuerzel, string mail,
             string fakultas, string favo, string sfavo)
         {
@@ -1485,7 +1486,7 @@ namespace SchulDB
         {
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText =
-                "SELECT id,nachname,vorname,mail,kuerzel,fakultas,pwtemp FROM lehrkraft WHERE id = $id;";
+                "SELECT id,nachname,vorname,mail,kuerzel,fakultas,pwtemp,favo,sfavo FROM lehrkraft WHERE id = $id;";
             sqliteCmd.Parameters.AddWithValue("$id", id);
             var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
             LuL lehrkraft = new();
@@ -1513,7 +1514,7 @@ namespace SchulDB
         {
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText =
-                "SELECT id,nachname,vorname,mail,kuerzel,fakultas,pwtemp FROM lehrkraft WHERE kuerzel = $kuerzel;";
+                "SELECT id,nachname,vorname,mail,kuerzel,fakultas,pwtemp,favo, sfavo FROM lehrkraft WHERE kuerzel = $kuerzel;";
             sqliteCmd.Parameters.AddWithValue("$kuerzel", kuerzel);
             var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
             LuL lehrkraft = new();
@@ -1557,7 +1558,8 @@ namespace SchulDB
         {
             List<LuL> llist = new();
             var sqliteCmd = _sqliteConn.CreateCommand();
-            sqliteCmd.CommandText = "SELECT id,nachname,vorname,mail,kuerzel,fakultas,pwtemp FROM lehrkraft;";
+            sqliteCmd.CommandText =
+                "SELECT id,nachname,vorname,mail,kuerzel,fakultas,pwtemp,favo,sfavo FROM lehrkraft;";
             var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
             while (sqliteDatareader.Read())
             {
@@ -1569,7 +1571,9 @@ namespace SchulDB
                     Mail = sqliteDatareader.GetString(3),
                     Kuerzel = sqliteDatareader.GetString(4),
                     Fakultas = sqliteDatareader.GetString(5),
-                    Pwttemp = sqliteDatareader.GetString(6)
+                    Pwttemp = sqliteDatareader.GetString(6),
+                    Favo = sqliteDatareader.GetString(7),
+                    SFavo = sqliteDatareader.GetString(7),
                 };
                 llist.Add(lehrkraft);
             }
@@ -2270,6 +2274,7 @@ namespace SchulDB
 #endif
                     await AddLogMessage("Error", "Fehler beim Einlesen der Kurse");
                     await StopTransaction();
+                    return;
                 }
             }
 
