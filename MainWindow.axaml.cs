@@ -43,7 +43,6 @@ namespace StS_GUI_Avalonia
         private readonly ContextMenu _logListContextMenu = new();
         private int leftLastComboIndex = -1;
         private int rightLastComboIndex = -1;
-        private List<Control> favoControls;
 
         public MainWindow()
         {
@@ -689,6 +688,9 @@ namespace StS_GUI_Avalonia
 
         public async void OnMnuexporttocsvClick(object? sender, RoutedEventArgs e)
         {
+            await Dispatcher.UIThread.InvokeAsync(ReadFileTask);
+            return;
+
             async Task ReadFileTask()
             {
                 var folder = await ShowOpenFolderDialog("Bitte den Ordner mit den Dateien auswählen");
@@ -700,8 +702,6 @@ namespace StS_GUI_Avalonia
                     await _myschool.DumpDataToCSVs(folderpath);
                 }
             }
-
-            await Dispatcher.UIThread.InvokeAsync(ReadFileTask);
         }
 
         public async void OnMnuaboutClick(object? sender, RoutedEventArgs e)
@@ -3098,7 +3098,7 @@ namespace StS_GUI_Avalonia
                     .ToList()[0];
                 var sfavocb = (ComboBox)exportFavoTabGrid.Children.Where(c => c.Name.Equals("cbExportSFavo" + fach))
                     .ToList()[0];
-                var kuerzel = favocb?.SelectedItem?.ToString();
+                var kuerzel = favocb.SelectedItem?.ToString();
                 if (kuerzel != null)
                 {
                     var l = await _myschool.GetLehrkraft(kuerzel.Split(';')[0]);
@@ -3106,8 +3106,8 @@ namespace StS_GUI_Avalonia
                     _myschool.UpdateLehrkraft(l);
                 }
 
-                kuerzel = sfavocb?.SelectedItem?.ToString();
-                if (kuerzel != null)
+                kuerzel = sfavocb.SelectedItem?.ToString();
+                if (kuerzel == null) continue;
                 {
                     var l = await _myschool.GetLehrkraft(kuerzel.Split(';')[0]);
                     l.SFavo = fach;
