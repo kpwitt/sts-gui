@@ -290,6 +290,7 @@
                             <TextBox x:Name="tbExportStufenkurse" Width="250" />
                             <Button x:Name="btnExportStufenkurs" Click="BtnExportStufenkurs_OnClick">Stufenkurse exportieren</Button>
                             <Button x:Name="btnExport5InklPasswort" Click="BtnExport5InklPasswort_OnClick">5er inkl. Passwort exportieren</Button>
+                            <Button x:Name="btnExportFavos" Click="BtnExportFavos_OnClick">Fachvorsitzende exportieren</Button>
                         </StackPanel>
 
                     </Grid>

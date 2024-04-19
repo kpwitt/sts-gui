@@ -1485,7 +1485,7 @@ namespace SchulDB
         {
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText =
-                "SELECT id,nachname,vorname,mail,kuerzel,fakultas,pwtemp FROM lehrkraft WHERE id = $id;";
+                "SELECT id,nachname,vorname,mail,kuerzel,fakultas,pwtemp,favo,sfavo FROM lehrkraft WHERE id = $id;";
             sqliteCmd.Parameters.AddWithValue("$id", id);
             var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
             LuL lehrkraft = new();
@@ -1513,7 +1513,7 @@ namespace SchulDB
         {
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText =
-                "SELECT id,nachname,vorname,mail,kuerzel,fakultas,pwtemp FROM lehrkraft WHERE kuerzel = $kuerzel;";
+                "SELECT id,nachname,vorname,mail,kuerzel,fakultas,pwtemp,favo,sfavo FROM lehrkraft WHERE kuerzel = $kuerzel;";
             sqliteCmd.Parameters.AddWithValue("$kuerzel", kuerzel);
             var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
             LuL lehrkraft = new();
@@ -1557,7 +1557,7 @@ namespace SchulDB
         {
             List<LuL> llist = new();
             var sqliteCmd = _sqliteConn.CreateCommand();
-            sqliteCmd.CommandText = "SELECT id,nachname,vorname,mail,kuerzel,fakultas,pwtemp FROM lehrkraft;";
+            sqliteCmd.CommandText = "SELECT id,nachname,vorname,mail,kuerzel,fakultas,pwtemp,favo,sfavo FROM lehrkraft;";
             var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
             while (sqliteDatareader.Read())
             {
@@ -1569,7 +1569,9 @@ namespace SchulDB
                     Mail = sqliteDatareader.GetString(3),
                     Kuerzel = sqliteDatareader.GetString(4),
                     Fakultas = sqliteDatareader.GetString(5),
-                    Pwttemp = sqliteDatareader.GetString(6)
+                    Pwttemp = sqliteDatareader.GetString(6),
+                    Favo = sqliteDatareader.GetString(7),
+                    SFavo = sqliteDatareader.GetString(8),
                 };
                 llist.Add(lehrkraft);
             }
@@ -2923,6 +2925,11 @@ namespace SchulDB
             sqliteCmd.Parameters.AddWithValue("$status", pStatus);
             sqliteCmd.Parameters.AddWithValue("$susid", id);
             sqliteCmd.ExecuteNonQuery();
+        }
+
+        public async Task<List<LuL>> getFavos()
+        {
+            return GetLehrerListe().Result.Where(l => !string.IsNullOrEmpty(l.Favo) || !string.IsNullOrEmpty(l.SFavo)).ToList();
         }
     }
 }

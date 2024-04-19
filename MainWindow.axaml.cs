@@ -2974,5 +2974,35 @@ namespace StS_GUI_Avalonia
         {
             ClearKursTextFields();
         }
+
+        private async void BtnExportFavos_OnClick(object? sender, RoutedEventArgs e)
+        {
+            await Dispatcher.UIThread.InvokeAsync(SaveFavosFile);
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                MessageBoxManager.GetMessageBoxStandard(
+                    new MessageBoxStandardParams
+                    {
+                        ButtonDefinitions = ButtonEnum.Ok,
+                        ContentTitle = "Information",
+                        ContentMessage =
+                            "Speichern erfolgreich",
+                        Icon = MsBox.Avalonia.Enums.Icon.Info,
+                        WindowIcon = _msgBoxWindowIcon
+                    }).ShowAsPopupAsync(this);
+            });
+            return;
+
+            async Task SaveFavosFile()
+            {
+                var extx = new List<FilePickerFileType> { StSFileTypes.CSVFile };
+                var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
+                if (files == null) return;
+                var filepath = files.Path.LocalPath+"/mdl_einschreibungen.csv";
+                var favos = await _myschool.getFavos();
+                var stringifiedFavos = favos.Select(lehrkraft => "add,student," + lehrkraft.ID + ",EtatK").ToList();
+                await File.WriteAllLinesAsync(filepath, stringifiedFavos, Encoding.UTF8);
+            }
+        }
     }
 }
