@@ -43,6 +43,7 @@ namespace StS_GUI_Avalonia
         private readonly ContextMenu _logListContextMenu = new();
         private int leftLastComboIndex = -1;
         private int rightLastComboIndex = -1;
+        private List<Control> favoControls;
 
         public MainWindow()
         {
@@ -309,6 +310,31 @@ namespace StS_GUI_Avalonia
             _myschool = new Schuldatenbank(filepath);
             Title = "SchildToSchule - " + await _myschool.GetFilePath();
             InitData();
+            var faecherliste = _myschool.GetLehrerListe().Result.Select(l => l.Fakultas.Split(',')).Distinct().ToList();
+            if (faecherliste.Count < 1) return;
+            var faecher = new List<string>();
+            foreach (var faecherarray in faecherliste)
+            {
+                faecher.AddRange(faecherarray);
+            }
+            faecher = faecher.Distinct().ToList();
+            //Todo: implement GUI
+            exportFavoTabGrid.ColumnDefinitions = new ColumnDefinitions("Auto,Auto,Auto");
+            var rowdefs = "";
+            for (var i = 0; i < faecher.Count; i++)
+            {
+                rowdefs += "Auto,";
+            }
+            exportFavoTabGrid.RowDefinitions = new RowDefinitions(rowdefs.TrimEnd(','));
+            foreach (var fach in faecher)
+            {
+                var tbFach = new TextBlock
+                {
+                    Text = fach
+                };
+                exportFavoTabGrid.Children.Add(tbFach);
+                //https://github.com/AvaloniaUI/Avalonia/discussions/10144
+            }
         }
 
         public async void OnMnuschuleschließenClick(object? sender, RoutedEventArgs e)
@@ -324,6 +350,7 @@ namespace StS_GUI_Avalonia
                 _myschool = new Schuldatenbank(":memory:");
                 ClearTextFields();
                 InitData();
+                exportFavoTabGrid = new Grid();
                 return;
             }
 
@@ -2995,14 +3022,18 @@ namespace StS_GUI_Avalonia
 
             async Task SaveFavosFile()
             {
-                var extx = new List<FilePickerFileType> { StSFileTypes.CSVFile };
-                var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
+                var files = await ShowOpenFolderDialog("Bitte einen Dateipfad angeben...");
                 if (files == null) return;
                 var filepath = files.Path.LocalPath+"/mdl_einschreibungen.csv";
                 var favos = await _myschool.getFavos();
                 var stringifiedFavos = favos.Select(lehrkraft => "add,student," + lehrkraft.ID + ",EtatK").ToList();
                 await File.WriteAllLinesAsync(filepath, stringifiedFavos, Encoding.UTF8);
             }
+        }
+
+        private void BtnFavoSave_OnClick(object? sender, RoutedEventArgs e)
+        {
+            throw new NotImplementedException();
         }
     }
 }
