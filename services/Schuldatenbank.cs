@@ -14,7 +14,6 @@ using System.Threading.Tasks;
 
 namespace SchulDB
 {
-    
     /// <summary>
     /// Wrapperklasse zur Verwaltung der SQLite-Datenbank
     /// </summary>
@@ -2762,6 +2761,8 @@ namespace SchulDB
         /// <param name="mail"></param>
         /// <param name="fakultas"></param>
         /// <param name="pwtemp"></param>
+        /// <param name="favo"></param>
+        /// <param name="sfavo"></param>
         public async Task UpdateLehrkraft(int id, string vorname, string nachname, string kuerzel, string mail,
             string fakultas, string pwtemp, string favo, string sfavo)
         {
@@ -2933,7 +2934,14 @@ namespace SchulDB
 
         public async Task<List<LuL>> getFavos()
         {
-            return GetLehrerListe().Result.Where(l => !string.IsNullOrEmpty(l.Favo) || !string.IsNullOrEmpty(l.SFavo)).ToList();
+            return GetLehrerListe().Result.Where(l => !string.IsNullOrEmpty(l.Favo) || !string.IsNullOrEmpty(l.SFavo))
+                .ToList();
+        }
+
+        public async void UpdateLehrkraft(LuL l)
+        {
+            await UpdateLehrkraft(l.ID, l.Vorname, l.Nachname, l.Kuerzel, l.Mail, l.Fakultas, l.Pwttemp, l.Favo,
+                l.SFavo);
         }
     }
 }

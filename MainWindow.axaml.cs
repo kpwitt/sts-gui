@@ -317,23 +317,63 @@ namespace StS_GUI_Avalonia
             {
                 faecher.AddRange(faecherarray);
             }
+
             faecher = faecher.Distinct().ToList();
-            //Todo: implement GUI
             exportFavoTabGrid.ColumnDefinitions = new ColumnDefinitions("Auto,Auto,Auto");
             var rowdefs = "";
             for (var i = 0; i < faecher.Count; i++)
             {
                 rowdefs += "Auto,";
             }
+
             exportFavoTabGrid.RowDefinitions = new RowDefinitions(rowdefs.TrimEnd(','));
+            for (var i = 0; i < faecher.Count; ++i)
+            {
+                exportFavoTabGrid.Children.Add(new TextBlock
+                {
+                    Name = "tbExportFavo" + faecher[i],
+                    Text = faecher[i],
+                    [Grid.RowProperty] = i,
+                    [Grid.ColumnProperty] = 0,
+                });
+                exportFavoTabGrid.Children.Add(new ComboBox()
+                {
+                    Name = "cbExportFavo" + faecher[i],
+                    ItemsSource = _myschool.GetLehrerListe().Result.Where(l => l.Fakultas.Contains(faecher[i])).ToList()
+                        .Select(l => l.Kuerzel + ";" + l.Nachname + "," + l.Vorname),
+                    [Grid.RowProperty] = i,
+                    [Grid.ColumnProperty] = 1,
+                });
+                exportFavoTabGrid.Children.Add(new ComboBox
+                {
+                    Name = "cbExportSFavo" + faecher[i],
+                    ItemsSource = _myschool.GetLehrerListe().Result.Where(l => l.Fakultas.Contains(faecher[i])).ToList()
+                        .Select(l => l.Kuerzel + ";" + l.Nachname + "," + l.Vorname),
+                    [Grid.RowProperty] = i,
+                    [Grid.ColumnProperty] = 2,
+                });
+                // solved via https://github.com/AvaloniaUI/Avalonia/discussions/10144
+            }
+
+            var favos = await _myschool.getFavos();
+
             foreach (var fach in faecher)
             {
-                var tbFach = new TextBlock
+                var favocb = (ComboBox)exportFavoTabGrid.Children.Where(c => c.Name.Equals("cbExportFavo" + fach))
+                    .ToList()[0];
+                var sfavocb = (ComboBox)exportFavoTabGrid.Children.Where(c => c.Name.Equals("cbExportSFavo" + fach))
+                    .ToList()[0];
+                var favo = favos.Where(l => l.Favo.Contains(fach)).ToList();
+                if (favo.Count > 0)
                 {
-                    Text = fach
-                };
-                exportFavoTabGrid.Children.Add(tbFach);
-                //https://github.com/AvaloniaUI/Avalonia/discussions/10144
+                    favocb.SelectedItem = favo[0].Kuerzel + ";" + favo[0].Nachname + "," + favo[0].Vorname;
+                }
+
+                var sfavo = favos.Where(l => l.SFavo.Contains(fach)).ToList();
+                if (sfavo.Count > 0)
+                {
+                    sfavocb.SelectedItem = sfavo[0].Kuerzel + ";" + sfavo[0].Nachname + "," + sfavo[0].Vorname;
+                }
             }
         }
 
@@ -350,7 +390,7 @@ namespace StS_GUI_Avalonia
                 _myschool = new Schuldatenbank(":memory:");
                 ClearTextFields();
                 InitData();
-                exportFavoTabGrid = new Grid();
+                exportFavoTabGrid.Children.Clear();
                 return;
             }
 
@@ -849,10 +889,12 @@ namespace StS_GUI_Avalonia
             {
                 favo = "";
             }
+
             if (string.IsNullOrEmpty(sfavo))
             {
                 sfavo = "";
             }
+
             var lulkurse = tbLuLKurse.Text.Split(',').ToList();
 
             if (lulid == "" || !lulid.All(char.IsDigit))
@@ -3024,16 +3066,69 @@ namespace StS_GUI_Avalonia
             {
                 var files = await ShowOpenFolderDialog("Bitte einen Dateipfad angeben...");
                 if (files == null) return;
-                var filepath = files.Path.LocalPath+"/mdl_einschreibungen.csv";
+                var filepath = files.Path.LocalPath + "/mdl_einschreibungen.csv";
                 var favos = await _myschool.getFavos();
                 var stringifiedFavos = favos.Select(lehrkraft => "add,student," + lehrkraft.ID + ",EtatK").ToList();
                 await File.WriteAllLinesAsync(filepath, stringifiedFavos, Encoding.UTF8);
             }
         }
 
-        private void BtnFavoSave_OnClick(object? sender, RoutedEventArgs e)
+        private async void BtnFavoSave_OnClick(object? sender, RoutedEventArgs e)
         {
-            throw new NotImplementedException();
+            await _myschool.StartTransaction();
+            var favos = await _myschool.getFavos();
+            foreach (var l in favos)
+            {
+                await _myschool.UpdateLehrkraft(l.ID, l.Vorname, l.Nachname, l.Kuerzel, l.Mail, l.Fakultas, l.Pwttemp,
+                    "", "");
+            }
+
+            var faecherliste = _myschool.GetLehrerListe().Result.Select(l => l.Fakultas.Split(',')).Distinct().ToList();
+            if (faecherliste.Count < 1) return;
+            var faecher = new List<string>();
+            foreach (var faecherarray in faecherliste)
+            {
+                faecher.AddRange(faecherarray);
+            }
+
+            faecher = faecher.Distinct().ToList();
+            foreach (var fach in faecher)
+            {
+                var favocb = (ComboBox)exportFavoTabGrid.Children.Where(c => c.Name.Equals("cbExportFavo" + fach))
+                    .ToList()[0];
+                var sfavocb = (ComboBox)exportFavoTabGrid.Children.Where(c => c.Name.Equals("cbExportSFavo" + fach))
+                    .ToList()[0];
+                var kuerzel = favocb?.SelectedItem?.ToString();
+                if (kuerzel != null)
+                {
+                    var l = await _myschool.GetLehrkraft(kuerzel.Split(';')[0]);
+                    l.Favo = fach;
+                    _myschool.UpdateLehrkraft(l);
+                }
+
+                kuerzel = sfavocb?.SelectedItem?.ToString();
+                if (kuerzel != null)
+                {
+                    var l = await _myschool.GetLehrkraft(kuerzel.Split(';')[0]);
+                    l.SFavo = fach;
+                    _myschool.UpdateLehrkraft(l);
+                }
+            }
+
+            await _myschool.StopTransaction();
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                MessageBoxManager.GetMessageBoxStandard(
+                    new MessageBoxStandardParams
+                    {
+                        ButtonDefinitions = ButtonEnum.Ok,
+                        ContentTitle = "Information",
+                        ContentMessage =
+                            "Speichern erfolgreich",
+                        Icon = MsBox.Avalonia.Enums.Icon.Info,
+                        WindowIcon = _msgBoxWindowIcon
+                    }).ShowAsPopupAsync(this);
+            });
         }
     }
 }
