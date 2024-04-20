@@ -2766,6 +2766,7 @@ namespace SchulDB
         public async Task UpdateLehrkraft(int id, string vorname, string nachname, string kuerzel, string mail,
             string fakultas, string pwtemp, string favo, string sfavo)
         {
+            if (string.IsNullOrEmpty(kuerzel) || id < 1) return;
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText =
                 "UPDATE lehrkraft SET nachname=$nachname, vorname=$vorname, kuerzel= $kuerzel, mail=$mail, fakultas=$fakultas,pwtemp = $pwtemp, favo = $favo, sfavo=$sfavo WHERE id=$id;";
@@ -2783,6 +2784,7 @@ namespace SchulDB
 
         public async void UpdateLehrkraft(LuL l)
         {
+            if (string.IsNullOrEmpty(l.Kuerzel) || l.ID < 1) return;
             await UpdateLehrkraft(l.ID, l.Vorname, l.Nachname, l.Kuerzel, l.Mail, l.Fakultas, l.Pwttemp, l.Favo,
                 l.SFavo);
         }
