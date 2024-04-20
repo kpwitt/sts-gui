@@ -2938,16 +2938,14 @@ namespace SchulDB
             sqliteCmd.ExecuteNonQuery();
         }
 
+        /// <summary>
+        /// Gibt die Fachvorsitzenden und Stellvertreter zurück
+        /// </summary>
+        /// <returns>List<Lul> der Fachvorsitzenden und Stellvertreter</returns>
         public async Task<List<LuL>> getFavos()
         {
             return GetLehrerListe().Result.Where(l => !string.IsNullOrEmpty(l.Favo) || !string.IsNullOrEmpty(l.SFavo))
                 .ToList();
-        }
-
-        public async void UpdateLehrkraft(LuL l)
-        {
-            await UpdateLehrkraft(l.ID, l.Vorname, l.Nachname, l.Kuerzel, l.Mail, l.Fakultas, l.Pwttemp, l.Favo,
-                l.SFavo);
         }
     }
 }
