@@ -2382,6 +2382,7 @@ namespace SchulDB
         /// <param name="kbez"></param>
         public async Task RemoveK(string kbez)
         {
+            if (string.IsNullOrEmpty(kbez)) return;
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText = "DELETE FROM nimmtteil WHERE kursbez = $kbez;";
             sqliteCmd.Parameters.AddWithValue("$kbez", kbez);
@@ -2414,6 +2415,7 @@ namespace SchulDB
         /// <param name="lid"></param>
         public async Task RemoveL(int lid)
         {
+            if (lid <= 0) return;
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText = "DELETE FROM unterrichtet WHERE lehrerid = $lid;";
             sqliteCmd.Parameters.AddWithValue("$lid", lid);
@@ -2453,6 +2455,7 @@ namespace SchulDB
         /// <param name="kbez"></param>
         public async Task RemoveLfromK(int lid, string kbez)
         {
+            if (lid <= 0) return;
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText = "DELETE FROM unterrichtet WHERE lehrerid = $lid AND kursbez = $kbez;";
             sqliteCmd.Parameters.AddWithValue("$lid", lid);
@@ -2478,6 +2481,7 @@ namespace SchulDB
         /// <param name="sid"></param>
         public async Task RemoveS(int sid)
         {
+            if (sid <= 0) return;
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText = "DELETE FROM nimmtteil WHERE schuelerid = $sid;";
             sqliteCmd.Parameters.AddWithValue("$sid", sid);
@@ -2507,6 +2511,7 @@ namespace SchulDB
         /// <param name="kbez"></param>
         public async Task RemoveSfromK(int sid, string kbez)
         {
+            if (sid <= 0) return;
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText = "DELETE FROM nimmtteil WHERE schuelerid = $sid AND kursbez = $kbez;";
             sqliteCmd.Parameters.AddWithValue("$sid", sid);
@@ -2739,6 +2744,7 @@ namespace SchulDB
         /// <param name="istkurs"></param>
         public async Task UpdateKurs(string bez, string fach, string klasse, string stufe, string suffix, int istkurs)
         {
+            if (string.IsNullOrEmpty(bez)) return;
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText =
                 "UPDATE kurse SET fach = $fach, klasse = $klasse, stufe = $stufe, suffix = $suffix, istkurs = $istkurs WHERE bez=$bez;";
@@ -2766,7 +2772,7 @@ namespace SchulDB
         public async Task UpdateLehrkraft(int id, string vorname, string nachname, string kuerzel, string mail,
             string fakultas, string pwtemp, string favo, string sfavo)
         {
-            if (string.IsNullOrEmpty(kuerzel) || id < 1) return;
+            if (string.IsNullOrEmpty(kuerzel) || id <= 0) return;
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText =
                 "UPDATE lehrkraft SET nachname=$nachname, vorname=$vorname, kuerzel= $kuerzel, mail=$mail, fakultas=$fakultas,pwtemp = $pwtemp, favo = $favo, sfavo=$sfavo WHERE id=$id;";
@@ -2804,6 +2810,7 @@ namespace SchulDB
         public async Task UpdateSchueler(int id, string vorname, string nachname, string mail, string klasse,
             string nutzername, string aixmail, int zweitaccount, string zweitmail)
         {
+            if (id <= 0) return;
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText =
                 "UPDATE schueler SET nachname=$nachname, vorname=$vorname, mail=$mail, klasse=$klasse, nutzername=$nutzername, aixmail=$aixmail, zweitaccount = $zweitaccount, zweitmail=$zweitmail WHERE id=$id;";
@@ -2826,6 +2833,7 @@ namespace SchulDB
         /// <param name="mail"></param>
         private void UpdateAIXSuSAdressen(int id, string mail)
         {
+            if (id <= 0) return;
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText = "UPDATE schueler SET aixmail = $mail WHERE id = $id;";
             sqliteCmd.Parameters.AddWithValue("$id", id);
@@ -2840,6 +2848,7 @@ namespace SchulDB
         /// <param name="nutzername"></param>
         private void UpdateSchuelerNutzername(int id, string nutzername)
         {
+            if (id <= 0) return;
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText = "UPDATE schueler SET nutzername = $nutzername WHERE id = $id;";
             sqliteCmd.Parameters.AddWithValue("$id", id);
@@ -2854,6 +2863,7 @@ namespace SchulDB
         /// <returns>String temporäre Passwort</returns>
         private async Task<string> GetTempPasswort(int lehrerid)
         {
+            if (lehrerid <= 0) return "";
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText = "SELECT pwtemp FROM lehrkraft WHERE id=" + lehrerid + ";";
             var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
@@ -2873,6 +2883,7 @@ namespace SchulDB
         /// <param name="pwd">das neue Passwort</param>
         public async void SetTPwd(int lehrerid, string pwd)
         {
+            if (lehrerid <= 0) return;
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText = "UPDATE lehrkraft SET pwtemp = $pwd WHERE id = $lehrerid;";
             sqliteCmd.Parameters.AddWithValue("$pwd", pwd);
@@ -2933,6 +2944,7 @@ namespace SchulDB
         /// <param name="pStatus"></param>
         private async Task SetZweitAccount(int id, int pStatus)
         {
+            if (id <= 0) return;
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText = "UPDATE schueler SET zweitaccount = $status WHERE id = $susid;";
             sqliteCmd.Parameters.AddWithValue("$status", pStatus);
