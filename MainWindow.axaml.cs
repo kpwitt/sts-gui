@@ -1,7 +1,7 @@
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Interactivity;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Platform;
 using Avalonia.Platform.Storage;
@@ -323,6 +323,7 @@ namespace StS_GUI_Avalonia
             }
 
             faecher = faecher.Distinct().ToList();
+            faecher.Sort();
             exportFavoTabGrid.ColumnDefinitions = new ColumnDefinitions("Auto,Auto,Auto");
             var rowdefs = "";
             for (var i = 0; i < faecher.Count; i++)
@@ -331,8 +332,12 @@ namespace StS_GUI_Avalonia
             }
 
             exportFavoTabGrid.RowDefinitions = new RowDefinitions(rowdefs.TrimEnd(','));
+            exportFavoTabGrid.MaxHeight = ClientSize.Height*1.1;
             for (var i = 0; i < faecher.Count; ++i)
             {
+                var cache = _myschool.GetLehrerListe().Result.Where(l => l.Fakultas.Split(',').Contains(faecher[i])).ToList()
+                    .Select(l => l.Kuerzel + ";" + l.Nachname + "," + l.Vorname).ToList();
+                if (cache.Count==0)continue;
                 exportFavoTabGrid.Children.Add(new TextBlock
                 {
                     Name = "tbExportFavo" + faecher[i],
@@ -340,8 +345,6 @@ namespace StS_GUI_Avalonia
                     [Grid.RowProperty] = i,
                     [Grid.ColumnProperty] = 0,
                 });
-                var cache = _myschool.GetLehrerListe().Result.Where(l => l.Fakultas.Contains(faecher[i])).ToList()
-                    .Select(l => l.Kuerzel + ";" + l.Nachname + "," + l.Vorname).ToList();
                 cache.Add("");
                 cache.Sort();
                 exportFavoTabGrid.Children.Add(new ComboBox()
@@ -365,17 +368,20 @@ namespace StS_GUI_Avalonia
 
             foreach (var fach in faecher)
             {
+                var validfach = exportFavoTabGrid.Children.Where(c => c.Name.Equals("cbExportFavo" + fach))
+                    .ToList();
+                if (validfach.Count==0)continue;
                 var favocb = (ComboBox)exportFavoTabGrid.Children.Where(c => c.Name.Equals("cbExportFavo" + fach))
                     .ToList()[0];
                 var sfavocb = (ComboBox)exportFavoTabGrid.Children.Where(c => c.Name.Equals("cbExportSFavo" + fach))
                     .ToList()[0];
-                var favo = favos.Where(l => l.Favo.Contains(fach)).ToList();
+                var favo = favos.Where(l => l.Favo.Equals(fach)).ToList();
                 if (favo.Count > 0)
                 {
                     favocb.SelectedItem = favo[0].Kuerzel + ";" + favo[0].Nachname + "," + favo[0].Vorname;
                 }
 
-                var sfavo = favos.Where(l => l.SFavo.Contains(fach)).ToList();
+                var sfavo = favos.Where(l => l.SFavo.Equals(fach)).ToList();
                 if (sfavo.Count > 0)
                 {
                     sfavocb.SelectedItem = sfavo[0].Kuerzel + ";" + sfavo[0].Nachname + "," + sfavo[0].Vorname;
@@ -3102,6 +3108,9 @@ namespace StS_GUI_Avalonia
             faecher = faecher.Distinct().ToList();
             foreach (var fach in faecher)
             {
+                var validfach = exportFavoTabGrid.Children.Where(c => c.Name.Equals("cbExportFavo" + fach))
+                    .ToList();
+                if (validfach.Count==0)continue;
                 var favocb = (ComboBox)exportFavoTabGrid.Children.Where(c => c.Name.Equals("cbExportFavo" + fach))
                     .ToList()[0];
                 var sfavocb = (ComboBox)exportFavoTabGrid.Children.Where(c => c.Name.Equals("cbExportSFavo" + fach))
