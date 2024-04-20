@@ -569,6 +569,7 @@ namespace StS_GUI_Avalonia
 
                 LocalCryptoServive.FileDecrypt(inputFilePath, outputFilePath, inputResult);
                 _myschool = new Schuldatenbank(outputFilePath);
+                await loadFavos();
             }
         }
 
