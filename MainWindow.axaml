@@ -81,14 +81,14 @@
                                       Click="mnuExportLKtoHP2Spalte_OnClick" />
                         </MenuItem>
                     </MenuItem>
-                        <MenuItem Header="Theme">
-                            <RadioButton x:Name="rbD" Click="Rb_OnClick" GroupName="Theme">Dark</RadioButton>
-                            <RadioButton x:Name="rbL" Click="Rb_OnClick" GroupName="Theme">Light</RadioButton>
-                        </MenuItem>
-                        <MenuItem Header="_Hilfe">
-                            <MenuItem Header="Über" x:Name="mnuAbout" Click="OnMnuaboutClick" />
-                        </MenuItem>
-                    
+                    <MenuItem Header="Theme">
+                        <RadioButton x:Name="rbD" Click="Rb_OnClick" GroupName="Theme">Dark</RadioButton>
+                        <RadioButton x:Name="rbL" Click="Rb_OnClick" GroupName="Theme">Light</RadioButton>
+                    </MenuItem>
+                    <MenuItem Header="_Hilfe">
+                        <MenuItem Header="Über" x:Name="mnuAbout" Click="OnMnuaboutClick" />
+                    </MenuItem>
+
                 </Menu>
             </DockPanel>
             <TabControl Grid.Row="1" VerticalAlignment="Stretch">
@@ -138,45 +138,53 @@
                         <TabControl Grid.Row="0" Grid.Column="1">
                             <TabItem Header="SuS" Classes="Header"> <!--Daten-SuS-Tab-->
                                 <StackPanel Orientation="Vertical" Margin="5">
-                                <Grid Margin="5" ColumnDefinitions="Auto, Auto"
-                                      RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto">
-                                    <TextBlock Classes="Header" Text="ID:" Grid.Column="0" Grid.Row="1" />
-                                    <TextBox x:Name="tbSuSID" Grid.Column="1" Grid.Row="1" />
-                                    <TextBlock Classes="Header" Text="Vorname:" Grid.Column="0" Grid.Row="2" />
-                                    <TextBox x:Name="tbSuSVorname" Grid.Column="1" Grid.Row="2" />
-                                    <TextBlock Classes="Header" Text="Nachname:" Grid.Column="0" Grid.Row="3" />
-                                    <TextBox x:Name="tbSuSnachname" Grid.Column="1" Grid.Row="3" />
-                                    <TextBlock Classes="Header" Text="Klasse:" Grid.Column="0" Grid.Row="4" />
-                                    <TextBox x:Name="tbSuSKlasse" Grid.Column="1" Grid.Row="4" />
-                                    <TextBlock Classes="Header" Text="Elternadresse:" Grid.Column="0" Grid.Row="5" />
-                                    <TextBox x:Name="tbSuSElternadresse" Grid.Column="1" Grid.Row="5" />
-                                    <TextBlock Classes="Header" Text="weitere Adressen:" Grid.Column="0" Grid.Row="6" />
-                                    <TextBox x:Name="tbSuSZweitadresse" Grid.Column="1" Grid.Row="6" />
-                                    <TextBlock Classes="Header" Text="AIX-Mailadresse:" Grid.Column="0" Grid.Row="7" />
-                                    <TextBox x:Name="tbSuSAIXMail" Grid.Column="1" Grid.Row="7" />
-                                    <TextBlock Classes="Header" Text="Nutzername:" Grid.Column="0" Grid.Row="8" />
-                                    <TextBox x:Name="tbSuSNutzername" Grid.Column="1" Grid.Row="8" />
-                                    <TextBlock Classes="Header" Text="Kurse:" Grid.Column="0" Grid.Row="9" />
-                                    <TextBox x:Name="tbSuSKurse" Grid.Column="1" Grid.Row="9" />
-                                    <CheckBox x:Name="cbSuSZweitaccount" Grid.Column="0" Grid.Row="10">Zweitaccount</CheckBox>
-                                </Grid>
-                                <Grid Margin="5" ColumnDefinitions="Auto, Auto" RowDefinitions="Auto, Auto">
-                                    <Button x:Name="btnSuSAdd" Grid.Column="0" Grid.Row="0" Click="OnBtnsusaddClick">Hinzufügen/aktualisieren</Button>
-                                    <Button x:Name="btnSuSDel" Grid.Column="1" Grid.Row="0"
-                                            Click="OnBtnsusdelClick">
-                                        markierte löschen
-                                    </Button>
-                                    <Button x:Name="btnSuSEinschreiben" Grid.Column="0" Grid.Row="1"
-                                            Click="OnbtnsuseinschreibenClick">
-                                        In Klassenkurse einschreiben
-                                    </Button>
-                                    <Button x:Name="btnSuSClearTextFields" Grid.Column="1" Grid.Row="1" Click="BtnSuSClearTextFields_OnClick">Clear</Button>
-                                </Grid>
+                                    <Grid Margin="5" ColumnDefinitions="Auto, Auto"
+                                          RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto">
+                                        <TextBlock Classes="Header" Text="ID:" Grid.Column="0" Grid.Row="1" />
+                                        <TextBox x:Name="tbSuSID" Grid.Column="1" Grid.Row="1" />
+                                        <TextBlock Classes="Header" Text="Vorname:" Grid.Column="0" Grid.Row="2" />
+                                        <TextBox x:Name="tbSuSVorname" Grid.Column="1" Grid.Row="2" />
+                                        <TextBlock Classes="Header" Text="Nachname:" Grid.Column="0" Grid.Row="3" />
+                                        <TextBox x:Name="tbSuSnachname" Grid.Column="1" Grid.Row="3" />
+                                        <TextBlock Classes="Header" Text="Klasse:" Grid.Column="0" Grid.Row="4" />
+                                        <TextBox x:Name="tbSuSKlasse" Grid.Column="1" Grid.Row="4" />
+                                        <TextBlock Classes="Header" Text="Elternadresse:" Grid.Column="0" Grid.Row="5" />
+                                        <TextBox x:Name="tbSuSElternadresse" Grid.Column="1" Grid.Row="5" />
+                                        <TextBlock Classes="Header" Text="weitere Adressen:" Grid.Column="0"
+                                                   Grid.Row="6" />
+                                        <TextBox x:Name="tbSuSZweitadresse" Grid.Column="1" Grid.Row="6" />
+                                        <TextBlock Classes="Header" Text="AIX-Mailadresse:" Grid.Column="0"
+                                                   Grid.Row="7" />
+                                        <TextBox x:Name="tbSuSAIXMail" Grid.Column="1" Grid.Row="7" />
+                                        <TextBlock Classes="Header" Text="Nutzername:" Grid.Column="0" Grid.Row="8" />
+                                        <TextBox x:Name="tbSuSNutzername" Grid.Column="1" Grid.Row="8" />
+                                        <TextBlock Classes="Header" Text="Kurse:" Grid.Column="0" Grid.Row="9" />
+                                        <TextBox x:Name="tbSuSKurse" Grid.Column="1" Grid.Row="9" />
+                                        <CheckBox x:Name="cbSuSZweitaccount" Grid.Column="0" Grid.Row="10">Zweitaccount</CheckBox>
+                                    </Grid>
+                                    <Grid Margin="5" ColumnDefinitions="Auto, Auto" RowDefinitions="Auto, Auto">
+                                        <Button x:Name="btnSuSAdd" Grid.Column="0" Grid.Row="0"
+                                                Click="OnBtnsusaddClick">
+                                            Hinzufügen/aktualisieren
+                                        </Button>
+                                        <Button x:Name="btnSuSDel" Grid.Column="1" Grid.Row="0"
+                                                Click="OnBtnsusdelClick">
+                                            markierte löschen
+                                        </Button>
+                                        <Button x:Name="btnSuSEinschreiben" Grid.Column="0" Grid.Row="1"
+                                                Click="OnbtnsuseinschreibenClick">
+                                            In Klassenkurse einschreiben
+                                        </Button>
+                                        <Button x:Name="btnSuSClearTextFields" Grid.Column="1" Grid.Row="1"
+                                                Click="BtnSuSClearTextFields_OnClick">
+                                            Clear
+                                        </Button>
+                                    </Grid>
                                 </StackPanel>
                             </TabItem>
                             <TabItem Header="LuL" Classes="Header"><!--Daten-LuL-Tab-->
                                 <Grid Margin="5" ColumnDefinitions="Auto,Auto,Auto"
-                                      RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto">
+                                      RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto">
                                     <TextBlock Classes="Header" Text="ID:" Grid.Column="0" Grid.Row="1" />
                                     <TextBox x:Name="tbLuLID" Grid.Column="1" Grid.Row="1" />
                                     <TextBlock Classes="Header" Text="Vorname:" Grid.Column="0" Grid.Row="2" />
@@ -202,12 +210,20 @@
                                     </Button>
                                     <TextBlock Classes="Header" Text="Kurse:" Grid.Column="0" Grid.Row="8" />
                                     <TextBox x:Name="tbLuLKurse" Grid.Column="1" Grid.Row="8" />
-                                    <Button x:Name="btnLuLAdd" Grid.Column="0" Grid.Row="9" Click="OnBtnluladdClick">Hinzufügen/aktualisieren</Button>
-                                    <Button x:Name="btnLuLDel" Grid.Column="1" Grid.Row="9" Margin="5"
+                                    <TextBlock Classes="Header" Text="Fachvorsitz:" Grid.Column="0" Grid.Row="9" />
+                                    <TextBox x:Name="tbLuLFavo" Grid.Column="1" Grid.Row="9" />
+                                    <TextBlock Classes="Header" Text="stellv. Fachvorsitz:" Grid.Column="0"
+                                               Grid.Row="10" />
+                                    <TextBox x:Name="tbLuLSFavo" Grid.Column="1" Grid.Row="10" />
+                                    <Button x:Name="btnLuLAdd" Grid.Column="0" Grid.Row="11" Click="OnBtnluladdClick">Hinzufügen/aktualisieren</Button>
+                                    <Button x:Name="btnLuLDel" Grid.Column="1" Grid.Row="11" Margin="5"
                                             Click="OnBtnluldelClick">
                                         markierte löschen
                                     </Button>
-                                    <Button x:Name="btnLuLClearTextFields" Grid.Column="0" Grid.Row="10" Click="BtnLuLClearTextFields_OnClick">Clear</Button>
+                                    <Button x:Name="btnLuLClearTextFields" Grid.Column="0" Grid.Row="12"
+                                            Click="BtnLuLClearTextFields_OnClick">
+                                        Clear
+                                    </Button>
                                 </Grid>
                             </TabItem>
                             <TabItem Header="Kurse" Classes="Header"> <!--Daten-Kurs-Tab-->
@@ -236,7 +252,10 @@
                                     <StackPanel Orientation="Horizontal" Grid.Row="2">
                                         <Button x:Name="btnKurseAdd" Click="BtnKurseAdd_OnClick">Hinzufügen/aktualisieren</Button>
                                         <Button x:Name="btnKurseDel" Margin="5" Click="BtnKurseDel_OnClick">markierte löschen</Button>
-                                        <Button x:Name="btnKursClearTextFields" Grid.Column="1" Grid.Row="12" Click="BtnKursClearTextFields_OnClick">Clear</Button>
+                                        <Button x:Name="btnKursClearTextFields" Grid.Column="1" Grid.Row="12"
+                                                Click="BtnKursClearTextFields_OnClick">
+                                            Clear
+                                        </Button>
                                     </StackPanel>
                                 </Grid>
                             </TabItem>
@@ -244,7 +263,8 @@
                     </Grid>
                 </TabItem>
                 <TabItem Header="Export" Classes="Header"><!--Export-Tab-->
-                    <Grid Margin="5" RowDefinitions="Auto,Auto">
+                    
+                        <Grid Margin="5" RowDefinitions="Auto,Auto">
                         <Grid Margin="5" Grid.Row="0" ColumnDefinitions="Auto,Auto">
                             <StackPanel Grid.Column="0" HorizontalAlignment="Left">
                                 <CheckBox x:Name="cbSuS">SuS</CheckBox>
@@ -271,11 +291,13 @@
                             <TextBox x:Name="tbExportStufenkurse" Width="250" />
                             <Button x:Name="btnExportStufenkurs" Click="BtnExportStufenkurs_OnClick">Stufenkurse exportieren</Button>
                             <Button x:Name="btnExport5InklPasswort" Click="BtnExport5InklPasswort_OnClick">5er inkl. Passwort exportieren</Button>
+                            <Button x:Name="btnExportFavos" Click="BtnExportFavos_OnClick">Fachvorsitzende exportieren</Button>
                         </StackPanel>
-
                     </Grid>
                 </TabItem>
                 <TabItem Header="Einstellungen" Classes="Header"> <!--Einstellungen-Tab-->
+                    <TabControl VerticalAlignment="Stretch">
+                        <TabItem Header="Daten" Classes="Header">
                     <Grid RowDefinitions="Auto,Auto,Auto,Auto" ColumnDefinitions="Auto,Auto,Auto">
                         <StackPanel Grid.Row="0" Grid.Column="0">
                             <TextBlock Classes="Header" Text="Platzhalterdomain" />
@@ -317,6 +339,14 @@
                         </StackPanel>
                         <Button x:Name="btnSettingSave" Grid.Row="3" Grid.Column="0" Click="BtnSettingSave_OnClick">Speichern</Button>
                     </Grid>
+                        </TabItem>
+                    <TabItem Header="Favos" Classes="Header" x:Name="exportFavoTab">
+                        <StackPanel Orientation="Vertical">
+                        <Grid x:Name="exportFavoTabGrid"></Grid>
+                        <Button x:Name="btnFavoSave" Click="BtnFavoSave_OnClick"> Speichern</Button>
+                        </StackPanel>
+                    </TabItem>
+                    </TabControl>
                 </TabItem>
                 <TabItem Header="Fehlersuche" Classes="Header"> <!--Fehlersuche-Tab-->
                     <DockPanel>

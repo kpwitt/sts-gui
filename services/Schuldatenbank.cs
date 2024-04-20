@@ -19,6 +19,7 @@ namespace SchulDB
     /// </summary>
     public class Schuldatenbank : IDisposable
     {
+        private const string version = "0.5";
         private readonly string _dbpath;
         private readonly SqliteConnection _sqliteConn;
         private SqliteTransaction? _dbtrans;
@@ -44,7 +45,9 @@ namespace SchulDB
         [mail]  NVARCHAR(512) NOT NULL UNIQUE,
         [kuerzel]  NVARCHAR(8) NOT NULL UNIQUE,
         [fakultas]  NVARCHAR(16) NOT NULL,
-        [pwtemp] NVARCHAR(16) NOT NULL
+        [pwtemp] NVARCHAR(16) NOT NULL,
+        [favo] NVARCHAR(8) NOT NULL,
+        [sfavo] NVARCHAR(8) NOT NULL
       )";
                 sqliteCmd.ExecuteNonQuery();
 
@@ -113,6 +116,7 @@ namespace SchulDB
         [fachersatz] (
         [kurzfach]   NVARCHAR(16) NOT NULL,
         [langfach]  NVARCHAR(64) NOT NULL,
+        [version] NVARCHAR(8) NOT NULL,
         PRIMARY KEY(kurzfach,langfach)
       )";
                 sqliteCmd.ExecuteNonQuery();
@@ -126,10 +130,10 @@ namespace SchulDB
       )";
                 sqliteCmd.ExecuteNonQuery();
 
-                sqliteCmd.CommandText = @"CREATE TABLE IF NOT EXISTS [config] ([version] INTEGER NOT NULL PRIMARY KEY)";
+                sqliteCmd.CommandText = @"CREATE TABLE IF NOT EXISTS [config] ([version] VARCHAR NOT NULL PRIMARY KEY)";
                 sqliteCmd.ExecuteNonQuery();
 
-                sqliteCmd.CommandText = "INSERT OR IGNORE INTO config (version) VALUES (0.5)";
+                sqliteCmd.CommandText = "INSERT OR IGNORE INTO config (version) VALUES (version)";
 
                 var fachk = new[]
                 {
@@ -148,7 +152,7 @@ namespace SchulDB
                     : (DateTime.Now.Year - 2000) + "" + (DateTime.Now.Year - 1999);
                 Settings settings = new()
                 {
-                    Mailsuffix = "$schule.local",
+                    Mailsuffix = "@schule.local",
                     Fachersetzung = "",
                     Kurzfaecher = fachk,
                     Langfaecher = fachl,
@@ -158,7 +162,8 @@ namespace SchulDB
                     EFStufenleitung = "",
                     Q1Stufenleitung = "",
                     Q2Stufenleitung = "",
-                    Oberstufenkoordination = ""
+                    Oberstufenkoordination = "",
+                    Version = version
                 };
                 // sqliteCmd.CommandText = "INSERT OR IGNORE INTO settings (mailsuffix, kurssuffix, fachersetzung) VALUES ($mailsuffix, $kurssuffix, $fachersatz);";
                 sqliteCmd.Parameters.AddWithValue("$mailsuffixparam", settings.Mailsuffix);
@@ -286,12 +291,14 @@ namespace SchulDB
         /// <param name="kuerzel"></param>
         /// <param name="mail"></param>
         /// <param name="fakultas"></param>
+        /// <param name="favo"></param>
+        /// <param name="sfavo"></param>
         public async Task Addlehrkraft(int id, string vorname, string nachname, string kuerzel, string mail,
-            string fakultas)
+            string fakultas, string favo, string sfavo)
         {
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText =
-                "INSERT OR IGNORE INTO lehrkraft (id, nachname, vorname, kuerzel, mail, fakultas, pwtemp) VALUES ($id, $nachname, $vorname, $kuerzel, $mail, $fakultas, $pwtemp);";
+                "INSERT OR IGNORE INTO lehrkraft (id, nachname, vorname, kuerzel, mail, fakultas, pwtemp, favo, sfavo) VALUES ($id, $nachname, $vorname, $kuerzel, $mail, $fakultas, $pwtemp, $favo, $sfavo);";
             sqliteCmd.Parameters.AddWithValue("$id", id);
             sqliteCmd.Parameters.AddWithValue("$vorname", vorname);
             sqliteCmd.Parameters.AddWithValue("$nachname", nachname);
@@ -299,6 +306,8 @@ namespace SchulDB
             sqliteCmd.Parameters.AddWithValue("$mail", mail);
             sqliteCmd.Parameters.AddWithValue("$fakultas", fakultas.TrimEnd(';'));
             sqliteCmd.Parameters.AddWithValue("$pwtemp", GeneratePasswort(8));
+            sqliteCmd.Parameters.AddWithValue("$favo", favo);
+            sqliteCmd.Parameters.AddWithValue("$sfavo", sfavo);
             sqliteCmd.ExecuteNonQuery();
         }
 
@@ -320,6 +329,8 @@ namespace SchulDB
             sqliteCmd.Parameters.AddWithValue("$fakultas", lehrkraft.Fakultas.TrimEnd(';'));
             sqliteCmd.Parameters.AddWithValue("$pwtemp",
                 lehrkraft.Pwttemp.Length > 7 ? lehrkraft.Pwttemp : GeneratePasswort(8));
+            sqliteCmd.Parameters.AddWithValue("$favo", lehrkraft.Favo);
+            sqliteCmd.Parameters.AddWithValue("$sfavo", lehrkraft.SFavo);
             sqliteCmd.ExecuteNonQuery();
         }
 
@@ -665,7 +676,7 @@ namespace SchulDB
             foreach (var lehrkraft in await importfrom.GetLehrerListe())
             {
                 await Addlehrkraft(Convert.ToInt32(lehrkraft.ID), lehrkraft.Vorname, lehrkraft.Nachname,
-                    lehrkraft.Kuerzel, lehrkraft.Mail, lehrkraft.Fakultas);
+                    lehrkraft.Kuerzel, lehrkraft.Mail, lehrkraft.Fakultas, lehrkraft.Favo, lehrkraft.SFavo);
                 foreach (var kurs in await importfrom.GetKursVonLuL(lehrkraft.ID))
                 {
                     await AddLtoK(Convert.ToInt32(lehrkraft.ID), kurs.Bezeichnung);
@@ -1475,7 +1486,7 @@ namespace SchulDB
         {
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText =
-                "SELECT id,nachname,vorname,mail,kuerzel,fakultas,pwtemp FROM lehrkraft WHERE id = $id;";
+                "SELECT id,nachname,vorname,mail,kuerzel,fakultas,pwtemp,favo,sfavo FROM lehrkraft WHERE id = $id;";
             sqliteCmd.Parameters.AddWithValue("$id", id);
             var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
             LuL lehrkraft = new();
@@ -1488,6 +1499,8 @@ namespace SchulDB
                 lehrkraft.Kuerzel = sqliteDatareader.GetString(4);
                 lehrkraft.Fakultas = sqliteDatareader.GetString(5);
                 lehrkraft.Pwttemp = sqliteDatareader.GetString(6);
+                lehrkraft.Favo = sqliteDatareader.GetString(7);
+                lehrkraft.SFavo = sqliteDatareader.GetString(8);
             }
 
             return lehrkraft;
@@ -1501,7 +1514,7 @@ namespace SchulDB
         {
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText =
-                "SELECT id,nachname,vorname,mail,kuerzel,fakultas,pwtemp FROM lehrkraft WHERE kuerzel = $kuerzel;";
+                "SELECT id,nachname,vorname,mail,kuerzel,fakultas,pwtemp,favo, sfavo FROM lehrkraft WHERE kuerzel = $kuerzel;";
             sqliteCmd.Parameters.AddWithValue("$kuerzel", kuerzel);
             var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
             LuL lehrkraft = new();
@@ -1514,6 +1527,8 @@ namespace SchulDB
                 lehrkraft.Kuerzel = sqliteDatareader.GetString(4);
                 lehrkraft.Fakultas = sqliteDatareader.GetString(5);
                 lehrkraft.Pwttemp = sqliteDatareader.GetString(6);
+                lehrkraft.Favo = sqliteDatareader.GetString(7);
+                lehrkraft.SFavo = sqliteDatareader.GetString(8);
             }
 
             return lehrkraft;
@@ -1543,7 +1558,8 @@ namespace SchulDB
         {
             List<LuL> llist = new();
             var sqliteCmd = _sqliteConn.CreateCommand();
-            sqliteCmd.CommandText = "SELECT id,nachname,vorname,mail,kuerzel,fakultas,pwtemp FROM lehrkraft;";
+            sqliteCmd.CommandText =
+                "SELECT id,nachname,vorname,mail,kuerzel,fakultas,pwtemp,favo,sfavo FROM lehrkraft;";
             var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
             while (sqliteDatareader.Read())
             {
@@ -1555,7 +1571,9 @@ namespace SchulDB
                     Mail = sqliteDatareader.GetString(3),
                     Kuerzel = sqliteDatareader.GetString(4),
                     Fakultas = sqliteDatareader.GetString(5),
-                    Pwttemp = sqliteDatareader.GetString(6)
+                    Pwttemp = sqliteDatareader.GetString(6),
+                    Favo = sqliteDatareader.GetString(7),
+                    SFavo = sqliteDatareader.GetString(8),
                 };
                 llist.Add(lehrkraft);
             }
@@ -2256,6 +2274,7 @@ namespace SchulDB
 #endif
                     await AddLogMessage("Error", "Fehler beim Einlesen der Kurse");
                     await StopTransaction();
+                    return;
                 }
             }
 
@@ -2340,7 +2359,7 @@ namespace SchulDB
                         }
 
                         await Addlehrkraft(Convert.ToInt32(tmpkuk[ini]), tmpkuk[inv], tmpkuk[inn],
-                            tmpkuk[inkrz].ToUpper(), tmpkuk[inm], tmpkuk[infak].TrimEnd(';'));
+                            tmpkuk[inkrz].ToUpper(), tmpkuk[inm], tmpkuk[infak].TrimEnd(';'), "", "");
                         await AddLogMessage("Info",
                             "LehrerIn\t" + tmpkuk[inn] + "\t" + tmpkuk[inv] + "\t" + tmpkuk[inm] + "\t angelegt");
                     }
@@ -2363,6 +2382,7 @@ namespace SchulDB
         /// <param name="kbez"></param>
         public async Task RemoveK(string kbez)
         {
+            if (string.IsNullOrEmpty(kbez)) return;
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText = "DELETE FROM nimmtteil WHERE kursbez = $kbez;";
             sqliteCmd.Parameters.AddWithValue("$kbez", kbez);
@@ -2395,6 +2415,7 @@ namespace SchulDB
         /// <param name="lid"></param>
         public async Task RemoveL(int lid)
         {
+            if (lid <= 0) return;
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText = "DELETE FROM unterrichtet WHERE lehrerid = $lid;";
             sqliteCmd.Parameters.AddWithValue("$lid", lid);
@@ -2434,6 +2455,7 @@ namespace SchulDB
         /// <param name="kbez"></param>
         public async Task RemoveLfromK(int lid, string kbez)
         {
+            if (lid <= 0) return;
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText = "DELETE FROM unterrichtet WHERE lehrerid = $lid AND kursbez = $kbez;";
             sqliteCmd.Parameters.AddWithValue("$lid", lid);
@@ -2459,6 +2481,7 @@ namespace SchulDB
         /// <param name="sid"></param>
         public async Task RemoveS(int sid)
         {
+            if (sid <= 0) return;
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText = "DELETE FROM nimmtteil WHERE schuelerid = $sid;";
             sqliteCmd.Parameters.AddWithValue("$sid", sid);
@@ -2488,6 +2511,7 @@ namespace SchulDB
         /// <param name="kbez"></param>
         public async Task RemoveSfromK(int sid, string kbez)
         {
+            if (sid <= 0) return;
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText = "DELETE FROM nimmtteil WHERE schuelerid = $sid AND kursbez = $kbez;";
             sqliteCmd.Parameters.AddWithValue("$sid", sid);
@@ -2720,6 +2744,7 @@ namespace SchulDB
         /// <param name="istkurs"></param>
         public async Task UpdateKurs(string bez, string fach, string klasse, string stufe, string suffix, int istkurs)
         {
+            if (string.IsNullOrEmpty(bez)) return;
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText =
                 "UPDATE kurse SET fach = $fach, klasse = $klasse, stufe = $stufe, suffix = $suffix, istkurs = $istkurs WHERE bez=$bez;";
@@ -2742,12 +2767,15 @@ namespace SchulDB
         /// <param name="mail"></param>
         /// <param name="fakultas"></param>
         /// <param name="pwtemp"></param>
+        /// <param name="favo"></param>
+        /// <param name="sfavo"></param>
         public async Task UpdateLehrkraft(int id, string vorname, string nachname, string kuerzel, string mail,
-            string fakultas, string pwtemp)
+            string fakultas, string pwtemp, string favo, string sfavo)
         {
+            if (string.IsNullOrEmpty(kuerzel) || id <= 0) return;
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText =
-                "UPDATE lehrkraft SET nachname=$nachname, vorname=$vorname, kuerzel= $kuerzel, mail=$mail, fakultas=$fakultas,pwtemp = $pwtemp WHERE id=$id;";
+                "UPDATE lehrkraft SET nachname=$nachname, vorname=$vorname, kuerzel= $kuerzel, mail=$mail, fakultas=$fakultas,pwtemp = $pwtemp, favo = $favo, sfavo=$sfavo WHERE id=$id;";
             sqliteCmd.Parameters.AddWithValue("$id", id);
             sqliteCmd.Parameters.AddWithValue("$vorname", vorname);
             sqliteCmd.Parameters.AddWithValue("$nachname", nachname);
@@ -2755,7 +2783,16 @@ namespace SchulDB
             sqliteCmd.Parameters.AddWithValue("$mail", mail);
             sqliteCmd.Parameters.AddWithValue("$fakultas", fakultas.TrimEnd(';'));
             sqliteCmd.Parameters.AddWithValue("$pwtemp", pwtemp);
+            sqliteCmd.Parameters.AddWithValue("$favo", favo);
+            sqliteCmd.Parameters.AddWithValue("$sfavo", sfavo);
             sqliteCmd.ExecuteNonQuery();
+        }
+
+        public async void UpdateLehrkraft(LuL l)
+        {
+            if (string.IsNullOrEmpty(l.Kuerzel) || l.ID < 1) return;
+            await UpdateLehrkraft(l.ID, l.Vorname, l.Nachname, l.Kuerzel, l.Mail, l.Fakultas, l.Pwttemp, l.Favo,
+                l.SFavo);
         }
 
         /// <summary>
@@ -2773,6 +2810,7 @@ namespace SchulDB
         public async Task UpdateSchueler(int id, string vorname, string nachname, string mail, string klasse,
             string nutzername, string aixmail, int zweitaccount, string zweitmail)
         {
+            if (id <= 0) return;
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText =
                 "UPDATE schueler SET nachname=$nachname, vorname=$vorname, mail=$mail, klasse=$klasse, nutzername=$nutzername, aixmail=$aixmail, zweitaccount = $zweitaccount, zweitmail=$zweitmail WHERE id=$id;";
@@ -2795,6 +2833,7 @@ namespace SchulDB
         /// <param name="mail"></param>
         private void UpdateAIXSuSAdressen(int id, string mail)
         {
+            if (id <= 0) return;
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText = "UPDATE schueler SET aixmail = $mail WHERE id = $id;";
             sqliteCmd.Parameters.AddWithValue("$id", id);
@@ -2809,6 +2848,7 @@ namespace SchulDB
         /// <param name="nutzername"></param>
         private void UpdateSchuelerNutzername(int id, string nutzername)
         {
+            if (id <= 0) return;
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText = "UPDATE schueler SET nutzername = $nutzername WHERE id = $id;";
             sqliteCmd.Parameters.AddWithValue("$id", id);
@@ -2823,6 +2863,7 @@ namespace SchulDB
         /// <returns>String temporäre Passwort</returns>
         private async Task<string> GetTempPasswort(int lehrerid)
         {
+            if (lehrerid <= 0) return "";
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText = "SELECT pwtemp FROM lehrkraft WHERE id=" + lehrerid + ";";
             var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
@@ -2842,6 +2883,7 @@ namespace SchulDB
         /// <param name="pwd">das neue Passwort</param>
         public async void SetTPwd(int lehrerid, string pwd)
         {
+            if (lehrerid <= 0) return;
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText = "UPDATE lehrkraft SET pwtemp = $pwd WHERE id = $lehrerid;";
             sqliteCmd.Parameters.AddWithValue("$pwd", pwd);
@@ -2902,11 +2944,22 @@ namespace SchulDB
         /// <param name="pStatus"></param>
         private async Task SetZweitAccount(int id, int pStatus)
         {
+            if (id <= 0) return;
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText = "UPDATE schueler SET zweitaccount = $status WHERE id = $susid;";
             sqliteCmd.Parameters.AddWithValue("$status", pStatus);
             sqliteCmd.Parameters.AddWithValue("$susid", id);
             sqliteCmd.ExecuteNonQuery();
+        }
+
+        /// <summary>
+        /// Gibt die Fachvorsitzenden und Stellvertreter zurück
+        /// </summary>
+        /// <returns>List<Lul> der Fachvorsitzenden und Stellvertreter</returns>
+        public async Task<List<LuL>> getFavos()
+        {
+            return GetLehrerListe().Result.Where(l => !string.IsNullOrEmpty(l.Favo) || !string.IsNullOrEmpty(l.SFavo))
+                .ToList();
         }
     }
 }

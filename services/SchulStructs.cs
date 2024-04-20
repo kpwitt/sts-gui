@@ -48,6 +48,8 @@
         public string Kuerzel { get; set; }
         public string Fakultas { get; set; }
         public string Pwttemp { get; set; }
+        public string Favo { get; set; }
+        public string SFavo { get; set; }
 
 
         public LuL(int id, string vorname, string nachname, string mail, string kuerzel, string fakultas,
@@ -60,6 +62,22 @@
             Kuerzel = kuerzel;
             Fakultas = fakultas;
             Pwttemp = pwttemp;
+            Favo = "";
+            SFavo = "";
+        }
+
+        public LuL(int id, string vorname, string nachname, string mail, string kuerzel, string fakultas,
+            string pwttemp, string favo, string sfavo)
+        {
+            ID = id;
+            Vorname = vorname;
+            Nachname = nachname;
+            Mail = mail;
+            Kuerzel = kuerzel;
+            Fakultas = fakultas;
+            Pwttemp = pwttemp;
+            Favo = favo;
+            SFavo = sfavo;
         }
     }
 
@@ -100,5 +118,6 @@
         public string Q1Stufenleitung { get; set; }
         public string Q2Stufenleitung { get; set; }
         public string Oberstufenkoordination { get; set; }
+        public string Version { get; set; }
     }
 }
