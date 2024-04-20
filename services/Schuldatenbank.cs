@@ -2781,6 +2781,12 @@ namespace SchulDB
             sqliteCmd.ExecuteNonQuery();
         }
 
+        public async void UpdateLehrkraft(LuL l)
+        {
+            await UpdateLehrkraft(l.ID, l.Vorname, l.Nachname, l.Kuerzel, l.Mail, l.Fakultas, l.Pwttemp, l.Favo,
+                l.SFavo);
+        }
+
         /// <summary>
         /// setzt für per ID angebenen Schüler/Schülerin die Daten neu
         /// </summary>
