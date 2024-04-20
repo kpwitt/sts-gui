@@ -388,8 +388,6 @@ namespace StS_GUI_Avalonia
                     sfavocb.SelectedItem = sfavo[0].Kuerzel + ";" + sfavo[0].Nachname + "," + sfavo[0].Vorname;
                 }
             }
-
-            exportScrollViewerFavo.AllowAutoHide = false;
         }
 
         public async void OnMnuschuleschließenClick(object? sender, RoutedEventArgs e)

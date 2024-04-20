@@ -263,8 +263,8 @@
                     </Grid>
                 </TabItem>
                 <TabItem Header="Export" Classes="Header"><!--Export-Tab-->
-                    
-                        <Grid Margin="5" RowDefinitions="Auto,Auto">
+
+                    <Grid Margin="5" RowDefinitions="Auto,Auto">
                         <Grid Margin="5" Grid.Row="0" ColumnDefinitions="Auto,Auto">
                             <StackPanel Grid.Column="0" HorizontalAlignment="Left">
                                 <CheckBox x:Name="cbSuS">SuS</CheckBox>
@@ -298,56 +298,60 @@
                 <TabItem Header="Einstellungen" Classes="Header"> <!--Einstellungen-Tab-->
                     <TabControl VerticalAlignment="Stretch">
                         <TabItem Header="Daten" Classes="Header">
-                    <Grid RowDefinitions="Auto,Auto,Auto,Auto" ColumnDefinitions="Auto,Auto,Auto">
-                        <StackPanel Grid.Row="0" Grid.Column="0">
-                            <TextBlock Classes="Header" Text="Platzhalterdomain" />
-                            <TextBox x:Name="tbSettingMailplatzhalter" Width="150" />
-                        </StackPanel>
-                        <StackPanel Grid.Row="0" Grid.Column="1">
-                            <TextBlock Classes="Header" Text="Kurssuffix" />
-                            <TextBox x:Name="tbSettingKurssuffix" Width="150" />
-                        </StackPanel>
-                        <CheckBox Grid.Row="0" Grid.Column="2" x:Name="cbNurMoodleSuffix" IsChecked="True">Kurssuffix nur für Moodle</CheckBox>
-                        <StackPanel Grid.Row="1" Grid.Column="0">
-                            <TextBlock Classes="Header" Text="Kursersetzungen" />
-                            <TextBox x:Name="tbSettingKursersetzung" Width="150" />
-                        </StackPanel>
-                        <TextBlock Margin="10" Grid.Row="1" Grid.Column="2" Classes="Header" TextWrapping="Wrap"
-                                   Width="200"
-                                   Text="Falls mehrere Lehrkräfte eine Stufe betreuen, die Kürzel kommagetrennt eingeben" />
-                        <StackPanel Grid.Row="2" Grid.Column="0">
-                            <TextBlock Classes="Header" Text="Fächerkurzform" />
-                            <TextBox x:Name="tbSettingFachkurz" MaxHeight="650" />
-                        </StackPanel>
-                        <StackPanel Grid.Row="2" Grid.Column="1">
-                            <TextBlock Classes="Header" Text="Fächerlangform" />
-                            <TextBox x:Name="tbSettingFachlang" MaxHeight="650" />
-                        </StackPanel>
-                        <StackPanel Grid.Row="2" Grid.Column="2" Margin="10">
-                            <TextBlock Classes="Header" Text="Erprobungstufenleitung:" />
-                            <TextBox x:Name="tbSettingErprobungsstufenleitung" Width="200" />
-                            <TextBlock Classes="Header" Text="Mittelstufenleitung:" />
-                            <TextBox x:Name="tbSettingMittelstufenleitung" Width="200" />
-                            <TextBlock Classes="Header" Text="EF-Stufenleitung:" />
-                            <TextBox x:Name="tbSettingEFstufenleitung" Width="200" />
-                            <TextBlock Classes="Header" Text="Q1-Stufenleitung:" />
-                            <TextBox x:Name="tbSettingQ1stufenleitung" Width="200" />
-                            <TextBlock Classes="Header" Text="Q2-Stufenleitung:" />
-                            <TextBox x:Name="tbSettingQ2stufenleitung" Width="200" />
-                            <TextBlock Classes="Header" Text="Oberstufenkoordination:" />
-                            <TextBox x:Name="tbSettingOberstufenkoordination" Width="200" />
-                        </StackPanel>
-                        <Button x:Name="btnSettingSave" Grid.Row="3" Grid.Column="0" Click="BtnSettingSave_OnClick">Speichern</Button>
-                    </Grid>
+                            <Grid RowDefinitions="Auto,Auto,Auto,Auto" ColumnDefinitions="Auto,Auto,Auto">
+                                <StackPanel Grid.Row="0" Grid.Column="0">
+                                    <TextBlock Classes="Header" Text="Platzhalterdomain" />
+                                    <TextBox x:Name="tbSettingMailplatzhalter" Width="150" />
+                                </StackPanel>
+                                <StackPanel Grid.Row="0" Grid.Column="1">
+                                    <TextBlock Classes="Header" Text="Kurssuffix" />
+                                    <TextBox x:Name="tbSettingKurssuffix" Width="150" />
+                                </StackPanel>
+                                <CheckBox Grid.Row="0" Grid.Column="2" x:Name="cbNurMoodleSuffix" IsChecked="True">Kurssuffix nur für Moodle</CheckBox>
+                                <StackPanel Grid.Row="1" Grid.Column="0">
+                                    <TextBlock Classes="Header" Text="Kursersetzungen" />
+                                    <TextBox x:Name="tbSettingKursersetzung" Width="150" />
+                                </StackPanel>
+                                <TextBlock Margin="10" Grid.Row="1" Grid.Column="2" Classes="Header"
+                                           TextWrapping="Wrap"
+                                           Width="200"
+                                           Text="Falls mehrere Lehrkräfte eine Stufe betreuen, die Kürzel kommagetrennt eingeben" />
+                                <StackPanel Grid.Row="2" Grid.Column="0">
+                                    <TextBlock Classes="Header" Text="Fächerkurzform" />
+                                    <TextBox x:Name="tbSettingFachkurz" MaxHeight="650" />
+                                </StackPanel>
+                                <StackPanel Grid.Row="2" Grid.Column="1">
+                                    <TextBlock Classes="Header" Text="Fächerlangform" />
+                                    <TextBox x:Name="tbSettingFachlang" MaxHeight="650" />
+                                </StackPanel>
+                                <StackPanel Grid.Row="2" Grid.Column="2" Margin="10">
+                                    <TextBlock Classes="Header" Text="Erprobungstufenleitung:" />
+                                    <TextBox x:Name="tbSettingErprobungsstufenleitung" Width="200" />
+                                    <TextBlock Classes="Header" Text="Mittelstufenleitung:" />
+                                    <TextBox x:Name="tbSettingMittelstufenleitung" Width="200" />
+                                    <TextBlock Classes="Header" Text="EF-Stufenleitung:" />
+                                    <TextBox x:Name="tbSettingEFstufenleitung" Width="200" />
+                                    <TextBlock Classes="Header" Text="Q1-Stufenleitung:" />
+                                    <TextBox x:Name="tbSettingQ1stufenleitung" Width="200" />
+                                    <TextBlock Classes="Header" Text="Q2-Stufenleitung:" />
+                                    <TextBox x:Name="tbSettingQ2stufenleitung" Width="200" />
+                                    <TextBlock Classes="Header" Text="Oberstufenkoordination:" />
+                                    <TextBox x:Name="tbSettingOberstufenkoordination" Width="200" />
+                                </StackPanel>
+                                <Button x:Name="btnSettingSave" Grid.Row="3" Grid.Column="0"
+                                        Click="BtnSettingSave_OnClick">
+                                    Speichern
+                                </Button>
+                            </Grid>
                         </TabItem>
-                    <TabItem Header="Favos" Classes="Header" x:Name="exportFavoTab">
-                        <StackPanel Orientation="Vertical" >
+                        <TabItem Header="Favos" Classes="Header" x:Name="exportFavoTab">
                             <ScrollViewer x:Name="exportScrollViewerFavo">
-                                <Grid x:Name="exportFavoTabGrid" />
+                                <StackPanel Orientation="Vertical">
+                                    <Grid x:Name="exportFavoTabGrid" />
+                                    <Button x:Name="btnFavoSave" Click="BtnFavoSave_OnClick"> Speichern</Button>
+                                </StackPanel>
                             </ScrollViewer>
-                            <Button x:Name="btnFavoSave" Click="BtnFavoSave_OnClick"> Speichern</Button>
-                        </StackPanel>
-                    </TabItem>
+                        </TabItem>
                     </TabControl>
                 </TabItem>
                 <TabItem Header="Fehlersuche" Classes="Header"> <!--Fehlersuche-Tab-->
