@@ -309,6 +309,11 @@ namespace StS_GUI_Avalonia
             _myschool = new Schuldatenbank(filepath);
             Title = "SchildToSchule - " + await _myschool.GetFilePath();
             InitData();
+            await loadFavos();
+        }
+
+        private async Task loadFavos()
+        {
             var faecherliste = _myschool.GetLehrerListe().Result.Select(l => l.Fakultas.Split(',')).Distinct().ToList();
             if (faecherliste.Count < 1) return;
             var faecher = new List<string>();
