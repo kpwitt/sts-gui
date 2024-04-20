@@ -342,7 +342,7 @@
                         </TabItem>
                     <TabItem Header="Favos" Classes="Header" x:Name="exportFavoTab">
                         <StackPanel Orientation="Vertical" >
-                            <ScrollViewer>
+                            <ScrollViewer x:Name="exportScrollViewerFavo">
                                 <Grid x:Name="exportFavoTabGrid" />
                             </ScrollViewer>
                             <Button x:Name="btnFavoSave" Click="BtnFavoSave_OnClick"> Speichern</Button>

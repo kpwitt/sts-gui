@@ -332,12 +332,13 @@ namespace StS_GUI_Avalonia
             }
 
             exportFavoTabGrid.RowDefinitions = new RowDefinitions(rowdefs.TrimEnd(','));
-            exportFavoTabGrid.MaxHeight = ClientSize.Height*1.1;
+            exportFavoTabGrid.MaxHeight = ClientSize.Height * 1.1;
             for (var i = 0; i < faecher.Count; ++i)
             {
-                var cache = _myschool.GetLehrerListe().Result.Where(l => l.Fakultas.Split(',').Contains(faecher[i])).ToList()
+                var cache = _myschool.GetLehrerListe().Result.Where(l => l.Fakultas.Split(',').Contains(faecher[i]))
+                    .ToList()
                     .Select(l => l.Kuerzel + ";" + l.Nachname + "," + l.Vorname).ToList();
-                if (cache.Count==0)continue;
+                if (cache.Count == 0) continue;
                 exportFavoTabGrid.Children.Add(new TextBlock
                 {
                     Name = "tbExportFavo" + faecher[i],
@@ -370,7 +371,7 @@ namespace StS_GUI_Avalonia
             {
                 var validfach = exportFavoTabGrid.Children.Where(c => c.Name.Equals("cbExportFavo" + fach))
                     .ToList();
-                if (validfach.Count==0)continue;
+                if (validfach.Count == 0) continue;
                 var favocb = (ComboBox)exportFavoTabGrid.Children.Where(c => c.Name.Equals("cbExportFavo" + fach))
                     .ToList()[0];
                 var sfavocb = (ComboBox)exportFavoTabGrid.Children.Where(c => c.Name.Equals("cbExportSFavo" + fach))
@@ -387,6 +388,8 @@ namespace StS_GUI_Avalonia
                     sfavocb.SelectedItem = sfavo[0].Kuerzel + ";" + sfavo[0].Nachname + "," + sfavo[0].Vorname;
                 }
             }
+
+            exportScrollViewerFavo.AllowAutoHide = false;
         }
 
         public async void OnMnuschuleschließenClick(object? sender, RoutedEventArgs e)
@@ -3110,7 +3113,7 @@ namespace StS_GUI_Avalonia
             {
                 var validfach = exportFavoTabGrid.Children.Where(c => c.Name.Equals("cbExportFavo" + fach))
                     .ToList();
-                if (validfach.Count==0)continue;
+                if (validfach.Count == 0) continue;
                 var favocb = (ComboBox)exportFavoTabGrid.Children.Where(c => c.Name.Equals("cbExportFavo" + fach))
                     .ToList()[0];
                 var sfavocb = (ComboBox)exportFavoTabGrid.Children.Where(c => c.Name.Equals("cbExportSFavo" + fach))
