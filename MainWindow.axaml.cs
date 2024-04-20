@@ -340,19 +340,21 @@ namespace StS_GUI_Avalonia
                     [Grid.RowProperty] = i,
                     [Grid.ColumnProperty] = 0,
                 });
+                var cache = _myschool.GetLehrerListe().Result.Where(l => l.Fakultas.Contains(faecher[i])).ToList()
+                    .Select(l => l.Kuerzel + ";" + l.Nachname + "," + l.Vorname).ToList();
+                cache.Add("");
+                cache.Sort();
                 exportFavoTabGrid.Children.Add(new ComboBox()
                 {
                     Name = "cbExportFavo" + faecher[i],
-                    ItemsSource = _myschool.GetLehrerListe().Result.Where(l => l.Fakultas.Contains(faecher[i])).ToList()
-                        .Select(l => l.Kuerzel + ";" + l.Nachname + "," + l.Vorname),
+                    ItemsSource = cache,
                     [Grid.RowProperty] = i,
                     [Grid.ColumnProperty] = 1,
                 });
                 exportFavoTabGrid.Children.Add(new ComboBox
                 {
                     Name = "cbExportSFavo" + faecher[i],
-                    ItemsSource = _myschool.GetLehrerListe().Result.Where(l => l.Fakultas.Contains(faecher[i])).ToList()
-                        .Select(l => l.Kuerzel + ";" + l.Nachname + "," + l.Vorname),
+                    ItemsSource = cache,
                     [Grid.RowProperty] = i,
                     [Grid.ColumnProperty] = 2,
                 });
