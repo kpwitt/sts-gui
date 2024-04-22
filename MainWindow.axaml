@@ -263,7 +263,6 @@
                     </Grid>
                 </TabItem>
                 <TabItem Header="Export" Classes="Header"><!--Export-Tab-->
-
                     <Grid Margin="5" RowDefinitions="Auto,Auto">
                         <Grid Margin="5" Grid.Row="0" ColumnDefinitions="Auto,Auto">
                             <StackPanel Grid.Column="0" HorizontalAlignment="Left">
@@ -345,12 +344,13 @@
                             </Grid>
                         </TabItem>
                         <TabItem Header="Favos" Classes="Header" x:Name="exportFavoTab">
-                            <ScrollViewer x:Name="exportScrollViewerFavo">
-                                <StackPanel Orientation="Vertical">
+                                <StackPanel Orientation="Vertical" x:Name="expPanel">
+                                <ScrollViewer x:Name="exportScrollViewerFavo" VerticalScrollBarVisibility="Visible"
+                                          AllowAutoHide="False">
                                     <Grid x:Name="exportFavoTabGrid" />
+                                    </ScrollViewer>
                                     <Button x:Name="btnFavoSave" Click="BtnFavoSave_OnClick"> Speichern</Button>
                                 </StackPanel>
-                            </ScrollViewer>
                         </TabItem>
                     </TabControl>
                 </TabItem>
