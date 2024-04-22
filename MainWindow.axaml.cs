@@ -332,7 +332,7 @@ namespace StS_GUI_Avalonia
             }
 
             exportFavoTabGrid.RowDefinitions = new RowDefinitions(rowdefs.TrimEnd(','));
-            exportFavoTabGrid.MaxHeight = ClientSize.Height * 1.1;
+            //exportFavoTabGrid.MaxHeight = ClientSize.Height*0.8;
             for (var i = 0; i < faecher.Count; ++i)
             {
                 var cache = _myschool.GetLehrerListe().Result.Where(l => l.Fakultas.Split(',').Contains(faecher[i]))
@@ -389,7 +389,7 @@ namespace StS_GUI_Avalonia
                 }
             }
 
-            exportScrollViewerFavo.AllowAutoHide = false;
+            exportScrollViewerFavo.MaxHeight = ClientSize.Height * 1.1;
         }
 
         public async void OnMnuschuleschließenClick(object? sender, RoutedEventArgs e)
