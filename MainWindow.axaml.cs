@@ -386,13 +386,13 @@ namespace StS_GUI_Avalonia
                     .ToList()[0];
                 var sfavocb = (ComboBox)exportFavoTabGrid.Children.Where(c => c.Name.Equals("cbExportSFavo" + fach))
                     .ToList()[0];
-                var favo = favos.Where(l => l.Favo.Equals(fach)).ToList();
+                var favo = favos.Where(l => l.Favo.Split(',').Contains(fach)).ToList();
                 if (favo.Count > 0)
                 {
                     favocb.SelectedItem = favo[0].Kuerzel + ";" + favo[0].Nachname + "," + favo[0].Vorname;
                 }
 
-                var sfavo = favos.Where(l => l.SFavo.Equals(fach)).ToList();
+                var sfavo = favos.Where(l => l.SFavo.Split(',').Contains(fach)).ToList();
                 if (sfavo.Count > 0)
                 {
                     sfavocb.SelectedItem = sfavo[0].Kuerzel + ";" + sfavo[0].Nachname + "," + sfavo[0].Vorname;
@@ -3132,7 +3132,15 @@ namespace StS_GUI_Avalonia
                 if (kuerzel != null)
                 {
                     var l = await _myschool.GetLehrkraft(kuerzel.Split(';')[0]);
-                    l.Favo = fach;
+                    if (l.Favo != "")
+                    {
+                        l.Favo += "," + fach;
+                    }
+                    else
+                    {
+                        l.Favo = fach;
+                    }
+
                     _myschool.UpdateLehrkraft(l);
                 }
 
@@ -3140,7 +3148,14 @@ namespace StS_GUI_Avalonia
                 if (kuerzel == null) continue;
                 {
                     var l = await _myschool.GetLehrkraft(kuerzel.Split(';')[0]);
-                    l.SFavo = fach;
+                    if (l.SFavo != "")
+                    {
+                        l.SFavo += "," + fach;
+                    }
+                    else
+                    {
+                        l.SFavo = fach;
+                    }
                     _myschool.UpdateLehrkraft(l);
                 }
             }
