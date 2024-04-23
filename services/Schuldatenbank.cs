@@ -188,22 +188,31 @@ namespace SchulDB
                 sqliteCmd.Parameters.AddWithValue("$versionparam", settings.Version);
                 sqliteCmd.CommandText =
                     "INSERT OR REPLACE INTO settings (setting,value) VALUES($mailsuffix, $mailsuffixparam)";
+                sqliteCmd.ExecuteNonQuery();
                 sqliteCmd.CommandText =
                     "INSERT OR REPLACE INTO settings (setting,value) VALUES($kurssuffix, $kurssuffixparam)";
+                sqliteCmd.ExecuteNonQuery();
                 sqliteCmd.CommandText =
                     "INSERT OR REPLACE INTO settings (setting,value) VALUES($fachersatz, $fachersatzparam)";
+                sqliteCmd.ExecuteNonQuery();
                 sqliteCmd.CommandText =
                     "INSERT OR REPLACE INTO settings (setting,value) VALUES($erprobungstufenleitung, $erprobungstufenleitungparam)";
+                sqliteCmd.ExecuteNonQuery();
                 sqliteCmd.CommandText =
                     "INSERT OR REPLACE INTO settings (setting,value) VALUES($mittelstufenleitung, $mittelstufenleitungparam)";
+                sqliteCmd.ExecuteNonQuery();
                 sqliteCmd.CommandText =
                     "INSERT OR REPLACE INTO settings (setting,value) VALUES($efstufenleitung, $efstufenleitungparam)";
+                sqliteCmd.ExecuteNonQuery();
                 sqliteCmd.CommandText =
                     "INSERT OR REPLACE INTO settings (setting,value) VALUES($q1stufenleitung, $q1stufenleitungparam)";
+                sqliteCmd.ExecuteNonQuery();
                 sqliteCmd.CommandText =
                     "INSERT OR REPLACE INTO settings (setting,value) VALUES($q2stufenleitung, $q2stufenleitungparam)";
+                sqliteCmd.ExecuteNonQuery();
                 sqliteCmd.CommandText =
                     "INSERT OR REPLACE INTO settings (setting,value) VALUES($oberstufenkoordination, $oberstufenkoordinationparam)";
+                sqliteCmd.ExecuteNonQuery();
                 sqliteCmd.CommandText =
                     "INSERT OR REPLACE INTO settings (setting,value) VALUES($version, $versionparam)";
                 sqliteCmd.ExecuteNonQuery();
