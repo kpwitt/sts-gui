@@ -129,12 +129,6 @@ namespace SchulDB
       )";
                 sqliteCmd.ExecuteNonQuery();
 
-                sqliteCmd.CommandText = @"CREATE TABLE IF NOT EXISTS [config] ([version] VARCHAR NOT NULL PRIMARY KEY)";
-                sqliteCmd.ExecuteNonQuery();
-
-                sqliteCmd.CommandText = "INSERT OR IGNORE INTO config (version) VALUES (version)";
-                sqliteCmd.ExecuteNonQuery();
-
                 var fachk = new[]
                 {
                     "D", "E", "M", "BI", "CH", "EK", "F7", "GE", "IF", "I0", "KU", "L7", "MU", "PH", "PK", "PS",
@@ -180,6 +174,7 @@ namespace SchulDB
                 sqliteCmd.Parameters.AddWithValue("$q1stufenleitung", "q1stufenleitung");
                 sqliteCmd.Parameters.AddWithValue("$q2stufenleitung", "q2stufenleitung");
                 sqliteCmd.Parameters.AddWithValue("$oberstufenkoordination", "oberstufenkoordination");
+                sqliteCmd.Parameters.AddWithValue("$version", "version");
 
                 sqliteCmd.Parameters.AddWithValue("$erprobungstufenleitungparam",
                     settings.Erprobungstufenleitung);
@@ -190,32 +185,27 @@ namespace SchulDB
                 sqliteCmd.Parameters.AddWithValue("$q2stufenleitungparam", settings.Q2Stufenleitung);
                 sqliteCmd.Parameters.AddWithValue("$oberstufenkoordinationparam",
                     settings.Oberstufenkoordination);
+                sqliteCmd.Parameters.AddWithValue("$versionparam", settings.Version);
                 sqliteCmd.CommandText =
                     "INSERT OR REPLACE INTO settings (setting,value) VALUES($mailsuffix, $mailsuffixparam)";
-                sqliteCmd.ExecuteNonQuery();
                 sqliteCmd.CommandText =
                     "INSERT OR REPLACE INTO settings (setting,value) VALUES($kurssuffix, $kurssuffixparam)";
-                sqliteCmd.ExecuteNonQuery();
                 sqliteCmd.CommandText =
                     "INSERT OR REPLACE INTO settings (setting,value) VALUES($fachersatz, $fachersatzparam)";
-                sqliteCmd.ExecuteNonQuery();
                 sqliteCmd.CommandText =
                     "INSERT OR REPLACE INTO settings (setting,value) VALUES($erprobungstufenleitung, $erprobungstufenleitungparam)";
-                sqliteCmd.ExecuteNonQuery();
                 sqliteCmd.CommandText =
                     "INSERT OR REPLACE INTO settings (setting,value) VALUES($mittelstufenleitung, $mittelstufenleitungparam)";
-                sqliteCmd.ExecuteNonQuery();
                 sqliteCmd.CommandText =
                     "INSERT OR REPLACE INTO settings (setting,value) VALUES($efstufenleitung, $efstufenleitungparam)";
-                sqliteCmd.ExecuteNonQuery();
                 sqliteCmd.CommandText =
                     "INSERT OR REPLACE INTO settings (setting,value) VALUES($q1stufenleitung, $q1stufenleitungparam)";
-                sqliteCmd.ExecuteNonQuery();
                 sqliteCmd.CommandText =
                     "INSERT OR REPLACE INTO settings (setting,value) VALUES($q2stufenleitung, $q2stufenleitungparam)";
-                sqliteCmd.ExecuteNonQuery();
                 sqliteCmd.CommandText =
                     "INSERT OR REPLACE INTO settings (setting,value) VALUES($oberstufenkoordination, $oberstufenkoordinationparam)";
+                sqliteCmd.CommandText =
+                    "INSERT OR REPLACE INTO settings (setting,value) VALUES($version, $versionparam)";
                 sqliteCmd.ExecuteNonQuery();
                 sqliteCmd.Parameters.Clear();
                 if (fachk.Length != fachl.Length) return;
@@ -1891,7 +1881,7 @@ namespace SchulDB
 
             settingsResult.Kurzfaecher = fachk.ToArray();
             settingsResult.Langfaecher = fachl.ToArray();
-
+            settingsResult.Version = version;
             return settingsResult;
         }
 
@@ -2579,6 +2569,7 @@ namespace SchulDB
             sqliteCmd.Parameters.AddWithValue("$q1stufenleitung", "q1stufenleitung");
             sqliteCmd.Parameters.AddWithValue("$q2stufenleitung", "q2stufenleitung");
             sqliteCmd.Parameters.AddWithValue("$oberstufenkoordination", "oberstufenkoordination");
+            sqliteCmd.Parameters.AddWithValue("$version", "version");
 
             sqliteCmd.Parameters.AddWithValue("$erprobungstufenleitungparam",
                 settings.Erprobungstufenleitung);
@@ -2588,6 +2579,7 @@ namespace SchulDB
             sqliteCmd.Parameters.AddWithValue("$q2stufenleitungparam", settings.Q2Stufenleitung);
             sqliteCmd.Parameters.AddWithValue("$oberstufenkoordinationparam",
                 settings.Oberstufenkoordination);
+            sqliteCmd.Parameters.AddWithValue("versionparam", version);
             sqliteCmd.CommandText =
                 "INSERT OR REPLACE INTO settings (setting,value) VALUES($mailsuffix, $mailsuffixparam)";
             sqliteCmd.ExecuteNonQuery();
@@ -2614,6 +2606,9 @@ namespace SchulDB
             sqliteCmd.ExecuteNonQuery();
             sqliteCmd.CommandText =
                 "INSERT OR REPLACE INTO settings (setting,value) VALUES($oberstufenkoordination, $oberstufenkoordinationparam)";
+            sqliteCmd.ExecuteNonQuery();
+            sqliteCmd.CommandText =
+                "INSERT OR REPLACE INTO settings (setting,value) VALUES($version, $versionparam)";
             sqliteCmd.ExecuteNonQuery();
             sqliteCmd.Parameters.Clear();
             await SetKurzLangFach(settings.Kurzfaecher, settings.Langfaecher);
