@@ -133,6 +133,7 @@ namespace SchulDB
                 sqliteCmd.ExecuteNonQuery();
 
                 sqliteCmd.CommandText = "INSERT OR IGNORE INTO config (version) VALUES (version)";
+                sqliteCmd.ExecuteNonQuery();
 
                 var fachk = new[]
                 {
