@@ -116,7 +116,6 @@ namespace SchulDB
         [fachersatz] (
         [kurzfach]   NVARCHAR(16) NOT NULL,
         [langfach]  NVARCHAR(64) NOT NULL,
-        [version] NVARCHAR(8) NOT NULL,
         PRIMARY KEY(kurzfach,langfach)
       )";
                 sqliteCmd.ExecuteNonQuery();
@@ -165,7 +164,6 @@ namespace SchulDB
                     Oberstufenkoordination = "",
                     Version = version
                 };
-                // sqliteCmd.CommandText = "INSERT OR IGNORE INTO settings (mailsuffix, kurssuffix, fachersetzung) VALUES ($mailsuffix, $kurssuffix, $fachersatz);";
                 sqliteCmd.Parameters.AddWithValue("$mailsuffixparam", settings.Mailsuffix);
                 sqliteCmd.Parameters.AddWithValue("$kurssuffixparam", settings.Kurssuffix);
                 sqliteCmd.Parameters.AddWithValue("$fachersatzparam", settings.Fachersetzung);
@@ -191,7 +189,6 @@ namespace SchulDB
                 sqliteCmd.Parameters.AddWithValue("$q2stufenleitungparam", settings.Q2Stufenleitung);
                 sqliteCmd.Parameters.AddWithValue("$oberstufenkoordinationparam",
                     settings.Oberstufenkoordination);
-                // sqliteCmd.ExecuteNonQuery();
                 sqliteCmd.CommandText =
                     "INSERT OR REPLACE INTO settings (setting,value) VALUES($mailsuffix, $mailsuffixparam)";
                 sqliteCmd.ExecuteNonQuery();
