@@ -36,7 +36,7 @@
         </Style>
     </Window.Styles>
     <DockPanel VerticalAlignment="Stretch" x:Name="TopPanel">
-        <Grid Margin="5" DockPanel.Dock="Top" RowDefinitions="Auto,Auto,Auto" VerticalAlignment="Stretch">
+        <Grid Margin="5" DockPanel.Dock="Top" RowDefinitions="Auto,Auto,Auto,Auto" VerticalAlignment="Stretch">
             <DockPanel Grid.Row="0">
                 <Menu DockPanel.Dock="Top"><!-- Menuleiste -->
                     <MenuItem Header="_Datei">
@@ -91,7 +91,9 @@
 
                 </Menu>
             </DockPanel>
-            <TabControl Grid.Row="1" VerticalAlignment="Stretch">
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Visible"
+                          AllowAutoHide="True" x:Name="mainScroller">
+            <TabControl  Grid.Row="2" VerticalAlignment="Stretch">
                 <TabItem Header="Daten" Classes="Header"> <!-- Daten-Tab -->
                     <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto" VerticalAlignment="Stretch">
                         <Grid Grid.Row="0" Grid.Column="0" ColumnDefinitions="Auto,Auto" RowDefinitions="Auto">
@@ -425,6 +427,7 @@
                     </Grid>
                 </TabItem> <!--Sonstiges-Tab-->
             </TabControl>
+        </ScrollViewer>
         </Grid>
         <TextBlock x:Name="tbStatusBar" Margin="10" />
     </DockPanel>

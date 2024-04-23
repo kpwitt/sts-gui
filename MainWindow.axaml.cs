@@ -256,6 +256,17 @@ namespace StS_GUI_Avalonia
             lbLogDisplay.MaxWidth = ClientSize.Width * 1.1;
             _msgBoxWindowIcon =
                 new WindowIcon(AssetLoader.Open(new Uri("avares://StS-GUI-Avalonia/Assets/gfx/school-building.png")));
+            Resized += (s, e) =>
+            {
+                if (FrameSize == null) return;
+                mainScroller.MaxHeight = FrameSize.Value.Height *0.9;
+                mainScroller.MaxWidth = FrameSize.Value.Width;
+                LeftListBox.MaxHeight = mainScroller.MaxHeight * 0.8;
+                RightListBox.MaxHeight = LeftListBox.MaxHeight;
+                lbLogDisplay.MaxHeight = LeftListBox.MaxHeight;
+                lbLogDisplay.MaxWidth = FrameSize.Value.Width * 0.8;
+                exportScrollViewerFavo.MaxHeight = LeftListBox.MaxHeight;
+            };
         }
 
         private async Task<IStorageFile?> ShowSaveFileDialog(string dialogtitle,
@@ -332,7 +343,6 @@ namespace StS_GUI_Avalonia
             }
 
             exportFavoTabGrid.RowDefinitions = new RowDefinitions(rowdefs.TrimEnd(','));
-            //exportFavoTabGrid.MaxHeight = ClientSize.Height*0.8;
             for (var i = 0; i < faecher.Count; ++i)
             {
                 var cache = _myschool.GetLehrerListe().Result.Where(l => l.Fakultas.Split(',').Contains(faecher[i]))
@@ -389,7 +399,7 @@ namespace StS_GUI_Avalonia
                 }
             }
 
-            exportScrollViewerFavo.MaxHeight = ClientSize.Height * 1.1;
+            exportScrollViewerFavo.MaxHeight = FrameSize.Value.Height * 0.8;
         }
 
         public async void OnMnuschuleschließenClick(object? sender, RoutedEventArgs e)
