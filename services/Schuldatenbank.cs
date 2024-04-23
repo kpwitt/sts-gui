@@ -317,7 +317,7 @@ namespace SchulDB
         {
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText =
-                "INSERT OR IGNORE INTO lehrkraft (id, nachname, vorname, kuerzel, mail, fakultas, pwtemp) VALUES ($id, $nachname, $vorname, $kuerzel, $mail, $fakultas, $pwtemp);";
+                "INSERT OR IGNORE INTO lehrkraft (id, nachname, vorname, kuerzel, mail, fakultas, pwtemp, favo, sfavo) VALUES ($id, $nachname, $vorname, $kuerzel, $mail, $fakultas, $pwtemp, $favo, $sfavo);";
             sqliteCmd.Parameters.AddWithValue("$id", lehrkraft.ID);
             sqliteCmd.Parameters.AddWithValue("$vorname", lehrkraft.Vorname);
             sqliteCmd.Parameters.AddWithValue("$nachname", lehrkraft.Nachname);
@@ -2957,7 +2957,7 @@ namespace SchulDB
         /// <summary>
         /// Gibt die Fachvorsitzenden und Stellvertreter zurück
         /// </summary>
-        /// <returns>List<Lul> der Fachvorsitzenden und Stellvertreter</returns>
+        /// <returns>Liste der Fachvorsitzenden und Stellvertreter</returns>
         public async Task<List<LuL>> getFavos()
         {
             return GetLehrerListe().Result.Where(l => !string.IsNullOrEmpty(l.Favo) || !string.IsNullOrEmpty(l.SFavo))
