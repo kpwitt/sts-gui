@@ -3173,5 +3173,15 @@ namespace StS_GUI_Avalonia
                     }).ShowAsPopupAsync(this);
             });
         }
+
+        private void BtnSettingsToFile_OnClick(object? sender, RoutedEventArgs e)
+        {
+            //todo: implementieren das Speichern als System.Text.Json 
+        }
+
+        private void BtnSettingsFromFile_OnClick(object? sender, RoutedEventArgs e)
+        {
+            //todo: implementieren das Laden als System.Text.Json 
+        }
     }
 }

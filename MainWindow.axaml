@@ -299,7 +299,8 @@
                 <TabItem Header="Einstellungen" Classes="Header"> <!--Einstellungen-Tab-->
                     <TabControl VerticalAlignment="Stretch">
                         <TabItem Header="Daten" Classes="Header">
-                            <Grid RowDefinitions="Auto,Auto,Auto,Auto" ColumnDefinitions="Auto,Auto,Auto">
+                            <StackPanel>
+                            <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" ColumnDefinitions="Auto,Auto,Auto">
                                 <StackPanel Grid.Row="0" Grid.Column="0">
                                     <TextBlock Classes="Header" Text="Platzhalterdomain" />
                                     <TextBox x:Name="tbSettingMailplatzhalter" Width="150" />
@@ -339,11 +340,15 @@
                                     <TextBlock Classes="Header" Text="Oberstufenkoordination:" />
                                     <TextBox x:Name="tbSettingOberstufenkoordination" Width="200" />
                                 </StackPanel>
-                                <Button x:Name="btnSettingSave" Grid.Row="3" Grid.Column="0"
-                                        Click="BtnSettingSave_OnClick">
-                                    Speichern
-                                </Button>
                             </Grid>
+                                <StackPanel Grid.Row="3" Grid.Column="0" Orientation="Horizontal">
+                                <Button x:Name="btnSettingSave" Click="BtnSettingSave_OnClick">
+                                    Anwenden
+                                </Button>
+                                <Button x:Name="btnSettingsToFile" Click="BtnSettingsToFile_OnClick">In Datei Speichern</Button>
+                                <Button x:Name="btnSettingsFromFile" Click="BtnSettingsFromFile_OnClick">Aus Datei laden</Button>
+                                </StackPanel>
+                            </StackPanel>
                         </TabItem>
                         <TabItem Header="Favos" Classes="Header" x:Name="exportFavoTab">
                                 <StackPanel Orientation="Vertical" x:Name="expPanel">
