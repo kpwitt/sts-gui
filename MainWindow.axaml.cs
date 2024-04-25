@@ -18,6 +18,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Timers;
 
@@ -259,7 +260,7 @@ namespace StS_GUI_Avalonia
             Resized += (s, e) =>
             {
                 if (FrameSize == null) return;
-                mainScroller.MaxHeight = FrameSize.Value.Height *0.9;
+                mainScroller.MaxHeight = FrameSize.Value.Height * 0.9;
                 mainScroller.MaxWidth = FrameSize.Value.Width;
                 LeftListBox.MaxHeight = mainScroller.MaxHeight * 0.8;
                 RightListBox.MaxHeight = LeftListBox.MaxHeight;
@@ -471,10 +472,10 @@ namespace StS_GUI_Avalonia
 
         public async void OnMnuschulespeichernunterClick(object? sender, RoutedEventArgs e)
         {
-            await Dispatcher.UIThread.InvokeAsync(SaveDbFile);
+            await Dispatcher.UIThread.InvokeAsync(SaveDbFileAs);
             return;
 
-            async Task SaveDbFile()
+            async Task SaveDbFileAs()
             {
                 var extx = new List<FilePickerFileType> { StSFileTypes.DataBaseFile };
                 var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
@@ -520,7 +521,7 @@ namespace StS_GUI_Avalonia
             var inputResult = await Dispatcher.UIThread.InvokeAsync(GetPasswordInput, DispatcherPriority.Input);
             if (string.IsNullOrEmpty(inputResult)) return;
 
-            await Dispatcher.UIThread.InvokeAsync(SaveDbFile);
+            await Dispatcher.UIThread.InvokeAsync(SaveEncDbFile);
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
                 MessageBoxManager.GetMessageBoxStandard(
@@ -536,7 +537,7 @@ namespace StS_GUI_Avalonia
             });
             return;
 
-            async Task SaveDbFile()
+            async Task SaveEncDbFile()
             {
                 var extx = new List<FilePickerFileType> { StSFileTypes.EncryptedFile };
                 var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
@@ -569,7 +570,7 @@ namespace StS_GUI_Avalonia
             var inputResult = await Dispatcher.UIThread.InvokeAsync(GetPasswordInput, DispatcherPriority.Input);
             if (string.IsNullOrEmpty(inputResult)) return;
 
-            await Dispatcher.UIThread.InvokeAsync(SaveDbFile);
+            await Dispatcher.UIThread.InvokeAsync(LoadEncDbFile);
             return;
 
             async Task<string?> GetPasswordInput()
@@ -579,7 +580,7 @@ namespace StS_GUI_Avalonia
                 return test;
             }
 
-            async Task SaveDbFile()
+            async Task LoadEncDbFile()
             {
                 var encFileType = new List<FilePickerFileType> { StSFileTypes.EncryptedFile };
                 var saveFile = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", encFileType);
@@ -1005,7 +1006,11 @@ namespace StS_GUI_Avalonia
                 .ToList();
             llist.Sort(Comparer<string>.Default);
             ResetItemsSource(LeftListBox, llist);
-            var settings = _myschool.GetSettings().Result;
+            loadSettingsToGUI(_myschool.GetSettings().Result);
+        }
+
+        private async Task loadSettingsToGUI(Settings settings)
+        {
             tbSettingMailplatzhalter.Text = settings.Mailsuffix;
             tbSettingKursersetzung.Text = string.IsNullOrEmpty(settings.Fachersetzung)
                 ? ""
@@ -3119,12 +3124,15 @@ namespace StS_GUI_Avalonia
             faecher = faecher.Distinct().ToList();
             foreach (var fach in faecher)
             {
-                var validfach = exportFavoTabGrid.Children.Where(c => !string.IsNullOrEmpty(c.Name) && c.Name.Equals("cbExportFavo" + fach))
+                var validfach = exportFavoTabGrid.Children
+                    .Where(c => !string.IsNullOrEmpty(c.Name) && c.Name.Equals("cbExportFavo" + fach))
                     .ToList();
                 if (validfach.Count == 0) continue;
-                var favocb = (ComboBox)exportFavoTabGrid.Children.Where(c => !string.IsNullOrEmpty(c.Name) && c.Name.Equals("cbExportFavo" + fach))
+                var favocb = (ComboBox)exportFavoTabGrid.Children.Where(c =>
+                        !string.IsNullOrEmpty(c.Name) && c.Name.Equals("cbExportFavo" + fach))
                     .ToList()[0];
-                var sfavocb = (ComboBox)exportFavoTabGrid.Children.Where(c => !string.IsNullOrEmpty(c.Name) && c.Name.Equals("cbExportSFavo" + fach))
+                var sfavocb = (ComboBox)exportFavoTabGrid.Children.Where(c =>
+                        !string.IsNullOrEmpty(c.Name) && c.Name.Equals("cbExportSFavo" + fach))
                     .ToList()[0];
                 var kuerzel = favocb.SelectedItem?.ToString();
                 if (kuerzel != null)
@@ -3154,6 +3162,7 @@ namespace StS_GUI_Avalonia
                     {
                         l.SFavo = fach;
                     }
+
                     _myschool.UpdateLehrkraft(l);
                 }
             }
@@ -3174,14 +3183,91 @@ namespace StS_GUI_Avalonia
             });
         }
 
-        private void BtnSettingsToFile_OnClick(object? sender, RoutedEventArgs e)
+        private async void BtnSettingsToFile_OnClick(object? sender, RoutedEventArgs e)
         {
-            //todo: implementieren das Speichern als System.Text.Json 
+            await Dispatcher.UIThread.InvokeAsync(SaveSettingsToFile);
+            return;
+
+            async Task SaveSettingsToFile()
+            {
+                var extx = new List<FilePickerFileType> { StSFileTypes.JSONFile };
+                var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
+                if (files == null) return;
+
+                var filepath = files.Path.LocalPath;
+                await Dispatcher.UIThread.InvokeAsync(async () =>
+                {
+                    try
+                    {
+                        var json_settings = JsonSerializer.Serialize(_myschool.GetSettings().Result);
+                        await File.WriteAllTextAsync(filepath, json_settings);
+                        var saveSuccessful = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
+                        {
+                            ButtonDefinitions = ButtonEnum.Ok,
+                            ContentTitle = "Erfolg",
+                            ContentMessage = "Einstellungen erfolgreich gespeichert",
+                            Icon = MsBox.Avalonia.Enums.Icon.Success,
+                            WindowIcon = _msgBoxWindowIcon
+                        });
+                        await saveSuccessful.ShowAsPopupAsync(this);
+                    }
+                    catch (Exception exception)
+                    {
+                        await _myschool.AddLogMessage("Fehler", exception.Message);
+                        var errorDialog = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
+                        {
+                            ButtonDefinitions = ButtonEnum.Ok,
+                            ContentTitle = "Fehler",
+                            ContentMessage = "Speichern der Einstellungen fehlgeschlagen",
+                            Icon = MsBox.Avalonia.Enums.Icon.Error,
+                            WindowIcon = _msgBoxWindowIcon
+                        });
+                        await errorDialog.ShowAsPopupAsync(this);
+                    }
+                });
+            }
         }
 
-        private void BtnSettingsFromFile_OnClick(object? sender, RoutedEventArgs e)
+        private async void BtnSettingsFromFile_OnClick(object? sender, RoutedEventArgs e)
         {
-            //todo: implementieren das Laden als System.Text.Json 
+            await Dispatcher.UIThread.InvokeAsync(LoadSettingsFromFile);
+            return;
+
+            async Task LoadSettingsFromFile()
+            {
+                var extx = new List<FilePickerFileType> { StSFileTypes.JSONFile };
+                var files = await ShowOpenFileDialog("Bitte einen Dateipfad angeben...", extx);
+                if (files == null) return;
+                var filepath = files.Path.LocalPath;
+                try
+                {
+                    var json_settings = JsonSerializer.Deserialize<Settings>(File.ReadAllTextAsync(filepath).Result);
+                    await _myschool.SetSettings(json_settings);
+                    await loadSettingsToGUI(json_settings);
+                    var loadSuccessful = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
+                    {
+                        ButtonDefinitions = ButtonEnum.Ok,
+                        ContentTitle = "Erfolg",
+                        ContentMessage = "Einstellungen erfolgreich geladen",
+                        Icon = MsBox.Avalonia.Enums.Icon.Success,
+                        WindowIcon = _msgBoxWindowIcon
+                    });
+                    await loadSuccessful.ShowAsPopupAsync(this);
+                }
+                catch (Exception exception)
+                {
+                    await _myschool.AddLogMessage("Fehler", exception.Message);
+                    var errorDialog = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
+                    {
+                        ButtonDefinitions = ButtonEnum.Ok,
+                        ContentTitle = "Fehler",
+                        ContentMessage = "Laden der Einstellungen fehlgeschlagen",
+                        Icon = MsBox.Avalonia.Enums.Icon.Error,
+                        WindowIcon = _msgBoxWindowIcon
+                    });
+                    await errorDialog.ShowAsPopupAsync(this);
+                }
+            }
         }
     }
 }

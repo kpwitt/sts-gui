@@ -345,7 +345,7 @@
                                 <Button x:Name="btnSettingSave" Click="BtnSettingSave_OnClick">
                                     Anwenden
                                 </Button>
-                                <Button x:Name="btnSettingsToFile" Click="BtnSettingsToFile_OnClick">In Datei Speichern</Button>
+                                <Button x:Name="btnSettingsToFile" Click="BtnSettingsToFile_OnClick">In Datei speichern</Button>
                                 <Button x:Name="btnSettingsFromFile" Click="BtnSettingsFromFile_OnClick">Aus Datei laden</Button>
                                 </StackPanel>
                             </StackPanel>
