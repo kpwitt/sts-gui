@@ -1009,7 +1009,7 @@ namespace StS_GUI_Avalonia
             loadSettingsToGUI(_myschool.GetSettings().Result);
         }
 
-        private async Task loadSettingsToGUI(Settings settings)
+        private void loadSettingsToGUI(Settings settings)
         {
             tbSettingMailplatzhalter.Text = settings.Mailsuffix;
             tbSettingKursersetzung.Text = string.IsNullOrEmpty(settings.Fachersetzung)
@@ -3243,7 +3243,7 @@ namespace StS_GUI_Avalonia
                 {
                     var json_settings = JsonSerializer.Deserialize<Settings>(File.ReadAllTextAsync(filepath).Result);
                     await _myschool.SetSettings(json_settings);
-                    await loadSettingsToGUI(json_settings);
+                    loadSettingsToGUI(json_settings);
                     var loadSuccessful = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
                     {
                         ButtonDefinitions = ButtonEnum.Ok,
