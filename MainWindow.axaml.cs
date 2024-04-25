@@ -3119,12 +3119,12 @@ namespace StS_GUI_Avalonia
             faecher = faecher.Distinct().ToList();
             foreach (var fach in faecher)
             {
-                var validfach = exportFavoTabGrid.Children.Where(c => c.Name.Equals("cbExportFavo" + fach))
+                var validfach = exportFavoTabGrid.Children.Where(c => !string.IsNullOrEmpty(c.Name) && c.Name.Equals("cbExportFavo" + fach))
                     .ToList();
                 if (validfach.Count == 0) continue;
-                var favocb = (ComboBox)exportFavoTabGrid.Children.Where(c => c.Name.Equals("cbExportFavo" + fach))
+                var favocb = (ComboBox)exportFavoTabGrid.Children.Where(c => !string.IsNullOrEmpty(c.Name) && c.Name.Equals("cbExportFavo" + fach))
                     .ToList()[0];
-                var sfavocb = (ComboBox)exportFavoTabGrid.Children.Where(c => c.Name.Equals("cbExportSFavo" + fach))
+                var sfavocb = (ComboBox)exportFavoTabGrid.Children.Where(c => !string.IsNullOrEmpty(c.Name) && c.Name.Equals("cbExportSFavo" + fach))
                     .ToList()[0];
                 var kuerzel = favocb.SelectedItem?.ToString();
                 if (kuerzel != null)
