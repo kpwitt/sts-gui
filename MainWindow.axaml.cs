@@ -1514,7 +1514,7 @@ namespace StS_GUI_Avalonia
             tbKursSuffix.Text = k.Suffix;
             tbKursKlasse.Text = k.Klasse;
             tbKursStufe.Text = k.Stufe;
-            cbKursIstKurs.IsChecked = k.Istkurs;
+            cbKursIstKurs.IsChecked = k.IstKurs;
         }
 
         private async void BtnExport_OnClick(object? sender, RoutedEventArgs e)
@@ -2058,7 +2058,7 @@ namespace StS_GUI_Avalonia
             foreach (var kurs in _myschool.GetKursListe().Result)
             {
                 await _myschool.UpdateKurs(kurs.Bezeichnung, kurs.Fach, kurs.Klasse, kurs.Stufe, settings.Kurssuffix,
-                    kurs.Istkurs ? 1 : 0);
+                    kurs.IstKurs ? 1 : 0);
             }
 
             await _myschool.StopTransaction();

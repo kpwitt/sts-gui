@@ -275,7 +275,7 @@ namespace SchulDB
             sqliteCmd.Parameters.AddWithValue("$klasse", kurs.Klasse);
             sqliteCmd.Parameters.AddWithValue("$stufe", kurs.Stufe);
             sqliteCmd.Parameters.AddWithValue("$suffix", kurs.Suffix);
-            sqliteCmd.Parameters.AddWithValue("$istkurs", kurs.Istkurs);
+            sqliteCmd.Parameters.AddWithValue("$istkurs", kurs.IstKurs);
             sqliteCmd.ExecuteNonQuery();
         }
 
@@ -477,7 +477,7 @@ namespace SchulDB
                 klasse.StartsWith("10"))
             {
                 var kliste = GetKursListe().Result.ToList();
-                kliste = kliste.FindAll(k => k.Bezeichnung.StartsWith(klasse) && k.Istkurs == false);
+                kliste = kliste.FindAll(k => k.Bezeichnung.StartsWith(klasse) && k.IstKurs == false);
                 foreach (var k in kliste)
                 {
                     var sqliteCmd = _sqliteConn.CreateCommand();
@@ -584,8 +584,8 @@ namespace SchulDB
                         var fach = kurs.Fach.IndexOf('-') > 0 ? kurs.Fach[..kurs.Fach.IndexOf('-')] : kurs.Fach;
                         kurse.Add(schueler.Nachname + "|" + schueler.Vorname + "|" + fach + "|" +
                                   l.Kuerzel.ToUpper() +
-                                  "|" + (kurs.Istkurs ? "PUK|" : "GKM|") +
-                                  (kurs.Istkurs == false ? "" : kurs.Fach));
+                                  "|" + (kurs.IstKurs ? "PUK|" : "GKM|") +
+                                  (kurs.IstKurs == false ? "" : kurs.Fach));
                     }
                 }
 
@@ -628,7 +628,7 @@ namespace SchulDB
                         var l = (await GetLuLAusKurs(k))[0];
                         var fach = kurs.Fach.IndexOf('-') > 0 ? kurs.Fach[..kurs.Fach.IndexOf('-')] : kurs.Fach;
                         kurse.Add(schueler.Nachname + "|" + schueler.Vorname + "|" + fach + "|" + l.Kuerzel.ToUpper() +
-                                  "|" + (kurs.Istkurs ? "PUK|" : "GKM|") + (kurs.Istkurs == false ? "" : kurs.Fach));
+                                  "|" + (kurs.IstKurs ? "PUK|" : "GKM|") + (kurs.IstKurs == false ? "" : kurs.Fach));
                     }
                 }
 
@@ -655,7 +655,7 @@ namespace SchulDB
             foreach (var kurs in await importfrom.GetKursListe())
             {
                 await AddKurs(kurs.Bezeichnung, kurs.Fach, kurs.Klasse, kurs.Stufe, kurs.Suffix,
-                    Convert.ToInt32(kurs.Istkurs));
+                    Convert.ToInt32(kurs.IstKurs));
             }
 
             //sus übertragen
@@ -863,7 +863,7 @@ namespace SchulDB
                         }
                         else if (kursvorlagen)
                         {
-                            if (k.Istkurs)
+                            if (k.IstKurs)
                             {
                                 if (sekI.Contains(k.Stufe))
                                 {
@@ -895,7 +895,7 @@ namespace SchulDB
                         else
                         {
                             var strkursvorlage = k.Bezeichnung.Contains("KL") ? kursvorlage[0] : kursvorlage[1];
-                            if (k.Istkurs)
+                            if (k.IstKurs)
                             {
                                 if (sekI.Contains(k.Stufe))
                                 {
@@ -1104,7 +1104,7 @@ namespace SchulDB
                                 ausgabeMoodleEinschreibungen.Add("add," + role + "," + lt.ID + "," +
                                                                  kurs.Bezeichnung + kurs.Suffix);
                             }
-                            else if (kurs.Istkurs)
+                            else if (kurs.IstKurs)
                             {
                                 ausgabeMoodleEinschreibungen.Add("add,editingteacher," + lt.ID + "," +
                                                                  kurs.Bezeichnung + kurs.Suffix);
@@ -1369,10 +1369,10 @@ namespace SchulDB
                 retKurs.Klasse = sqliteDatareader.GetString(2);
                 retKurs.Stufe = sqliteDatareader.GetString(3);
                 retKurs.Suffix = sqliteDatareader.GetString(4);
-                retKurs.Istkurs = Convert.ToBoolean(sqliteDatareader.GetInt32(5));
-                retKurs.Art = retKurs.Istkurs ? "PUT" : "PUK";
+                retKurs.IstKurs = Convert.ToBoolean(sqliteDatareader.GetInt32(5));
+                retKurs.Art = retKurs.IstKurs ? "PUT" : "PUK";
 
-                if (retKurs.Istkurs)
+                if (retKurs.IstKurs)
                 {
                     retKurs.Art = retKurs.Bezeichnung.Substring((retKurs.Bezeichnung.Length - 3), 3);
                 }
@@ -1416,9 +1416,9 @@ namespace SchulDB
                     Klasse = sqliteDatareader.GetString(2),
                     Stufe = sqliteDatareader.GetString(3),
                     Suffix = sqliteDatareader.GetString(4),
-                    Istkurs = Convert.ToBoolean(sqliteDatareader.GetInt32(5))
+                    IstKurs = Convert.ToBoolean(sqliteDatareader.GetInt32(5))
                 };
-                retKurs.Art = retKurs.Istkurs ? "PUT" : "PUK";
+                retKurs.Art = retKurs.IstKurs ? "PUT" : "PUK";
 
                 kliste.Add(retKurs);
             }

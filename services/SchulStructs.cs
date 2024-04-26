@@ -88,11 +88,11 @@
         public string Klasse { get; set; }
         public string Stufe { get; set; }
         public string Suffix { get; set; }
-        public bool Istkurs { get; set; }
+        public bool IstKurs { get; set; }
         public string Art { get; set; }
 
 
-        public Kurs(string bezeichnung, string fach, string klasse, string stufe, string suffix, bool istkurs,
+        public Kurs(string bezeichnung, string fach, string klasse, string stufe, string suffix, bool istKurs,
             string art)
         {
             Bezeichnung = bezeichnung;
@@ -100,7 +100,7 @@
             Klasse = klasse;
             Stufe = stufe;
             Suffix = suffix;
-            Istkurs = istkurs;
+            IstKurs = istKurs;
             Art = art;
         }
     }
