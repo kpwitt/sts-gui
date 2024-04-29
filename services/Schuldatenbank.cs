@@ -742,14 +742,12 @@ namespace SchulDB
                     if (line[imail] == "") continue;
                     try
                     {
-                        var sus = await GetSchueler(line[isv], line[isn]);
-                        if (sus.Klasse == line[isk])
+                        var susliste = await GetSchueler(line[isv], line[isn]);
+                        foreach (var sus in susliste.Where(sus => sus.Klasse == line[isk]))
                         {
                             await UpdateSchueler(sus.ID, sus.Vorname, sus.Nachname, sus.Mail, sus.Klasse,
                                 sus.Nutzername, sus.Aixmail, Convert.ToInt32(sus.Zweitaccount), line[imail]);
                         }
-                        //oder:
-                        //await UpdateSchueler(sus.ID, sus.Vorname, sus.Nachname, sus.Mail, sus.Klasse, sus.Nutzername, sus.Aixmail, 1, line[imail]);
                     }
                     catch (Exception e)
                     {
@@ -1748,7 +1746,7 @@ namespace SchulDB
         /// </summary>
         /// <param name="vorname"></param>
         /// <param name="nachname"></param>
-        private async Task<SuS> GetSchueler(string vorname, string nachname)
+        private async Task<List<SuS>> GetSchueler(string vorname, string nachname)
         {
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText =
@@ -1756,21 +1754,25 @@ namespace SchulDB
             sqliteCmd.Parameters.AddWithValue("$vorname", vorname);
             sqliteCmd.Parameters.AddWithValue("$nachname", nachname);
             var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
-            SuS schuelerin = new();
+            var susliste = new List<SuS>();
             while (sqliteDatareader.Read())
             {
-                schuelerin.ID = sqliteDatareader.GetInt32(0);
-                schuelerin.Nachname = sqliteDatareader.GetString(1);
-                schuelerin.Vorname = sqliteDatareader.GetString(2);
-                schuelerin.Mail = sqliteDatareader.GetString(3);
-                schuelerin.Klasse = sqliteDatareader.GetString(4);
-                schuelerin.Nutzername = sqliteDatareader.GetString(5);
-                schuelerin.Aixmail = sqliteDatareader.GetString(6);
-                schuelerin.Zweitaccount = Convert.ToBoolean(sqliteDatareader.GetInt32(7));
-                schuelerin.Zweitmail = sqliteDatareader.GetString(8);
+                SuS schuelerin = new()
+                {
+                    ID = sqliteDatareader.GetInt32(0),
+                    Nachname = sqliteDatareader.GetString(1),
+                    Vorname = sqliteDatareader.GetString(2),
+                    Mail = sqliteDatareader.GetString(3),
+                    Klasse = sqliteDatareader.GetString(4),
+                    Nutzername = sqliteDatareader.GetString(5),
+                    Aixmail = sqliteDatareader.GetString(6),
+                    Zweitaccount = Convert.ToBoolean(sqliteDatareader.GetInt32(7)),
+                    Zweitmail = sqliteDatareader.GetString(8)
+                };
+                susliste.Add(schuelerin);
             }
 
-            return schuelerin;
+            return susliste;
         }
 
         /// <summary>
@@ -2169,99 +2171,100 @@ namespace SchulDB
                         nachname = tmpkurs[inn];
                     }
 
-                    var stmp = await GetSchueler(tmpkurs[inv].Replace("'", ""), nachname.Replace("'", ""));
+                    var susliste = await GetSchueler(tmpkurs[inv].Replace("'", ""), nachname.Replace("'", ""));
                     var ltmp = await GetLehrkraft(krz);
-                    if (stmp.ID > 50000 && ltmp.ID > 0)
+                    foreach (var stmp in susliste)
                     {
-                        var klasse = stmp.Klasse;
-                        if (klasse != kursklasse && kursklasse != "")
+                        if (stmp.ID > 50000 && ltmp.ID > 0)
                         {
-                            await AddLogMessage("Hinweis",
-                                $"Klassenmismatch bei {stmp.Nachname}, {stmp.Vorname}; {stmp.ID} aus Klasse {stmp.Klasse}: Gefunden Klasse: {kursklasse}");
-                            continue;
-                        }
-
-                        var stufe = klasse[..2];
-                        if (!(stufe.Equals("EF") || stufe.Equals("Q1") || stufe.Equals("Q2")))
-                        {
-                            if (!stufe.Equals("10"))
+                            var klasse = stmp.Klasse;
+                            if (klasse != kursklasse && kursklasse != "")
                             {
-                                stufe = klasse[..1];
+                                continue;
                             }
 
-                            //Klassenkurse
-                            var klkurs = klasse + "KL";
-                            if (string.IsNullOrEmpty(GetKurs(klkurs).Result.Bezeichnung)) //Kurs nicht existent
+                            var stufe = klasse[..2];
+                            if (!(stufe.Equals("EF") || stufe.Equals("Q1") || stufe.Equals("Q2")))
                             {
-                                await AddKurs(klkurs, "KL", klasse, stufe, fachsuffix, 0);
-                            }
-
-                            await AddStoK(Convert.ToInt32(stmp.ID), klkurs);
-                            await AddLtoK(Convert.ToInt32(ltmp.ID), klkurs);
-                        }
-                        else
-                        {
-                            klasse = stufe;
-                        }
-
-                        var kursart = tmpkurs[inka];
-                        if (kursart != "")
-                        {
-                            string fach;
-                            if (!kursart.Equals("PUK") &&
-                                !kursart.Equals("ZUV")) //PUK = Klassenunterricht; ZUV = Zusatzveranstaltung
-                            {
-                                fach = tmpkurs[inf];
-                                for (var k = 0; k < fachersetzung.Count - 1; k++)
+                                if (!stufe.Equals("10"))
                                 {
-                                    if (fach.Equals(fachersetzung[k].Split(':')[0]))
-                                    {
-                                        fach = fachersetzung[k].Split(':')[1];
-                                    }
+                                    stufe = klasse[..1];
                                 }
 
-                                var bez = stufe + "-" + tmpkurs[ink];
-                                if (string.IsNullOrEmpty(GetKurs(bez).Result.Bezeichnung))
+                                //Klassenkurse
+                                var klkurs = klasse + "KL";
+                                if (string.IsNullOrEmpty(GetKurs(klkurs).Result.Bezeichnung)) //Kurs nicht existent
                                 {
-                                    await AddKurs(bez, fach, stufe, stufe, fachsuffix, 1);
+                                    await AddKurs(klkurs, "KL", klasse, stufe, fachsuffix, 0);
                                 }
 
-                                await AddStoK(Convert.ToInt32(stmp.ID), bez);
-                                await AddLtoK(Convert.ToInt32(ltmp.ID), bez);
+                                await AddStoK(Convert.ToInt32(stmp.ID), klkurs);
+                                await AddLtoK(Convert.ToInt32(ltmp.ID), klkurs);
                             }
                             else
                             {
-                                fach = tmpkurs[inf];
-                                for (var k = 0; k < fachersetzung.Count - 1; k++)
+                                klasse = stufe;
+                            }
+
+                            var kursart = tmpkurs[inka];
+                            if (kursart != "")
+                            {
+                                string fach;
+                                if (!kursart.Equals("PUK") &&
+                                    !kursart.Equals("ZUV")) //PUK = Klassenunterricht; ZUV = Zusatzveranstaltung
                                 {
-                                    if (fach.Equals(fachersetzung[k].Split(':')[0]))
+                                    fach = tmpkurs[inf];
+                                    for (var k = 0; k < fachersetzung.Count - 1; k++)
                                     {
-                                        fach = fachersetzung[k].Split(':')[1];
+                                        if (fach.Equals(fachersetzung[k].Split(':')[0]))
+                                        {
+                                            fach = fachersetzung[k].Split(':')[1];
+                                        }
                                     }
-                                }
 
-                                var bez = klasse + fach;
-                                if (string.IsNullOrEmpty(GetKurs(bez).Result.Bezeichnung))
+                                    var bez = stufe + "-" + tmpkurs[ink];
+                                    if (string.IsNullOrEmpty(GetKurs(bez).Result.Bezeichnung))
+                                    {
+                                        await AddKurs(bez, fach, stufe, stufe, fachsuffix, 1);
+                                    }
+
+                                    await AddStoK(Convert.ToInt32(stmp.ID), bez);
+                                    await AddLtoK(Convert.ToInt32(ltmp.ID), bez);
+                                }
+                                else
                                 {
-                                    await AddKurs(bez, fach, klasse, stufe, fachsuffix, 0);
-                                }
+                                    fach = tmpkurs[inf];
+                                    for (var k = 0; k < fachersetzung.Count - 1; k++)
+                                    {
+                                        if (fach.Equals(fachersetzung[k].Split(':')[0]))
+                                        {
+                                            fach = fachersetzung[k].Split(':')[1];
+                                        }
+                                    }
 
-                                await AddStoK(Convert.ToInt32(stmp.ID), bez);
-                                await AddLtoK(Convert.ToInt32(ltmp.ID), bez);
+                                    var bez = klasse + fach;
+                                    if (string.IsNullOrEmpty(GetKurs(bez).Result.Bezeichnung))
+                                    {
+                                        await AddKurs(bez, fach, klasse, stufe, fachsuffix, 0);
+                                    }
+
+                                    await AddStoK(Convert.ToInt32(stmp.ID), bez);
+                                    await AddLtoK(Convert.ToInt32(ltmp.ID), bez);
+                                }
+                            }
+                            else
+                            {
+                                await AddLogMessage("Fehler",
+                                    "SuS" + stmp.ID + ":" + stmp.Nachname + "," + stmp.Vorname + " aus " + stmp.Klasse +
+                                    " hat invalide Kurs-Art");
                             }
                         }
                         else
                         {
-                            await AddLogMessage("Fehler",
-                                "SuS" + stmp.ID + ":" + stmp.Nachname + "," + stmp.Vorname + " aus " + stmp.Klasse +
-                                " hat invalide Kurs-Art");
+                            await AddLogMessage("Hinweis",
+                                "LehrerIn\t" + krz + " oder SchülerIn " + stmp.ID + " " + tmpkurs[inv] + " " +
+                                tmpkurs[inn] + "\tunbekannt");
                         }
-                    }
-                    else
-                    {
-                        await AddLogMessage("Hinweis",
-                            "LehrerIn\t" + krz + " oder SchülerIn " + stmp.ID + " " + tmpkurs[inv] + " " +
-                            tmpkurs[inn] + "\tunbekannt");
                     }
                 }
                 catch (Exception ex)
