@@ -373,7 +373,7 @@ namespace SchulDB
         /// <returns></returns>
         public async Task AddLtoK(LuL lehrkraft, Kurs kurs)
         {
-            if (string.IsNullOrEmpty(kurs.Bezeichnung)) return;
+            if (string.IsNullOrEmpty(kurs.Bezeichnung)||lehrkraft.ID==0) return;
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText = "INSERT OR IGNORE INTO unterrichtet (lehrerid, kursbez) VALUES ($lid, $kbez);";
             sqliteCmd.Parameters.AddWithValue("$lid", lehrkraft.ID);
