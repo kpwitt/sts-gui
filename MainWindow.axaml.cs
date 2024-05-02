@@ -1,4 +1,3 @@
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
@@ -742,7 +741,7 @@ namespace StS_GUI_Avalonia
                         ButtonDefinitions = ButtonEnum.Ok,
                         ContentTitle = "Über",
                         ContentMessage =
-                            Application.Current?.Name + "\n" + version,
+                            "SchildToSchule" + "\n" + version,
                         Icon = MsBox.Avalonia.Enums.Icon.Setting,
                         WindowIcon = _msgBoxWindowIcon
                     }).ShowAsPopupAsync(this);
