@@ -64,9 +64,52 @@ namespace StS_GUI_Avalonia
             InitGUI();
             if (args.Count != 1) return;
             var filepath = args[0];
-            if (!File.Exists(filepath) || !filepath.EndsWith(".sqlite")) return;
-            _myschool = new Schuldatenbank(filepath);
-            Title = "SchildToSchule - " + _myschool.GetFilePath().Result;
+            if (!File.Exists(filepath)) return;
+            if (filepath.EndsWith(".sqlite"))
+            {
+                _myschool = new Schuldatenbank(filepath);
+                Title = "SchildToSchule - " + _myschool.GetFilePath().Result;
+            }
+            else if (filepath.EndsWith(".aes"))
+            {
+                Console.WriteLine("Bitte den Ausgabepfad angeben:");
+                var outputFilePath = Console.ReadLine();
+                if (string.IsNullOrEmpty(outputFilePath))
+                {
+                    Console.WriteLine("Ungültiger Pfad.");
+                    return;
+                }
+
+                if (File.Exists(outputFilePath))
+                {
+                    Console.WriteLine("Ausgabedatei existiert bereits.");
+                    return;
+                }
+                Console.WriteLine("Bitte das Password eingeben:");
+                var password = "";
+                ConsoleKeyInfo keyInfo;
+                do
+                {
+                    keyInfo = Console.ReadKey(true);
+                    // Skip if Backspace or Enter is Pressed
+                    if (keyInfo.Key != ConsoleKey.Backspace && keyInfo.Key != ConsoleKey.Enter)
+                    {
+                        password += keyInfo.KeyChar;
+                        Console.Write("*");
+                    }
+                    else
+                    {
+                        if (keyInfo.Key != ConsoleKey.Backspace || password.Length <= 0) continue;
+                        // Remove last charcter if Backspace is Pressed
+                        password = password.Substring(0, (password.Length - 1));
+                        Console.Write("\b \b");
+                    }
+                } while (keyInfo.Key != ConsoleKey.Enter);
+
+                LocalCryptoServive.FileDecrypt(filepath, outputFilePath, password);
+                _myschool = new Schuldatenbank(outputFilePath);
+            }
+
             InitData();
         }
 
@@ -379,12 +422,15 @@ namespace StS_GUI_Avalonia
 
             foreach (var fach in faecher)
             {
-                var validfach = exportFavoTabGrid.Children.Where(c => !string.IsNullOrEmpty(c.Name)&& c.Name.Equals("cbExportFavo" + fach))
+                var validfach = exportFavoTabGrid.Children
+                    .Where(c => !string.IsNullOrEmpty(c.Name) && c.Name.Equals("cbExportFavo" + fach))
                     .ToList();
                 if (validfach.Count == 0) continue;
-                var favocb = (ComboBox)exportFavoTabGrid.Children.Where(c => !string.IsNullOrEmpty(c.Name)&&c.Name.Equals("cbExportFavo" + fach))
+                var favocb = (ComboBox)exportFavoTabGrid.Children.Where(c =>
+                        !string.IsNullOrEmpty(c.Name) && c.Name.Equals("cbExportFavo" + fach))
                     .ToList()[0];
-                var sfavocb = (ComboBox)exportFavoTabGrid.Children.Where(c => !string.IsNullOrEmpty(c.Name)&&c.Name.Equals("cbExportSFavo" + fach))
+                var sfavocb = (ComboBox)exportFavoTabGrid.Children.Where(c =>
+                        !string.IsNullOrEmpty(c.Name) && c.Name.Equals("cbExportSFavo" + fach))
                     .ToList()[0];
                 var favo = favos.Where(l => l.Favo.Split(',').Contains(fach)).ToList();
                 if (favo.Count > 0)
@@ -581,7 +627,7 @@ namespace StS_GUI_Avalonia
 
             async Task LoadEncDbFile()
             {
-                var encFileType = new List<FilePickerFileType> { StSFileTypes.EncryptedFile };
+                var encFileType = new List<FilePickerFileType> { StSFileTypes.DataBaseFile };
                 var saveFile = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", encFileType);
                 var outputFilePath = saveFile?.Path.LocalPath;
                 if (outputFilePath == null) return;
@@ -996,7 +1042,7 @@ namespace StS_GUI_Avalonia
             OnRightDataChanged(true);
         }
 
-        private void InitData()
+        private async void InitData()
         {
             if (CboxDataLeft == null || CboxDataRight == null) return;
             CboxDataLeft.SelectedIndex = 0;
@@ -1006,6 +1052,7 @@ namespace StS_GUI_Avalonia
             llist.Sort(Comparer<string>.Default);
             ResetItemsSource(LeftListBox, llist);
             loadSettingsToGUI(_myschool.GetSettings().Result);
+            await loadFavos();
         }
 
         private void loadSettingsToGUI(Settings settings)
