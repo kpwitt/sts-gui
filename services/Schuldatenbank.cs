@@ -2795,7 +2795,7 @@ namespace SchulDB
 
         public async void UpdateLehrkraft(LuL l)
         {
-            if (string.IsNullOrEmpty(l.Kuerzel) || l.ID < 1) return;
+            if (string.IsNullOrEmpty(l.Kuerzel) || l.ID <= 0) return;
             await UpdateLehrkraft(l.ID, l.Vorname, l.Nachname, l.Kuerzel, l.Mail, l.Fakultas, l.Pwttemp, l.Favo,
                 l.SFavo);
         }
