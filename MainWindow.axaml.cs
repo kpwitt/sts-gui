@@ -82,8 +82,9 @@ namespace StS_GUI_Avalonia
 
                 if (File.Exists(outputFilePath))
                 {
-                    Console.WriteLine("Ausgabedatei existiert bereits.");
-                    return;
+                    Console.WriteLine("Ausgabedatei existiert bereits. Soll sie überschrieben werden? (j/N)");
+                    var inputline = Console.ReadLine();
+                    if (inputline!="j") return;
                 }
                 Console.WriteLine("Bitte das Password eingeben:");
                 var password = "";
@@ -101,7 +102,7 @@ namespace StS_GUI_Avalonia
                     {
                         if (keyInfo.Key != ConsoleKey.Backspace || password.Length <= 0) continue;
                         // Remove last charcter if Backspace is Pressed
-                        password = password.Substring(0, (password.Length - 1));
+                        password = password[..^1];
                         Console.Write("\b \b");
                     }
                 } while (keyInfo.Key != ConsoleKey.Enter);
@@ -363,7 +364,6 @@ namespace StS_GUI_Avalonia
             _myschool = new Schuldatenbank(filepath);
             Title = "SchildToSchule - " + await _myschool.GetFilePath();
             InitData();
-            await loadFavos();
         }
 
         private async Task loadFavos()
@@ -482,6 +482,11 @@ namespace StS_GUI_Avalonia
                 }
 
                 var filepath = files.Path.LocalPath;
+                if (File.Exists(filepath))
+                {
+                    var override_res = await ShowOverwriteDialog();
+                    if (override_res != ButtonResult.Yes) return;
+                }
                 var tempDB = new Schuldatenbank(filepath);
                 var res = await tempDB.Import(_myschool);
                 await Dispatcher.UIThread.InvokeAsync(async () =>
@@ -526,6 +531,11 @@ namespace StS_GUI_Avalonia
                 var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
                 if (files == null) return;
                 var filepath = files.Path.LocalPath;
+                if (File.Exists(filepath))
+                {
+                    var override_res = await ShowOverwriteDialog();
+                    if (override_res != ButtonResult.Yes) return;
+                }
                 var tempDB = new Schuldatenbank(filepath);
                 var res = await tempDB.Import(_myschool);
                 await Dispatcher.UIThread.InvokeAsync(async () =>
@@ -567,19 +577,6 @@ namespace StS_GUI_Avalonia
             if (string.IsNullOrEmpty(inputResult)) return;
 
             await Dispatcher.UIThread.InvokeAsync(SaveEncDbFile);
-            await Dispatcher.UIThread.InvokeAsync(() =>
-            {
-                MessageBoxManager.GetMessageBoxStandard(
-                    new MessageBoxStandardParams
-                    {
-                        ButtonDefinitions = ButtonEnum.Ok,
-                        ContentTitle = "Information",
-                        ContentMessage =
-                            "Speichern erfolgreich",
-                        Icon = MsBox.Avalonia.Enums.Icon.Info,
-                        WindowIcon = _msgBoxWindowIcon
-                    }).ShowAsPopupAsync(this);
-            });
             return;
 
             async Task SaveEncDbFile()
@@ -588,10 +585,28 @@ namespace StS_GUI_Avalonia
                 var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
                 if (files == null) return;
                 var filepath = files.Path.LocalPath;
+                if (File.Exists(filepath))
+                {
+                    var override_res = await ShowOverwriteDialog();
+                    if (override_res != ButtonResult.Yes) return;
+                }
                 var dbPath = await _myschool.GetFilePath();
                 _myschool.Dispose();
                 LocalCryptoServive.FileEncrypt(dbPath, filepath, inputResult);
                 _myschool = new Schuldatenbank(dbPath);
+                await Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    MessageBoxManager.GetMessageBoxStandard(
+                        new MessageBoxStandardParams
+                        {
+                            ButtonDefinitions = ButtonEnum.Ok,
+                            ContentTitle = "Information",
+                            ContentMessage =
+                                "Speichern erfolgreich",
+                            Icon = MsBox.Avalonia.Enums.Icon.Info,
+                            WindowIcon = _msgBoxWindowIcon
+                        }).ShowAsPopupAsync(this);
+                });
             }
 
             async Task<string?> GetPasswordInput()
@@ -771,6 +786,13 @@ namespace StS_GUI_Avalonia
                     !File.Exists(folderpath + "/kurse.csv"))
                 {
                     await _myschool.DumpDataToCSVs(folderpath);
+                }
+                else
+                {
+                    
+                        var override_res = await ShowOverwriteDialog();
+                        if (override_res != ButtonResult.Yes) return;
+                        await _myschool.DumpDataToCSVs(folderpath);
                 }
             }
         }
@@ -2739,6 +2761,11 @@ namespace StS_GUI_Avalonia
                 var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
                 if (files == null) return;
                 var filepath = files.Path.LocalPath;
+                if (File.Exists(filepath))
+                {
+                    var override_res = await ShowOverwriteDialog();
+                    if (override_res != ButtonResult.Yes) return;
+                }
                 List<string> lulliste = new() { "Kürzel;Nachname;Fächer;Mailadresse" };
                 lulliste.AddRange(_myschool.GetLehrerListe().Result.Select(lehrer =>
                     lehrer.Kuerzel + ";" + lehrer.Nachname + ";" + lehrer.Fakultas + @";\underline{\href{mailto:" +
@@ -2833,7 +2860,26 @@ namespace StS_GUI_Avalonia
             sourceList.Items.Clear();
             sourceList.ItemsSource = dataList;
         }
-
+        
+        /// <summary>
+        /// zeigt die Abfrage, ob Dateien überschrieben werden sollen
+        /// </summary>
+        /// <returns>ausgewählter Button</returns>
+        private async Task<ButtonResult> ShowOverwriteDialog()
+        {
+            var overwriteFilesDialog = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
+            {
+                ButtonDefinitions = ButtonEnum.YesNo,
+                ContentTitle = "Dateien gefunden",
+                ContentHeader = "Überschreiben?",
+                ContentMessage =
+                    "Die Datei(en) ist/sind schon vorhanden.\nSollen diese überschrieben werden?",
+                Icon = MsBox.Avalonia.Enums.Icon.Question,
+                WindowIcon = _msgBoxWindowIcon
+            });
+            var dialogResult = await overwriteFilesDialog.ShowAsPopupAsync(this);
+            return dialogResult;
+        }
         private async void BtnSonstOberstufenLuLKurse_OnClick(object? sender, RoutedEventArgs e)
         {
             await _myschool.StartTransaction();
@@ -3123,19 +3169,6 @@ namespace StS_GUI_Avalonia
         private async void BtnExportFavos_OnClick(object? sender, RoutedEventArgs e)
         {
             await Dispatcher.UIThread.InvokeAsync(SaveFavosFile);
-            await Dispatcher.UIThread.InvokeAsync(() =>
-            {
-                MessageBoxManager.GetMessageBoxStandard(
-                    new MessageBoxStandardParams
-                    {
-                        ButtonDefinitions = ButtonEnum.Ok,
-                        ContentTitle = "Information",
-                        ContentMessage =
-                            "Speichern erfolgreich",
-                        Icon = MsBox.Avalonia.Enums.Icon.Info,
-                        WindowIcon = _msgBoxWindowIcon
-                    }).ShowAsPopupAsync(this);
-            });
             return;
 
             async Task SaveFavosFile()
@@ -3143,9 +3176,27 @@ namespace StS_GUI_Avalonia
                 var files = await ShowOpenFolderDialog("Bitte einen Dateipfad angeben...");
                 if (files == null) return;
                 var filepath = files.Path.LocalPath + "/mdl_einschreibungen.csv";
+                if (File.Exists(filepath))
+                {
+                    var override_res = await ShowOverwriteDialog();
+                    if (override_res != ButtonResult.Yes) return;
+                }
                 var favos = await _myschool.getFavos();
                 var stringifiedFavos = favos.Select(lehrkraft => "add,student," + lehrkraft.ID + ",EtatK").ToList();
                 await File.WriteAllLinesAsync(filepath, stringifiedFavos, Encoding.UTF8);
+                await Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    MessageBoxManager.GetMessageBoxStandard(
+                        new MessageBoxStandardParams
+                        {
+                            ButtonDefinitions = ButtonEnum.Ok,
+                            ContentTitle = "Information",
+                            ContentMessage =
+                                "Speichern erfolgreich",
+                            Icon = MsBox.Avalonia.Enums.Icon.Info,
+                            WindowIcon = _msgBoxWindowIcon
+                        }).ShowAsPopupAsync(this);
+                });
             }
         }
 
@@ -3241,6 +3292,11 @@ namespace StS_GUI_Avalonia
                 if (files == null) return;
 
                 var filepath = files.Path.LocalPath;
+                if (File.Exists(filepath))
+                {
+                    var override_res = await ShowOverwriteDialog();
+                    if (override_res != ButtonResult.Yes) return;
+                }
                 await Dispatcher.UIThread.InvokeAsync(async () =>
                 {
                     try
