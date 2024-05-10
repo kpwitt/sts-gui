@@ -373,7 +373,7 @@ namespace SchulDB
         /// <returns></returns>
         public async Task AddLtoK(LuL lehrkraft, Kurs kurs)
         {
-            if (string.IsNullOrEmpty(kurs.Bezeichnung)||lehrkraft.ID==0) return;
+            if (string.IsNullOrEmpty(kurs.Bezeichnung) || lehrkraft.ID == 0) return;
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText = "INSERT OR IGNORE INTO unterrichtet (lehrerid, kursbez) VALUES ($lid, $kbez);";
             sqliteCmd.Parameters.AddWithValue("$lid", lehrkraft.ID);
@@ -2625,7 +2625,6 @@ namespace SchulDB
             sqliteCmd.Parameters.Clear();
             await SetKurzLangFach(settings.Kurzfaecher, settings.Langfaecher);
         }
-
 
         /// <summary>
         /// start von SQLite-Transaktionen zur Beschleunigung von Inserts oder Updates
