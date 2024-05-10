@@ -84,8 +84,9 @@ namespace StS_GUI_Avalonia
                 {
                     Console.WriteLine("Ausgabedatei existiert bereits. Soll sie überschrieben werden? (j/N)");
                     var inputline = Console.ReadLine();
-                    if (inputline!="j") return;
+                    if (inputline != "j") return;
                 }
+
                 Console.WriteLine("Bitte das Password eingeben:");
                 var password = "";
                 ConsoleKeyInfo keyInfo;
@@ -352,7 +353,7 @@ namespace StS_GUI_Avalonia
             return folders.Count > 0 ? folders[0] : null;
         }
 
-        public async void OnMnuSchoolLoadClick(object? sender, RoutedEventArgs e)
+        private async void OnMnuSchoolLoadClick(object? sender, RoutedEventArgs e)
         {
             var extx = new List<FilePickerFileType>
             {
@@ -446,7 +447,7 @@ namespace StS_GUI_Avalonia
             }
         }
 
-        public async void OnMnuschuleschließenClick(object? sender, RoutedEventArgs e)
+        private async void OnMnuschuleschließenClick(object? sender, RoutedEventArgs e)
         {
             if (_myschool.GetFilePath().Result != ":memory:")
             {
@@ -487,6 +488,7 @@ namespace StS_GUI_Avalonia
                     var override_res = await ShowOverwriteDialog();
                     if (override_res != ButtonResult.Yes) return;
                 }
+
                 var tempDB = new Schuldatenbank(filepath);
                 var res = await tempDB.Import(_myschool);
                 await Dispatcher.UIThread.InvokeAsync(async () =>
@@ -520,7 +522,7 @@ namespace StS_GUI_Avalonia
             }
         }
 
-        public async void OnMnuschulespeichernunterClick(object? sender, RoutedEventArgs e)
+        private async void OnMnuschulespeichernunterClick(object? sender, RoutedEventArgs e)
         {
             await Dispatcher.UIThread.InvokeAsync(SaveDbFileAs);
             return;
@@ -536,6 +538,7 @@ namespace StS_GUI_Avalonia
                     var override_res = await ShowOverwriteDialog();
                     if (override_res != ButtonResult.Yes) return;
                 }
+
                 var tempDB = new Schuldatenbank(filepath);
                 var res = await tempDB.Import(_myschool);
                 await Dispatcher.UIThread.InvokeAsync(async () =>
@@ -569,7 +572,7 @@ namespace StS_GUI_Avalonia
             }
         }
 
-        public async void OnMnuschuleversspeichernClick(object? sender, RoutedEventArgs e)
+        private async void OnMnuschuleversspeichernClick(object? sender, RoutedEventArgs e)
         {
             if (_myschool.GetFilePath().Result == ":memory:") return;
 
@@ -590,6 +593,7 @@ namespace StS_GUI_Avalonia
                     var override_res = await ShowOverwriteDialog();
                     if (override_res != ButtonResult.Yes) return;
                 }
+
                 var dbPath = await _myschool.GetFilePath();
                 _myschool.Dispose();
                 LocalCryptoServive.FileEncrypt(dbPath, filepath, inputResult);
@@ -617,7 +621,7 @@ namespace StS_GUI_Avalonia
             }
         }
 
-        public async void OnMnuversschuleladenClick(object? sender, RoutedEventArgs e)
+        private async void OnMnuversschuleladenClick(object? sender, RoutedEventArgs e)
         {
             var extx = new List<FilePickerFileType>
             {
@@ -653,13 +657,13 @@ namespace StS_GUI_Avalonia
             }
         }
 
-        public void OnMnuexitClick(object? sender, RoutedEventArgs e)
+        private void OnMnuexitClick(object? sender, RoutedEventArgs e)
         {
             _myschool.Dispose();
             Environment.Exit(0);
         }
 
-        public async void OnMnuloadfolderClick(object? sender, RoutedEventArgs e)
+        private async void OnMnuloadfolderClick(object? sender, RoutedEventArgs e)
         {
             await Dispatcher.UIThread.InvokeAsync(ReadFileTask);
             return;
@@ -707,7 +711,7 @@ namespace StS_GUI_Avalonia
             }
         }
 
-        public async void OnMnuloadsusfromfileClick(object? sender, RoutedEventArgs e)
+        private async void OnMnuloadsusfromfileClick(object? sender, RoutedEventArgs e)
         {
             var extx = new List<FilePickerFileType>
             {
@@ -720,7 +724,7 @@ namespace StS_GUI_Avalonia
             await _myschool.SusEinlesen(filePath);
         }
 
-        public async void OnMnuloadlulfromfileClick(object? sender, RoutedEventArgs e)
+        private async void OnMnuloadlulfromfileClick(object? sender, RoutedEventArgs e)
         {
             var extx = new List<FilePickerFileType>
             {
@@ -733,7 +737,7 @@ namespace StS_GUI_Avalonia
             await _myschool.LulEinlesen(filePath);
         }
 
-        public async void OnMnuloadkursefromfileClick(object? sender, RoutedEventArgs e)
+        private async void OnMnuloadkursefromfileClick(object? sender, RoutedEventArgs e)
         {
             var extx = new List<FilePickerFileType>
             {
@@ -746,7 +750,7 @@ namespace StS_GUI_Avalonia
             await _myschool.KurseEinlesen(filePath);
         }
 
-        public async void OnMnuloadusernamesmailClick(object? sender, RoutedEventArgs e)
+        private async void OnMnuloadusernamesmailClick(object? sender, RoutedEventArgs e)
         {
             var extx = new List<FilePickerFileType>
             {
@@ -759,7 +763,7 @@ namespace StS_GUI_Avalonia
             await _myschool.IdsEinlesen(filePath);
         }
 
-        public async void OnMnuloadzweitaccountsClick(object? sender, RoutedEventArgs e)
+        private async void OnMnuloadzweitaccountsClick(object? sender, RoutedEventArgs e)
         {
             var extx = new List<FilePickerFileType>
             {
@@ -772,7 +776,7 @@ namespace StS_GUI_Avalonia
             await _myschool.ZweitAccountsEinlesen(filePath);
         }
 
-        public async void OnMnuexporttocsvClick(object? sender, RoutedEventArgs e)
+        private async void OnMnuexporttocsvClick(object? sender, RoutedEventArgs e)
         {
             await Dispatcher.UIThread.InvokeAsync(ReadFileTask);
             return;
@@ -789,15 +793,14 @@ namespace StS_GUI_Avalonia
                 }
                 else
                 {
-                    
-                        var override_res = await ShowOverwriteDialog();
-                        if (override_res != ButtonResult.Yes) return;
-                        await _myschool.DumpDataToCSVs(folderpath);
+                    var override_res = await ShowOverwriteDialog();
+                    if (override_res != ButtonResult.Yes) return;
+                    await _myschool.DumpDataToCSVs(folderpath);
                 }
             }
         }
 
-        public async void OnMnuaboutClick(object? sender, RoutedEventArgs e)
+        private async void OnMnuaboutClick(object? sender, RoutedEventArgs e)
         {
             var version = Assembly.GetExecutingAssembly().GetName().Version;
             if (version == null) return;
@@ -816,7 +819,7 @@ namespace StS_GUI_Avalonia
             });
         }
 
-        public async void OnBtnsusaddClick(object? sender, RoutedEventArgs e)
+        private async void OnBtnsusaddClick(object? sender, RoutedEventArgs e)
         {
             var susid = tbSuSID.Text;
             var susvname = tbSuSVorname.Text;
@@ -899,7 +902,7 @@ namespace StS_GUI_Avalonia
             }
         }
 
-        public async void OnBtnsusdelClick(object? sender, RoutedEventArgs e)
+        private async void OnBtnsusdelClick(object? sender, RoutedEventArgs e)
         {
             var susid = tbSuSID.Text;
             if (susid is null or "" || !susid.All(char.IsDigit)) return;
@@ -936,7 +939,7 @@ namespace StS_GUI_Avalonia
             OnRightDataChanged(true);
         }
 
-        public async void OnbtnsuseinschreibenClick(object? sender, RoutedEventArgs e)
+        private async void OnbtnsuseinschreibenClick(object? sender, RoutedEventArgs e)
         {
             var susid = tbSuSID.Text;
             var sid = Convert.ToInt32(susid);
@@ -947,7 +950,7 @@ namespace StS_GUI_Avalonia
             OnRightDataChanged(true);
         }
 
-        public async void OnBtnluladdClick(object? sender, RoutedEventArgs e)
+        private async void OnBtnluladdClick(object? sender, RoutedEventArgs e)
         {
             var lulid = tbLuLID.Text;
             var lulvname = tbLuLVorname.Text;
@@ -1029,7 +1032,7 @@ namespace StS_GUI_Avalonia
             OnRightDataChanged(true);
         }
 
-        public async void OnBtnluldelClick(object? sender, RoutedEventArgs e)
+        private async void OnBtnluldelClick(object? sender, RoutedEventArgs e)
         {
             var lulid = tbLuLID.Text;
             if (lulid is null or "" || !lulid.All(char.IsDigit)) return;
@@ -2766,6 +2769,7 @@ namespace StS_GUI_Avalonia
                     var override_res = await ShowOverwriteDialog();
                     if (override_res != ButtonResult.Yes) return;
                 }
+
                 List<string> lulliste = new() { "Kürzel;Nachname;Fächer;Mailadresse" };
                 lulliste.AddRange(_myschool.GetLehrerListe().Result.Select(lehrer =>
                     lehrer.Kuerzel + ";" + lehrer.Nachname + ";" + lehrer.Fakultas + @";\underline{\href{mailto:" +
@@ -2860,7 +2864,7 @@ namespace StS_GUI_Avalonia
             sourceList.Items.Clear();
             sourceList.ItemsSource = dataList;
         }
-        
+
         /// <summary>
         /// zeigt die Abfrage, ob Dateien überschrieben werden sollen
         /// </summary>
@@ -2880,6 +2884,7 @@ namespace StS_GUI_Avalonia
             var dialogResult = await overwriteFilesDialog.ShowAsPopupAsync(this);
             return dialogResult;
         }
+
         private async void BtnSonstOberstufenLuLKurse_OnClick(object? sender, RoutedEventArgs e)
         {
             await _myschool.StartTransaction();
@@ -3181,6 +3186,7 @@ namespace StS_GUI_Avalonia
                     var override_res = await ShowOverwriteDialog();
                     if (override_res != ButtonResult.Yes) return;
                 }
+
                 var favos = await _myschool.getFavos();
                 var stringifiedFavos = favos.Select(lehrkraft => "add,student," + lehrkraft.ID + ",EtatK").ToList();
                 await File.WriteAllLinesAsync(filepath, stringifiedFavos, Encoding.UTF8);
@@ -3297,6 +3303,7 @@ namespace StS_GUI_Avalonia
                     var override_res = await ShowOverwriteDialog();
                     if (override_res != ButtonResult.Yes) return;
                 }
+
                 await Dispatcher.UIThread.InvokeAsync(async () =>
                 {
                     try
