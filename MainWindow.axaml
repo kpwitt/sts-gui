@@ -46,9 +46,9 @@
                         <Separator />
                         <MenuItem Header="Schule speichern _unter" x:Name="mnuSchuleSpeichernUnter"
                                   Click="OnMnuschulespeichernunterClick" />
-                        <MenuItem Header="Schüle _verschlüsselt speichern" x:Name="mnuSchuleVersSpeichern"
+                        <MenuItem Header="Schule _verschlüsselt speichern" x:Name="mnuSchuleVersSpeichern"
                                   Click="OnMnuschuleversspeichernClick" />
-                        <MenuItem Header="Verschlüsselte Schule laden" x:Name="mnuVersSchuleLaden"
+                        <MenuItem Header="Verschlüsselte _Schule laden" x:Name="mnuVersSchuleLaden"
                                   Click="OnMnuversschuleladenClick" />
                         <Separator />
                         <MenuItem Header="_Beenden" x:Name="mnuExit" Click="OnMnuexitClick" />
