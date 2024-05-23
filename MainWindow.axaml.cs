@@ -1,3 +1,13 @@
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Text.Json;
+using System.Threading.Tasks;
+using System.Timers;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
@@ -10,16 +20,6 @@ using MsBox.Avalonia.Dto;
 using MsBox.Avalonia.Enums;
 using SchulDB;
 using StS_GUI_Avalonia.services;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
-using System.Timers;
 
 // ReSharper disable InconsistentNaming
 
@@ -813,7 +813,7 @@ namespace StS_GUI_Avalonia
                         ContentTitle = "Über",
                         ContentMessage =
                             "SchildToSchule" + "\n" + version,
-                        Icon = MsBox.Avalonia.Enums.Icon.Setting,
+                        Icon = MsBox.Avalonia.Enums.Icon.Database,
                         WindowIcon = _msgBoxWindowIcon
                     }).ShowAsPopupAsync(this);
             });
