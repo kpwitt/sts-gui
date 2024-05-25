@@ -2996,42 +2996,92 @@ namespace StS_GUI_Avalonia
                     return;
             }
 
-            var kursliste = kurscache.Where(k => tbSonst3.Text.Split(";").Contains(k.Bezeichnung)).ToList();
-            if (kursliste.Count < 1) return;
-            switch (cbSonst1.SelectedIndex)
+            if (rbEinschreiben.IsChecked == true)
             {
-                case 0 or 1 when susliste.Count < 1:
-                    return;
-                case 0 or 1:
+                var kursliste = kurscache.Where(k => tbSonst3.Text.Split(";").Contains(k.Bezeichnung)).ToList();
+                if (kursliste.Count < 1) return;
+                switch (cbSonst1.SelectedIndex)
                 {
-                    await _myschool.StartTransaction();
-                    foreach (var kurs in kursliste)
+                    case 0 or 1 when susliste.Count < 1:
+                        return;
+                    case 0 or 1:
                     {
-                        foreach (var sus in susliste)
+                        await _myschool.StartTransaction();
+                        foreach (var kurs in kursliste)
                         {
-                            await _myschool.AddStoK(sus, kurs);
+                            foreach (var sus in susliste)
+                            {
+                                await _myschool.AddStoK(sus, kurs);
+                            }
                         }
-                    }
 
-                    await _myschool.StopTransaction();
-                    return;
+                        await _myschool.StopTransaction();
+                        return;
+                    }
+                    case 2 or 3 when lulliste.Count < 1:
+                        return;
+                    case 2 or 3:
+                    {
+                        await _myschool.StartTransaction();
+                        foreach (var kurs in kursliste)
+                        {
+                            foreach (var lul in lulliste)
+                            {
+                                await _myschool.AddLtoK(lul, kurs);
+                            }
+                        }
+
+                        await _myschool.StopTransaction();
+                        return;
+                    }
                 }
-                case 2 or 3 when lulliste.Count < 1:
-                    return;
-                case 2 or 3:
+            }
+            else if (rbDateiEinschreiben.IsChecked == true)
+            {
+                var path = await Dispatcher.UIThread.InvokeAsync(AskForFilepath);
+                if (string.IsNullOrEmpty(path)) return;
+                var ListToFile = new List<string>();
+                switch (cbSonst1.SelectedIndex)
                 {
-                    await _myschool.StartTransaction();
-                    foreach (var kurs in kursliste)
+                    case 0 or 1 when susliste.Count < 1:
+                        return;
+                    case 0 or 1:
                     {
-                        foreach (var lul in lulliste)
+                        foreach (var kurs in tbSonst3.Text.Split(';'))
                         {
-                            await _myschool.AddLtoK(lul, kurs);
+                            ListToFile.AddRange(susliste.Select(sus => $"add,schueler,{sus.ID},{kurs}"));
                         }
-                    }
 
-                    await _myschool.StopTransaction();
-                    return;
+                        break;
+                    }
+                    case 2 or 3 when lulliste.Count < 1:
+                        break;
+                    case 2 or 3:
+                    {
+                        foreach (var kurs in tbSonst3.Text.Split(';'))
+                        {
+                            ListToFile.AddRange(lulliste.Select(luL => $"add,teacher,{luL.ID},{kurs}"));
+                            ;
+                        }
+
+                        break;
+                    }
                 }
+
+                await File.WriteAllLinesAsync(path, ListToFile);
+            }
+
+            return;
+
+            async Task<string> AskForFilepath()
+            {
+                var extx = new List<FilePickerFileType>
+                {
+                    StSFileTypes.CSVFile,
+                    FilePickerFileTypes.All
+                };
+                var file = await ShowSaveFileDialog("CSV speichern unter...", extx);
+                return file is null ? "" : file.Path.LocalPath;
             }
         }
 
