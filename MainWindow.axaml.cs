@@ -3397,6 +3397,11 @@ namespace StS_GUI_Avalonia
                 var files = await ShowOpenFileDialog("Bitte einen Dateipfad angeben...", extx);
                 if (files == null) return;
                 var filepath = files.Path.LocalPath;
+                if (File.Exists(filepath))
+                {
+                    var override_res = await ShowOverwriteDialog();
+                    if (override_res != ButtonResult.Yes) return;
+                }
                 try
                 {
                     var json_settings = JsonSerializer.Deserialize<Settings>(File.ReadAllTextAsync(filepath).Result);
