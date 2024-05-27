@@ -3061,7 +3061,6 @@ namespace StS_GUI_Avalonia
                         foreach (var kurs in tbSonst3.Text.Split(';'))
                         {
                             ListToFile.AddRange(lulliste.Select(luL => $"add,teacher,{luL.ID},{kurs}"));
-                            ;
                         }
 
                         break;
