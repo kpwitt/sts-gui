@@ -3038,8 +3038,13 @@ namespace StS_GUI_Avalonia
             }
             else if (rbDateiEinschreiben.IsChecked == true)
             {
-                var path = await Dispatcher.UIThread.InvokeAsync(AskForFilepath);
-                if (string.IsNullOrEmpty(path)) return;
+                var filepath = await Dispatcher.UIThread.InvokeAsync(AskForFilepath);
+                if (string.IsNullOrEmpty(filepath)) return;
+                if (File.Exists(filepath))
+                {
+                    var override_res = await ShowOverwriteDialog();
+                    if (override_res != ButtonResult.Yes) return;
+                }
                 var ListToFile = new List<string>();
                 switch (cbSonst1.SelectedIndex)
                 {
@@ -3067,7 +3072,7 @@ namespace StS_GUI_Avalonia
                     }
                 }
 
-                await File.WriteAllLinesAsync(path, ListToFile);
+                await File.WriteAllLinesAsync(filepath, ListToFile);
             }
 
             return;
@@ -3397,11 +3402,6 @@ namespace StS_GUI_Avalonia
                 var files = await ShowOpenFileDialog("Bitte einen Dateipfad angeben...", extx);
                 if (files == null) return;
                 var filepath = files.Path.LocalPath;
-                if (File.Exists(filepath))
-                {
-                    var override_res = await ShowOverwriteDialog();
-                    if (override_res != ButtonResult.Yes) return;
-                }
                 try
                 {
                     var json_settings = JsonSerializer.Deserialize<Settings>(File.ReadAllTextAsync(filepath).Result);
