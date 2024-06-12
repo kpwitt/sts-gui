@@ -1,4 +1,3 @@
-using Microsoft.Data.Sqlite;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -7,6 +6,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Data.Sqlite;
 
 // ReSharper disable InconsistentNaming
 
@@ -1150,7 +1150,7 @@ namespace SchulDB
                     {
                         var lt = await GetLehrkraft(l);
                         var fakultas = lt.Fakultas.Split(',');
-                        var maildienst = lt.Mail.Split('$')[0];
+                        var maildienst = lt.Mail.Split('@')[0];
                         var firstChar = maildienst[0];
                         var UpperCaseFirstCharacter = char.ToUpper(firstChar);
                         maildienst = UpperCaseFirstCharacter + maildienst[1..];
