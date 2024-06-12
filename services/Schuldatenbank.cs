@@ -82,7 +82,7 @@ namespace SchulDB
       )";
                 sqliteCmd.ExecuteNonQuery();
 
-                sqliteCmd.CommandText = $"CREATE INDEX IF NOT EXISTS kindex ON kurse(bez);";
+                sqliteCmd.CommandText = "CREATE INDEX IF NOT EXISTS kindex ON kurse(bez);";
                 sqliteCmd.ExecuteNonQuery();
 
                 sqliteCmd.CommandText = @"CREATE TABLE IF NOT EXISTS
