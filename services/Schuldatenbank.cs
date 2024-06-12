@@ -1150,7 +1150,7 @@ namespace SchulDB
                     {
                         var lt = await GetLehrkraft(l);
                         var fakultas = lt.Fakultas.Split(',');
-                        var maildienst = lt.Mail.Split('$')[0];
+                        var maildienst = lt.Mail.Split('@')[0];
                         var firstChar = maildienst[0];
                         var UpperCaseFirstCharacter = char.ToUpper(firstChar);
                         maildienst = UpperCaseFirstCharacter + maildienst[1..];
