@@ -1,4 +1,3 @@
-using Microsoft.Data.Sqlite;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -7,6 +6,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Data.Sqlite;
 
 // ReSharper disable InconsistentNaming
 
@@ -51,7 +51,7 @@ namespace SchulDB
       )";
                 sqliteCmd.ExecuteNonQuery();
 
-                sqliteCmd.CommandText = @"CREATE INDEX IF NOT EXISTS lindex ON lehrkraft(id);";
+                sqliteCmd.CommandText = "CREATE INDEX IF NOT EXISTS lindex ON lehrkraft(id);";
                 sqliteCmd.ExecuteNonQuery();
 
                 sqliteCmd.CommandText = @"CREATE TABLE IF NOT EXISTS
@@ -68,7 +68,7 @@ namespace SchulDB
       )";
                 sqliteCmd.ExecuteNonQuery();
 
-                sqliteCmd.CommandText = $"CREATE INDEX IF NOT EXISTS sindex ON schueler(id);";
+                sqliteCmd.CommandText = "CREATE INDEX IF NOT EXISTS sindex ON schueler(id);";
                 sqliteCmd.ExecuteNonQuery();
 
                 sqliteCmd.CommandText = @"CREATE TABLE IF NOT EXISTS
@@ -82,7 +82,7 @@ namespace SchulDB
       )";
                 sqliteCmd.ExecuteNonQuery();
 
-                sqliteCmd.CommandText = $"CREATE INDEX IF NOT EXISTS kindex ON kurse(bez);";
+                sqliteCmd.CommandText = "CREATE INDEX IF NOT EXISTS kindex ON kurse(bez);";
                 sqliteCmd.ExecuteNonQuery();
 
                 sqliteCmd.CommandText = @"CREATE TABLE IF NOT EXISTS
