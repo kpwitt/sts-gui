@@ -567,7 +567,8 @@ public class Schuldatenbank : IDisposable
             {
                 "Interne ID-Nummer"
             };
-            foreach (var schueler in susliste)
+            await Parallel.ForEachAsync(susliste, async (schueler, cancellationToken) =>
+                //foreach (var schueler in susliste)
             {
                 sliste.Add(schueler.Vorname + ";" + schueler.Nachname + ";" + schueler.ID + ";" + schueler.Mail +
                            ";" + schueler.Klasse);
@@ -577,18 +578,21 @@ public class Schuldatenbank : IDisposable
                     zweitaccounts.Add(schueler.ID + "");
                 }
 
-                foreach (var kurs in await GetKursVonSuS(schueler.ID))
+                await Parallel.ForEachAsync(GetKursVonSuS(schueler.ID).Result, cancellationToken, async (kurs, _) =>
+                    //foreach (var kurs in await GetKursVonSuS(schueler.ID))
                 {
                     var luls = await GetLuLAusKurs(kurs.Bezeichnung);
-                    if (luls.Count <= 0) continue;
-                    var l = await GetLehrkraft(luls[0].ID);
-                    var fach = kurs.Fach.IndexOf('-') > 0 ? kurs.Fach[..kurs.Fach.IndexOf('-')] : kurs.Fach;
-                    kurse.Add(schueler.Nachname + "|" + schueler.Vorname + "|" + fach + "|" +
-                              l.Kuerzel.ToUpper() +
-                              "|" + (kurs.IstKurs ? "PUK|" : "GKM|") +
-                              (kurs.IstKurs == false ? "" : kurs.Fach));
-                }
-            }
+                    if (luls.Count > 0)
+                    {
+                        var l = await GetLehrkraft(luls[0].ID);
+                        var fach = kurs.Fach.IndexOf('-') > 0 ? kurs.Fach[..kurs.Fach.IndexOf('-')] : kurs.Fach;
+                        kurse.Add(schueler.Nachname + "|" + schueler.Vorname + "|" + fach + "|" +
+                                  l.Kuerzel.ToUpper() +
+                                  "|" + (kurs.IstKurs ? "PUK|" : "GKM|") +
+                                  (kurs.IstKurs == false ? "" : kurs.Fach));
+                    }
+                });
+            });
 
             await File.WriteAllLinesAsync(folder + "/sus.csv", sliste.Distinct().ToList(), Encoding.UTF8);
             await File.WriteAllLinesAsync(folder + "/lul.csv", lulliste.Distinct().ToList(), Encoding.UTF8);
@@ -930,7 +934,7 @@ public class Schuldatenbank : IDisposable
 
             if (whattoexport.Contains('s'))
             {
-                await Parallel.ForEachAsync(susidliste,  CancellationToken.None, async( sus, CancellationToken) =>
+                await Parallel.ForEachAsync(susidliste, CancellationToken.None, async (sus, CancellationToken) =>
                     //   foreach (var sus in susidliste)
                 {
                     var s = GetSchueler(sus).Result;
@@ -1082,7 +1086,7 @@ public class Schuldatenbank : IDisposable
 
             if (whattoexport.Contains('l'))
             {
-                await Parallel.ForEachAsync(lulidliste, CancellationToken.None,  async(l, CancellationToken)=>
+                await Parallel.ForEachAsync(lulidliste, CancellationToken.None, async (l, CancellationToken) =>
                     //foreach (var l in lulidliste)
                 {
                     var lt = await GetLehrkraft(l);
@@ -1290,6 +1294,7 @@ public class Schuldatenbank : IDisposable
                         Encoding.UTF8);
                 }
             }
+
             return 1;
         }
         catch (Exception ex)
