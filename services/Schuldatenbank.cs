@@ -52,7 +52,7 @@ public class Schuldatenbank : IDisposable
       )";
             sqliteCmd.ExecuteNonQuery();
 
-            sqliteCmd.CommandText = @"CREATE INDEX IF NOT EXISTS lindex ON lehrkraft(id);";
+            sqliteCmd.CommandText = "CREATE INDEX IF NOT EXISTS lindex ON lehrkraft(id);";
             sqliteCmd.ExecuteNonQuery();
 
             sqliteCmd.CommandText = @"CREATE TABLE IF NOT EXISTS
@@ -69,7 +69,7 @@ public class Schuldatenbank : IDisposable
       )";
             sqliteCmd.ExecuteNonQuery();
 
-            sqliteCmd.CommandText = $"CREATE INDEX IF NOT EXISTS sindex ON schueler(id);";
+            sqliteCmd.CommandText = "CREATE INDEX IF NOT EXISTS sindex ON schueler(id);";
             sqliteCmd.ExecuteNonQuery();
 
             sqliteCmd.CommandText = @"CREATE TABLE IF NOT EXISTS

@@ -3056,6 +3056,32 @@ public partial class MainWindow : Window
                     {
                         ListToFile.AddRange(susliste.Select(sus => $"add,schueler,{sus.ID},{kurs}"));
                     }
+                    await _myschool.StopTransaction();
+                    return;
+                }
+            }
+        }
+        else if (rbDateiEinschreiben.IsChecked == true)
+        {
+            var filepath = await Dispatcher.UIThread.InvokeAsync(AskForFilepath);
+            if (string.IsNullOrEmpty(filepath)) return;
+            if (File.Exists(filepath))
+            {
+                var override_res = await ShowOverwriteDialog();
+                if (override_res != ButtonResult.Yes) return;
+            }
+
+            var ListToFile = new List<string>();
+            switch (cbSonst1.SelectedIndex)
+            {
+                case 0 or 1 when susliste.Count < 1:
+                    return;
+                case 0 or 1:
+                {
+                    foreach (var kurs in tbSonst3.Text.Split(';'))
+                    {
+                        ListToFile.AddRange(susliste.Select(sus => $"add,schueler,{sus.ID},{kurs}"));
+                    }
 
                     break;
                 }
