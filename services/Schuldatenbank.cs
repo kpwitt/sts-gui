@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
 
@@ -929,7 +930,8 @@ namespace SchulDB
 
                 if (whattoexport.Contains('s'))
                 {
-                    foreach (var sus in susidliste)
+                    await Parallel.ForEachAsync(susidliste,  CancellationToken.None, async( sus, CancellationToken) =>
+                     //   foreach (var sus in susidliste)
                     {
                         var s = GetSchueler(sus).Result;
                         var kListe = "";
@@ -996,7 +998,7 @@ namespace SchulDB
                             ausgabeAIXS.Add("\"" + s.Vorname + "\";\"" + s.Nachname + "\";\"" + s.Klasse + "\";\"" +
                                             s.ID + "\";\"" + kListe + "\"");
                         }
-                    }
+                    });
                 }
 
                 if (whattoexport.Contains('e'))
@@ -1080,7 +1082,8 @@ namespace SchulDB
 
                 if (whattoexport.Contains('l'))
                 {
-                    foreach (var l in lulidliste)
+                    await Parallel.ForEachAsync(lulidliste, CancellationToken.None,  async(l, CancellationToken)=>
+                    //foreach (var l in lulidliste)
                     {
                         var lt = await GetLehrkraft(l);
                         var kListe = "";
@@ -1141,7 +1144,7 @@ namespace SchulDB
                             ausgabeAIXL.Add("\"" + lt.Vorname + "\";\"" + lt.Nachname + "\";\"" + lt.ID + "\";\"*|" +
                                             kListe + fak + "\"");
                         }
-                    }
+                    });
                 }
 
                 if (destsys.Contains('i'))
@@ -1287,7 +1290,6 @@ namespace SchulDB
                             Encoding.UTF8);
                     }
                 }
-
                 return 1;
             }
             catch (Exception ex)
