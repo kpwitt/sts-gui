@@ -627,7 +627,7 @@ public class Schuldatenbank : IDisposable
             };
             foreach (var k in kursliste)
             {
-                var kurs = (await GetKurs(k));
+                var kurs = await GetKurs(k);
                 foreach (var schueler in await GetSuSAusKurs(k))
                 {
                     var l = (await GetLuLAusKurs(k))[0];
