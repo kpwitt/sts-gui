@@ -1749,8 +1749,14 @@ public partial class MainWindow : Window
 
             if (cbFehlerKurse.IsChecked != null && cbFehlerKurse.IsChecked.Value)
             {
+                var whitelist = new string[]
+                {
+                    "Erprobungsstufe",
+                    "Mittelstufe", "Einführungsphase",
+                    "Qualifikationsphase 1", "Qualifikationsphase 2"
+                };
                 ergebnisliste.AddRange(from kurs in _myschool.GetKursListe().Result
-                    where kurs.Fach.Length == 0 || kurs.Fach.Equals("---")
+                    where !whitelist.Contains(kurs.Bezeichnung) && (kurs.Fach.Length == 0 || kurs.Fach.Equals("---"))
                     select kurs.Bezeichnung + " mit fehlerhaftem Fach");
             }
 
@@ -3045,6 +3051,7 @@ public partial class MainWindow : Window
                 var override_res = await ShowOverwriteDialog();
                 if (override_res != ButtonResult.Yes) return;
             }
+
             var ListToFile = new List<string>();
             switch (cbSonst1.SelectedIndex)
             {
@@ -3056,6 +3063,7 @@ public partial class MainWindow : Window
                     {
                         ListToFile.AddRange(susliste.Select(sus => $"add,schueler,{sus.ID},{kurs}"));
                     }
+
                     await _myschool.StopTransaction();
                     return;
                 }
