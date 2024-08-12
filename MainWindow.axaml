@@ -59,7 +59,7 @@
                             <Separator />
                             <MenuItem Header="_SuS aus Datei" x:Name="mnuLoadSuSFromFile"
                                       Click="OnMnuloadsusfromfileClick" />
-                            <MenuItem Header="_Lehkräfte aus Datei" x:Name="mnuLoadLuLFromFile"
+                            <MenuItem Header="_Lehrkräfte aus Datei" x:Name="mnuLoadLuLFromFile"
                                       Click="OnMnuloadlulfromfileClick" />
                             <MenuItem Header="_Kurse aus Datei" x:Name="mnuLoadKurseFromFile"
                                       Click="OnMnuloadkursefromfileClick" />
@@ -68,7 +68,7 @@
                                       Click="OnMnuloadusernamesmailClick" />
                             <MenuItem Header="_2. Accounts einlesen" x:Name="mnuLoadZweitaccounts"
                                       Click="OnMnuloadzweitaccountsClick" />
-                            <MenuItem Header="_Elternamiladressen einlesen" x:Name="mnuLoadElternMails"
+                            <MenuItem Header="_Elternmailadressen einlesen" x:Name="mnuLoadElternMails"
                                       Click="MnuLoadElternMails_OnClick" />
                         </MenuItem>
                         <MenuItem Header="Änderungen _einlesen" x:Name="mnuReadDiffs" IsVisible="False" />
