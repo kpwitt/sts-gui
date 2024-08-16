@@ -3065,6 +3065,7 @@ public partial class MainWindow : Window
                     }
 
                     await _myschool.StopTransaction();
+                    await File.WriteAllLinesAsync(filepath, ListToFile);
                     return;
                 }
             }
