@@ -2218,7 +2218,8 @@ public class Schuldatenbank : IDisposable
                         {
                             string fach;
                             if (!kursart.Equals("PUK") &&
-                                !kursart.Equals("ZUV")) //PUK = Klassenunterricht; ZUV = Zusatzveranstaltung
+                                !kursart.Equals("ZUV") &&
+                                !kursart.Equals("WPII")) //PUK = Klassenunterricht; ZUV = Zusatzveranstaltung
                             {
                                 fach = tmpkurs[inf];
                                 for (var k = 0; k < fachersetzung.Count - 1; k++)
@@ -2229,7 +2230,9 @@ public class Schuldatenbank : IDisposable
                                     }
                                 }
 
-                                var bez = stufe + "-" + tmpkurs[ink];
+                                var bez = stufe + "-" + (string.IsNullOrEmpty(tmpkurs[ink])
+                                    ? fach + "-" + klasse
+                                    : tmpkurs[ink]);
                                 if (string.IsNullOrEmpty(GetKurs(bez).Result.Bezeichnung))
                                 {
                                     await AddKurs(bez, fach, stufe, stufe, fachsuffix, 1);
