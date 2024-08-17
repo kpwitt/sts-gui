@@ -2219,6 +2219,7 @@ public class Schuldatenbank : IDisposable
                             string fach;
                             if (!kursart.Equals("PUK") &&
                                 !kursart.Equals("ZUV") &&
+                                //ToDo: Auf Feedback von Schild warten
                                 !kursart.Equals("WPII")) //PUK = Klassenunterricht; ZUV = Zusatzveranstaltung
                             {
                                 fach = tmpkurs[inf];
@@ -2229,7 +2230,8 @@ public class Schuldatenbank : IDisposable
                                         fach = fachersetzung[k].Split(':')[1];
                                     }
                                 }
-
+    
+                                //ToDo: Auf Feedback von Schild warten
                                 var bez = stufe + "-" + (string.IsNullOrEmpty(tmpkurs[ink])
                                     ? fach + "-" + klasse
                                     : tmpkurs[ink]);
