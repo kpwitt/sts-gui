@@ -2282,8 +2282,9 @@ public partial class MainWindow : Window
         }
 
         if (source.SelectedItems == null) return;
+        var tmp_list = source.SelectedItems;
         await _myschool.StartTransaction();
-        foreach (var kurs in source.SelectedItems.Cast<string>())
+        foreach (var kurs in tmp_list.Cast<string>())
         {
             if (kurs == null) return;
             await _myschool.RemoveK(kurs);
