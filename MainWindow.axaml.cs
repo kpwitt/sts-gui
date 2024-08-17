@@ -894,7 +894,7 @@ public partial class MainWindow : Window
         {
             await _myschool.AddSchuelerIn(sid, susvname, susnname, suselternadresse, susklasse, susnutzername,
                 susaximail, susHatZweitaccount == false ? 0 : 1, suszweitadresse);
-            if (suskurse.Count == 1 && suskurse[0] == "") return;
+            if (suskurse is [""]) return;
             foreach (var kursbez in suskurse)
             {
                 await _myschool.AddStoK(sid, kursbez);
@@ -1749,7 +1749,7 @@ public partial class MainWindow : Window
 
             if (cbFehlerKurse.IsChecked != null && cbFehlerKurse.IsChecked.Value)
             {
-                var whitelist = new string[]
+                var whitelist = new[]
                 {
                     "Erprobungsstufe",
                     "Mittelstufe", "Einführungsphase",
@@ -2200,8 +2200,8 @@ public partial class MainWindow : Window
         {
             await _myschool.UpdateKurs(kursbez, kursfach, kursklasse, kursstufe, kurssuffix,
                 Convert.ToInt32(istKurs));
-            List<LuL> tList = new();
-            foreach (var lehrkraft in lehrkraefte.Split((';')))
+            List<LuL> tList = [];
+            foreach (var lehrkraft in lehrkraefte.Split(';'))
             {
                 tList.Add(await _myschool.GetLehrkraft(lehrkraft));
             }
@@ -2538,7 +2538,7 @@ public partial class MainWindow : Window
             var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
             if (files == null) return;
             var folder = files.Path.LocalPath;
-            List<string> susausgabe = new() { "Vorname;Nachname;Anmeldename;Kennwort;E-Mail;Klasse" };
+            List<string> susausgabe = ["Vorname;Nachname;Anmeldename;Kennwort;E-Mail;Klasse"];
             switch (CboxDataLeft.SelectedIndex)
             {
                 case 0:
@@ -2590,7 +2590,7 @@ public partial class MainWindow : Window
                     var susToDel = fileentries
                         .Select(line => _myschool.GetSchueler(Convert.ToInt32(line.Split(';')[0])))
                         .ToList();
-                    List<string> susausgabe = new() { "Vorname;Nachname;Anmeldename;Kennwort;E-Mail;Klasse" };
+                    List<string> susausgabe = ["Vorname;Nachname;Anmeldename;Kennwort;E-Mail;Klasse"];
                     foreach (string kursbez in LeftListBox.SelectedItems)
                     {
                         var suslist = _myschool.GetSuSAusKurs(kursbez).Result.Distinct().ToList();
@@ -2777,7 +2777,7 @@ public partial class MainWindow : Window
                 if (override_res != ButtonResult.Yes) return;
             }
 
-            List<string> lulliste = new() { "Kürzel;Nachname;Fächer;Mailadresse" };
+            List<string> lulliste = ["Kürzel;Nachname;Fächer;Mailadresse"];
             lulliste.AddRange(_myschool.GetLehrerListe().Result.Select(lehrer =>
                 lehrer.Kuerzel + ";" + lehrer.Nachname + ";" + lehrer.Fakultas + @";\underline{\href{mailto:" +
                 lehrer.Mail.ToLower() + "}{" + lehrer.Mail.ToLower() + "}}").OrderBy(s => s.Split(';')[0]));
@@ -2796,7 +2796,7 @@ public partial class MainWindow : Window
             var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
             if (files == null) return;
             var filepath = files.Path.LocalPath;
-            List<string> header = new() { "Kürzel;Nachname;Fächer;Mailadresse;Kürzel;Nachname;Fächer;Mailadresse" };
+            List<string> header = ["Kürzel;Nachname;Fächer;Mailadresse;Kürzel;Nachname;Fächer;Mailadresse"];
             List<string> lulliste = new();
             var llist = _myschool.GetLehrerListe().Result.OrderBy(lk => lk.Kuerzel).ToList();
             var half = llist.Count / 2;

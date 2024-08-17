@@ -543,30 +543,15 @@ public class Schuldatenbank : IDisposable
     {
         try
         {
-            List<string> lulliste = new()
-            {
-                "firstname;lastname;idnumber;username;fakultas;email"
-            };
+            List<string> lulliste = ["firstname;lastname;idnumber;username;fakultas;email"];
             lulliste.AddRange(lehrerliste.Select(lehrer =>
                 lehrer.Vorname + ";" + lehrer.Nachname + ";" + lehrer.ID + ";" + lehrer.Kuerzel + ";" +
                 lehrer.Fakultas + ";" + lehrer.Mail));
 
-            List<string> sliste = new()
-            {
-                "Vorname;Nachname;Interne ID-Nummer;E-Mail;Klasse"
-            };
-            List<string> kurse = new()
-            {
-                "Vorname|Nachname|Fach|Fachlehrer|Kursart|Kurs"
-            };
-            List<string> ids = new()
-            {
-                "Anmeldename;Referenz-Id;E-Mail"
-            };
-            List<string> zweitaccounts = new()
-            {
-                "Interne ID-Nummer"
-            };
+            List<string> sliste = ["Vorname;Nachname;Interne ID-Nummer;E-Mail;Klasse"];
+            List<string> kurse = ["Vorname|Nachname|Fach|Fachlehrer|Kursart|Kurs"];
+            List<string> ids = ["Anmeldename;Referenz-Id;E-Mail"];
+            List<string> zweitaccounts = ["Interne ID-Nummer"];
             await Parallel.ForEachAsync(susliste, async (schueler, cancellationToken) =>
                 //foreach (var schueler in susliste)
             {
@@ -621,10 +606,7 @@ public class Schuldatenbank : IDisposable
     {
         try
         {
-            List<string> kurse = new()
-            {
-                "Vorname|Nachname|Fach|Fachlehrer|Kursart|Kurs"
-            };
+            List<string> kurse = ["Vorname|Nachname|Fach|Fachlehrer|Kursart|Kurs"];
             foreach (var k in kursliste)
             {
                 var kurs = await GetKurs(k);
@@ -819,10 +801,10 @@ public class Schuldatenbank : IDisposable
             List<string> ausgabeMoodleEinschreibungen = new();
             List<string> ausgabeMoodleKurse = new();
             List<string> ausgabeMoodleUser = new();
-            List<string> ausgabeIntern = new()
-            {
+            List<string> ausgabeIntern =
+            [
                 "kuerzel;nachname;vorname;plz_ort_;adresse;tel_privat;tel_mobil;email_privat;email_dienst;gebdatum_;status_;mail_Adresse;fach1;fach2;fach3;fakult;funktion_;pw_temp;aktiv;gebdatum;plz;ort;titel;nachname;pop3_dienst;pop3_menge"
-            };
+            ];
             var kursvorlagen = kursvorlage[0].Equals("") && kursvorlage[1].Equals("");
             ausgabeMoodleKurse.Add(kursvorlagen
                 ? "shortname;fullname;idnumber;category_idnumber;format"
@@ -842,7 +824,7 @@ public class Schuldatenbank : IDisposable
                 ausgabeAIXL.Add("\"Vorname\";\"Nachname\";\"Referenz-ID\";\"Arbeitsgruppen\"");
             }
 
-            string[] sekI = { "5", "6", "7", "8", "9", "10" };
+            string[] sekI = ["5", "6", "7", "8", "9", "10"];
             if (whattoexport.Contains('k'))
             {
                 foreach (var kurs in kursliste)
@@ -2230,7 +2212,7 @@ public class Schuldatenbank : IDisposable
                                         fach = fachersetzung[k].Split(':')[1];
                                     }
                                 }
-    
+
                                 //ToDo: Auf Feedback von Schild warten
                                 var bez = stufe + "-" + (string.IsNullOrEmpty(tmpkurs[ink])
                                     ? fach + "-" + klasse
