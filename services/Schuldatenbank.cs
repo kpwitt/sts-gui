@@ -257,10 +257,13 @@ public class Schuldatenbank : IDisposable
         }
     }
 
-    private void upgradeDB(SqliteCommand sqliteCmd)
+    /// <summary>
+    /// updatet alte DBs von 0.5 auf 0.6
+    /// </summary>
+    /// <param name="sqliteCmd"></param>
+    private static void upgradeDB(SqliteCommand sqliteCmd)
     {
-        //for 0.6
-        //upgrade DB
+        //upgrade DB to 0.6
         sqliteCmd.CommandText =
             $"SELECT COUNT(*) AS m365_col_count FROM pragma_table_info('schueler') WHERE name='m365'";
         sqliteCmd.ExecuteNonQuery();
