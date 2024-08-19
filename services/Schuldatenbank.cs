@@ -797,11 +797,11 @@ public class Schuldatenbank : IDisposable
                 withPasswort = true;
             }
 
-            List<string> ausgabeAIXL = new();
-            List<string> ausgabeAIXS = new();
-            List<string> ausgabeMoodleEinschreibungen = new();
-            List<string> ausgabeMoodleKurse = new();
-            List<string> ausgabeMoodleUser = new();
+            List<string> ausgabeAIXL = [];
+            List<string> ausgabeAIXS = [];
+            List<string> ausgabeMoodleEinschreibungen = [];
+            List<string> ausgabeMoodleKurse = [];
+            List<string> ausgabeMoodleUser = [];
             List<string> ausgabeIntern =
             [
                 "kuerzel;nachname;vorname;plz_ort_;adresse;tel_privat;tel_mobil;email_privat;email_dienst;gebdatum_;status_;mail_Adresse;fach1;fach2;fach3;fakult;funktion_;pw_temp;aktiv;gebdatum;plz;ort;titel;nachname;pop3_dienst;pop3_menge"
@@ -941,12 +941,12 @@ public class Schuldatenbank : IDisposable
                                                              kk.Suffix);
                         }
 
-                        if (s.Klasse.StartsWith("5") || s.Klasse.StartsWith("6"))
+                        if (s.Klasse.StartsWith('5') || s.Klasse.StartsWith('6'))
                         {
                             ausgabeMoodleEinschreibungen.Add("add,schueler," + s.ID + ",erprobungsstufe" +
                                                              GetKursSuffix().Result);
                         }
-                        else if (s.Klasse.StartsWith("7") || s.Klasse.StartsWith("8") || s.Klasse.StartsWith("9") ||
+                        else if (s.Klasse.StartsWith('7') || s.Klasse.StartsWith('8') || s.Klasse.StartsWith('9') ||
                                  s.Klasse.StartsWith("10"))
                         {
                             ausgabeMoodleEinschreibungen.Add("add,schueler," + s.ID + ",mittelstufe" +
@@ -1003,7 +1003,7 @@ public class Schuldatenbank : IDisposable
                     {
                         case true when sus.Zweitmail.Contains(','):
                         {
-                            if (sus.Klasse.StartsWith("5") || sus.Klasse.StartsWith("6"))
+                            if (sus.Klasse.StartsWith('5') || sus.Klasse.StartsWith('6'))
                             {
                                 var zweitmails = sus.Zweitmail.Split(',');
                                 var zweitmail = zweitmails[0].Trim() != sus.Mail.Trim()
@@ -1020,8 +1020,8 @@ public class Schuldatenbank : IDisposable
                                 ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + "1,erprobungsstufe" +
                                                                  GetKursSuffix().Result);
                             }
-                            else if (sus.Klasse.StartsWith("7") || sus.Klasse.StartsWith("8") ||
-                                     sus.Klasse.StartsWith("9") | sus.Klasse.StartsWith("10"))
+                            else if (sus.Klasse.StartsWith('7') || sus.Klasse.StartsWith('8') ||
+                                     sus.Klasse.StartsWith('9') | sus.Klasse.StartsWith("10"))
                             {
                                 ausgabeMoodleUser.Add(sus.Zweitmail.Split(',')[0] + ";Klasse" + sus.Klasse +
                                                       DateTime.Now.Year + "!" +
@@ -1043,7 +1043,7 @@ public class Schuldatenbank : IDisposable
                             break;
                     }
 
-                    if (sus.Klasse.StartsWith("5") || sus.Klasse.StartsWith("6"))
+                    if (sus.Klasse.StartsWith('5') || sus.Klasse.StartsWith('6'))
                     {
                         ausgabeMoodleUser.Add(susmail + ";Klasse" + sus.Klasse + DateTime.Now.Year + "!" + ";" +
                                               sus.Nutzername + "_E;" + "E_" + sus.ID + ";" + sus.Nachname +
@@ -1053,8 +1053,8 @@ public class Schuldatenbank : IDisposable
                         ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + ",erprobungsstufe" +
                                                          GetKursSuffix().Result);
                     }
-                    else if (sus.Klasse.StartsWith("7") || sus.Klasse.StartsWith("8") ||
-                             sus.Klasse.StartsWith("9") | sus.Klasse.StartsWith("10"))
+                    else if (sus.Klasse.StartsWith('7') || sus.Klasse.StartsWith('8') ||
+                             sus.Klasse.StartsWith('9') | sus.Klasse.StartsWith("10"))
                     {
                         ausgabeMoodleUser.Add(susmail + ";Klasse" + sus.Klasse + DateTime.Now.Year + "!" + ";" +
                                               sus.Nutzername + "_E;" + "E_" + sus.ID + ";" + sus.Nachname +
