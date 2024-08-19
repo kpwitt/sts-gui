@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Security.Cryptography;
+using System.Text;
 
 namespace StS_GUI_Avalonia;
 
@@ -33,14 +34,19 @@ public class LocalCryptoServive
     /// <param name="password"></param>
     public static void FileDecrypt(string inputFile, string outputFile, string password)
     {
-        var passwordBytes = System.Text.Encoding.UTF8.GetBytes(password);
+        var passwordBytes = Encoding.UTF8.GetBytes(password);
         var salt = new byte[32];
         FileStream fsCrypt = new(inputFile, FileMode.Open);
-        fsCrypt.Read(salt, 0, salt.Length);
+        var i = fsCrypt.Read(salt, 0, salt.Length);
+        while (i < salt.Length)
+        {
+            i = fsCrypt.Read(salt, 0, salt.Length);
+        }
+
         var aes = Aes.Create();
         aes.KeySize = 256;
         aes.BlockSize = 128;
-        var key = new Rfc2898DeriveBytes(passwordBytes, salt, 50000);
+        var key = new Rfc2898DeriveBytes(passwordBytes, salt, 50000, HashAlgorithmName.SHA256);
         aes.Key = key.GetBytes(aes.KeySize / 8);
         aes.IV = key.GetBytes(aes.BlockSize / 8);
         aes.Padding = PaddingMode.PKCS7;
@@ -92,7 +98,7 @@ public class LocalCryptoServive
         //create output file name
         FileStream fsCrypt = new(outputFile, FileMode.Create);
         //convert password string to byte arrray
-        var passwordBytes = System.Text.Encoding.UTF8.GetBytes(password);
+        var passwordBytes = Encoding.UTF8.GetBytes(password);
         //Set Rijndael symmetric encryption algorithm
         var aes = Aes.Create();
         aes.KeySize = 256;
@@ -100,7 +106,7 @@ public class LocalCryptoServive
         aes.Padding = PaddingMode.PKCS7;
         //http://stackoverflow.com/questions/2659214/why-do-i-need-to-use-the-rfc2898derivebytes-class-in-net-instead-of-directly
         //"What it does is repeatedly hash the user password along with the salt." High iteration counts.
-        var key = new Rfc2898DeriveBytes(passwordBytes, salt, 50000);
+        var key = new Rfc2898DeriveBytes(passwordBytes, salt, 50000, HashAlgorithmName.SHA256);
         aes.Key = key.GetBytes(aes.KeySize / 8);
         aes.IV = key.GetBytes(aes.BlockSize / 8);
         //Cipher modes: http://security.stackexchange.com/questions/52665/which-is-the-best-cipher-mode-and-padding-mode-for-aes-encryption
