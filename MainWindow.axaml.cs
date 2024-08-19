@@ -2348,8 +2348,10 @@ public partial class MainWindow : Window
                                 searchFields[3] && s.Nutzername.Equals(lowereingabe)).ToList()
                             : scachelist.Where(s =>
                                 searchFields[4] && (s.ID + "").Contains(lowereingabe) ||
-                                searchFields[0] && s.Vorname.ToLower().Contains(lowereingabe) ||
-                                searchFields[1] && s.Nachname.ToLower().Contains(lowereingabe) ||
+                                searchFields[0] && s.Vorname.Contains(lowereingabe,
+                                    StringComparison.CurrentCultureIgnoreCase) ||
+                                searchFields[1] && s.Nachname.Contains(lowereingabe,
+                                    StringComparison.CurrentCultureIgnoreCase) ||
                                 searchFields[2] && (s.Mail.Contains(lowereingabe) ||
                                                     s.Aixmail.Contains(lowereingabe) ||
                                                     s.Zweitmail.Contains(lowereingabe)) ||
@@ -2377,9 +2379,11 @@ public partial class MainWindow : Window
                                 searchFields[3] && l.Kuerzel.Equals(lowereingabe) ||
                                 searchFields[4] && (l.ID + "").Equals(lowereingabe)).ToList()
                             : cachlist.Where(l =>
-                                l.Kuerzel.ToLower().Contains(lowereingabe) ||
-                                searchFields[0] && l.Vorname.ToLower().Contains(lowereingabe) ||
-                                searchFields[1] && l.Nachname.ToLower().Contains(lowereingabe) ||
+                                l.Kuerzel.Contains(lowereingabe, StringComparison.CurrentCultureIgnoreCase) ||
+                                searchFields[0] && l.Vorname.Contains(lowereingabe,
+                                    StringComparison.CurrentCultureIgnoreCase) ||
+                                searchFields[1] && l.Nachname.Contains(lowereingabe,
+                                    StringComparison.CurrentCultureIgnoreCase) ||
                                 searchFields[2] && l.Mail.Contains(lowereingabe) ||
                                 searchFields[3] && l.Kuerzel.Contains(lowereingabe) ||
                                 searchFields[4] && (l.ID + "").Contains(lowereingabe)).ToList());
@@ -2397,7 +2401,7 @@ public partial class MainWindow : Window
                     foreach (var eingabe in eingabeliste)
                     {
                         kliste.AddRange(kcachelist
-                            .Where(s => s.Bezeichnung.ToLower().Contains(eingabe.ToLower()))
+                            .Where(s => s.Bezeichnung.Contains(eingabe, StringComparison.CurrentCultureIgnoreCase))
                             .ToList());
                     }
 
@@ -2458,8 +2462,10 @@ public partial class MainWindow : Window
                                 searchFields[3] && s.Nutzername.Equals(lowereingabe)).ToList()
                             : scachelist.Where(s =>
                                 searchFields[4] && (s.ID + "").Contains(lowereingabe) ||
-                                searchFields[0] && s.Vorname.ToLower().Contains(lowereingabe) ||
-                                searchFields[1] && s.Nachname.ToLower().Contains(lowereingabe) ||
+                                searchFields[0] && s.Vorname.Contains(lowereingabe,
+                                    StringComparison.CurrentCultureIgnoreCase) ||
+                                searchFields[1] && s.Nachname.Contains(lowereingabe,
+                                    StringComparison.CurrentCultureIgnoreCase) ||
                                 searchFields[2] && (s.Mail.Contains(lowereingabe) ||
                                                     s.Aixmail.Contains(lowereingabe) ||
                                                     s.Zweitmail.Contains(lowereingabe)) ||
@@ -2487,9 +2493,11 @@ public partial class MainWindow : Window
                                 searchFields[3] && l.Kuerzel.Equals(lowereingabe) ||
                                 searchFields[4] && (l.ID + "").Equals(lowereingabe)).ToList()
                             : cachlist.Where(l =>
-                                l.Kuerzel.ToLower().Contains(lowereingabe) ||
-                                searchFields[0] && l.Vorname.ToLower().Contains(lowereingabe) ||
-                                searchFields[1] && l.Nachname.ToLower().Contains(lowereingabe) ||
+                                l.Kuerzel.Contains(lowereingabe, StringComparison.CurrentCultureIgnoreCase) ||
+                                searchFields[0] && l.Vorname.Contains(lowereingabe,
+                                    StringComparison.CurrentCultureIgnoreCase) ||
+                                searchFields[1] && l.Nachname.Contains(lowereingabe,
+                                    StringComparison.CurrentCultureIgnoreCase) ||
                                 searchFields[2] && l.Mail.Contains(lowereingabe) ||
                                 searchFields[3] && l.Kuerzel.Contains(lowereingabe) ||
                                 searchFields[4] && (l.ID + "").Contains(lowereingabe)).ToList());
