@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -503,7 +504,7 @@ public class Schuldatenbank : IDisposable
             _ActiveTransaction = false;
         }
 
-        if (_sqliteConn.State != System.Data.ConnectionState.Open) return;
+        if (_sqliteConn.State != ConnectionState.Open) return;
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText = "pragma optimize;";
         sqliteCmd.ExecuteNonQuery();
@@ -1105,6 +1106,8 @@ public class Schuldatenbank : IDisposable
                         if (kurs.Bezeichnung.Length > 20) continue;
                         kListe += "^" + kurs.Bezeichnung + kurs.Suffix + "|";
                     }
+
+                    ausgabeMoodleEinschreibungen.AddRange(lt.Fakultas.Split(',').Select(fach => "add,editingteacher," + lt.ID + ",FS_" + fach));
 
                     if (kListe == "^|")
                     {
