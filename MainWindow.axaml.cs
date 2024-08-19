@@ -2810,7 +2810,7 @@ public partial class MainWindow : Window
             if (files == null) return;
             var filepath = files.Path.LocalPath;
             List<string> header = ["Kürzel;Nachname;Fächer;Mailadresse;Kürzel;Nachname;Fächer;Mailadresse"];
-            List<string> lulliste = new();
+            List<string> lulliste = [];
             var llist = _myschool.GetLehrerListe().Result.OrderBy(lk => lk.Kuerzel).ToList();
             var half = llist.Count / 2;
             for (var i = 0; i < llist.Count / 2 + 1; ++i)

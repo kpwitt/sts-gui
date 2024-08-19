@@ -1382,7 +1382,7 @@ public class Schuldatenbank : IDisposable
     /// <returns>String-Liste der Schreibweise, pro Zeile ein Fach mit ;-getrennt </returns>
     public async Task<ReadOnlyCollection<string>> GetFachersatz()
     {
-        List<string> flist = new();
+        List<string> flist = [];
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText = "SELECT kurzfach,langfach FROM fachersatz;";
         var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
@@ -1443,7 +1443,7 @@ public class Schuldatenbank : IDisposable
     /// </summary>
     public async Task<ReadOnlyCollection<string>> GetKursBezListe()
     {
-        List<string> klist = new();
+        List<string> klist = [];
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText = "SELECT bez FROM kurse;";
         var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
@@ -1460,7 +1460,7 @@ public class Schuldatenbank : IDisposable
     /// </summary>
     public async Task<ReadOnlyCollection<Kurs>> GetKursListe()
     {
-        List<Kurs> kliste = new();
+        List<Kurs> kliste = [];
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText = "SELECT bez,fach,klasse,stufe,suffix,istkurs FROM kurse;";
         var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
@@ -1499,7 +1499,7 @@ public class Schuldatenbank : IDisposable
     /// <returns>String-Liste der Kursbezeichnungen </returns>
     public async Task<ReadOnlyCollection<Kurs>> GetKursVonLuL(int lulid)
     {
-        List<Kurs> kliste = new();
+        List<Kurs> kliste = [];
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText = "SELECT DISTINCT kursbez FROM unterrichtet WHERE lehrerid = $lulid;";
         sqliteCmd.Parameters.AddWithValue("$lulid", lulid);
@@ -1519,7 +1519,7 @@ public class Schuldatenbank : IDisposable
     /// <returns>String-Liste der Kursbezeichnungen </returns>
     public async Task<ReadOnlyCollection<Kurs>> GetKursVonSuS(int susid)
     {
-        List<Kurs> kliste = new();
+        List<Kurs> kliste = [];
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText = "SELECT kursbez FROM nimmtteil WHERE schuelerid = $susid;";
         sqliteCmd.Parameters.AddWithValue("$susid", susid);
@@ -1593,7 +1593,7 @@ public class Schuldatenbank : IDisposable
     /// </summary>
     public async Task<ReadOnlyCollection<int>> GetLehrerIDListe()
     {
-        List<int> llist = new();
+        List<int> llist = [];
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText = "SELECT id FROM lehrkraft;";
         var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
@@ -1610,7 +1610,7 @@ public class Schuldatenbank : IDisposable
     /// </summary>
     public async Task<ReadOnlyCollection<LuL>> GetLehrerListe()
     {
-        List<LuL> llist = new();
+        List<LuL> llist = [];
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
             "SELECT id,nachname,vorname,mail,kuerzel,fakultas,pwtemp,favo,sfavo FROM lehrkraft;";
@@ -1641,7 +1641,7 @@ public class Schuldatenbank : IDisposable
     /// <returns>String-Liste der Nachrichten </returns>
     public async Task<ReadOnlyCollection<string>> GetLog()
     {
-        List<string> log = new();
+        List<string> log = [];
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText = "SELECT stufe,datum, nachricht FROM log;";
         var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
@@ -1666,7 +1666,7 @@ public class Schuldatenbank : IDisposable
     /// <returns>String-Liste der Nachrichten </returns>
     public async Task<ReadOnlyCollection<string>> GetLog(string stufe)
     {
-        List<string> log = new();
+        List<string> log = [];
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText = "SELECT stufe,datum, nachricht FROM log WHERE stufe = $stufe;";
         sqliteCmd.Parameters.AddWithValue("$stufe", stufe);
@@ -1711,7 +1711,7 @@ public class Schuldatenbank : IDisposable
     /// <returns>Interger-Liste der LuL des Kurses</returns>
     public async Task<ReadOnlyCollection<LuL>> GetLuLAusKurs(string kbez)
     {
-        List<LuL> lliste = new();
+        List<LuL> lliste = [];
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText = "SELECT lehrerid FROM unterrichtet WHERE kursbez = $kbez;";
         sqliteCmd.Parameters.AddWithValue("$kbez", kbez);
@@ -1731,7 +1731,7 @@ public class Schuldatenbank : IDisposable
     /// <returns>Interger-Liste der LuL-IDs</returns>
     public async Task<ReadOnlyCollection<LuL>> GetLuLvonSuS(int susid)
     {
-        List<LuL> lliste = new();
+        List<LuL> lliste = [];
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
             "SELECT unterrichtet.lehrerid FROM unterrichtet JOIN nimmtteil ON nimmtteil.kursbez = unterrichtet.kursbez WHERE schuelerid = $susid;";
@@ -1755,7 +1755,7 @@ public class Schuldatenbank : IDisposable
     /// <returns>Interger-Liste der LuL-IDs</returns>
     public async Task<ReadOnlyCollection<LuL>> GetLuLAusStufe(string stufe)
     {
-        List<LuL> lliste = new();
+        List<LuL> lliste = [];
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
             "SELECT DISTINCT unterrichtet.lehrerid FROM unterrichtet WHERE kursbez LIKE $stufe;";
@@ -1839,7 +1839,7 @@ public class Schuldatenbank : IDisposable
     /// </summary>
     public async Task<ReadOnlyCollection<int>> GetSchuelerIDListe()
     {
-        List<int> slist = new();
+        List<int> slist = [];
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText = "SELECT id FROM schueler;";
         var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
@@ -1856,7 +1856,7 @@ public class Schuldatenbank : IDisposable
     /// </summary>
     public async Task<ReadOnlyCollection<SuS>> GetSchuelerListe()
     {
-        List<SuS> slist = new();
+        List<SuS> slist = [];
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
             "SELECT id,nachname,vorname,mail,klasse,nutzername,aixmail,zweitaccount,zweitmail FROM schueler;";
@@ -1926,7 +1926,7 @@ public class Schuldatenbank : IDisposable
             }
         }
 
-        List<string> flist = new();
+        List<string> flist = [];
         sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText = "SELECT kurzfach,langfach FROM fachersatz;";
         sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
@@ -1968,8 +1968,8 @@ public class Schuldatenbank : IDisposable
     private async Task<List<LuL>> getOberstufenleitung(string stufe)
     {
         if (string.IsNullOrEmpty(stufe) || (stufe != "EF" && stufe != "Q1" && stufe != "Q2"))
-            return new List<LuL>();
-        List<LuL> luls = new();
+            return [];
+        List<LuL> luls = [];
         switch (stufe)
         {
             case "EF":
@@ -1996,7 +1996,7 @@ public class Schuldatenbank : IDisposable
     /// <returns>Integer-Liste der SuS-IDs</returns>
     public async Task<ReadOnlyCollection<SuS>> GetSuSAusKlasse(string klasse)
     {
-        List<SuS> sliste = new();
+        List<SuS> sliste = [];
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText = "SELECT id FROM schueler WHERE klasse = $klasse;";
         sqliteCmd.Parameters.AddWithValue("$klasse", klasse);
@@ -2016,7 +2016,7 @@ public class Schuldatenbank : IDisposable
     /// <returns>Integer-Liste der SuS-IDs</returns>
     public async Task<ReadOnlyCollection<SuS>> GetSuSAusKurs(string kbez)
     {
-        List<SuS> sliste = new();
+        List<SuS> sliste = [];
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText = "SELECT schuelerid FROM nimmtteil WHERE kursbez = $kbez;";
         sqliteCmd.Parameters.AddWithValue("$kbez", kbez);
@@ -2039,7 +2039,7 @@ public class Schuldatenbank : IDisposable
     /// <returns>Integer-Liste der Schüler der Stufe</returns>
     public async Task<ReadOnlyCollection<SuS>> GetSusAusStufe(string stufe)
     {
-        List<SuS> sliste = new();
+        List<SuS> sliste = [];
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText = "SELECT DISTINCT id FROM schueler WHERE klasse LIKE $stufe;";
         sqliteCmd.Parameters.AddWithValue("$stufe", stufe + "%");
@@ -2059,7 +2059,7 @@ public class Schuldatenbank : IDisposable
     /// <returns>Interger-Liste der SuS-IDs</returns>
     public async Task<ReadOnlyCollection<SuS>> GetSuSVonLuL(int lulid)
     {
-        List<SuS> sliste = new();
+        List<SuS> sliste = [];
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
             "SELECT nimmtteil.schuelerid FROM unterrichtet JOIN nimmtteil ON nimmtteil.kursbez = unterrichtet.kursbez WHERE lehrerid = $lulid;";
@@ -2716,7 +2716,7 @@ public class Schuldatenbank : IDisposable
     public async Task SusEinlesen(string susfile)
     {
         int inv = -1, inn = -1, ini = -1, ink = -1;
-        List<int> inm = new();
+        List<int> inm = [];
         var lines = await File.ReadAllLinesAsync(susfile);
         var header = lines[0].Split(';');
         for (var i = 0; i < header.Length; i++)
