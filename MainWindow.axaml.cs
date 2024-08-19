@@ -1687,7 +1687,7 @@ public partial class MainWindow : Window
 
             var res = await _myschool.ExportCSV(folderpath, destsys, whattoexport,
                 cbExportwithPasswort.IsChecked != null && cbExportwithPasswort.IsChecked.Value, "", expandFiles,
-                nurMoodleSuffix, kursvorlagen, await _myschool.GetSchuelerIDListe(),
+                nurMoodleSuffix, kursvorlagen, _myschool.GetSchuelerIDListe().Result.ToList(),
                 await _myschool.GetLehrerIDListe(), await _myschool.GetKursBezListe());
             await CheckSuccesfulExport(res);
         }
@@ -1722,7 +1722,7 @@ public partial class MainWindow : Window
                     where _myschool.GetKursVonSuS(Convert.ToInt32(sus.ID)).Result.Count == 0
                     select sus.Nachname + ", " + sus.Vorname + ";" + sus.ID + ";ohne Kurs";
                 var ohneKurse = susOhneKurse as string[] ?? susOhneKurse.ToArray();
-                if (ohneKurse.Any())
+                if (ohneKurse.Length != 0)
                 {
                     ergebnisliste.AddRange(ohneKurse);
                 }
@@ -1734,7 +1734,7 @@ public partial class MainWindow : Window
                     where _myschool.GetKursVonLuL(Convert.ToInt32(lul.ID)).Result.Count == 0
                     select lul.Nachname + ", " + lul.Vorname + ";" + lul.ID + ";ohne Kurs";
                 var ohneKurse = lulOhneKurse as string[] ?? lulOhneKurse.ToArray();
-                if (ohneKurse.Any())
+                if (ohneKurse.Length != 0)
                 {
                     ergebnisliste.AddRange(ohneKurse);
                 }
@@ -1783,6 +1783,11 @@ public partial class MainWindow : Window
                                           sus.ID + ";ohne gültige Zweitmailadresse");
                     }
                 }
+
+                ergebnisliste.AddRange(_myschool.GetM365Blacklist().Result
+                    .Select(susid => _myschool.GetSchueler(susid).Result).Select(sus =>
+                        sus.Nachname + ", " + sus.Vorname + ";Klasse " + sus.Klasse + ";" + sus.ID +
+                        ";ohne DV Zustimmung"));
             }
 
             if (ergebnisliste.Count == 0)
@@ -1832,7 +1837,7 @@ public partial class MainWindow : Window
                 var stufe = tbExportStufenkurse.Text;
                 susidlist.AddRange(_myschool.GetSusAusStufe(stufe).Result.Select(s => s.ID).ToList());
                 res = await _myschool.ExportCSV(folderpath, "all", "s", false, "", false, nurMoodleSuffix,
-                    new[] { "", "" }, new ReadOnlyCollection<int>(susidlist),
+                    ["", ""], [..susidlist],
                     new ReadOnlyCollection<int>(new List<int>()),
                     new ReadOnlyCollection<string>(new List<string>()));
             }
@@ -1845,7 +1850,7 @@ public partial class MainWindow : Window
                 }
 
                 res = await _myschool.ExportCSV(folderpath, "all", "s", false, "", false, nurMoodleSuffix,
-                    new[] { "", "" }, new ReadOnlyCollection<int>(susidlist),
+                    ["", ""], [..susidlist],
                     new ReadOnlyCollection<int>(new List<int>()),
                     new ReadOnlyCollection<string>(new List<string>()));
             }
@@ -1904,8 +1909,8 @@ public partial class MainWindow : Window
             var folderpath = folder.Path.LocalPath;
             var nurMoodleSuffix = cbNurMoodleSuffix.IsChecked is not false;
             var res = await _myschool.ExportCSV(folderpath, "all", "s", false, "", false, nurMoodleSuffix,
-                new[] { "", "" },
-                new ReadOnlyCollection<int>(_myschool.GetSusAusStufe("5").Result.Select(s => s.ID).ToList()),
+                ["", ""],
+                [.._myschool.GetSusAusStufe("5").Result.Select(s => s.ID).ToList()],
                 new ReadOnlyCollection<int>(new List<int>()), new ReadOnlyCollection<string>(new List<string>()));
             await CheckSuccesfulExport(res);
         }
@@ -2739,7 +2744,7 @@ public partial class MainWindow : Window
                 var res = await _myschool.ExportCSV(folderpath, destsys, whattoexport,
                     isAnfangsPasswortChecked != null && isAnfangsPasswortChecked.Value, "", expandFiles,
                     nurMoodleSuffix, kursvorlagen,
-                    new ReadOnlyCollection<int>(suslist.Select(s => s.ID).Distinct().ToList()),
+                    [..suslist.Select(s => s.ID).Distinct().ToList()],
                     new ReadOnlyCollection<int>(lullist.Select(l => l.ID).Distinct().ToList()),
                     new ReadOnlyCollection<string>(kurslist.Select(k => k.Bezeichnung).Distinct().ToList()));
                 await CheckSuccesfulExport(res);
@@ -3466,6 +3471,28 @@ public partial class MainWindow : Window
                 });
                 await errorDialog.ShowAsPopupAsync(this);
             }
+        }
+    }
+
+    private async void BtnM365DVEinlesen_OnClick(object? sender, RoutedEventArgs e)
+    {
+        var extx = new List<FilePickerFileType>
+        {
+            StSFileTypes.CSVFile,
+            FilePickerFileTypes.All
+        };
+        var file = await ShowOpenFileDialog("Aktuelle Accounts ohne DV", extx);
+        if (file is null) return;
+        var DVFilePath = file.Path.LocalPath;
+        var DVFileText = await File.ReadAllLinesAsync(DVFilePath);
+        var IDListe = (from line in DVFileText
+            select line.Split(';')[0]
+            into id
+            where id.All(char.IsDigit)
+            select Convert.ToInt32(id)).ToList();
+        foreach (var id in _myschool.GetSchuelerIDListe().Result)
+        {
+            _myschool.SetM365(id, IDListe.Contains(id) ? 0 : 1);
         }
     }
 }

@@ -21,7 +21,7 @@ namespace SchulDB;
 /// </summary>
 public class Schuldatenbank : IDisposable
 {
-    private const string version = "0.5";
+    private const string version = "0.6";
     private readonly string _dbpath;
     private readonly SqliteConnection _sqliteConn;
     private SqliteTransaction? _dbtrans;
@@ -37,98 +37,116 @@ public class Schuldatenbank : IDisposable
         _sqliteConn = new SqliteConnection(strconnection);
         _sqliteConn.Open();
         var sqliteCmd = _sqliteConn.CreateCommand();
+        upgradeDB(sqliteCmd);
         try
         {
-            sqliteCmd.CommandText = @"CREATE TABLE IF NOT EXISTS
-        [lehrkraft] (
-        [id]   INTEGER NOT NULL PRIMARY KEY,
-        [nachname]  NVARCHAR(512) NOT NULL,
-        [vorname]  NVARCHAR(512) NOT NULL,
-        [mail]  NVARCHAR(512) NOT NULL UNIQUE,
-        [kuerzel]  NVARCHAR(8) NOT NULL UNIQUE,
-        [fakultas]  NVARCHAR(16) NOT NULL,
-        [pwtemp] NVARCHAR(16) NOT NULL,
-        [favo] NVARCHAR(8) NOT NULL,
-        [sfavo] NVARCHAR(8) NOT NULL
-      )";
+            sqliteCmd.CommandText = """
+                                    CREATE TABLE IF NOT EXISTS
+                                            [lehrkraft] (
+                                            [id]   INTEGER NOT NULL PRIMARY KEY,
+                                            [nachname]  NVARCHAR(512) NOT NULL,
+                                            [vorname]  NVARCHAR(512) NOT NULL,
+                                            [mail]  NVARCHAR(512) NOT NULL UNIQUE,
+                                            [kuerzel]  NVARCHAR(8) NOT NULL UNIQUE,
+                                            [fakultas]  NVARCHAR(16) NOT NULL,
+                                            [pwtemp] NVARCHAR(16) NOT NULL,
+                                            [favo] NVARCHAR(8) NOT NULL,
+                                            [sfavo] NVARCHAR(8) NOT NULL
+                                          )
+                                    """;
             sqliteCmd.ExecuteNonQuery();
 
             sqliteCmd.CommandText = "CREATE INDEX IF NOT EXISTS lindex ON lehrkraft(id);";
             sqliteCmd.ExecuteNonQuery();
 
-            sqliteCmd.CommandText = @"CREATE TABLE IF NOT EXISTS
-        [schueler] (
-        [id]   INTEGER NOT NULL PRIMARY KEY,
-        [nachname]  NVARCHAR(512) NOT NULL,
-        [vorname]  NVARCHAR(512) NOT NULL,
-        [mail]  NVARCHAR(512) NOT NULL,
-        [klasse]  NVARCHAR(16) NOT NULL,
-        [nutzername]  NVARCHAR(7) NOT NULL,
-        [aixmail] NVARCHAR(128) NOT NULL,
-        [zweitaccount] INTEGER DEFAULT 0,
-        [zweitmail] NVARCHAR(512)
-      )";
+            sqliteCmd.CommandText = """
+                                    CREATE TABLE IF NOT EXISTS
+                                            [schueler] (
+                                            [id]   INTEGER NOT NULL PRIMARY KEY,
+                                            [nachname]  NVARCHAR(512) NOT NULL,
+                                            [vorname]  NVARCHAR(512) NOT NULL,
+                                            [mail]  NVARCHAR(512) NOT NULL,
+                                            [klasse]  NVARCHAR(16) NOT NULL,
+                                            [nutzername]  NVARCHAR(7) NOT NULL,
+                                            [aixmail] NVARCHAR(128) NOT NULL,
+                                            [zweitaccount] INTEGER DEFAULT 0,
+                                            [zweitmail] NVARCHAR(512),
+                                            [m365] INTEGER DEFAULT 1
+                                          )
+                                    """;
             sqliteCmd.ExecuteNonQuery();
 
             sqliteCmd.CommandText = "CREATE INDEX IF NOT EXISTS sindex ON schueler(id);";
             sqliteCmd.ExecuteNonQuery();
 
-            sqliteCmd.CommandText = @"CREATE TABLE IF NOT EXISTS
-        [kurse] (
-        [bez]   NVARCHAR(512) NOT NULL PRIMARY KEY,
-        [fach]  NVARCHAR(512) NOT NULL,
-        [klasse]  NVARCHAR(16) NOT NULL,
-        [stufe]  NVARCHAR(16) NOT NULL,
-        [suffix]  NVARCHAR(16) NOT NULL,
-        [istkurs]  INTEGER NOT NULL
-      )";
+            sqliteCmd.CommandText = """
+                                    CREATE TABLE IF NOT EXISTS
+                                            [kurse] (
+                                            [bez]   NVARCHAR(512) NOT NULL PRIMARY KEY,
+                                            [fach]  NVARCHAR(512) NOT NULL,
+                                            [klasse]  NVARCHAR(16) NOT NULL,
+                                            [stufe]  NVARCHAR(16) NOT NULL,
+                                            [suffix]  NVARCHAR(16) NOT NULL,
+                                            [istkurs]  INTEGER NOT NULL
+                                          )
+                                    """;
             sqliteCmd.ExecuteNonQuery();
 
             sqliteCmd.CommandText = "CREATE INDEX IF NOT EXISTS kindex ON kurse(bez);";
             sqliteCmd.ExecuteNonQuery();
 
-            sqliteCmd.CommandText = @"CREATE TABLE IF NOT EXISTS
-        [unterrichtet] (
-        [lehrerid]   INTEGER NOT NULL,
-        [kursbez]  NVARCHAR(32) NOT NULL,
-        PRIMARY KEY(lehrerid,kursbez),
-        FOREIGN KEY(lehrerid) REFERENCES lehrkraft(id),
-        FOREIGN KEY(kursbez) REFERENCES kurse(bez)
-      )";
+            sqliteCmd.CommandText = """
+                                    CREATE TABLE IF NOT EXISTS
+                                            [unterrichtet] (
+                                            [lehrerid]   INTEGER NOT NULL,
+                                            [kursbez]  NVARCHAR(32) NOT NULL,
+                                            PRIMARY KEY(lehrerid,kursbez),
+                                            FOREIGN KEY(lehrerid) REFERENCES lehrkraft(id),
+                                            FOREIGN KEY(kursbez) REFERENCES kurse(bez)
+                                          )
+                                    """;
             sqliteCmd.ExecuteNonQuery();
 
-            sqliteCmd.CommandText = @"CREATE TABLE IF NOT EXISTS
-        [nimmtteil] (
-        [schuelerid]   INTEGER NOT NULL,
-        [kursbez]  NVARCHAR(32) NOT NULL,
-        PRIMARY KEY(schuelerid,kursbez),
-        FOREIGN KEY(schuelerid) REFERENCES schueler(id),
-        FOREIGN KEY(kursbez) REFERENCES kurse(bez)
-      )";
+            sqliteCmd.CommandText = """
+                                    CREATE TABLE IF NOT EXISTS
+                                            [nimmtteil] (
+                                            [schuelerid]   INTEGER NOT NULL,
+                                            [kursbez]  NVARCHAR(32) NOT NULL,
+                                            PRIMARY KEY(schuelerid,kursbez),
+                                            FOREIGN KEY(schuelerid) REFERENCES schueler(id),
+                                            FOREIGN KEY(kursbez) REFERENCES kurse(bez)
+                                          )
+                                    """;
             sqliteCmd.ExecuteNonQuery();
 
-            sqliteCmd.CommandText = @"CREATE TABLE IF NOT EXISTS
-        [settings] (
-        [setting]   NVARCHAR(512) NOT NULL UNIQUE,
-        [value]  NVARCHAR(512) NOT NULL
-      )";
+            sqliteCmd.CommandText = """
+                                    CREATE TABLE IF NOT EXISTS
+                                            [settings] (
+                                            [setting]   NVARCHAR(512) NOT NULL UNIQUE,
+                                            [value]  NVARCHAR(512) NOT NULL
+                                          )
+                                    """;
             sqliteCmd.ExecuteNonQuery();
 
-            sqliteCmd.CommandText = @"CREATE TABLE IF NOT EXISTS
-        [fachersatz] (
-        [kurzfach]   NVARCHAR(16) NOT NULL,
-        [langfach]  NVARCHAR(64) NOT NULL,
-        PRIMARY KEY(kurzfach,langfach)
-      )";
+            sqliteCmd.CommandText = """
+                                    CREATE TABLE IF NOT EXISTS
+                                            [fachersatz] (
+                                            [kurzfach]   NVARCHAR(16) NOT NULL,
+                                            [langfach]  NVARCHAR(64) NOT NULL,
+                                            PRIMARY KEY(kurzfach,langfach)
+                                          )
+                                    """;
             sqliteCmd.ExecuteNonQuery();
 
-            sqliteCmd.CommandText = @"CREATE TABLE IF NOT EXISTS
-        [log] (
-        [id]  INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-        [stufe]   NVARCHAR(16) NOT NULL,
-        [datum]    NVARCHAR(128) NOT NULL,   
-        [nachricht]  NVARCHAR(4096) NOT NULL
-      )";
+            sqliteCmd.CommandText = """
+                                    CREATE TABLE IF NOT EXISTS
+                                            [log] (
+                                            [id]  INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                                            [stufe]   NVARCHAR(16) NOT NULL,
+                                            [datum]    NVARCHAR(128) NOT NULL,   
+                                            [nachricht]  NVARCHAR(4096) NOT NULL
+                                          )
+                                    """;
             sqliteCmd.ExecuteNonQuery();
 
             var fachk = new[]
@@ -236,6 +254,46 @@ public class Schuldatenbank : IDisposable
         catch (SqliteException ex)
         {
             throw new ApplicationException("Kritischer Fehler beim Erstellen der SQL-Datei: " + ex.Message);
+        }
+    }
+
+    private void upgradeDB(SqliteCommand sqliteCmd)
+    {
+        //for 0.6
+        //upgrade DB
+        sqliteCmd.CommandText =
+            $"SELECT COUNT(*) AS m365_col_count FROM pragma_table_info('schueler') WHERE name='m365'";
+        sqliteCmd.ExecuteNonQuery();
+        var sqliteDatareader = sqliteCmd.ExecuteReader();
+        var output = 0;
+        while (sqliteDatareader.Read())
+        {
+            output = Convert.ToInt32(sqliteDatareader.GetString("m365_col_count"));
+        }
+
+        sqliteDatareader.Close();
+        sqliteCmd.CommandText =
+            $"SELECT COUNT(*) AS id_col_count FROM pragma_table_info('schueler') WHERE name='id'";
+        sqliteCmd.ExecuteNonQuery();
+        sqliteDatareader = sqliteCmd.ExecuteReader();
+        var db_version = 0;
+        while (sqliteDatareader.Read())
+        {
+            db_version = Convert.ToInt32(sqliteDatareader.GetString("id_col_count"));
+        }
+
+        sqliteDatareader.Close();
+        if (output != 0 || db_version <= 0) return;
+        try
+        {
+            sqliteCmd.CommandText =
+                $"ALTER TABLE schueler ADD COLUMN m365 INTEGER NOT NULL DEFAULT 1";
+            sqliteCmd.ExecuteNonQuery();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Fehler: " + ex.Message);
+            Environment.Exit(-1);
         }
     }
 
@@ -770,12 +828,17 @@ public class Schuldatenbank : IDisposable
     /// <param name="kursliste">Liste mit Kurs-Bezeichnungen</param>
     public async Task<int> ExportCSV(string folder, string destsys, string whattoexport, bool withPasswort,
         string passwort,
-        bool expandfiles, bool nurMoodleSuffix, string[] kursvorlage, ReadOnlyCollection<int> susidliste,
+        bool expandfiles, bool nurMoodleSuffix, string[] kursvorlage, List<int> susidliste,
         ReadOnlyCollection<int> lulidliste,
         ReadOnlyCollection<string> kursliste)
     {
         try
         {
+            foreach (var id in GetM365Blacklist().Result)
+            {
+                susidliste.Remove(id);
+            }
+
             if (destsys.Equals("all"))
             {
                 return await ExportCSV(folder, "ami", whattoexport, withPasswort, passwort, expandfiles,
@@ -1107,7 +1170,8 @@ public class Schuldatenbank : IDisposable
                         kListe += "^" + kurs.Bezeichnung + kurs.Suffix + "|";
                     }
 
-                    ausgabeMoodleEinschreibungen.AddRange(lt.Fakultas.Split(',').Select(fach => "add,editingteacher," + lt.ID + ",FS_" + fach));
+                    ausgabeMoodleEinschreibungen.AddRange(lt.Fakultas.Split(',')
+                        .Select(fach => "add,editingteacher," + lt.ID + ",FS_" + fach));
 
                     if (kListe == "^|")
                     {
@@ -2857,6 +2921,20 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.ExecuteNonQuery();
     }
 
+    public async Task<ReadOnlyCollection<int>> GetM365Blacklist()
+    {
+        List<int> ids = [];
+        var sqliteCmd = _sqliteConn.CreateCommand();
+        sqliteCmd.CommandText = "SELECT id FROM schueler WHERE m365 = 0;";
+        var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
+        while (sqliteDatareader.Read())
+        {
+            ids.Add(int.Parse(sqliteDatareader["id"].ToString() ?? string.Empty));
+        }
+
+        return new ReadOnlyCollection<int>(ids);
+    }
+
     /// <summary>
     /// Liest zur lehrerid, das temp. Passwort aus der Datenbank aus und gibt es zurück
     /// </summary>
@@ -2875,6 +2953,16 @@ public class Schuldatenbank : IDisposable
         }
 
         return tpwd;
+    }
+
+    public async void SetM365(int susid, int has_m365)
+    {
+        if (susid <= 0) return;
+        var sqliteCmd = _sqliteConn.CreateCommand();
+        sqliteCmd.CommandText = "UPDATE schueler SET m365 = $has_m365 WHERE id = $susid;";
+        sqliteCmd.Parameters.AddWithValue("$has_m365", has_m365);
+        sqliteCmd.Parameters.AddWithValue("$susid", susid);
+        sqliteCmd.ExecuteNonQuery();
     }
 
     /// <summary>
