@@ -2561,7 +2561,6 @@ public partial class MainWindow : Window
                         .Select(s =>
                             s.Vorname + ";" + s.Nachname + ";" + s.Nutzername + ";" + "Klasse" + s.Klasse +
                             DateTime.Now.Year + "!;" + s.Aixmail + ";" + s.Klasse));
-                    await File.WriteAllLinesAsync(folder, susausgabe.Distinct().ToList(), Encoding.UTF8);
                     break;
                 case 2:
                     foreach (string kursbez in LeftListBox.SelectedItems)
@@ -2571,11 +2570,12 @@ public partial class MainWindow : Window
                             DateTime.Now.Year + "!;" + s.Aixmail + ";" + s.Klasse));
                     }
 
-                    await File.WriteAllLinesAsync(folder, susausgabe.Distinct().ToList(), Encoding.UTF8);
                     break;
                 default:
                     return;
             }
+
+            await File.WriteAllLinesAsync(folder, susausgabe.Distinct().ToList(), Encoding.UTF8);
         }
     }
 
