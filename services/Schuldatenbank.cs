@@ -1429,9 +1429,9 @@ public class Schuldatenbank : IDisposable
             retKurs.IstKurs = Convert.ToBoolean(sqliteDatareader.GetInt32(5));
             retKurs.Art = retKurs.IstKurs ? "PUT" : "PUK";
 
-            if (retKurs.IstKurs)
+            if (retKurs is { IstKurs: true, Bezeichnung.Length: > 3 })
             {
-                retKurs.Art = retKurs.Bezeichnung.Substring((retKurs.Bezeichnung.Length - 3), 3);
+                retKurs.Art = retKurs.Bezeichnung.Substring(retKurs.Bezeichnung.Length - 3, 3);
             }
         }
 
@@ -2270,9 +2270,7 @@ public class Schuldatenbank : IDisposable
                         {
                             string fach;
                             if (!kursart.Equals("PUK") &&
-                                !kursart.Equals("ZUV") &&
-                                //ToDo: Auf Feedback von Schild warten
-                                !kursart.Equals("WPII")) //PUK = Klassenunterricht; ZUV = Zusatzveranstaltung
+                                !kursart.Equals("ZUV")) //PUK = Klassenunterricht; ZUV = Zusatzveranstaltung
                             {
                                 fach = tmpkurs[inf];
                                 for (var k = 0; k < fachersetzung.Count - 1; k++)
@@ -2283,10 +2281,7 @@ public class Schuldatenbank : IDisposable
                                     }
                                 }
 
-                                //ToDo: Auf Feedback von Schild warten
-                                var bez = stufe + "-" + (string.IsNullOrEmpty(tmpkurs[ink])
-                                    ? fach + "-" + klasse
-                                    : tmpkurs[ink]);
+                                var bez = stufe + "-" + tmpkurs[ink];
                                 if (string.IsNullOrEmpty(GetKurs(bez).Result.Bezeichnung))
                                 {
                                     await AddKurs(bez, fach, stufe, stufe, fachsuffix, 1);
