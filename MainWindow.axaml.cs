@@ -1317,6 +1317,7 @@ public partial class MainWindow : Window
                     {
                         case 0:
                         {
+                            if (string.IsNullOrEmpty(kurs.Bezeichnung)) break;
                             var rlist = _myschool.GetSuSAusKurs(kurs.Bezeichnung).Result
                                 .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID)).Distinct().ToList();
                             rlist.Sort(Comparer<string>.Default);
@@ -1325,6 +1326,7 @@ public partial class MainWindow : Window
                         }
                         case 1:
                         {
+                            if (string.IsNullOrEmpty(kurs.Bezeichnung)) break;
                             var rlist = _myschool.GetLuLAusKurs(kurs.Bezeichnung).Result
                                 .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).Distinct().ToList();
                             rlist.Sort(Comparer<string>.Default);
@@ -1479,6 +1481,7 @@ public partial class MainWindow : Window
                         }
 
                         if (!hasComboBoxChanged) return;
+                        if (string.IsNullOrEmpty(kurs.Bezeichnung)) break;
                         var rlist = _myschool.GetLuLAusKurs(kurs.Bezeichnung).Result
                             .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).Distinct().ToList();
                         rlist.Sort(Comparer<string>.Default);
