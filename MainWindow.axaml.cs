@@ -1758,7 +1758,11 @@ public partial class MainWindow : Window
                     "Mittelstufe", "Einführungsphase",
                     "Qualifikationsphase 1", "Qualifikationsphase 2"
                 };
-                ergebnisliste.AddRange(from kurs in _myschool.GetKursListe().Result
+                var kurscache = _myschool.GetKursListe().Result;
+                ergebnisliste.AddRange(from kurs in kurscache
+                    where kurs.Bezeichnung.Length < 3
+                    select kurs.Bezeichnung + " mit zu kurzer Bezeichnung");
+                ergebnisliste.AddRange(from kurs in kurscache
                     where !whitelist.Contains(kurs.Bezeichnung) && (kurs.Fach.Length == 0 || kurs.Fach.Equals("---"))
                     select kurs.Bezeichnung + " mit fehlerhaftem Fach");
             }
