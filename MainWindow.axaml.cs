@@ -1915,7 +1915,7 @@ public partial class MainWindow : Window
             if (folder == null) return;
             var folderpath = folder.Path.LocalPath;
             var nurMoodleSuffix = cbNurMoodleSuffix.IsChecked is not false;
-            var res = await _myschool.ExportCSV(folderpath, "all", "s", false, "", false, nurMoodleSuffix,
+            var res = await _myschool.ExportCSV(folderpath, "all", "s", true, "", false, nurMoodleSuffix,
                 ["", ""],
                 [.._myschool.GetSusAusStufe("5").Result.Select(s => s.ID).ToList()],
                 new ReadOnlyCollection<int>(new List<int>()), new ReadOnlyCollection<string>(new List<string>()));
