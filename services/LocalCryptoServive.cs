@@ -38,11 +38,6 @@ public class LocalCryptoServive
         var salt = new byte[32];
         FileStream fsCrypt = new(inputFile, FileMode.Open);
         var i = fsCrypt.Read(salt, 0, salt.Length);
-        while (i < salt.Length)
-        {
-            i = fsCrypt.Read(salt, 0, salt.Length);
-        }
-
         var aes = Aes.Create();
         aes.KeySize = 256;
         aes.BlockSize = 128;
