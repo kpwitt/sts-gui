@@ -2654,13 +2654,17 @@ public class Schuldatenbank : IDisposable
 
         sqliteCmd.Parameters.AddWithValue("$erprobungstufenleitungparam",
             settings.Erprobungstufenleitung);
-        sqliteCmd.Parameters.AddWithValue("$mittelstufenleitungparam", settings.Mittelstufenleitung);
-        sqliteCmd.Parameters.AddWithValue("$efstufenleitungparam", settings.EFStufenleitung);
-        sqliteCmd.Parameters.AddWithValue("$q1stufenleitungparam", settings.Q1Stufenleitung);
-        sqliteCmd.Parameters.AddWithValue("$q2stufenleitungparam", settings.Q2Stufenleitung);
+        sqliteCmd.Parameters.AddWithValue("$mittelstufenleitungparam",
+            string.IsNullOrEmpty(settings.Mittelstufenleitung) ? "" : settings.Mittelstufenleitung);
+        sqliteCmd.Parameters.AddWithValue("$efstufenleitungparam",
+            string.IsNullOrEmpty(settings.EFStufenleitung) ? "" : settings.EFStufenleitung);
+        sqliteCmd.Parameters.AddWithValue("$q1stufenleitungparam",
+            string.IsNullOrEmpty(settings.Q1Stufenleitung) ? "" : settings.Q1Stufenleitung);
+        sqliteCmd.Parameters.AddWithValue("$q2stufenleitungparam",
+            string.IsNullOrEmpty(settings.Q2Stufenleitung) ? "" : settings.Q2Stufenleitung);
         sqliteCmd.Parameters.AddWithValue("$oberstufenkoordinationparam",
-            settings.Oberstufenkoordination);
-        sqliteCmd.Parameters.AddWithValue("$stubosparam", settings.StuBos);
+            string.IsNullOrEmpty(settings.Oberstufenkoordination) ? "" : settings.Oberstufenkoordination);
+        sqliteCmd.Parameters.AddWithValue("$stubosparam", string.IsNullOrEmpty(settings.StuBos) ? "" : settings.StuBos);
         sqliteCmd.Parameters.AddWithValue("versionparam", version);
         sqliteCmd.CommandText =
             "INSERT OR REPLACE INTO settings (setting,value) VALUES($mailsuffix, $mailsuffixparam)";
