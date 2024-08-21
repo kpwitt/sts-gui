@@ -1960,6 +1960,7 @@ public partial class MainWindow : Window
             Oberstufenkoordination = string.IsNullOrEmpty(tbSettingOberstufenkoordination.Text)
                 ? ""
                 : tbSettingOberstufenkoordination.Text.TrimEnd(','),
+            StuBos = string.IsNullOrEmpty(tbSettingStuBos.Text)?"": tbSettingStuBos.Text,
         };
 
         await _myschool.SetSettings(settings);
@@ -2148,6 +2149,51 @@ public partial class MainWindow : Window
         {
             await _myschool.UpdateKurs(kurs.Bezeichnung, kurs.Fach, kurs.Klasse, kurs.Stufe, settings.Kurssuffix,
                 kurs.IstKurs ? 1 : 0);
+        }
+
+        if (!string.IsNullOrEmpty(tbSettingStuBos.Text))
+        {
+            var stubo_krz = tbSettingStuBos.Text.Split(',').ToList();
+            var kurscache = _myschool.GetKursBezListe().Result.Where(k=>k.StartsWith("StuBo")).ToList();
+            if (kurscache.Count > 0)
+            {
+                foreach (var kursbez in kurscache)
+                {
+                    var kurs = _myschool.GetKurs(kursbez).Result;
+                    if (string.IsNullOrEmpty(kurs.Bezeichnung))continue;
+                    foreach (var krz in stubo_krz)
+                    {
+                        await _myschool.AddLtoK(_myschool.GetLehrkraft(krz).Result.ID, kursbez);
+                    }
+                    var aktuelle_lul_liste = await _myschool.GetLuLAusKurs(kurs.Bezeichnung);
+                    foreach (var l in aktuelle_lul_liste)
+                    {
+                        if (!stubo_krz.Contains(l.Kuerzel))
+                        {
+                            await _myschool.RemoveLfromK(l.ID, kurs.Bezeichnung);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                string[] stufen = ["8", "9", "10", "EF", "Q1", "Q2"];
+                foreach (var stufe in stufen)
+                {
+                    await _myschool.AddKurs("StuBo-"+stufe, "StuBo", stufe, stufe ,_myschool.GetSettings().Result.Kurssuffix, 1);
+                    foreach (var sus in _myschool.GetSusAusStufe(stufe).Result)
+                    {
+                        await _myschool.AddStoK(sus.ID, "StuBo-"+stufe);
+                    }
+                    foreach (var krz in stubo_krz)
+                    {
+                        await _myschool.AddLtoK(_myschool.GetLehrkraft(krz).Result.ID, "StuBo-"+stufe);
+                    }
+                }
+
+                
+                
+            }
         }
 
         await _myschool.StopTransaction();

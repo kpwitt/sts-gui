@@ -177,6 +177,7 @@ public class Schuldatenbank : IDisposable
                 Q1Stufenleitung = "",
                 Q2Stufenleitung = "",
                 Oberstufenkoordination = "",
+                StuBos = "",
                 Version = version
             };
             sqliteCmd.Parameters.AddWithValue("$mailsuffixparam", settings.Mailsuffix);
@@ -194,6 +195,7 @@ public class Schuldatenbank : IDisposable
             sqliteCmd.Parameters.AddWithValue("$q1stufenleitung", "q1stufenleitung");
             sqliteCmd.Parameters.AddWithValue("$q2stufenleitung", "q2stufenleitung");
             sqliteCmd.Parameters.AddWithValue("$oberstufenkoordination", "oberstufenkoordination");
+            sqliteCmd.Parameters.AddWithValue("$stubos", "stubos");
             sqliteCmd.Parameters.AddWithValue("$version", "version");
 
             sqliteCmd.Parameters.AddWithValue("$erprobungstufenleitungparam",
@@ -205,6 +207,7 @@ public class Schuldatenbank : IDisposable
             sqliteCmd.Parameters.AddWithValue("$q2stufenleitungparam", settings.Q2Stufenleitung);
             sqliteCmd.Parameters.AddWithValue("$oberstufenkoordinationparam",
                 settings.Oberstufenkoordination);
+            sqliteCmd.Parameters.AddWithValue("$stubosparam", settings.StuBos);
             sqliteCmd.Parameters.AddWithValue("$versionparam", settings.Version);
             sqliteCmd.CommandText =
                 "INSERT OR REPLACE INTO settings (setting,value) VALUES($mailsuffix, $mailsuffixparam)";
@@ -232,6 +235,9 @@ public class Schuldatenbank : IDisposable
             sqliteCmd.ExecuteNonQuery();
             sqliteCmd.CommandText =
                 "INSERT OR REPLACE INTO settings (setting,value) VALUES($oberstufenkoordination, $oberstufenkoordinationparam)";
+            sqliteCmd.ExecuteNonQuery();
+            sqliteCmd.CommandText =
+                "INSERT OR REPLACE INTO settings (setting,value) VALUES($stubos, $stubosparam)";
             sqliteCmd.ExecuteNonQuery();
             sqliteCmd.CommandText =
                 "INSERT OR REPLACE INTO settings (setting,value) VALUES($version, $versionparam)";
@@ -1923,6 +1929,9 @@ public class Schuldatenbank : IDisposable
                 case "oberstufenkoordination":
                     settingsResult.Oberstufenkoordination = value;
                     break;
+                case "stubos":
+                    settingsResult.StuBos = value;
+                    break;
             }
         }
 
@@ -2640,6 +2649,7 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$q1stufenleitung", "q1stufenleitung");
         sqliteCmd.Parameters.AddWithValue("$q2stufenleitung", "q2stufenleitung");
         sqliteCmd.Parameters.AddWithValue("$oberstufenkoordination", "oberstufenkoordination");
+        sqliteCmd.Parameters.AddWithValue("$stubos", "stubos");
         sqliteCmd.Parameters.AddWithValue("$version", "version");
 
         sqliteCmd.Parameters.AddWithValue("$erprobungstufenleitungparam",
@@ -2650,6 +2660,7 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$q2stufenleitungparam", settings.Q2Stufenleitung);
         sqliteCmd.Parameters.AddWithValue("$oberstufenkoordinationparam",
             settings.Oberstufenkoordination);
+        sqliteCmd.Parameters.AddWithValue("$stubosparam", settings.StuBos);
         sqliteCmd.Parameters.AddWithValue("versionparam", version);
         sqliteCmd.CommandText =
             "INSERT OR REPLACE INTO settings (setting,value) VALUES($mailsuffix, $mailsuffixparam)";
@@ -2677,6 +2688,8 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.ExecuteNonQuery();
         sqliteCmd.CommandText =
             "INSERT OR REPLACE INTO settings (setting,value) VALUES($oberstufenkoordination, $oberstufenkoordinationparam)";
+        sqliteCmd.ExecuteNonQuery();
+        sqliteCmd.CommandText = "INSERT OR REPLACE INTO settings (setting,value) VALUES($stubos, $stubosparam)";
         sqliteCmd.ExecuteNonQuery();
         sqliteCmd.CommandText =
             "INSERT OR REPLACE INTO settings (setting,value) VALUES($version, $versionparam)";

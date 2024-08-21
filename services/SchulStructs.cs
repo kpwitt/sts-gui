@@ -57,4 +57,5 @@ public record struct Settings
     public string Q2Stufenleitung { get; set; }
     public string Oberstufenkoordination { get; set; }
     public string Version { get; set; }
+    public string StuBos { get; set; }
 }

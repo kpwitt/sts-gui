@@ -348,6 +348,8 @@
                                             <TextBox x:Name="tbSettingQ2stufenleitung" Width="200" />
                                             <TextBlock Classes="Header" Text="Oberstufenkoordination:" />
                                             <TextBox x:Name="tbSettingOberstufenkoordination" Width="200" />
+                                            <TextBlock Classes="Header" Text="StuBos:" />
+                                            <TextBox x:Name="tbSettingStuBos" Width="200" />
                                         </StackPanel>
                                     </Grid>
                                     <StackPanel Grid.Row="3" Grid.Column="0" Orientation="Horizontal">
