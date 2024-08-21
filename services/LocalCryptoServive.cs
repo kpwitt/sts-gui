@@ -6,7 +6,7 @@ using System.Text;
 
 namespace StS_GUI_Avalonia;
 
-public class LocalCryptoServive
+public static class LocalCryptoServive
 {
     //quelle: https://ourcodeworld.com/articles/read/471/how-to-encrypt-and-decrypt-files-using-the-aes-encryption-algorithm-in-c-sharp
     /// <summary>
