@@ -1067,7 +1067,8 @@ public class Schuldatenbank : IDisposable
                     whattoexport += "m";
                 }
 
-                foreach (var s in susidliste)
+                await Parallel.ForEachAsync(susidliste, CancellationToken.None, async (s, CancellationToken) =>
+                    //foreach (var s in susidliste)
                 {
                     var sus = GetSchueler(s).Result;
                     var susmail = sus.Mail.Contains(' ') ? sus.Mail.Split(' ')[0] : sus.Mail;
@@ -1136,7 +1137,7 @@ public class Schuldatenbank : IDisposable
                         ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + ",mittelstufe" +
                                                          GetKursSuffix().Result);
                     }
-                }
+                });
             }
 
             if (whattoexport.Contains('l'))
