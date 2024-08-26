@@ -70,7 +70,7 @@ public class Schuldatenbank : IDisposable
                                             [nutzername]  NVARCHAR(7) NOT NULL,
                                             [aixmail] NVARCHAR(128) NOT NULL,
                                             [zweitaccount] INTEGER DEFAULT 0,
-                                            [zweitmail] NVARCHAR(512),
+                                            [zweitmail] NVARCHAR(512) DEFAULT '',
                                             [m365] INTEGER DEFAULT 1
                                           )
                                     """;
@@ -886,15 +886,20 @@ public class Schuldatenbank : IDisposable
             if (withPasswort)
             {
                 ausgabeMoodleUser.Add("email;password;username;idnumber;lastname;firstname;cohort1");
-                ausgabeAIXS.Add(
+                /*ausgabeAIXS.Add(
                     "\"Vorname\";\"Nachname\";\"Klasse\";\"Referenz-ID\";\"Kennwort\";\"Arbeitsgruppen\"");
-                ausgabeAIXL.Add("\"Vorname\";\"Nachname\";\"Referenz-ID\";\"Kennwort\";\"Arbeitsgruppen\"");
+                ausgabeAIXL.Add("\"Vorname\";\"Nachname\";\"Referenz-ID\";\"Kennwort\";\"Arbeitsgruppen\"");*/
+                ausgabeAIXS.Add(
+                    "Vorname;Nachname;Klasse;Referenz-ID;Kennwort;Arbeitsgruppen");
+                ausgabeAIXL.Add("Vorname;Nachname;Referenz-ID;Kennwort;Arbeitsgruppen");
             }
             else
             {
                 ausgabeMoodleUser.Add("email;username;idnumber;lastname;firstname;cohort1");
-                ausgabeAIXS.Add("\"Vorname\";\"Nachname\";\"Klasse\";\"Referenz-ID\";\"Arbeitsgruppen\"");
-                ausgabeAIXL.Add("\"Vorname\";\"Nachname\";\"Referenz-ID\";\"Arbeitsgruppen\"");
+                /*ausgabeAIXS.Add("\"Vorname\";\"Nachname\";\"Klasse\";\"Referenz-ID\";\"Arbeitsgruppen\"");
+                ausgabeAIXL.Add("\"Vorname\";\"Nachname\";\"Referenz-ID\";\"Arbeitsgruppen\"");*/
+                ausgabeAIXS.Add("Vorname;Nachname;Klasse;Referenz-ID;Arbeitsgruppen");
+                ausgabeAIXL.Add("Vorname;Nachname;Referenz-ID;Arbeitsgruppen");
             }
 
             string[] sekI = ["5", "6", "7", "8", "9", "10"];
@@ -1046,16 +1051,21 @@ public class Schuldatenbank : IDisposable
                         ausgabeMoodleUser.Add(susmail + ";" + pwd + ";" +
                                               s.Nutzername + ";" + s.ID + ";" + s.Nachname + ";" + s.Vorname +
                                               ";schueler");
-                        ausgabeAIXS.Add("\"" + s.Vorname + "\";\"" + s.Nachname + "\";\"" + s.Klasse + "\";\"" +
+                        /*ausgabeAIXS.Add("\"" + s.Vorname + "\";\"" + s.Nachname + "\";\"" + s.Klasse + "\";\"" +
                                         s.ID + "\";\"" +
-                                        pwd + "\";\"" + kListe + "\"");
+                                        pwd + "\";\"" + kListe + "\"");*/
+                        ausgabeAIXS.Add("" + s.Vorname + ";" + s.Nachname + ";" + s.Klasse + ";" +
+                                        s.ID + ";" +
+                                        pwd + ";" + kListe + "");
                     }
                     else
                     {
                         ausgabeMoodleUser.Add(susmail + ";" + s.Nutzername + ";" + s.ID + ";" + s.Nachname + ";" +
                                               s.Vorname + ";schueler");
-                        ausgabeAIXS.Add("\"" + s.Vorname + "\";\"" + s.Nachname + "\";\"" + s.Klasse + "\";\"" +
-                                        s.ID + "\";\"" + kListe + "\"");
+                        /*ausgabeAIXS.Add("\"" + s.Vorname + "\";\"" + s.Nachname + "\";\"" + s.Klasse + "\";\"" +
+                                        s.ID + "\";\"" + kListe + "\"");*/
+                        ausgabeAIXS.Add("" + s.Vorname + ";" + s.Nachname + ";" + s.Klasse + ";" +
+                                        s.ID + ";" + kListe + "");
                     }
                 });
             }
@@ -1197,15 +1207,19 @@ public class Schuldatenbank : IDisposable
                     {
                         ausgabeMoodleUser.Add(lt.Mail + ";" + await GetTempPasswort(lt.ID) + ";" + lt.Kuerzel +
                                               ";" + lt.ID + ";" + lt.Nachname + ";" + lt.Vorname + ";lehrer");
-                        ausgabeAIXL.Add("\"" + lt.Vorname + "\";\"" + lt.Nachname + "\";\"" + lt.ID + "\";\"" +
-                                        await GetTempPasswort(lt.ID) + "\";\"*|" + kListe + fak + "\"");
+                        /*ausgabeAIXL.Add("\"" + lt.Vorname + "\";\"" + lt.Nachname + "\";\"" + lt.ID + "\";\"" +
+                                        await GetTempPasswort(lt.ID) + "\";\"*|" + kListe + fak + "\"");*/
+                        ausgabeAIXL.Add("" + lt.Vorname + ";" + lt.Nachname + ";" + lt.ID + ";" +
+                                        await GetTempPasswort(lt.ID) + ";*|" + kListe + fak + "");
                     }
                     else
                     {
                         ausgabeMoodleUser.Add(lt.Mail + ";" + lt.Kuerzel + ";" + lt.ID + ";" + lt.Nachname + ";" +
                                               lt.Vorname);
-                        ausgabeAIXL.Add("\"" + lt.Vorname + "\";\"" + lt.Nachname + "\";\"" + lt.ID + "\";\"*|" +
-                                        kListe + fak + "\"");
+                        /*ausgabeAIXL.Add("\"" + lt.Vorname + "\";\"" + lt.Nachname + "\";\"" + lt.ID + "\";\"*|" +
+                                        kListe + fak + "\"");*/
+                        ausgabeAIXL.Add("" + lt.Vorname + ";" + lt.Nachname + ";" + lt.ID + ";*|" +
+                                        kListe + fak + "");
                     }
                 });
             }
