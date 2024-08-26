@@ -1715,11 +1715,14 @@ public partial class MainWindow : Window
             var ergebnisliste = new List<string>();
             if (cbFehlerLeereKurse.IsChecked != null && cbFehlerLeereKurse.IsChecked.Value)
             {
+                //TODO: Fehlerforstezen
+                ergebnisliste.Add("######BEGIN Leere Kurse######");
+                ergebnisliste.Add("Kursbezeichnung; Fehler");
                 foreach (var k in kursliste)
                 {
                     if (_myschool.GetSuSAusKurs(k.Bezeichnung).Result.Count == 0)
                     {
-                        ergebnisliste.Add(k.Bezeichnung + " ohne SuS");
+                        ergebnisliste.Add(k.Bezeichnung + ";ohne SuS");
                     }
 
                     if (_myschool.GetLuLAusKurs(k.Bezeichnung).Result.Count == 0)
@@ -1731,6 +1734,8 @@ public partial class MainWindow : Window
 
             if (cbFehlerSuSoK.IsChecked != null && cbFehlerSuSoK.IsChecked.Value)
             {
+                ergebnisliste.Add("######BEGIN SUS OHNE KURSE######");
+                ergebnisliste.Add("Nachname, Vorname; ID; Fehler");
                 var susOhneKurse = from sus in _myschool.GetSchuelerListe().Result
                     where _myschool.GetKursVonSuS(Convert.ToInt32(sus.ID)).Result.Count == 0
                     select sus.Nachname + ", " + sus.Vorname + ";" + sus.ID + ";ohne Kurs";
@@ -1743,6 +1748,8 @@ public partial class MainWindow : Window
 
             if (cbFehlerLuLoK.IsChecked != null && cbFehlerLuLoK.IsChecked.Value)
             {
+                ergebnisliste.Add("######BEGIN LUL OHNE KURSE######");
+                ergebnisliste.Add("Nachname, Vorname; ID; Fehler");
                 var lulOhneKurse = from lul in _myschool.GetLehrerListe().Result
                     where _myschool.GetKursVonLuL(Convert.ToInt32(lul.ID)).Result.Count == 0
                     select lul.Nachname + ", " + lul.Vorname + ";" + lul.ID + ";ohne Kurs";
@@ -1755,6 +1762,8 @@ public partial class MainWindow : Window
 
             if (cbFehlerLuL.IsChecked != null && cbFehlerLuL.IsChecked.Value)
             {
+                ergebnisliste.Add("######BEGIN LUL-Fehler######");
+                ergebnisliste.Add("Nachname, Vorname; ID; Fehler");
                 ergebnisliste.AddRange(from lul in _myschool.GetLehrerListe().Result
                     where lul.Fakultas.Contains("NV")
                     select lul.Nachname + ", " + lul.Vorname + ";" + lul.ID + ";mit fehlerhafter Fakultas");
@@ -1762,6 +1771,8 @@ public partial class MainWindow : Window
 
             if (cbFehlerKurse.IsChecked != null && cbFehlerKurse.IsChecked.Value)
             {
+                ergebnisliste.Add("######BEGIN KURS-FEHLER######");
+                ergebnisliste.Add("Kursbezeichnung;Fehler");
                 var whitelist = new[]
                 {
                     "Erprobungsstufe",
@@ -1771,14 +1782,16 @@ public partial class MainWindow : Window
                 var kurscache = _myschool.GetKursListe().Result;
                 ergebnisliste.AddRange(from kurs in kurscache
                     where kurs.Bezeichnung.Length < 3
-                    select kurs.Bezeichnung + " mit zu kurzer Bezeichnung");
+                    select kurs.Bezeichnung + ";Zu kurzer Bezeichnung");
                 ergebnisliste.AddRange(from kurs in kurscache
                     where !whitelist.Contains(kurs.Bezeichnung) && (kurs.Fach.Length == 0 || kurs.Fach.Equals("---"))
-                    select kurs.Bezeichnung + " mit fehlerhaftem Fach");
+                    select kurs.Bezeichnung + ";Fehlerhaftes Fach");
             }
 
             if (cbFehlerSuS.IsChecked != null && cbFehlerSuS.IsChecked.Value)
             {
+                ergebnisliste.Add("######BEGIN SUS-FEHLER######");
+                ergebnisliste.Add("Nachname, Vorname; Klasse; ID; Fehler");
                 foreach (var sus in susliste)
                 {
                     if (sus.Nutzername.Equals(""))
@@ -1788,7 +1801,7 @@ public partial class MainWindow : Window
                     }
 
                     var mailsuffixes = _myschool.GetSettings().Result.Mailsuffix;
-                    if (mailsuffixes.Contains(';') && sus.Aixmail.Contains(mailsuffixes.Split(';')[1]))
+                    if (string.IsNullOrEmpty(sus.Mail)||sus.Mail==sus.ID + mailsuffixes)
                     {
                         ergebnisliste.Add(sus.Nachname + ", " + sus.Vorname + ";Klasse " + sus.Klasse + ";" +
                                           sus.ID + ";ohne gültige Mailadresse");
