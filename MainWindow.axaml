@@ -41,7 +41,7 @@
                 <Menu DockPanel.Dock="Top"><!-- Menuleiste -->
                     <MenuItem Header="_Datei">
                         <MenuItem Header="Schule _laden" x:Name="mnuSchuleLaden" Click="OnMnuSchoolLoadClick" />
-                        <MenuItem Header="Schule _schließen" x:Name="mnuSchuleSpeichern"
+                        <MenuItem Header="Schule _schließen" x:Name="mnuSchuleSchließen"
                                   Click="OnMnuschuleschließenClick" />
                         <Separator />
                         <MenuItem Header="Schule speichern _unter" x:Name="mnuSchuleSpeichernUnter"
