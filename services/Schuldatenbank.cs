@@ -26,6 +26,7 @@ public class Schuldatenbank : IDisposable
     private readonly SqliteConnection _sqliteConn;
     private SqliteTransaction? _dbtrans;
     private bool _ActiveTransaction;
+    private bool _disposed = false;
 
     /// <summary>
     /// erstellt, falls nicht vorhanden, die Datenbankstruktur und öffnet die Verbindung
@@ -261,6 +262,27 @@ public class Schuldatenbank : IDisposable
         {
             throw new ApplicationException("Kritischer Fehler beim Erstellen der SQL-Datei: " + ex.Message);
         }
+    }
+
+    ~Schuldatenbank()
+    {
+        Dispose(true);
+    }
+
+    private void Dispose(bool disposing)
+    {
+        if (_disposed) return;
+        // If disposing equals true, dispose all managed
+        // and unmanaged resources.
+        if (disposing)
+        {
+            CloseDB();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+        }
+
+        // Note disposing has been done.
+        _disposed = true;
     }
 
     /// <summary>
@@ -584,9 +606,7 @@ public class Schuldatenbank : IDisposable
     /// </summary>
     public void Dispose()
     {
-        CloseDB();
-        GC.Collect();
-        GC.WaitForPendingFinalizers();
+        Dispose(true);
         GC.SuppressFinalize(this);
     }
 

@@ -457,7 +457,6 @@ public partial class MainWindow : Window
             ResetItemsSource(leftlist, new List<string>());
             ResetItemsSource(rightlist, new List<string>());
             Title = "SchildToSchule";
-            _myschool.Dispose();
             _myschool = new Schuldatenbank(":memory:");
             ClearTextFields();
             InitData();
@@ -669,7 +668,6 @@ public partial class MainWindow : Window
 
     private void OnMnuexitClick(object? sender, RoutedEventArgs e)
     {
-        _myschool.Dispose();
         Environment.Exit(0);
     }
 
