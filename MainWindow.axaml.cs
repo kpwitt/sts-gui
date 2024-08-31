@@ -460,6 +460,7 @@ public partial class MainWindow : Window
             _myschool = new Schuldatenbank(":memory:");
             ClearTextFields();
             InitData();
+            SetStatusText();
             exportFavoTabGrid.Children.Clear();
             return;
         }
