@@ -1801,7 +1801,7 @@ public partial class MainWindow : Window
                     }
 
                     var mailsuffixes = _myschool.GetSettings().Result.Mailsuffix;
-                    if (string.IsNullOrEmpty(sus.Mail)||sus.Mail==sus.ID + mailsuffixes)
+                    if (string.IsNullOrEmpty(sus.Mail) || sus.Mail == sus.ID + mailsuffixes)
                     {
                         ergebnisliste.Add(sus.Nachname + ", " + sus.Vorname + ";Klasse " + sus.Klasse + ";" +
                                           sus.ID + ";ohne gültige Mailadresse");
@@ -3558,7 +3558,7 @@ public partial class MainWindow : Window
         }
     }
 
-    private async void BtnM365DVEinlesen_OnClick(object? sender, RoutedEventArgs e)
+    private async void mnuM365DVEinlesen_OnClick(object? sender, RoutedEventArgs e)
     {
         var extx = new List<FilePickerFileType>
         {
