@@ -232,7 +232,7 @@ public partial class MainWindow : Window
         leftListContextItems.Add(mnuItemMPasswordGenerieren);
         leftListContextItems.Add(mnuItemMExport);
         _leftListContext.ItemsSource = leftListContextItems;
-        LeftListBox.ContextMenu = _leftListContext;
+        leftListBox.ContextMenu = _leftListContext;
 
         var _mnuItemCopyLog = new MenuItem
         {
@@ -296,9 +296,9 @@ public partial class MainWindow : Window
         //Rest
         rbD.IsChecked = true;
         Rb_OnClick(rbD, new RoutedEventArgs());
-        LeftListBox.MaxHeight = ClientSize.Height * 1.1;
-        RightListBox.MaxHeight = LeftListBox.MaxHeight;
-        lbLogDisplay.MaxHeight = LeftListBox.MaxHeight;
+        leftListBox.MaxHeight = ClientSize.Height * 1.1;
+        rightListBox.MaxHeight = leftListBox.MaxHeight;
+        lbLogDisplay.MaxHeight = leftListBox.MaxHeight;
         lbLogDisplay.MaxWidth = ClientSize.Width * 1.1;
         _msgBoxWindowIcon =
             new WindowIcon(AssetLoader.Open(new Uri("avares://StS-GUI-Avalonia/Assets/gfx/school-building.png")));
@@ -307,11 +307,11 @@ public partial class MainWindow : Window
             if (FrameSize == null) return;
             mainScroller.MaxHeight = FrameSize.Value.Height * 0.9;
             mainScroller.MaxWidth = FrameSize.Value.Width;
-            LeftListBox.MaxHeight = mainScroller.MaxHeight * 0.8;
-            RightListBox.MaxHeight = LeftListBox.MaxHeight;
-            lbLogDisplay.MaxHeight = LeftListBox.MaxHeight;
+            leftListBox.MaxHeight = mainScroller.MaxHeight * 0.8;
+            rightListBox.MaxHeight = leftListBox.MaxHeight;
+            lbLogDisplay.MaxHeight = leftListBox.MaxHeight;
             lbLogDisplay.MaxWidth = FrameSize.Value.Width * 0.8;
-            exportScrollViewerFavo.MaxHeight = LeftListBox.MaxHeight;
+            exportScrollViewerFavo.MaxHeight = leftListBox.MaxHeight;
         };
     }
 
@@ -452,8 +452,8 @@ public partial class MainWindow : Window
     {
         if (_myschool.GetFilePath().Result != ":memory:")
         {
-            var leftlist = this.GetControl<ListBox>("LeftListBox");
-            var rightlist = this.GetControl<ListBox>("RightListBox");
+            var leftlist = this.GetControl<ListBox>("leftListBox");
+            var rightlist = this.GetControl<ListBox>("rightListBox");
             ResetItemsSource(leftlist, new List<string>());
             ResetItemsSource(rightlist, new List<string>());
             Title = "SchildToSchule";
@@ -477,8 +477,8 @@ public partial class MainWindow : Window
                 await Dispatcher.UIThread.InvokeAsync(() =>
                 {
                     ClearTextFields();
-                    ResetItemsSource(LeftListBox, new List<string>());
-                    ResetItemsSource(RightListBox, new List<string>());
+                    ResetItemsSource(leftListBox, new List<string>());
+                    ResetItemsSource(rightListBox, new List<string>());
                 });
                 return;
             }
@@ -918,13 +918,13 @@ public partial class MainWindow : Window
         var sid = Convert.ToInt32(susid);
         if (_myschool.GetSchueler(sid).Result.ID == 0) return;
         ListBox source;
-        if (CboxDataLeft.SelectedIndex == 0)
+        if (cboxDataLeft.SelectedIndex == 0)
         {
-            source = LeftListBox;
+            source = leftListBox;
         }
-        else if (CboxDataRight.SelectedIndex == 0)
+        else if (cboxDataRight.SelectedIndex == 0)
         {
-            source = RightListBox;
+            source = rightListBox;
         }
         else
         {
@@ -1047,13 +1047,13 @@ public partial class MainWindow : Window
         if (lulid is null or "" || !lulid.All(char.IsDigit)) return;
         var lid = Convert.ToInt32(lulid);
         ListBox source;
-        if (CboxDataLeft.SelectedIndex == 1)
+        if (cboxDataLeft.SelectedIndex == 1)
         {
-            source = LeftListBox;
+            source = leftListBox;
         }
-        else if (CboxDataRight.SelectedIndex == 1)
+        else if (cboxDataRight.SelectedIndex == 1)
         {
-            source = RightListBox;
+            source = rightListBox;
         }
         else
         {
@@ -1078,13 +1078,13 @@ public partial class MainWindow : Window
 
     private async void InitData()
     {
-        if (CboxDataLeft == null || CboxDataRight == null) return;
-        CboxDataLeft.SelectedIndex = 0;
-        CboxDataRight.SelectedIndex = 1;
+        if (cboxDataLeft == null || cboxDataRight == null) return;
+        cboxDataLeft.SelectedIndex = 0;
+        cboxDataRight.SelectedIndex = 1;
         var llist = _myschool.GetSchuelerListe().Result.Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID))
             .ToList();
         llist.Sort(Comparer<string>.Default);
-        ResetItemsSource(LeftListBox, llist);
+        ResetItemsSource(leftListBox, llist);
         loadSettingsToGUI(_myschool.GetSettings().Result);
         await loadFavos();
     }
@@ -1113,20 +1113,20 @@ public partial class MainWindow : Window
         tbSettingErprobungsstufenleitung.Text = settings.Erprobungstufenleitung;
         tbSettingMittelstufenleitung.Text = settings.Mittelstufenleitung;
         tbSettingEFstufenleitung.Text = settings.EFStufenleitung;
-        tbSettingQ1stufenleitung.Text = settings.Q1Stufenleitung;
-        tbSettingQ2stufenleitung.Text = settings.Q2Stufenleitung;
+        tbSettingQ1Stufenleitung.Text = settings.Q1Stufenleitung;
+        tbSettingQ2Stufenleitung.Text = settings.Q2Stufenleitung;
         tbSettingOberstufenkoordination.Text = settings.Oberstufenkoordination;
     }
 
-    private void CboxDataLeft_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
+    private void cboxDataLeft_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
         ClearTextFields();
         _rightMutex = true;
-        if (leftLastComboIndex != CboxDataLeft.SelectedIndex)
+        if (leftLastComboIndex != cboxDataLeft.SelectedIndex)
         {
-            LeftListBox.SelectedItems?.Clear();
+            leftListBox.SelectedItems?.Clear();
             OnLeftDataChanged(true);
-            leftLastComboIndex = CboxDataLeft.SelectedIndex;
+            leftLastComboIndex = cboxDataLeft.SelectedIndex;
         }
 
         _rightMutex = false;
@@ -1176,75 +1176,75 @@ public partial class MainWindow : Window
         cbSuSZweitaccount.IsChecked = false;
     }
 
-    private void CboxDataRight_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
+    private void cboxDataRight_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
         _rightMutex = true;
-        if (rightLastComboIndex != CboxDataRight.SelectedIndex)
+        if (rightLastComboIndex != cboxDataRight.SelectedIndex)
         {
-            RightListBox.SelectedItems?.Clear();
+            rightListBox.SelectedItems?.Clear();
             OnRightDataChanged(true);
-            rightLastComboIndex = CboxDataRight.SelectedIndex;
+            rightLastComboIndex = cboxDataRight.SelectedIndex;
         }
 
         _rightMutex = false;
     }
 
-    private void LeftListBox_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
+    private void leftListBox_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
         ClearTextFields();
         OnLeftDataChanged(false);
     }
 
-    private void RightListBox_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
+    private void rightListBox_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
         OnRightDataChanged(false);
     }
 
     private void OnLeftDataChanged(bool hasComboBoxChanged)
     {
-        if (LeftListBox == null || RightListBox == null || CboxDataLeft == null || CboxDataRight == null) return;
-        if (LeftListBox.SelectedItems == null) return;
+        if (leftListBox == null || rightListBox == null || cboxDataLeft == null || cboxDataRight == null) return;
+        if (leftListBox.SelectedItems == null) return;
         SetStatusText();
         if (_rightMutex && !hasComboBoxChanged) return;
         if (hasComboBoxChanged)
         {
-            ResetItemsSource(RightListBox, new List<string>());
+            ResetItemsSource(rightListBox, new List<string>());
         }
 
-        _mnuItemCopySuSid.IsVisible = _mnuItemCopySuSMail.IsVisible = CboxDataLeft.SelectedIndex == 0;
-        _mnuItemCopyLuLKrz.IsVisible = _mnuItemCopyLuLMails.IsVisible = CboxDataLeft.SelectedIndex == 1;
-        _mnuItemCopyKursBez.IsVisible = CboxDataLeft.SelectedIndex == 2;
-        switch (CboxDataLeft.SelectedIndex)
+        _mnuItemCopySuSid.IsVisible = _mnuItemCopySuSMail.IsVisible = cboxDataLeft.SelectedIndex == 0;
+        _mnuItemCopyLuLKrz.IsVisible = _mnuItemCopyLuLMails.IsVisible = cboxDataLeft.SelectedIndex == 1;
+        _mnuItemCopyKursBez.IsVisible = cboxDataLeft.SelectedIndex == 2;
+        switch (cboxDataLeft.SelectedIndex)
         {
             //s=0;l==1;k==2
             case 0:
-                if (CboxDataRight.SelectedIndex == 0)
+                if (cboxDataRight.SelectedIndex == 0)
                 {
-                    CboxDataRight.SelectedIndex = 1;
+                    cboxDataRight.SelectedIndex = 1;
                 }
 
-                if (LeftListBox.SelectedItems.Count < 1 || LeftListBox.SelectedItems == null || hasComboBoxChanged)
+                if (leftListBox.SelectedItems.Count < 1 || leftListBox.SelectedItems == null || hasComboBoxChanged)
                 {
                     var slist = _myschool.GetSchuelerListe().Result
                         .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID)).Distinct().ToList();
                     slist.Sort(Comparer<string>.Default);
-                    ResetItemsSource(LeftListBox, slist);
-                    ResetItemsSource(RightListBox, new List<string>());
+                    ResetItemsSource(leftListBox, slist);
+                    ResetItemsSource(rightListBox, new List<string>());
                 }
                 else
                 {
-                    var sid = LeftListBox.SelectedItems[0]?.ToString()?.Split(';')[1];
+                    var sid = leftListBox.SelectedItems[0]?.ToString()?.Split(';')[1];
                     var sus = _myschool.GetSchueler(Convert.ToInt32(sid)).Result;
                     LoadSuSData(sus);
                     if (sus.ID == 0) return;
-                    switch (CboxDataRight.SelectedIndex)
+                    switch (cboxDataRight.SelectedIndex)
                     {
                         case 1:
                         {
                             var rlist = _myschool.GetLuLvonSuS(sus.ID).Result
                                 .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).Distinct().ToList();
                             rlist.Sort(Comparer<string>.Default);
-                            ResetItemsSource(RightListBox, rlist);
+                            ResetItemsSource(rightListBox, rlist);
                             break;
                         }
                         case 2:
@@ -1252,7 +1252,7 @@ public partial class MainWindow : Window
                             var rlist = _myschool.GetKursVonSuS(sus.ID).Result.Select(k => (k.Bezeichnung))
                                 .Distinct()
                                 .ToList();
-                            ResetItemsSource(RightListBox, rlist);
+                            ResetItemsSource(rightListBox, rlist);
                             break;
                         }
                     }
@@ -1260,33 +1260,33 @@ public partial class MainWindow : Window
 
                 break;
             case 1:
-                if (CboxDataRight.SelectedIndex == 1)
+                if (cboxDataRight.SelectedIndex == 1)
                 {
-                    CboxDataRight.SelectedIndex = 2;
+                    cboxDataRight.SelectedIndex = 2;
                 }
 
-                if (LeftListBox.SelectedItems.Count < 1 || LeftListBox.SelectedItems == null || hasComboBoxChanged)
+                if (leftListBox.SelectedItems.Count < 1 || leftListBox.SelectedItems == null || hasComboBoxChanged)
                 {
                     var lullist = _myschool.GetLehrerListe().Result
                         .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).Distinct().ToList();
                     lullist.Sort(Comparer<string>.Default);
-                    ResetItemsSource(LeftListBox, lullist);
-                    ResetItemsSource(RightListBox, new List<string>());
+                    ResetItemsSource(leftListBox, lullist);
+                    ResetItemsSource(rightListBox, new List<string>());
                 }
                 else
                 {
-                    var lulkrz = LeftListBox.SelectedItems[0]?.ToString()?.Split(';')[0];
+                    var lulkrz = leftListBox.SelectedItems[0]?.ToString()?.Split(';')[0];
                     if (string.IsNullOrEmpty(lulkrz)) return;
                     var lul = _myschool.GetLehrkraft(lulkrz).Result;
                     LoadLuLData(lul);
-                    switch (CboxDataRight.SelectedIndex)
+                    switch (cboxDataRight.SelectedIndex)
                     {
                         case 0:
                         {
                             var rlist = _myschool.GetSuSVonLuL(lul.ID).Result
                                 .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID)).Distinct().ToList();
                             rlist.Sort(Comparer<string>.Default);
-                            ResetItemsSource(RightListBox, rlist);
+                            ResetItemsSource(rightListBox, rlist);
 
                             break;
                         }
@@ -1296,7 +1296,7 @@ public partial class MainWindow : Window
                                 .Distinct()
                                 .ToList();
                             rlist.Sort(Comparer<string>.Default);
-                            ResetItemsSource(RightListBox, rlist);
+                            ResetItemsSource(rightListBox, rlist);
                             break;
                         }
                     }
@@ -1304,25 +1304,25 @@ public partial class MainWindow : Window
 
                 break;
             case 2:
-                if (CboxDataRight.SelectedIndex == 2)
+                if (cboxDataRight.SelectedIndex == 2)
                 {
-                    CboxDataRight.SelectedIndex = 0;
+                    cboxDataRight.SelectedIndex = 0;
                 }
 
-                if (LeftListBox.SelectedItems.Count < 1 || LeftListBox.SelectedItems == null || hasComboBoxChanged)
+                if (leftListBox.SelectedItems.Count < 1 || leftListBox.SelectedItems == null || hasComboBoxChanged)
                 {
                     var klist = _myschool.GetKursListe().Result.Select(k => (k.Bezeichnung)).Distinct().ToList();
                     klist.Sort(Comparer<string>.Default);
-                    ResetItemsSource(LeftListBox, klist);
-                    ResetItemsSource(RightListBox, new List<string>());
+                    ResetItemsSource(leftListBox, klist);
+                    ResetItemsSource(rightListBox, new List<string>());
                 }
                 else
                 {
-                    var kurzbez = LeftListBox.SelectedItems[0]?.ToString();
+                    var kurzbez = leftListBox.SelectedItems[0]?.ToString();
                     if (string.IsNullOrEmpty(kurzbez)) return;
                     var kurs = _myschool.GetKurs(kurzbez).Result;
                     LoadKursData(kurs);
-                    switch (CboxDataRight.SelectedIndex)
+                    switch (cboxDataRight.SelectedIndex)
                     {
                         case 0:
                         {
@@ -1330,7 +1330,7 @@ public partial class MainWindow : Window
                             var rlist = _myschool.GetSuSAusKurs(kurs.Bezeichnung).Result
                                 .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID)).Distinct().ToList();
                             rlist.Sort(Comparer<string>.Default);
-                            ResetItemsSource(RightListBox, rlist);
+                            ResetItemsSource(rightListBox, rlist);
                             break;
                         }
                         case 1:
@@ -1339,7 +1339,7 @@ public partial class MainWindow : Window
                             var rlist = _myschool.GetLuLAusKurs(kurs.Bezeichnung).Result
                                 .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).Distinct().ToList();
                             rlist.Sort(Comparer<string>.Default);
-                            ResetItemsSource(RightListBox, rlist);
+                            ResetItemsSource(rightListBox, rlist);
                             break;
                         }
                     }
@@ -1351,32 +1351,32 @@ public partial class MainWindow : Window
 
     private void SetStatusText()
     {
-        if (LeftListBox.SelectedItems == null || RightListBox.SelectedItems == null) return;
+        if (leftListBox.SelectedItems == null || rightListBox.SelectedItems == null) return;
         var leftcounter = " | ";
-        switch (CboxDataLeft.SelectedIndex)
+        switch (cboxDataLeft.SelectedIndex)
         {
             case 0:
-                leftcounter += LeftListBox.SelectedItems.Count + " Schüler:Innen";
+                leftcounter += leftListBox.SelectedItems.Count + " Schüler:Innen";
                 break;
             case 1:
-                leftcounter += LeftListBox.SelectedItems.Count + " Lehrkräfte";
+                leftcounter += leftListBox.SelectedItems.Count + " Lehrkräfte";
                 break;
             case 2:
-                leftcounter += LeftListBox.SelectedItems.Count + " Kurse";
+                leftcounter += leftListBox.SelectedItems.Count + " Kurse";
                 break;
         }
 
         var rightcounter = " und ";
-        switch (CboxDataRight.SelectedIndex)
+        switch (cboxDataRight.SelectedIndex)
         {
             case 0:
-                rightcounter += RightListBox.SelectedItems.Count + " Schüler:Innen";
+                rightcounter += rightListBox.SelectedItems.Count + " Schüler:Innen";
                 break;
             case 1:
-                rightcounter += RightListBox.SelectedItems.Count + " Lehrkräfte";
+                rightcounter += rightListBox.SelectedItems.Count + " Lehrkräfte";
                 break;
             case 2:
-                rightcounter += RightListBox.SelectedItems.Count + " Kurse";
+                rightcounter += rightListBox.SelectedItems.Count + " Kurse";
                 break;
         }
 
@@ -1385,33 +1385,33 @@ public partial class MainWindow : Window
 
     private void OnRightDataChanged(bool hasComboBoxChanged)
     {
-        if (LeftListBox == null || RightListBox == null || CboxDataLeft == null || CboxDataRight == null) return;
-        if (RightListBox.SelectedItems == null) return;
+        if (leftListBox == null || rightListBox == null || cboxDataLeft == null || cboxDataRight == null) return;
+        if (rightListBox.SelectedItems == null) return;
         SetStatusText();
         if (_rightMutex && !hasComboBoxChanged) return;
         /*if (hasComboBoxChanged)
         {
-            ResetItemsSource(LeftListBox, new List<string>());
+            ResetItemsSource(leftListBox, new List<string>());
         }*/
 
-        switch (CboxDataRight.SelectedIndex)
+        switch (cboxDataRight.SelectedIndex)
         {
             //s=0;l==1;k==2
             case 0:
-                if (CboxDataLeft.SelectedIndex == 0 || LeftListBox.SelectedItems == null ||
-                    LeftListBox.SelectedItems.Count < 1 ||
-                    LeftListBox.SelectedItems == null) return;
-                switch (CboxDataLeft.SelectedIndex)
+                if (cboxDataLeft.SelectedIndex == 0 || leftListBox.SelectedItems == null ||
+                    leftListBox.SelectedItems.Count < 1 ||
+                    leftListBox.SelectedItems == null) return;
+                switch (cboxDataLeft.SelectedIndex)
                 {
                     case 1:
                     {
-                        var lulkrz = LeftListBox.SelectedItems[0]?.ToString()?.Split(';')[0];
+                        var lulkrz = leftListBox.SelectedItems[0]?.ToString()?.Split(';')[0];
                         if (string.IsNullOrEmpty(lulkrz)) return;
                         var lul = _myschool.GetLehrkraft(lulkrz).Result;
                         LoadLuLData(lul);
-                        if (RightListBox.SelectedItems.Count > 0)
+                        if (rightListBox.SelectedItems.Count > 0)
                         {
-                            var sid = RightListBox.SelectedItems[0]?.ToString()?.Split(';')[1];
+                            var sid = rightListBox.SelectedItems[0]?.ToString()?.Split(';')[1];
                             var sus = _myschool.GetSchueler(Convert.ToInt32(sid)).Result;
                             if (sus.ID == 0) return;
                             LoadSuSData(sus);
@@ -1421,18 +1421,18 @@ public partial class MainWindow : Window
                         var rlist = _myschool.GetSuSVonLuL(lul.ID).Result
                             .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID)).Distinct().ToList();
                         rlist.Sort(Comparer<string>.Default);
-                        ResetItemsSource(RightListBox, rlist);
+                        ResetItemsSource(rightListBox, rlist);
                         break;
                     }
                     case 2:
                     {
-                        var kurzbez = LeftListBox.SelectedItems[0]?.ToString();
+                        var kurzbez = leftListBox.SelectedItems[0]?.ToString();
                         if (string.IsNullOrEmpty(kurzbez)) return;
                         var kurs = _myschool.GetKurs(kurzbez).Result;
                         LoadKursData(kurs);
-                        if (RightListBox.SelectedItems.Count > 0)
+                        if (rightListBox.SelectedItems.Count > 0)
                         {
-                            var sid = RightListBox.SelectedItems[0]?.ToString()?.Split(';')[1];
+                            var sid = rightListBox.SelectedItems[0]?.ToString()?.Split(';')[1];
                             var sus = _myschool.GetSchueler(Convert.ToInt32(sid)).Result;
                             if (sus.ID == 0) return;
                             LoadSuSData(sus);
@@ -1442,27 +1442,27 @@ public partial class MainWindow : Window
                         var rlist = _myschool.GetSuSAusKurs(kurs.Bezeichnung).Result
                             .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID)).Distinct().ToList();
                         rlist.Sort(Comparer<string>.Default);
-                        ResetItemsSource(RightListBox, rlist);
+                        ResetItemsSource(rightListBox, rlist);
                         break;
                     }
                 }
 
                 break;
             case 1:
-                if (CboxDataLeft.SelectedIndex == 1 || LeftListBox.SelectedItems == null ||
-                    LeftListBox.SelectedItems.Count < 1 ||
-                    LeftListBox.SelectedItems == null) return;
-                switch (CboxDataLeft.SelectedIndex)
+                if (cboxDataLeft.SelectedIndex == 1 || leftListBox.SelectedItems == null ||
+                    leftListBox.SelectedItems.Count < 1 ||
+                    leftListBox.SelectedItems == null) return;
+                switch (cboxDataLeft.SelectedIndex)
                 {
                     case 0:
                     {
-                        var sid = LeftListBox.SelectedItems[0]?.ToString()?.Split(';')[1];
+                        var sid = leftListBox.SelectedItems[0]?.ToString()?.Split(';')[1];
                         var sus = _myschool.GetSchueler(Convert.ToInt32(sid)).Result;
                         if (sus.ID == 0) return;
                         LoadSuSData(sus);
-                        if (RightListBox.SelectedItems.Count > 0)
+                        if (rightListBox.SelectedItems.Count > 0)
                         {
-                            var lulkrz = RightListBox.SelectedItems[0]?.ToString()?.Split(';')[0];
+                            var lulkrz = rightListBox.SelectedItems[0]?.ToString()?.Split(';')[0];
                             if (string.IsNullOrEmpty(lulkrz)) return;
                             var lul = _myschool.GetLehrkraft(lulkrz).Result;
                             LoadLuLData(lul);
@@ -1472,18 +1472,18 @@ public partial class MainWindow : Window
                         var rlist = _myschool.GetLuLvonSuS(sus.ID).Result
                             .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).Distinct().ToList();
                         rlist.Sort(Comparer<string>.Default);
-                        ResetItemsSource(RightListBox, rlist);
+                        ResetItemsSource(rightListBox, rlist);
                         break;
                     }
                     case 2:
                     {
-                        var kurzbez = LeftListBox.SelectedItems[0]?.ToString();
+                        var kurzbez = leftListBox.SelectedItems[0]?.ToString();
                         if (string.IsNullOrEmpty(kurzbez)) return;
                         var kurs = _myschool.GetKurs(kurzbez).Result;
                         LoadKursData(kurs);
-                        if (RightListBox.SelectedItems.Count > 0)
+                        if (rightListBox.SelectedItems.Count > 0)
                         {
-                            var lulkrz = RightListBox.SelectedItems[0]?.ToString()?.Split(';')[0];
+                            var lulkrz = rightListBox.SelectedItems[0]?.ToString()?.Split(';')[0];
                             if (string.IsNullOrEmpty(lulkrz)) return;
                             var lul = _myschool.GetLehrkraft(lulkrz).Result;
                             LoadLuLData(lul);
@@ -1494,27 +1494,27 @@ public partial class MainWindow : Window
                         var rlist = _myschool.GetLuLAusKurs(kurs.Bezeichnung).Result
                             .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).Distinct().ToList();
                         rlist.Sort(Comparer<string>.Default);
-                        ResetItemsSource(RightListBox, rlist);
+                        ResetItemsSource(rightListBox, rlist);
                         break;
                     }
                 }
 
                 break;
             case 2:
-                if (CboxDataLeft.SelectedIndex == 2 || LeftListBox.SelectedItems == null ||
-                    LeftListBox.SelectedItems.Count < 1 ||
-                    LeftListBox.SelectedItems == null) return;
-                switch (CboxDataLeft.SelectedIndex)
+                if (cboxDataLeft.SelectedIndex == 2 || leftListBox.SelectedItems == null ||
+                    leftListBox.SelectedItems.Count < 1 ||
+                    leftListBox.SelectedItems == null) return;
+                switch (cboxDataLeft.SelectedIndex)
                 {
                     case 0:
                     {
-                        var sid = LeftListBox.SelectedItems[0]?.ToString()?.Split(';')[1];
+                        var sid = leftListBox.SelectedItems[0]?.ToString()?.Split(';')[1];
                         var sus = _myschool.GetSchueler(Convert.ToInt32(sid)).Result;
                         if (sus.ID == 0) return;
                         LoadSuSData(sus);
-                        if (RightListBox.SelectedItems.Count > 0)
+                        if (rightListBox.SelectedItems.Count > 0)
                         {
-                            var kurzbez = RightListBox.SelectedItems[0]?.ToString();
+                            var kurzbez = rightListBox.SelectedItems[0]?.ToString();
                             if (string.IsNullOrEmpty(kurzbez)) return;
                             var kurs = _myschool.GetKurs(kurzbez).Result;
                             LoadKursData(kurs);
@@ -1524,18 +1524,18 @@ public partial class MainWindow : Window
                         var rlist = _myschool.GetKursVonSuS(sus.ID).Result.Select(k => (k.Bezeichnung))
                             .Distinct()
                             .ToList();
-                        ResetItemsSource(RightListBox, rlist);
+                        ResetItemsSource(rightListBox, rlist);
                         break;
                     }
                     case 1:
                     {
-                        var lulkrz = LeftListBox.SelectedItems[0]?.ToString()?.Split(';')[0];
+                        var lulkrz = leftListBox.SelectedItems[0]?.ToString()?.Split(';')[0];
                         if (string.IsNullOrEmpty(lulkrz)) return;
                         var lul = _myschool.GetLehrkraft(lulkrz).Result;
                         LoadLuLData(lul);
-                        if (RightListBox.SelectedItems.Count > 0)
+                        if (rightListBox.SelectedItems.Count > 0)
                         {
-                            var kurzbez = RightListBox.SelectedItems[0]?.ToString();
+                            var kurzbez = rightListBox.SelectedItems[0]?.ToString();
                             if (string.IsNullOrEmpty(kurzbez)) return;
                             var kurs = _myschool.GetKurs(kurzbez).Result;
                             LoadKursData(kurs);
@@ -1546,7 +1546,7 @@ public partial class MainWindow : Window
                             .Distinct()
                             .ToList();
                         rlist.Sort(Comparer<string>.Default);
-                        ResetItemsSource(RightListBox, rlist);
+                        ResetItemsSource(rightListBox, rlist);
                         break;
                     }
                 }
@@ -1973,12 +1973,12 @@ public partial class MainWindow : Window
             EFStufenleitung = string.IsNullOrEmpty(tbSettingEFstufenleitung.Text)
                 ? ""
                 : tbSettingEFstufenleitung.Text.TrimEnd(','),
-            Q1Stufenleitung = string.IsNullOrEmpty(tbSettingQ1stufenleitung.Text)
+            Q1Stufenleitung = string.IsNullOrEmpty(tbSettingQ1Stufenleitung.Text)
                 ? ""
-                : tbSettingQ1stufenleitung.Text.TrimEnd(','),
-            Q2Stufenleitung = string.IsNullOrEmpty(tbSettingQ2stufenleitung.Text)
+                : tbSettingQ1Stufenleitung.Text.TrimEnd(','),
+            Q2Stufenleitung = string.IsNullOrEmpty(tbSettingQ2Stufenleitung.Text)
                 ? ""
-                : tbSettingQ2stufenleitung.Text.TrimEnd(','),
+                : tbSettingQ2Stufenleitung.Text.TrimEnd(','),
             Oberstufenkoordination = string.IsNullOrEmpty(tbSettingOberstufenkoordination.Text)
                 ? ""
                 : tbSettingOberstufenkoordination.Text.TrimEnd(','),
@@ -2099,11 +2099,11 @@ public partial class MainWindow : Window
             }
         }
 
-        if (!string.IsNullOrEmpty(tbSettingQ1stufenleitung.Text))
+        if (!string.IsNullOrEmpty(tbSettingQ1Stufenleitung.Text))
         {
-            if (tbSettingQ1stufenleitung.Text.Contains(','))
+            if (tbSettingQ1Stufenleitung.Text.Contains(','))
             {
-                foreach (var krz in tbSettingQ1stufenleitung.Text.Split(','))
+                foreach (var krz in tbSettingQ1Stufenleitung.Text.Split(','))
                 {
                     await _myschool.AddLtoK(await _myschool.GetLehrkraft(krz),
                         await _myschool.GetKurs("Qualifikationsphase 1"));
@@ -2111,7 +2111,7 @@ public partial class MainWindow : Window
             }
             else
             {
-                await _myschool.AddLtoK(await _myschool.GetLehrkraft(tbSettingQ1stufenleitung.Text),
+                await _myschool.AddLtoK(await _myschool.GetLehrkraft(tbSettingQ1Stufenleitung.Text),
                     await _myschool.GetKurs("Qualifikationsphase 1"));
             }
         }
@@ -2125,11 +2125,11 @@ public partial class MainWindow : Window
             }
         }
 
-        if (!string.IsNullOrEmpty(tbSettingQ2stufenleitung.Text))
+        if (!string.IsNullOrEmpty(tbSettingQ2Stufenleitung.Text))
         {
-            if (tbSettingQ2stufenleitung.Text.Contains(','))
+            if (tbSettingQ2Stufenleitung.Text.Contains(','))
             {
-                foreach (var krz in tbSettingQ2stufenleitung.Text.Split(','))
+                foreach (var krz in tbSettingQ2Stufenleitung.Text.Split(','))
                 {
                     await _myschool.AddLtoK(await _myschool.GetLehrkraft(krz),
                         await _myschool.GetKurs("Qualifikationsphase 2"));
@@ -2137,7 +2137,7 @@ public partial class MainWindow : Window
             }
             else
             {
-                await _myschool.AddLtoK(await _myschool.GetLehrkraft(tbSettingQ2stufenleitung.Text),
+                await _myschool.AddLtoK(await _myschool.GetLehrkraft(tbSettingQ2Stufenleitung.Text),
                     await _myschool.GetKurs("Qualifikationsphase 2"));
             }
         }
@@ -2327,9 +2327,9 @@ public partial class MainWindow : Window
         }
 
         if (cbKursMarkierteSuSEinschreiben.IsChecked != null &&
-            cbKursMarkierteSuSEinschreiben.IsChecked.Value && LeftListBox.SelectedItems != null)
+            cbKursMarkierteSuSEinschreiben.IsChecked.Value && leftListBox.SelectedItems != null)
         {
-            foreach (var susstring in LeftListBox.SelectedItems.Cast<string>())
+            foreach (var susstring in leftListBox.SelectedItems.Cast<string>())
             {
                 if (susstring == null) continue;
                 var id = Convert.ToInt32(susstring.Split(';')[1]);
@@ -2347,13 +2347,13 @@ public partial class MainWindow : Window
         if (string.IsNullOrEmpty(tbKursbezeichnung.Text)) return;
         var kursbez = tbKursbezeichnung.Text;
         ListBox source;
-        if (CboxDataLeft.SelectedIndex == 2)
+        if (cboxDataLeft.SelectedIndex == 2)
         {
-            source = LeftListBox;
+            source = leftListBox;
         }
-        else if (CboxDataRight.SelectedIndex == 2)
+        else if (cboxDataRight.SelectedIndex == 2)
         {
-            source = RightListBox;
+            source = rightListBox;
         }
         else
         {
@@ -2404,7 +2404,7 @@ public partial class MainWindow : Window
                 }
             }
 
-            switch (CboxDataLeft.SelectedIndex)
+            switch (cboxDataLeft.SelectedIndex)
             {
                 case 0:
                     var sliste = new List<SuS>();
@@ -2437,7 +2437,7 @@ public partial class MainWindow : Window
                         .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID))
                         .ToList();
                     seliste.Sort(Comparer<string>.Default);
-                    ResetItemsSource(LeftListBox, seliste);
+                    ResetItemsSource(leftListBox, seliste);
                     break;
                 case 1:
                     var lliste = new List<LuL>();
@@ -2468,7 +2468,7 @@ public partial class MainWindow : Window
                         .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname))
                         .ToList();
                     leliste.Sort(Comparer<string>.Default);
-                    ResetItemsSource(LeftListBox, leliste);
+                    ResetItemsSource(leftListBox, leliste);
                     break;
                 case 2:
                     var kliste = new List<Kurs>();
@@ -2484,7 +2484,7 @@ public partial class MainWindow : Window
                         .Select(k => k.Bezeichnung)
                         .ToList();
                     keliste.Sort(Comparer<string>.Default);
-                    ResetItemsSource(LeftListBox, keliste);
+                    ResetItemsSource(leftListBox, keliste);
                     break;
             }
         }
@@ -2519,7 +2519,7 @@ public partial class MainWindow : Window
                 }
             }
 
-            switch (CboxDataRight.SelectedIndex)
+            switch (cboxDataRight.SelectedIndex)
             {
                 case 0:
                     var sliste = new List<SuS>();
@@ -2551,7 +2551,7 @@ public partial class MainWindow : Window
                         .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID))
                         .ToList();
                     seliste.Sort(Comparer<string>.Default);
-                    ResetItemsSource(RightListBox, seliste);
+                    ResetItemsSource(rightListBox, seliste);
                     break;
                 case 1:
                     var lliste = new List<LuL>();
@@ -2582,7 +2582,7 @@ public partial class MainWindow : Window
                         .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname))
                         .ToList();
                     leliste.Sort(Comparer<string>.Default);
-                    ResetItemsSource(RightListBox, leliste);
+                    ResetItemsSource(rightListBox, leliste);
                     break;
                 case 2:
                     var kliste = new List<Kurs>();
@@ -2596,7 +2596,7 @@ public partial class MainWindow : Window
                         .Select(k => k.Bezeichnung)
                         .ToList();
                     keliste.Sort(Comparer<string>.Default);
-                    ResetItemsSource(RightListBox, keliste);
+                    ResetItemsSource(rightListBox, keliste);
                     break;
             }
         }
@@ -2621,16 +2621,16 @@ public partial class MainWindow : Window
 
         async Task ReadFileTask()
         {
-            if (LeftListBox.SelectedItems == null) return;
+            if (leftListBox.SelectedItems == null) return;
             var extx = new List<FilePickerFileType> { StSFileTypes.CSVFile };
             var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
             if (files == null) return;
             var folder = files.Path.LocalPath;
             List<string> susausgabe = ["Vorname;Nachname;Anmeldename;Kennwort;E-Mail;Klasse"];
-            switch (CboxDataLeft.SelectedIndex)
+            switch (cboxDataLeft.SelectedIndex)
             {
                 case 0:
-                    susausgabe.AddRange(LeftListBox.SelectedItems.Cast<string>()
+                    susausgabe.AddRange(leftListBox.SelectedItems.Cast<string>()
                         .ToList()
                         .Select(sus => _myschool.GetSchueler(Convert.ToInt32(sus.Split(';')[1])).Result)
                         .Select(s =>
@@ -2638,7 +2638,7 @@ public partial class MainWindow : Window
                             DateTime.Now.Year + "!;" + s.Aixmail + ";" + s.Klasse));
                     break;
                 case 2:
-                    foreach (string kursbez in LeftListBox.SelectedItems)
+                    foreach (string kursbez in leftListBox.SelectedItems)
                     {
                         susausgabe.AddRange(_myschool.GetSuSAusKurs(kursbez).Result.Distinct().Select(s =>
                             s.Vorname + ";" + s.Nachname + ";" + s.Nutzername + ";" + "Klasse" + s.Klasse +
@@ -2661,8 +2661,8 @@ public partial class MainWindow : Window
 
         async Task ReadFileTask()
         {
-            if (LeftListBox.SelectedItems == null) return;
-            switch (CboxDataLeft.SelectedIndex)
+            if (leftListBox.SelectedItems == null) return;
+            switch (cboxDataLeft.SelectedIndex)
             {
                 case 2:
                     var extx = new List<FilePickerFileType> { StSFileTypes.CSVFile, FilePickerFileTypes.All };
@@ -2679,7 +2679,7 @@ public partial class MainWindow : Window
                         .Select(line => _myschool.GetSchueler(Convert.ToInt32(line.Split(';')[0])))
                         .ToList();
                     List<string> susausgabe = ["Vorname;Nachname;Anmeldename;Kennwort;E-Mail;Klasse"];
-                    foreach (string kursbez in LeftListBox.SelectedItems)
+                    foreach (string kursbez in leftListBox.SelectedItems)
                     {
                         var suslist = _myschool.GetSuSAusKurs(kursbez).Result.Distinct().ToList();
                         if (suslist.Count < 1) continue;
@@ -2703,10 +2703,10 @@ public partial class MainWindow : Window
 
     private async void OnMnuPasswordGenClick(object? sender, RoutedEventArgs e)
     {
-        if (LeftListBox.SelectedItems == null) return;
-        if (CboxDataLeft.SelectedIndex != 1) return;
+        if (leftListBox.SelectedItems == null) return;
+        if (cboxDataLeft.SelectedIndex != 1) return;
         await _myschool.StartTransaction();
-        foreach (string luleintrag in LeftListBox.SelectedItems)
+        foreach (string luleintrag in leftListBox.SelectedItems)
         {
             var lul = await _myschool.GetLehrkraft(luleintrag.Split(';')[0]);
             _myschool.SetTPwd(lul.ID, Schuldatenbank.GeneratePasswort(8));
@@ -2722,7 +2722,7 @@ public partial class MainWindow : Window
 
         async Task ReadFileTask()
         {
-            if (LeftListBox.SelectedItems == null) return;
+            if (leftListBox.SelectedItems == null) return;
 
             var folder = await ShowOpenFolderDialog("Bitte den Ordner zum Speichern angeben");
             if (folder == null) return;
@@ -2756,11 +2756,11 @@ public partial class MainWindow : Window
             List<Kurs> kurslist = new();
             var whattoexport = "";
             const string destsys = "ami";
-            switch (CboxDataLeft.SelectedIndex)
+            switch (cboxDataLeft.SelectedIndex)
             {
                 case 0:
                     whattoexport += "s";
-                    foreach (string suseintrag in LeftListBox.SelectedItems)
+                    foreach (string suseintrag in leftListBox.SelectedItems)
                     {
                         suslist.Add(await _myschool.GetSchueler(Convert.ToInt32(suseintrag.Split(';')[1])));
                     }
@@ -2768,16 +2768,16 @@ public partial class MainWindow : Window
                     break;
                 case 1:
                     whattoexport += "l";
-                    if (LeftListBox.ContextMenu != null)
+                    if (leftListBox.ContextMenu != null)
                     {
-                        var isllginternChecked = ((CheckBox)LeftListBox.ContextMenu.Items.Cast<Control>()
+                        var isllginternChecked = ((CheckBox)leftListBox.ContextMenu.Items.Cast<Control>()
                             .Where(c => c.Name == "cbMnuLeftContextLLGIntern")
                             .ToList()
                             .First()).IsChecked;
                         if (isllginternChecked != null && isllginternChecked.Value) whattoexport += "i";
                     }
 
-                    foreach (string luleintrag in LeftListBox.SelectedItems)
+                    foreach (string luleintrag in leftListBox.SelectedItems)
                     {
                         lullist.Add(await _myschool.GetLehrkraft(luleintrag.Split(';')[0]));
                     }
@@ -2785,7 +2785,7 @@ public partial class MainWindow : Window
                     break;
                 case 2:
                     whattoexport += "ksl";
-                    foreach (string kurseintrag in LeftListBox.SelectedItems)
+                    foreach (string kurseintrag in leftListBox.SelectedItems)
                     {
                         var kurs = await _myschool.GetKurs(kurseintrag);
                         kurslist.Add(kurs);
@@ -2798,9 +2798,9 @@ public partial class MainWindow : Window
                     return;
             }
 
-            if (LeftListBox.ContextMenu != null)
+            if (leftListBox.ContextMenu != null)
             {
-                var isElternChecked = ((CheckBox)LeftListBox.ContextMenu.Items.Cast<Control>()
+                var isElternChecked = ((CheckBox)leftListBox.ContextMenu.Items.Cast<Control>()
                     .Where(c => c.Name == "cbMnuLeftContextEltern")
                     .ToList()
                     .First()).IsChecked;
@@ -2817,9 +2817,9 @@ public partial class MainWindow : Window
                 }
             }
 
-            if (LeftListBox.ContextMenu != null)
+            if (leftListBox.ContextMenu != null)
             {
-                var isAnfangsPasswortChecked = ((CheckBox)LeftListBox.ContextMenu.Items.Cast<Control>()
+                var isAnfangsPasswortChecked = ((CheckBox)leftListBox.ContextMenu.Items.Cast<Control>()
                     .Where(c => c.Name == "cbMnuLeftContextAnfangsPasswort")
                     .ToList()
                     .First()).IsChecked;
@@ -2930,15 +2930,15 @@ public partial class MainWindow : Window
         if (sender.Equals(rbD))
         {
             Background = _darkBackgroundColor;
-            LeftListBox.Background = _darkBackgroundColor;
-            RightListBox.Background = _darkBackgroundColor;
+            leftListBox.Background = _darkBackgroundColor;
+            rightListBox.Background = _darkBackgroundColor;
             lbFehlerliste.Background = _darkBackgroundColor;
         }
         else if (sender.Equals(rbL))
         {
             Background = _lightBackgroundColor;
-            LeftListBox.Background = _lightBackgroundColor;
-            RightListBox.Background = _lightBackgroundColor;
+            leftListBox.Background = _lightBackgroundColor;
+            rightListBox.Background = _lightBackgroundColor;
             lbFehlerliste.Background = _lightBackgroundColor;
         }
     }
@@ -3256,8 +3256,8 @@ public partial class MainWindow : Window
 
     private async void MnuItemCopySuSidOnClick(object? sender, RoutedEventArgs e)
     {
-        if (LeftListBox.SelectedItems == null) return;
-        var ids = LeftListBox.SelectedItems.Cast<string>()
+        if (leftListBox.SelectedItems == null) return;
+        var ids = leftListBox.SelectedItems.Cast<string>()
             .Aggregate("", (current, item) => current + item.Split(';')[1] + ";");
         var clipboard = Clipboard;
         if (clipboard == null) return;
@@ -3266,8 +3266,8 @@ public partial class MainWindow : Window
 
     private async void MnuItemCopySuSMailOnClick(object? sender, RoutedEventArgs e)
     {
-        if (LeftListBox.SelectedItems == null) return;
-        var sus = LeftListBox.SelectedItems.Cast<string>().Aggregate("",
+        if (leftListBox.SelectedItems == null) return;
+        var sus = leftListBox.SelectedItems.Cast<string>().Aggregate("",
             (current, item) =>
                 current + _myschool.GetSchueler(Convert.ToInt32(item.Split(';')[1])).Result.Mail + ";");
         var clipboard = Clipboard;
@@ -3277,8 +3277,8 @@ public partial class MainWindow : Window
 
     private async void MnuItemCopyKursBezOnClick(object? sender, RoutedEventArgs e)
     {
-        if (LeftListBox.SelectedItems == null) return;
-        var bezliste = LeftListBox.SelectedItems.Cast<string>()
+        if (leftListBox.SelectedItems == null) return;
+        var bezliste = leftListBox.SelectedItems.Cast<string>()
             .Aggregate("", (current, bez) => current + bez + ";");
         var clipboard = Clipboard;
         if (clipboard == null) return;
@@ -3287,8 +3287,8 @@ public partial class MainWindow : Window
 
     private async void MnuItemCopyLuLMailsOnClick(object? sender, RoutedEventArgs e)
     {
-        if (LeftListBox.SelectedItems == null) return;
-        var mails = LeftListBox.SelectedItems.Cast<string>().Aggregate("",
+        if (leftListBox.SelectedItems == null) return;
+        var mails = leftListBox.SelectedItems.Cast<string>().Aggregate("",
             (current, line) => current + (_myschool.GetLehrkraft(line.Split(';')[0]).Result.Mail + ";"));
         var clipboard = Clipboard;
         if (clipboard == null) return;
@@ -3297,8 +3297,8 @@ public partial class MainWindow : Window
 
     private async void MnuItemCopyLuLKrzOnClick(object? sender, RoutedEventArgs e)
     {
-        if (LeftListBox.SelectedItems == null) return;
-        var krzs = LeftListBox.SelectedItems.Cast<string>()
+        if (leftListBox.SelectedItems == null) return;
+        var krzs = leftListBox.SelectedItems.Cast<string>()
             .Aggregate("", (current, line) => current + (line.Split(';')[0] + ";"));
         var clipboard = Clipboard;
         if (clipboard == null) return;
