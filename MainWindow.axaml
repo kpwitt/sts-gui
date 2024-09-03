@@ -103,8 +103,8 @@
                                     <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto" RowDefinitions="Auto,Auto">
                                         <ComboBox Width="250" VerticalAlignment="Top"
                                                   Grid.Row="0"
-                                                  x:Name="CboxDataLeft"
-                                                  SelectionChanged="CboxDataLeft_OnSelectionChanged">
+                                                  x:Name="cboxDataLeft"
+                                                  SelectionChanged="cboxDataLeft_OnSelectionChanged">
                                             <ComboBoxItem Content="Schüler*in" />
                                             <ComboBoxItem Content="Lehrkräfte" />
                                             <ComboBoxItem Content="Klasse/Kurs" />
@@ -114,15 +114,15 @@
                                                  PastingFromClipboard="TbLeftSearch_OnPastingFromClipboard"
                                                  MaxWidth="500" MaxLines="1" />
                                     </Grid>
-                                    <ListBox DockPanel.Dock="Bottom" x:Name="LeftListBox" SelectionMode="Multiple"
-                                             SelectionChanged="LeftListBox_OnSelectionChanged"
+                                    <ListBox DockPanel.Dock="Bottom" x:Name="leftListBox" SelectionMode="Multiple"
+                                             SelectionChanged="leftListBox_OnSelectionChanged"
                                              VerticalAlignment="Stretch" />
                                 </DockPanel>
                                 <DockPanel Grid.Row="0" Grid.Column="1" Margin="2" VerticalAlignment="Stretch">
                                     <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto" RowDefinitions="Auto,Auto">
                                         <ComboBox Width="250" VerticalAlignment="Top"
-                                                  Grid.Row="0" x:Name="CboxDataRight"
-                                                  SelectionChanged="CboxDataRight_OnSelectionChanged">
+                                                  Grid.Row="0" x:Name="cboxDataRight"
+                                                  SelectionChanged="cboxDataRight_OnSelectionChanged">
                                             <ComboBoxItem Content="Schüler*in" />
                                             <ComboBoxItem Content="Lehrkräfte" />
                                             <ComboBoxItem Content="Klasse/Kurs" />
@@ -130,9 +130,9 @@
                                         <TextBox Text="" Grid.Row="1" x:Name="tbRightSearch"
                                                  KeyUp="TbRightSearch_OnKeyUp" MaxWidth="500" />
                                     </Grid>
-                                    <ListBox DockPanel.Dock="Bottom" x:Name="RightListBox"
+                                    <ListBox DockPanel.Dock="Bottom" x:Name="rightListBox"
                                              SelectionMode="Multiple"
-                                             SelectionChanged="RightListBox_OnSelectionChanged"
+                                             SelectionChanged="rightListBox_OnSelectionChanged"
                                              VerticalAlignment="Stretch">
                                         <ContextMenu IsVisible="False" />
                                     </ListBox>
@@ -261,7 +261,8 @@
                                         <StackPanel Orientation="Horizontal" Grid.Row="2">
                                             <Button x:Name="btnKurseAdd" Click="BtnKurseAdd_OnClick">Hinzufügen/aktualisieren</Button>
                                             <Button x:Name="btnKurseDel" Margin="5" Click="BtnKurseDel_OnClick">markierte löschen</Button>
-                                            <Button x:Name="btnKursClearTextFields" Click="BtnKursClearTextFields_OnClick">
+                                            <Button x:Name="btnKursClearTextFields"
+                                                    Click="BtnKursClearTextFields_OnClick">
                                                 Clear
                                             </Button>
                                         </StackPanel>
@@ -344,9 +345,9 @@
                                             <TextBlock Classes="Header" Text="EF-Stufenleitung:" />
                                             <TextBox x:Name="tbSettingEFstufenleitung" Width="200" />
                                             <TextBlock Classes="Header" Text="Q1-Stufenleitung:" />
-                                            <TextBox x:Name="tbSettingQ1stufenleitung" Width="200" />
+                                            <TextBox x:Name="tbSettingQ1Stufenleitung" Width="200" />
                                             <TextBlock Classes="Header" Text="Q2-Stufenleitung:" />
-                                            <TextBox x:Name="tbSettingQ2stufenleitung" Width="200" />
+                                            <TextBox x:Name="tbSettingQ2Stufenleitung" Width="200" />
                                             <TextBlock Classes="Header" Text="Oberstufenkoordination:" />
                                             <TextBox x:Name="tbSettingOberstufenkoordination" Width="200" />
                                             <TextBlock Classes="Header" Text="StuBos:" />
