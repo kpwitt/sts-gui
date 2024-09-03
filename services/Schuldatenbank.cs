@@ -1076,7 +1076,7 @@ public class Schuldatenbank : IDisposable
                                         pwd + "\";\"" + kListe + "\"");*/
                         ausgabeAIXS.Add("" + s.Vorname + ";" + s.Nachname + ";" + s.Klasse + ";" +
                                         s.ID + ";" +
-                                        pwd + ";" + kListe + "");
+                                        pwd.Replace(" ","") + ";" + kListe + "");
                     }
                     else
                     {
@@ -2819,11 +2819,7 @@ public class Schuldatenbank : IDisposable
                 }
 
                 maillist = maillist.Distinct().ToList();
-                /*if (tmpsus[ink].StartsWith("EF"))
-                {
-                    tmpsus[ink] = "EF";
-                }*/
-
+                var klasse = tmpsus[ink].Contains(' ') ? tmpsus[ink].Replace(" ", "") : tmpsus[ink];
                 if (mail.Contains(';'))
                 {
                     await AddLogMessage("Fehler", "Mailfehler");
@@ -2833,7 +2829,7 @@ public class Schuldatenbank : IDisposable
                 var mails = maillist.Aggregate("", (current, maileintrag) => current + (maileintrag + ","));
                 mails = mails.TrimEnd(',');
                 await AddSchuelerIn(Convert.ToInt32(tmpsus[ini]), tmpsus[inv].Replace("'", ""),
-                    tmpsus[inn].Replace("'", ""), mail, tmpsus[ink], "", "", 0, mails);
+                    tmpsus[inn].Replace("'", ""), mail, klasse, "", "", 0, mails);
                 await AddLogMessage("Info",
                     "SchülerIn\t" + tmpsus[inn] + "\t" + tmpsus[inv] + "\t" + mail + "\t angelegt");
             }
