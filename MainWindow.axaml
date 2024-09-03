@@ -35,7 +35,7 @@
             <Setter Property="FontSize" Value="12" />
         </Style>
     </Window.Styles>
-    <DockPanel VerticalAlignment="Stretch" x:Name="TopPanel">
+    <DockPanel VerticalAlignment="Stretch" x:Name="topPanel">
         <Grid Margin="5" DockPanel.Dock="Top" RowDefinitions="Auto,Auto,Auto,Auto" VerticalAlignment="Stretch">
             <DockPanel Grid.Row="0">
                 <Menu DockPanel.Dock="Top"><!-- Menuleiste -->
@@ -95,7 +95,7 @@
             </DockPanel>
             <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Visible"
                           AllowAutoHide="True" x:Name="mainScroller">
-                <TabControl Grid.Row="2" VerticalAlignment="Stretch">
+                <TabControl VerticalAlignment="Stretch">
                     <TabItem Header="Daten" Classes="Header"> <!-- Daten-Tab -->
                         <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto" VerticalAlignment="Stretch">
                             <Grid Grid.Row="0" Grid.Column="0" ColumnDefinitions="Auto,Auto" RowDefinitions="Auto">
@@ -261,8 +261,7 @@
                                         <StackPanel Orientation="Horizontal" Grid.Row="2">
                                             <Button x:Name="btnKurseAdd" Click="BtnKurseAdd_OnClick">Hinzufügen/aktualisieren</Button>
                                             <Button x:Name="btnKurseDel" Margin="5" Click="BtnKurseDel_OnClick">markierte löschen</Button>
-                                            <Button x:Name="btnKursClearTextFields" Grid.Column="1" Grid.Row="12"
-                                                    Click="BtnKursClearTextFields_OnClick">
+                                            <Button x:Name="btnKursClearTextFields" Click="BtnKursClearTextFields_OnClick">
                                                 Clear
                                             </Button>
                                         </StackPanel>
@@ -354,7 +353,7 @@
                                             <TextBox x:Name="tbSettingStuBos" Width="200" />
                                         </StackPanel>
                                     </Grid>
-                                    <StackPanel Grid.Row="3" Grid.Column="0" Orientation="Horizontal">
+                                    <StackPanel Orientation="Horizontal">
                                         <Button x:Name="btnSettingSave" Click="BtnSettingSave_OnClick">
                                             Anwenden
                                         </Button>
@@ -423,7 +422,7 @@
                                     <ComboBoxItem>Einige Lehrkräfte</ComboBoxItem>
                                 </ComboBox>
                                 <TextBox x:Name="tbSonst1">-</TextBox>
-                                <TextBlock x:Name="tbSonst1_1" VerticalAlignment="Center"> aus der </TextBlock>
+                                <TextBlock x:Name="tbSonst11" VerticalAlignment="Center"> aus der </TextBlock>
                                 <ComboBox x:Name="cbSonst2">
                                     <ComboBoxItem>Stufe</ComboBoxItem>
                                     <ComboBoxItem>Klasse</ComboBoxItem>
