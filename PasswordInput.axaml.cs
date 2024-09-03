@@ -8,7 +8,7 @@ namespace StS_GUI_Avalonia;
 
 public partial class PasswordInput : Window
 {
-    private string pwd = "";
+    private string _pwd = "";
 
     public PasswordInput()
     {
@@ -31,19 +31,19 @@ public partial class PasswordInput : Window
         }
 
         upperTextBox.BorderBrush = lowerTextBox.BorderBrush = new SolidColorBrush(Color.FromRgb(0, 255, 0));
-        pwd = upperTextBox.Text;
+        _pwd = upperTextBox.Text;
         Close();
     }
 
     private void ButtonCancel_OnClick(object? sender, RoutedEventArgs e)
     {
-        pwd = "";
+        _pwd = "";
         Close();
     }
 
-    public async Task<string?> ShowPWDDialog(Window owner)
+    public async Task<string?> ShowPwdDialog(Window owner)
     {
         await ShowDialog(owner);
-        return pwd;
+        return _pwd;
     }
 }

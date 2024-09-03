@@ -37,7 +37,7 @@ public static class LocalCryptoServive
         var passwordBytes = Encoding.UTF8.GetBytes(password);
         var salt = new byte[32];
         FileStream fsCrypt = new(inputFile, FileMode.Open);
-        var i = fsCrypt.Read(salt, 0, salt.Length);
+        var unused = fsCrypt.Read(salt, 0, salt.Length);
         var aes = Aes.Create();
         aes.KeySize = 256;
         aes.BlockSize = 128;

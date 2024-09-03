@@ -626,7 +626,7 @@ public partial class MainWindow : Window
         async Task<string?> GetPasswordInput()
         {
             var pwiWindow = new PasswordInput();
-            var test = await pwiWindow.ShowPWDDialog(this);
+            var test = await pwiWindow.ShowPwdDialog(this);
             return test;
         }
     }
@@ -650,7 +650,7 @@ public partial class MainWindow : Window
         async Task<string?> GetPasswordInput()
         {
             var pwiWindow = new PasswordInput();
-            var test = await pwiWindow.ShowPWDDialog(this);
+            var test = await pwiWindow.ShowPwdDialog(this);
             return test;
         }
 
@@ -3216,7 +3216,7 @@ public partial class MainWindow : Window
     private void CbSonst1_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
         tbSonst1.IsVisible = cbSonst1.SelectedIndex % 2 == 1;
-        tbSonst1_1.IsVisible = cbSonst1.SelectedIndex % 2 == 0;
+        tbSonst11.IsVisible = cbSonst1.SelectedIndex % 2 == 0;
         cbSonst2.IsVisible = cbSonst1.SelectedIndex % 2 == 0;
         tbSonst2.IsVisible = cbSonst1.SelectedIndex % 2 == 0;
     }
