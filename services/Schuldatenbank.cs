@@ -2936,6 +2936,12 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$zweitmail", zweitmail);
         sqliteCmd.ExecuteNonQuery();
     }
+    
+    public async void UpdateSchueler(SuS sus)
+    {
+        await UpdateSchueler(sus.ID, sus.Vorname, sus.Nachname, sus.Mail, sus.Klasse, sus.Nutzername, sus.Aixmail,
+            sus.Zweitaccount?1:0, sus.Zweitmail);
+    }
 
     /// <summary>
     /// setzt den AIXMailadresse des per ID angegebenen Schülers/Schülerin
