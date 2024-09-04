@@ -170,12 +170,6 @@ public partial class MainWindow : Window
             Header = "Serienbrief-CSV exportieren"
         };
         mnuItemMSerienbrief.Click += OnMnuSerienbriefClick;
-        var mnuItemMSerienbriefDV = new MenuItem
-        {
-            Name = "mnuItemMExportDV",
-            Header = "Serienbrief-CSV exportieren (nur mit DV)"
-        };
-        mnuItemMSerienbriefDV.Click += OnMnuItemMSerienbriefDV;
         var mnuItemMExport = new MenuItem
         {
             Name = "mnuItemExport",
@@ -228,7 +222,6 @@ public partial class MainWindow : Window
         leftListContextItems.Add(cbMEltern);
         leftListContextItems.Add(cbMLLGIntern);
         leftListContextItems.Add(mnuItemMSerienbrief);
-        leftListContextItems.Add(mnuItemMSerienbriefDV);
         leftListContextItems.Add(mnuItemMPasswordGenerieren);
         leftListContextItems.Add(mnuItemMExport);
         _leftListContext.ItemsSource = leftListContextItems;
@@ -2656,53 +2649,6 @@ public partial class MainWindow : Window
         }
     }
 
-    private async void OnMnuItemMSerienbriefDV(object? sender, RoutedEventArgs e)
-    {
-        await Dispatcher.UIThread.InvokeAsync(ReadFileTask);
-        return;
-
-        async Task ReadFileTask()
-        {
-            if (leftListBox.SelectedItems == null) return;
-            switch (cboxDataLeft.SelectedIndex)
-            {
-                case 2:
-                    var extx = new List<FilePickerFileType> { StSFileTypes.CSVFile, FilePickerFileTypes.All };
-                    var files = await ShowSaveFileDialog("Serienbriefdatei auswählen", extx);
-                    if (files == null) return;
-                    var folder = files.Path.LocalPath;
-                    var file = await ShowOpenFileDialog("Nutzer ohne DV-Zustimmung", extx);
-                    if (file is null) return;
-                    var filepath = file.Path.LocalPath;
-                    var fileentries = File.ReadAllLinesAsync(filepath).Result.ToList();
-                    if (fileentries.Count < 1) return;
-                    fileentries.RemoveAt(0);
-                    var susToDel = fileentries
-                        .Select(line => _myschool.GetSchueler(Convert.ToInt32(line.Split(';')[0])))
-                        .ToList();
-                    List<string> susausgabe = ["Vorname;Nachname;Anmeldename;Kennwort;E-Mail;Klasse"];
-                    foreach (string kursbez in leftListBox.SelectedItems)
-                    {
-                        var suslist = _myschool.GetSuSAusKurs(kursbez).Result.Distinct().ToList();
-                        if (suslist.Count < 1) continue;
-                        foreach (var s in susToDel)
-                        {
-                            suslist.Remove(s.Result);
-                        }
-
-                        susausgabe.AddRange(suslist.Select(s =>
-                            s.Vorname + ";" + s.Nachname + ";" + s.Nutzername + ";" + "Klasse" + s.Klasse +
-                            DateTime.Now.Year + "!;" + s.Aixmail + ";" + s.Klasse));
-                    }
-
-                    await File.WriteAllLinesAsync(folder, susausgabe.Distinct().ToList(), Encoding.UTF8);
-                    break;
-                default:
-                    return;
-            }
-        }
-    }
-
     private async void OnMnuPasswordGenClick(object? sender, RoutedEventArgs e)
     {
         if (leftListBox.SelectedItems == null) return;
@@ -3577,7 +3523,21 @@ public partial class MainWindow : Window
             select Convert.ToInt32(id)).ToList();
         foreach (var id in _myschool.GetSchuelerIDListe().Result)
         {
-            _myschool.SetM365(id, IDListe.Contains(id) ? 0 : 1);
+            if (IDListe.Contains(id))
+            {
+                _myschool.SetM365(id, 0);
+                var sus = await _myschool.GetSchueler(id);
+                if (string.IsNullOrEmpty(sus.Nutzername))
+                {
+                    sus.Nutzername = sus.Vorname[..3] +
+                                     sus.Nachname[..3] + Random.Shared.NextInt64(10, 100);
+                    _myschool.UpdateSchueler(sus);
+                }
+            }
+            else
+            {
+                _myschool.SetM365(id, 1);
+            }
         }
     }
 }
