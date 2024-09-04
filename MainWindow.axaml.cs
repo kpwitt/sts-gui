@@ -791,7 +791,8 @@ public partial class MainWindow : Window
             if (folder == null) return;
             var folderpath = folder.Path.LocalPath;
             if (!File.Exists(folderpath + "/sus.csv") && !File.Exists(folderpath + "/lul.csv") &&
-                !File.Exists(folderpath + "/kurse.csv"))
+                !File.Exists(folderpath + "/kurse.csv") &&
+                !File.Exists(folderpath + "/temp_accounts.csv"))
             {
                 await _myschool.DumpDataToCSVs(folderpath);
             }
@@ -3449,15 +3450,7 @@ public partial class MainWindow : Window
                 catch (Exception exception)
                 {
                     await _myschool.AddLogMessage("Fehler", exception.Message);
-                    var errorDialog = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
-                    {
-                        ButtonDefinitions = ButtonEnum.Ok,
-                        ContentTitle = "Fehler",
-                        ContentMessage = "Speichern der Einstellungen fehlgeschlagen",
-                        Icon = MsBox.Avalonia.Enums.Icon.Error,
-                        WindowIcon = _msgBoxWindowIcon
-                    });
-                    await errorDialog.ShowAsPopupAsync(this);
+                    await ShowErrordialog("Speichern der Einstellungen fehlgeschlagen");
                 }
             });
         }
@@ -3492,15 +3485,7 @@ public partial class MainWindow : Window
             catch (Exception exception)
             {
                 await _myschool.AddLogMessage("Fehler", exception.Message);
-                var errorDialog = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
-                {
-                    ButtonDefinitions = ButtonEnum.Ok,
-                    ContentTitle = "Fehler",
-                    ContentMessage = "Laden der Einstellungen fehlgeschlagen",
-                    Icon = MsBox.Avalonia.Enums.Icon.Error,
-                    WindowIcon = _msgBoxWindowIcon
-                });
-                await errorDialog.ShowAsPopupAsync(this);
+                await ShowErrordialog("Laden der Einstellungen fehlgeschlagen");
             }
         }
     }
@@ -3527,17 +3512,69 @@ public partial class MainWindow : Window
             {
                 _myschool.SetM365(id, 0);
                 var sus = await _myschool.GetSchueler(id);
-                if (string.IsNullOrEmpty(sus.Nutzername))
-                {
-                    sus.Nutzername = sus.Vorname[..3] +
-                                     sus.Nachname[..3] + Random.Shared.NextInt64(10, 100);
-                    _myschool.UpdateSchueler(sus);
-                }
+                if (!string.IsNullOrEmpty(sus.Nutzername)) continue;
+                sus.Nutzername = sus.Vorname[..3] +
+                                 sus.Nachname[..3] + Random.Shared.NextInt64(10, 100);
+                _myschool.UpdateSchueler(sus);
             }
             else
             {
                 _myschool.SetM365(id, 1);
             }
         }
+    }
+
+    private async void MnuTempAccountsEinlesen_OnClick(object? sender, RoutedEventArgs e)
+    {
+        var extx = new List<FilePickerFileType>
+        {
+            StSFileTypes.CSVFile,
+            FilePickerFileTypes.All
+        };
+        var file = await ShowOpenFileDialog("Aktuelle Accounts ohne DV", extx);
+        if (file is null) return;
+        var TAFilePath = file.Path.LocalPath;
+        var TAFileText = File.ReadAllLinesAsync(TAFilePath).Result.ToList();
+        if (TAFileText[0] != "id;accountname")
+        {
+            await ShowErrordialog("Fehlerhafte Datei, bitte den Header überprüfen");
+            return;
+        }
+
+        TAFileText.RemoveAt(0);
+        foreach (var line in TAFileText)
+        {
+            var string_id = line.Split(';')[0];
+            if (string.IsNullOrEmpty(string_id))
+            {
+                await ShowErrordialog("Eine ID fehlt, bitte die angegebenen Daten überprüfen!");
+                continue;
+            }
+
+            var id = Convert.ToInt32(line.Split(';')[0]);
+            var name = line.Split(';')[1];
+            var sus = await _myschool.GetSchueler(id);
+            if (string.IsNullOrEmpty(name))
+            {
+                await ShowErrordialog("Fehlerhafte Angaben bei Schüler:in mit der ID: " + sus.ID);
+                continue;
+            }
+
+            sus.Nutzername = name;
+            _myschool.UpdateSchueler(sus);
+        }
+    }
+
+    private async Task ShowErrordialog(string message)
+    {
+        var errorDialog = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
+        {
+            ButtonDefinitions = ButtonEnum.Ok,
+            ContentTitle = "Fehler",
+            ContentMessage = message,
+            Icon = MsBox.Avalonia.Enums.Icon.Error,
+            WindowIcon = _msgBoxWindowIcon
+        });
+        await errorDialog.ShowAsPopupAsync(this);
     }
 }
