@@ -526,6 +526,7 @@ public partial class MainWindow : Window
     private async void OnMnuschulespeichernunterClick(object? sender, RoutedEventArgs e)
     {
         await Dispatcher.UIThread.InvokeAsync(SaveDbFileAs);
+        Title = "SchildToSchule - " + await _myschool.GetFilePath();
         return;
 
         async Task SaveDbFileAs()
@@ -645,6 +646,7 @@ public partial class MainWindow : Window
         if (string.IsNullOrEmpty(inputResult)) return;
 
         await Dispatcher.UIThread.InvokeAsync(LoadEncDbFile);
+        Title = "SchildToSchule - " + await _myschool.GetFilePath();
         return;
 
         async Task<string?> GetPasswordInput()
