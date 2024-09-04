@@ -640,6 +640,7 @@ public class Schuldatenbank : IDisposable
             List<string> kurse = ["Vorname|Nachname|Fach|Fachlehrer|Kursart|Kurs"];
             List<string> ids = ["Anmeldename;Referenz-Id;E-Mail"];
             List<string> zweitaccounts = ["Interne ID-Nummer"];
+            List<string> temp_accounts = ["id;accountname"]; 
             await Parallel.ForEachAsync(susliste, async (schueler, cancellationToken) =>
                 //foreach (var schueler in susliste)
             {
@@ -649,6 +650,11 @@ public class Schuldatenbank : IDisposable
                 if (schueler.Zweitaccount)
                 {
                     zweitaccounts.Add(schueler.ID + "");
+                }
+
+                if (schueler.Nutzername.Length == 8)
+                {
+                    temp_accounts.Add(schueler.ID + ";"+schueler.Nutzername);
                 }
 
                 await Parallel.ForEachAsync(GetKursVonSuS(schueler.ID).Result, cancellationToken, async (kurs, _) =>
@@ -673,6 +679,7 @@ public class Schuldatenbank : IDisposable
             await File.WriteAllLinesAsync(folder + "/ids.csv", ids.Distinct().ToList(), Encoding.UTF8);
             await File.WriteAllLinesAsync(folder + "/zweitaccount.csv", zweitaccounts.Distinct().ToList(),
                 Encoding.UTF8);
+            await File.WriteAllLinesAsync(folder + "/temp_accounts.csv", temp_accounts.Distinct().ToList(), Encoding.UTF8);
             return 1;
         }
         catch (Exception ex)
@@ -2935,6 +2942,12 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$zweitaccount", zweitaccount);
         sqliteCmd.Parameters.AddWithValue("$zweitmail", zweitmail);
         sqliteCmd.ExecuteNonQuery();
+    }
+    
+    public async void UpdateSchueler(SuS sus)
+    {
+        await UpdateSchueler(sus.ID, sus.Vorname, sus.Nachname, sus.Mail, sus.Klasse, sus.Nutzername, sus.Aixmail,
+            sus.Zweitaccount?1:0, sus.Zweitmail);
     }
 
     /// <summary>

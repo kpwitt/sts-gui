@@ -66,12 +66,14 @@
                             <Separator />
                             <MenuItem Header="_AIX-Mail und -Nutzernamen einlesen" x:Name="mnuLoadUsernamesMail"
                                       Click="OnMnuloadusernamesmailClick" />
-                            <MenuItem Header="_2. Accounts einlesen" x:Name="mnuLoadZweitaccounts"
+                            <MenuItem Header="_2. Accounts für Eltern einlesen" x:Name="mnuLoadZweitaccounts"
                                       Click="OnMnuloadzweitaccountsClick" />
                             <MenuItem Header="_Elternmailadressen einlesen" x:Name="mnuLoadElternMails"
                                       Click="MnuLoadElternMails_OnClick" />
                             <MenuItem Header="SuS ohne _DV einlesen" x:Name="mnuM365DVEinlesen"
                                       Click="mnuM365DVEinlesen_OnClick" />
+                            <MenuItem Header="_Temporäre Accounts einlesen" x:Name="mnuTempAccountsEinlesen"
+                                      Click="MnuTempAccountsEinlesen_OnClick" />
                         </MenuItem>
                         <MenuItem Header="Änderungen _einlesen" x:Name="mnuReadDiffs" IsVisible="False" />
                         <MenuItem Header="Export als Ausgangsdaten" x:Name="mnuExportToCSV"
