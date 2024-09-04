@@ -1608,8 +1608,7 @@ public partial class MainWindow : Window
                         {
                             ButtonDefinitions = ButtonEnum.Ok,
                             ContentTitle = "Kein Zielsystem ausgewählt",
-                            ContentMessage =
-                                "Bitte wählen Sie entweder Moodle und/oder AIX als Zielsystem!",
+                            ContentMessage = "Bitte wählen Sie entweder Moodle und/oder AIX als Zielsystem!",
                             Icon = MsBox.Avalonia.Enums.Icon.Error,
                             WindowIcon = _msgBoxWindowIcon
                         }).ShowAsPopupAsync(this);
@@ -1897,8 +1896,7 @@ public partial class MainWindow : Window
                     {
                         ButtonDefinitions = ButtonEnum.Ok,
                         ContentTitle = "Export erfolgreich",
-                        ContentMessage =
-                            "Der Export war erfolgreich",
+                        ContentMessage = "Der Export war erfolgreich",
                         Icon = MsBox.Avalonia.Enums.Icon.Info,
                         WindowIcon = _msgBoxWindowIcon
                     }).ShowAsPopupAsync(this);
@@ -1913,8 +1911,7 @@ public partial class MainWindow : Window
                     {
                         ButtonDefinitions = ButtonEnum.Ok,
                         ContentTitle = "Export fehlgeschlagen",
-                        ContentMessage =
-                            "Export war nicht erfolgreiche. Bitte im Log nachschauen",
+                        ContentMessage = "Export war nicht erfolgreiche. Bitte im Log nachschauen",
                         Icon = MsBox.Avalonia.Enums.Icon.Error,
                         WindowIcon = _msgBoxWindowIcon
                     }).ShowAsPopupAsync(this);
@@ -2920,8 +2917,7 @@ public partial class MainWindow : Window
             ButtonDefinitions = ButtonEnum.YesNo,
             ContentTitle = "Dateien gefunden",
             ContentHeader = "Überschreiben?",
-            ContentMessage =
-                "Die Datei(en) ist/sind schon vorhanden.\nSollen diese überschrieben werden?",
+            ContentMessage = "Die Datei(en) ist/sind schon vorhanden.\nSollen diese überschrieben werden?",
             Icon = MsBox.Avalonia.Enums.Icon.Question,
             WindowIcon = _msgBoxWindowIcon
         });
@@ -3324,8 +3320,7 @@ public partial class MainWindow : Window
                     {
                         ButtonDefinitions = ButtonEnum.Ok,
                         ContentTitle = "Information",
-                        ContentMessage =
-                            "Speichern erfolgreich",
+                        ContentMessage = "Speichern erfolgreich",
                         Icon = MsBox.Avalonia.Enums.Icon.Info,
                         WindowIcon = _msgBoxWindowIcon
                     }).ShowAsPopupAsync(this);
@@ -3405,8 +3400,7 @@ public partial class MainWindow : Window
                 {
                     ButtonDefinitions = ButtonEnum.Ok,
                     ContentTitle = "Information",
-                    ContentMessage =
-                        "Speichern erfolgreich",
+                    ContentMessage = "Speichern erfolgreich",
                     Icon = MsBox.Avalonia.Enums.Icon.Info,
                     WindowIcon = _msgBoxWindowIcon
                 }).ShowAsPopupAsync(this);
