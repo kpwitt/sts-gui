@@ -870,10 +870,10 @@ public class Schuldatenbank : IDisposable
     {
         try
         {
-            foreach (var id in GetM365Blacklist().Result)
+            /*foreach (var id in GetM365Blacklist().Result)
             {
                 susidliste.Remove(id);
-            }
+            }*/
 
             if (destsys.Equals("all"))
             {
