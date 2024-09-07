@@ -835,10 +835,11 @@ public partial class MainWindow : Window
         var suselternadresse = tbSuSElternadresse.Text;
         var suszweitadresse = tbSuSZweitadresse.Text;
         var susHatZweitaccount = cbSuSZweitaccount.IsChecked;
-        if (susid == null || susvname == null || susnname is null || susklasse == null ||
-            susnutzername == null || susaximail == null || suselternadresse == null || suszweitadresse == null ||
-            susHatZweitaccount == null || susid == "" || susvname == "" || susnname is "" || susklasse == "" ||
-            suselternadresse == "" || tbSuSKurse.Text == null)
+        if (string.IsNullOrEmpty(susid) || string.IsNullOrEmpty(susvname) || string.IsNullOrEmpty(susnname) ||
+            string.IsNullOrEmpty(susklasse) ||
+            string.IsNullOrEmpty(susnutzername) || string.IsNullOrEmpty(susaximail) ||
+            string.IsNullOrEmpty(suselternadresse) || string.IsNullOrEmpty(suszweitadresse) ||
+            susHatZweitaccount == null || string.IsNullOrEmpty(tbSuSKurse.Text))
         {
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
@@ -910,7 +911,7 @@ public partial class MainWindow : Window
     private async void OnBtnsusdelClick(object? sender, RoutedEventArgs e)
     {
         var susid = tbSuSID.Text;
-        if (susid is null or "" || !susid.All(char.IsDigit)) return;
+        if (string.IsNullOrEmpty(susid) || !susid.All(char.IsDigit)) return;
         var sid = Convert.ToInt32(susid);
         if (_myschool.GetSchueler(sid).Result.ID == 0) return;
         ListBox source;
@@ -933,7 +934,7 @@ public partial class MainWindow : Window
         {
             foreach (var susstring in source.SelectedItems.Cast<string>())
             {
-                if (susstring == null) return;
+                if (string.IsNullOrEmpty(susstring)) return;
                 sid = Convert.ToInt32(susstring.Split(';')[1]);
                 await _myschool.RemoveS(sid);
             }
@@ -966,9 +967,9 @@ public partial class MainWindow : Window
         var lulpwtemp = tbLuLtmpPwd.Text;
         var favo = tbLuLFavo.Text;
         var sfavo = tbLuLSFavo.Text;
-        if (lulid == null || lulvname == null || lulnname == null || lulkrz == null || lulfakultas == null ||
-            lulmail == null || lulpwtemp == null || lulvname == "" || lulnname == "" ||
-            lulkrz == "" || lulfakultas == "" || lulmail == "" || tbLuLKurse.Text == null)
+        if (string.IsNullOrEmpty(lulid) || string.IsNullOrEmpty(lulvname) || string.IsNullOrEmpty(lulnname) ||
+            string.IsNullOrEmpty(lulkrz) || string.IsNullOrEmpty(lulfakultas) ||
+            string.IsNullOrEmpty(lulmail) || string.IsNullOrEmpty(lulpwtemp) || string.IsNullOrEmpty(tbLuLKurse.Text))
         {
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
@@ -1040,7 +1041,7 @@ public partial class MainWindow : Window
     private async void OnBtnluldelClick(object? sender, RoutedEventArgs e)
     {
         var lulid = tbLuLID.Text;
-        if (lulid is null or "" || !lulid.All(char.IsDigit)) return;
+        if (string.IsNullOrEmpty(lulid) || !lulid.All(char.IsDigit)) return;
         var lid = Convert.ToInt32(lulid);
         ListBox source;
         if (cboxDataLeft.SelectedIndex == 1)
@@ -2250,8 +2251,8 @@ public partial class MainWindow : Window
         var kursklasse = tbKursKlasse.Text;
         var kursstufe = tbKursStufe.Text;
         var istKurs = cbKursIstKurs.IsChecked != null && cbKursIstKurs.IsChecked.Value;
-        if (kursbez == null || lehrkraefte == null || kursfach == null || kursklasse == null || kursstufe == null ||
-            kursbez == "" || lehrkraefte == "" || kursfach == "" || kursklasse == "" || kursstufe == "")
+        if (string.IsNullOrEmpty(kursbez) || string.IsNullOrEmpty(lehrkraefte) || string.IsNullOrEmpty(kursfach) ||
+            string.IsNullOrEmpty(kursklasse) || string.IsNullOrEmpty(kursstufe))
         {
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
@@ -2324,7 +2325,7 @@ public partial class MainWindow : Window
         {
             foreach (var susstring in leftListBox.SelectedItems.Cast<string>())
             {
-                if (susstring == null) continue;
+                if (string.IsNullOrEmpty(susstring)) continue;
                 var id = Convert.ToInt32(susstring.Split(';')[1]);
                 var sus = await _myschool.GetSchueler(id);
                 await _myschool.AddStoK(sus, await _myschool.GetKurs(kursbez));
@@ -2359,7 +2360,7 @@ public partial class MainWindow : Window
         await _myschool.StartTransaction();
         foreach (var kurs in tmp_list.Cast<string>())
         {
-            if (kurs == null) return;
+            if (string.IsNullOrEmpty(kurs)) return;
             await _myschool.RemoveK(kurs);
         }
 
@@ -2386,7 +2387,7 @@ public partial class MainWindow : Window
             }
 
             var eingabeliste = tbLeftSearch.Text.Split(";");
-            if (tbLeftSearch.ContextMenu == null || tbLeftSearch.ContextMenu.ItemsSource == null) return;
+            if (tbLeftSearch.ContextMenu?.ItemsSource == null) return;
             var searchContextMenu = tbLeftSearch.ContextMenu.ItemsSource.Cast<CheckBox>().ToList();
             var searchFields = new[] { false, false, false, false, false, false }; //v,n,m,a/k,i,e
             for (var i = 0; i < searchContextMenu.Count; ++i)
@@ -3360,7 +3361,7 @@ public partial class MainWindow : Window
                     !string.IsNullOrEmpty(c.Name) && c.Name.Equals("cbExportSFavo" + fach))
                 .ToList()[0];
             var kuerzel = favocb.SelectedItem?.ToString();
-            if (kuerzel != null)
+            if (!string.IsNullOrEmpty(kuerzel))
             {
                 var l = await _myschool.GetLehrkraft(kuerzel.Split(';')[0]);
                 if (l.Favo != "")
@@ -3376,7 +3377,7 @@ public partial class MainWindow : Window
             }
 
             kuerzel = sfavocb.SelectedItem?.ToString();
-            if (kuerzel == null) continue;
+            if (string.IsNullOrEmpty(kuerzel)) continue;
             {
                 var l = await _myschool.GetLehrkraft(kuerzel.Split(';')[0]);
                 if (l.SFavo != "")

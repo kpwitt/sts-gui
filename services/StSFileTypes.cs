@@ -6,29 +6,29 @@ internal class StSFileTypes
 {
     public static FilePickerFileType DataBaseFile { get; } = new("sqlite")
     {
-        Patterns = new[] { "*.sqlite" },
-        AppleUniformTypeIdentifiers = new[] { "public.database" },
-        MimeTypes = new[] { "application/vnd.sqlite3" }
+        Patterns = ["*.sqlite"],
+        AppleUniformTypeIdentifiers = ["public.database"],
+        MimeTypes = ["application/vnd.sqlite3"]
     };
 
     public static FilePickerFileType CSVFile { get; } = new("csv")
     {
-        Patterns = new[] { "*.csv" },
-        AppleUniformTypeIdentifiers = new[] { "public.text" },
-        MimeTypes = new[] { "text/csv" }
+        Patterns = ["*.csv"],
+        AppleUniformTypeIdentifiers = ["public.text"],
+        MimeTypes = ["text/csv"]
     };
 
     public static FilePickerFileType EncryptedFile { get; } = new("aes")
     {
-        Patterns = new[] { "*.aes" },
-        AppleUniformTypeIdentifiers = new[] { "public.data" },
-        MimeTypes = new[] { "application/aes" }
+        Patterns = ["*.aes"],
+        AppleUniformTypeIdentifiers = ["public.data"],
+        MimeTypes = ["application/aes"]
     };
-        
+
     public static FilePickerFileType JSONFile { get; } = new("json")
     {
-        Patterns = new[] { "*.config" },
-        AppleUniformTypeIdentifiers = new[] { "public.json" },
-        MimeTypes = new[] { "application/json" }
+        Patterns = ["*.json"],
+        AppleUniformTypeIdentifiers = ["public.json"],
+        MimeTypes = ["application/json"]
     };
 }
