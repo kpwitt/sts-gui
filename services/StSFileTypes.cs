@@ -2,7 +2,7 @@
 
 namespace StS_GUI_Avalonia.services;
 
-internal class StSFileTypes
+internal static class StSFileTypes
 {
     public static FilePickerFileType DataBaseFile { get; } = new("sqlite")
     {

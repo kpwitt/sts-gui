@@ -879,8 +879,9 @@ public partial class MainWindow : Window
         var sid = Convert.ToInt32(susid);
         if (await _myschool.GibtEsSchueler(sid))
         {
-            await _myschool.UpdateSchueler(sid, susvname, susnname, suselternadresse, susklasse, susnutzername,
-                susaximail, susHatZweitaccount == false ? 0 : 1, suszweitadresse);
+            if (suszweitadresse != null)
+                await _myschool.UpdateSchueler(sid, susvname, susnname, suselternadresse, susklasse, susnutzername,
+                    susaximail, susHatZweitaccount == false ? 0 : 1, suszweitadresse);
             var alteKurse = _myschool.GetKursVonSuS(sid).Result;
             foreach (var kurs in alteKurse.Where(kurs => !suskurse.Contains(kurs.Bezeichnung)))
             {
@@ -897,8 +898,9 @@ public partial class MainWindow : Window
         }
         else
         {
-            await _myschool.AddSchuelerIn(sid, susvname, susnname, suselternadresse, susklasse, susnutzername,
-                susaximail, susHatZweitaccount == false ? 0 : 1, suszweitadresse);
+            if (suszweitadresse != null)
+                await _myschool.AddSchuelerIn(sid, susvname, susnname, suselternadresse, susklasse, susnutzername,
+                    susaximail, susHatZweitaccount == false ? 0 : 1, suszweitadresse);
             if (suskurse is [""]) return;
             foreach (var kursbez in suskurse)
             {
