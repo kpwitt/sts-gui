@@ -902,8 +902,8 @@ public class Schuldatenbank : IDisposable
             [
                 "kuerzel;nachname;vorname;plz_ort_;adresse;tel_privat;tel_mobil;email_privat;email_dienst;gebdatum_;status_;mail_Adresse;fach1;fach2;fach3;fakult;funktion_;pw_temp;aktiv;gebdatum;plz;ort;titel;nachname;pop3_dienst;pop3_menge"
             ];
-            var kursvorlagen = kursvorlage[0].Equals("") && kursvorlage[1].Equals("");
-            ausgabeMoodleKurse.Add(kursvorlagen
+            var ohne_kursvorlagen = kursvorlage[0].Equals("") && kursvorlage[1].Equals("");
+            ausgabeMoodleKurse.Add(ohne_kursvorlagen
                 ? "shortname;fullname;idnumber;category_idnumber;format"
                 : "shortname;fullname;idnumber;category_idnumber;format;templatecourse");
 
@@ -948,7 +948,7 @@ public class Schuldatenbank : IDisposable
                                                k.Suffix.Substring(3, 2) + ";" + k.Bezeichnung +
                                                k.Suffix + ";lehrkraefte;tiles");
                     }
-                    else if (kursvorlagen)
+                    else if (ohne_kursvorlagen)
                     {
                         if (k.IstKurs)
                         {
