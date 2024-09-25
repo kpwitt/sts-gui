@@ -837,7 +837,7 @@ public partial class MainWindow : Window
         var susHatZweitaccount = cbSuSZweitaccount.IsChecked;
         if (string.IsNullOrEmpty(susid) || string.IsNullOrEmpty(susvname) || string.IsNullOrEmpty(susnname) ||
             string.IsNullOrEmpty(susklasse) ||  string.IsNullOrEmpty(susnutzername) || 
-            string.IsNullOrEmpty(susaximail) || string.IsNullOrEmpty(suselternadresse) ||
+            string.IsNullOrEmpty(suselternadresse) ||
             susHatZweitaccount == null || string.IsNullOrEmpty(tbSuSKurse.Text))
         {
             await Dispatcher.UIThread.InvokeAsync(() =>
