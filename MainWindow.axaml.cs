@@ -968,9 +968,9 @@ public partial class MainWindow : Window
         var lulpwtemp = tbLuLtmpPwd.Text;
         var favo = tbLuLFavo.Text;
         var sfavo = tbLuLSFavo.Text;
-        if (string.IsNullOrEmpty(lulid) || string.IsNullOrEmpty(lulvname) || string.IsNullOrEmpty(lulnname) ||
+        if (lulid ==null || string.IsNullOrEmpty(lulvname) || string.IsNullOrEmpty(lulnname) ||
             string.IsNullOrEmpty(lulkrz) || string.IsNullOrEmpty(lulfakultas) ||
-            string.IsNullOrEmpty(lulmail) || string.IsNullOrEmpty(lulpwtemp) || string.IsNullOrEmpty(tbLuLKurse.Text))
+            string.IsNullOrEmpty(lulmail) || lulpwtemp ==null  || tbLuLKurse.Text == null)
         {
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
