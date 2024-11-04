@@ -836,7 +836,7 @@ public partial class MainWindow : Window
         var suszweitadresse = tbSuSZweitadresse.Text;
         var susHatZweitaccount = cbSuSZweitaccount.IsChecked;
         if (string.IsNullOrEmpty(susid) || string.IsNullOrEmpty(susvname) || string.IsNullOrEmpty(susnname) ||
-            string.IsNullOrEmpty(susklasse) ||  string.IsNullOrEmpty(susnutzername) || 
+            string.IsNullOrEmpty(susklasse) || string.IsNullOrEmpty(susnutzername) ||
             string.IsNullOrEmpty(suselternadresse) ||
             susHatZweitaccount == null || string.IsNullOrEmpty(tbSuSKurse.Text))
         {
@@ -968,9 +968,9 @@ public partial class MainWindow : Window
         var lulpwtemp = tbLuLtmpPwd.Text;
         var favo = tbLuLFavo.Text;
         var sfavo = tbLuLSFavo.Text;
-        if (lulid ==null || string.IsNullOrEmpty(lulvname) || string.IsNullOrEmpty(lulnname) ||
+        if (lulid == null || string.IsNullOrEmpty(lulvname) || string.IsNullOrEmpty(lulnname) ||
             string.IsNullOrEmpty(lulkrz) || string.IsNullOrEmpty(lulfakultas) ||
-            string.IsNullOrEmpty(lulmail) || lulpwtemp ==null  || tbLuLKurse.Text == null)
+            string.IsNullOrEmpty(lulmail) || lulpwtemp == null || tbLuLKurse.Text == null)
         {
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
