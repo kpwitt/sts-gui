@@ -454,6 +454,14 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$lid", lid);
         sqliteCmd.Parameters.AddWithValue("$kbez", kbez);
         sqliteCmd.ExecuteNonQuery();
+        var kurs = await GetKurs(kbez);
+        var klkurs = kurs.Klasse + "KL";
+        List<string> stufen = ["EF", "Q1", "Q2"];
+        var kurse = GetKursVonLuL(lid).Result;
+        if (!stufen.Contains(kurs.Stufe) && kurse.All(k => k.Bezeichnung != klkurs))
+        {
+            await AddLtoK(lid, klkurs);
+        }
     }
 
     /// <summary>
@@ -465,11 +473,7 @@ public class Schuldatenbank : IDisposable
     public async Task AddLtoK(LuL lehrkraft, Kurs kurs)
     {
         if (string.IsNullOrEmpty(kurs.Bezeichnung) || lehrkraft.ID == 0) return;
-        var sqliteCmd = _sqliteConn.CreateCommand();
-        sqliteCmd.CommandText = "INSERT OR IGNORE INTO unterrichtet (lehrerid, kursbez) VALUES ($lid, $kbez);";
-        sqliteCmd.Parameters.AddWithValue("$lid", lehrkraft.ID);
-        sqliteCmd.Parameters.AddWithValue("$kbez", kurs.Bezeichnung);
-        sqliteCmd.ExecuteNonQuery();
+        await AddLtoK(lehrkraft.ID, kurs.Bezeichnung);
     }
 
     /// <summary>
@@ -548,11 +552,7 @@ public class Schuldatenbank : IDisposable
     public async Task AddStoK(SuS schulerin, Kurs kurs)
     {
         if (schulerin.ID == 0 || string.IsNullOrEmpty(kurs.Bezeichnung)) return;
-        var sqliteCmd = _sqliteConn.CreateCommand();
-        sqliteCmd.CommandText = "INSERT OR IGNORE INTO nimmtteil (schuelerid, kursbez) VALUES ($sid, $kbez);";
-        sqliteCmd.Parameters.AddWithValue("$sid", schulerin.ID);
-        sqliteCmd.Parameters.AddWithValue("$kbez", kurs.Bezeichnung);
-        sqliteCmd.ExecuteNonQuery();
+        await AddStoK(schulerin.ID, kurs.Bezeichnung);
     }
 
     /// <summary>
