@@ -13,6 +13,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
+using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
@@ -2862,16 +2863,6 @@ public partial class MainWindow : Window
         }
     }
 
-    private void TbLuLtmpPwd_OnPointerEnter(object? sender, PointerEventArgs e)
-    {
-        tbLuLtmpPwd.RevealPassword = true;
-    }
-
-    private void TbLuLtmpPwd_OnPointerLeave(object? sender, PointerEventArgs e)
-    {
-        tbLuLtmpPwd.RevealPassword = false;
-    }
-
     private void Rb_OnClick(object? sender, RoutedEventArgs e)
     {
         if (sender == null) return;
@@ -3572,5 +3563,21 @@ public partial class MainWindow : Window
             WindowIcon = _msgBoxWindowIcon
         });
         await errorDialog.ShowAsPopupAsync(this);
+    }
+
+    private void BtnLuLShowPWD_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (tbLuLtmpPwd.RevealPassword == false)
+        {
+            panel_image_lulpwp_visible.Source =
+                new Bitmap(AssetLoader.Open(new Uri("avares://StS-GUI-Avalonia/Assets/gfx/visible_off.png")));
+            tbLuLtmpPwd.RevealPassword = true;
+        }
+        else
+        {
+            panel_image_lulpwp_visible.Source =
+                new Bitmap(AssetLoader.Open(new Uri("avares://StS-GUI-Avalonia/Assets/gfx/visible_on.png")));
+            tbLuLtmpPwd.RevealPassword = false;
+        }
     }
 }

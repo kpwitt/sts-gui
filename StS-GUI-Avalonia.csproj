@@ -40,5 +40,9 @@
     <AvaloniaResource Include="Assets\gfx\school-building.png" />
     <AvaloniaResource Include="Assets\gfx\reload.png" />
     <AvaloniaResource Include="Assets\gfx\delete.png" />
+      <None Remove="Assets\gfx\visible_off.png"/>
+      <AvaloniaResource Include="Assets\gfx\visible_off.png"/>
+      <None Remove="Assets\gfx\visible_on.png"/>
+      <AvaloniaResource Include="Assets\gfx\visible_on.png"/>
   </ItemGroup>
 </Project>
