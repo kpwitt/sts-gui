@@ -2003,8 +2003,8 @@ public class Schuldatenbank : IDisposable
             fachl.Add(faecher.Split(';')[1]);
         }
 
-        settingsResult.Kurzfaecher = fachk.ToArray();
-        settingsResult.Langfaecher = fachl.ToArray();
+        settingsResult.Kurzfaecher = [.. fachk];
+        settingsResult.Langfaecher = [.. fachl];
         settingsResult.Version = version;
         return settingsResult;
     }
@@ -2039,7 +2039,7 @@ public class Schuldatenbank : IDisposable
                     .Select(krz => GetLehrkraft(krz).Result));
                 return luls;
             default:
-                return new List<LuL>();
+                return [];
         }
     }
 
