@@ -142,8 +142,8 @@ public partial class MainWindow : Window
         _rightInputTimer.Elapsed += OnRightTimedEvent;
 
         //ContextMenu für linkes ListBox
-        List<Control> leftListContextItems = new();
-        List<Control> copyContextItems = new();
+        List<Control> leftListContextItems = [];
+        List<Control> copyContextItems = [];
         var cbMAnfangsPassword = new CheckBox
         {
             Name = "cbMnuLeftContextAnfangsPasswort",
@@ -239,7 +239,7 @@ public partial class MainWindow : Window
         lbLogDisplay.ContextMenu = _logListContextMenu;
 
         //Kontextmenu fuer tbleftSearch
-        List<Control> leftListButtonContextItems = new();
+        List<Control> leftListButtonContextItems = [];
         var cbSucheVorname = new CheckBox
         {
             Name = "cbMnuSucheVorname",
@@ -448,8 +448,8 @@ public partial class MainWindow : Window
         {
             var leftlist = this.GetControl<ListBox>("leftListBox");
             var rightlist = this.GetControl<ListBox>("rightListBox");
-            ResetItemsSource(leftlist, new List<string>());
-            ResetItemsSource(rightlist, new List<string>());
+            ResetItemsSource(leftlist, []);
+            ResetItemsSource(rightlist, []);
             Title = "SchildToSchule";
             _myschool = new Schuldatenbank(":memory:");
             ClearTextFields();
@@ -471,8 +471,8 @@ public partial class MainWindow : Window
                 await Dispatcher.UIThread.InvokeAsync(() =>
                 {
                     ClearTextFields();
-                    ResetItemsSource(leftListBox, new List<string>());
-                    ResetItemsSource(rightListBox, new List<string>());
+                    ResetItemsSource(leftListBox, []);
+                    ResetItemsSource(rightListBox, []);
                 });
                 return;
             }
@@ -1207,7 +1207,7 @@ public partial class MainWindow : Window
         if (_rightMutex && !hasComboBoxChanged) return;
         if (hasComboBoxChanged)
         {
-            ResetItemsSource(rightListBox, new List<string>());
+            ResetItemsSource(rightListBox, []);
         }
 
         _mnuItemCopySuSid.IsVisible = _mnuItemCopySuSMail.IsVisible = cboxDataLeft.SelectedIndex == 0;
@@ -1228,7 +1228,7 @@ public partial class MainWindow : Window
                         .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID)).Distinct().ToList();
                     slist.Sort(Comparer<string>.Default);
                     ResetItemsSource(leftListBox, slist);
-                    ResetItemsSource(rightListBox, new List<string>());
+                    ResetItemsSource(rightListBox, []);
                 }
                 else
                 {
@@ -1270,7 +1270,7 @@ public partial class MainWindow : Window
                         .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).Distinct().ToList();
                     lullist.Sort(Comparer<string>.Default);
                     ResetItemsSource(leftListBox, lullist);
-                    ResetItemsSource(rightListBox, new List<string>());
+                    ResetItemsSource(rightListBox, []);
                 }
                 else
                 {
@@ -1313,7 +1313,7 @@ public partial class MainWindow : Window
                     var klist = _myschool.GetKursListe().Result.Select(k => (k.Bezeichnung)).Distinct().ToList();
                     klist.Sort(Comparer<string>.Default);
                     ResetItemsSource(leftListBox, klist);
-                    ResetItemsSource(rightListBox, new List<string>());
+                    ResetItemsSource(rightListBox, []);
                 }
                 else
                 {
@@ -1697,7 +1697,7 @@ public partial class MainWindow : Window
 
             var res = await _myschool.ExportCSV(folderpath, destsys, whattoexport,
                 cbExportwithPasswort.IsChecked != null && cbExportwithPasswort.IsChecked.Value, "", expandFiles,
-                nurMoodleSuffix, kursvorlagen, _myschool.GetSchuelerIDListe().Result.ToList(),
+                nurMoodleSuffix, kursvorlagen, [.. _myschool.GetSchuelerIDListe().Result],
                 await _myschool.GetLehrerIDListe(), await _myschool.GetKursBezListe());
             await CheckSuccesfulExport(res);
         }
@@ -1865,8 +1865,8 @@ public partial class MainWindow : Window
                 susidlist.AddRange(_myschool.GetSusAusStufe(stufe).Result.Select(s => s.ID).ToList());
                 res = await _myschool.ExportCSV(folderpath, "all", "s", false, "", false, nurMoodleSuffix,
                     ["", ""], [..susidlist],
-                    new ReadOnlyCollection<int>(new List<int>()),
-                    new ReadOnlyCollection<string>(new List<string>()));
+                    new ReadOnlyCollection<int>([]),
+                    new ReadOnlyCollection<string>([]));
             }
             else
             {
@@ -1878,8 +1878,8 @@ public partial class MainWindow : Window
 
                 res = await _myschool.ExportCSV(folderpath, "all", "s", false, "", false, nurMoodleSuffix,
                     ["", ""], [..susidlist],
-                    new ReadOnlyCollection<int>(new List<int>()),
-                    new ReadOnlyCollection<string>(new List<string>()));
+                    new ReadOnlyCollection<int>([]),
+                    new ReadOnlyCollection<string>([]));
             }
 
             await CheckSuccesfulExport(res);
@@ -1936,7 +1936,7 @@ public partial class MainWindow : Window
             var res = await _myschool.ExportCSV(folderpath, "all", "s", true, "", false, nurMoodleSuffix,
                 ["", ""],
                 [.._myschool.GetSusAusStufe("5").Result.Select(s => s.ID).ToList()],
-                new ReadOnlyCollection<int>(new List<int>()), new ReadOnlyCollection<string>(new List<string>()));
+                new ReadOnlyCollection<int>([]), new ReadOnlyCollection<string>([]));
             await CheckSuccesfulExport(res);
         }
     }
@@ -1952,10 +1952,10 @@ public partial class MainWindow : Window
                 ? ""
                 : tbSettingKursersetzung.Text,
             Kurzfaecher = string.IsNullOrEmpty(tbSettingFachkurz.Text)
-                ? new[] { "" }
+                ? [""]
                 : tbSettingFachkurz.Text.Split('\n'),
             Langfaecher = string.IsNullOrEmpty(tbSettingFachlang.Text)
-                ? new[] { "" }
+                ? [""]
                 : tbSettingFachlang.Text.Split('\n'),
             Kurssuffix = string.IsNullOrEmpty(tbSettingKurssuffix.Text)
                 ? ""
@@ -2232,7 +2232,7 @@ public partial class MainWindow : Window
             });
         var dialogResult = await reallyDeleteLog.ShowAsPopupAsync(this);
         if (dialogResult == ButtonResult.No) return;
-        ResetItemsSource(lbLogDisplay, new List<string>());
+        ResetItemsSource(lbLogDisplay, []);
         await _myschool.LoescheLog();
     }
 
@@ -2700,9 +2700,9 @@ public partial class MainWindow : Window
                 };
             }
 
-            List<SuS> suslist = new();
-            List<LuL> lullist = new();
-            List<Kurs> kurslist = new();
+            List<SuS> suslist = [];
+            List<LuL> lullist = [];
+            List<Kurs> kurslist = [];
             var whattoexport = "";
             const string destsys = "ami";
             switch (cboxDataLeft.SelectedIndex)
@@ -3019,7 +3019,7 @@ public partial class MainWindow : Window
                 susliste = suscache.Where(s => tbSonst1.Text.Split(';').Contains(s.ID.ToString())).ToList();
                 break;
             case 2:
-                lulliste = lulcache.ToList();
+                lulliste = [.. lulcache];
                 break;
             case 3:
                 if (string.IsNullOrEmpty(tbSonst1.Text)) return;
