@@ -3581,4 +3581,12 @@ public partial class MainWindow : Window
             tbLuLtmpPwd.RevealPassword = false;
         }
     }
+
+    private void CbSuSM365_OnClick(object? sender, RoutedEventArgs e)
+    {
+        var susid_string = tbSuSID.Text;
+        if (string.IsNullOrEmpty(susid_string) || !susid_string.All(char.IsDigit)) return;
+        var sus = _myschool.GetSchueler(Convert.ToInt32(susid_string)).Result;
+        cbSuSM365.IsChecked = sus.HasM365Account;
+    }
 }
