@@ -145,7 +145,7 @@
                                 <TabItem Header="SuS" Classes="Header"> <!--Daten-SuS-Tab-->
                                     <StackPanel Orientation="Vertical" Margin="5">
                                         <Grid Margin="5" ColumnDefinitions="Auto, Auto"
-                                              RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto">
+                                              RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto,*">
                                             <TextBlock Classes="Header" Text="ID:" Grid.Column="0" Grid.Row="1" />
                                             <TextBox x:Name="tbSuSID" Grid.Column="1" Grid.Row="1" />
                                             <TextBlock Classes="Header" Text="Vorname:" Grid.Column="0" Grid.Row="2" />
@@ -167,7 +167,9 @@
                                             <TextBox x:Name="tbSuSNutzername" Grid.Column="1" Grid.Row="8" />
                                             <TextBlock Classes="Header" Text="Kurse:" Grid.Column="0" Grid.Row="9" />
                                             <TextBox x:Name="tbSuSKurse" Grid.Column="1" Grid.Row="9" />
-                                            <CheckBox x:Name="cbSuSZweitaccount" Grid.Column="0" Grid.Row="10">Zweitaccount</CheckBox>
+                                            <CheckBox x:Name="cbSuSM365" Grid.Column="0" Grid.Row="10">"M365 zugestimmt:" </CheckBox>
+                                            <CheckBox x:Name="cbSuSZweitaccount" Grid.Column="0" Grid.Row="11">Zweitaccount</CheckBox>
+
                                         </Grid>
                                         <Grid Margin="5" ColumnDefinitions="Auto, Auto" RowDefinitions="Auto, Auto">
                                             <Button x:Name="btnSuSAdd" Grid.Column="0" Grid.Row="0"

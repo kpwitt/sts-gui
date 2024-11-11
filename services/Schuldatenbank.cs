@@ -1831,7 +1831,7 @@ public class Schuldatenbank : IDisposable
     {
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
-            "SELECT id,nachname,vorname,mail,klasse,nutzername,aixmail,zweitaccount,zweitmail FROM schueler WHERE id = $id;";
+            "SELECT id,nachname,vorname,mail,klasse,nutzername,aixmail,zweitaccount,zweitmail, m365 FROM schueler WHERE id = $id;";
         sqliteCmd.Parameters.AddWithValue("$id", id);
         var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
         SuS schuelerin = new();
@@ -1846,6 +1846,7 @@ public class Schuldatenbank : IDisposable
             schuelerin.Aixmail = sqliteDatareader.GetString(6);
             schuelerin.Zweitaccount = Convert.ToBoolean(sqliteDatareader.GetInt32(7));
             schuelerin.Zweitmail = sqliteDatareader.GetString(8);
+            schuelerin.HasM365Account = Convert.ToBoolean(sqliteDatareader.GetInt32(9));
         }
 
         return schuelerin;
@@ -1860,7 +1861,7 @@ public class Schuldatenbank : IDisposable
     {
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
-            "SELECT id,nachname,vorname,mail,klasse,nutzername,aixmail,zweitaccount,zweitmail FROM schueler WHERE vorname = $vorname AND nachname = $nachname;";
+            "SELECT id,nachname,vorname,mail,klasse,nutzername,aixmail,zweitaccount,zweitmail, m365 FROM schueler WHERE vorname = $vorname AND nachname = $nachname;";
         sqliteCmd.Parameters.AddWithValue("$vorname", vorname);
         sqliteCmd.Parameters.AddWithValue("$nachname", nachname);
         var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
@@ -1877,7 +1878,8 @@ public class Schuldatenbank : IDisposable
                 Nutzername = sqliteDatareader.GetString(5),
                 Aixmail = sqliteDatareader.GetString(6),
                 Zweitaccount = Convert.ToBoolean(sqliteDatareader.GetInt32(7)),
-                Zweitmail = sqliteDatareader.GetString(8)
+                Zweitmail = sqliteDatareader.GetString(8),
+                HasM365Account = Convert.ToBoolean(sqliteDatareader.GetInt32(9)),
             };
             susliste.Add(schuelerin);
         }

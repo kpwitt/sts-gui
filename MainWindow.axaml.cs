@@ -1568,6 +1568,7 @@ public partial class MainWindow : Window
         tbSuSKurse.Text = _myschool.GetKursVonSuS(s.ID).Result
             .Aggregate("", (current, kurs) => current + (kurs.Bezeichnung + ",")).TrimEnd(',');
         cbSuSZweitaccount.IsChecked = s.Zweitaccount;
+        cbSuSM365.IsChecked = s.HasM365Account;
     }
 
     private void LoadLuLData(LuL l)
