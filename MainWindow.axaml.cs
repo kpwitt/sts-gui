@@ -1115,6 +1115,7 @@ public partial class MainWindow : Window
         tbSettingQ1Stufenleitung.Text = settings.Q1Stufenleitung;
         tbSettingQ2Stufenleitung.Text = settings.Q2Stufenleitung;
         tbSettingOberstufenkoordination.Text = settings.Oberstufenkoordination;
+        tbSettingStuBos.Text = settings.StuBos;
     }
 
     private void cboxDataLeft_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
