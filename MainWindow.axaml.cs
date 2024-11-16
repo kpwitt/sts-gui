@@ -1964,26 +1964,29 @@ public partial class MainWindow : Window
                 : tbSettingKurssuffix.Text,
             Erprobungstufenleitung = string.IsNullOrEmpty(tbSettingErprobungsstufenleitung.Text)
                 ? ""
-                : tbSettingErprobungsstufenleitung.Text,
+                : tbSettingErprobungsstufenleitung.Text.Replace(';', ',').TrimEnd(','),
             Mittelstufenleitung = string.IsNullOrEmpty(tbSettingMittelstufenleitung.Text)
                 ? ""
-                : tbSettingMittelstufenleitung.Text.TrimEnd(','),
+                : tbSettingMittelstufenleitung.Text.Replace(';', ',').TrimEnd(','),
             EFStufenleitung = string.IsNullOrEmpty(tbSettingEFstufenleitung.Text)
                 ? ""
-                : tbSettingEFstufenleitung.Text.TrimEnd(','),
+                : tbSettingEFstufenleitung.Text.Replace(';', ',').TrimEnd(','),
             Q1Stufenleitung = string.IsNullOrEmpty(tbSettingQ1Stufenleitung.Text)
                 ? ""
-                : tbSettingQ1Stufenleitung.Text.TrimEnd(','),
+                : tbSettingQ1Stufenleitung.Text.Replace(';', ',').TrimEnd(','),
             Q2Stufenleitung = string.IsNullOrEmpty(tbSettingQ2Stufenleitung.Text)
                 ? ""
-                : tbSettingQ2Stufenleitung.Text.TrimEnd(','),
+                : tbSettingQ2Stufenleitung.Text.Replace(';', ',').TrimEnd(','),
             Oberstufenkoordination = string.IsNullOrEmpty(tbSettingOberstufenkoordination.Text)
                 ? ""
-                : tbSettingOberstufenkoordination.Text.TrimEnd(','),
-            StuBos = string.IsNullOrEmpty(tbSettingStuBos.Text) ? "" : tbSettingStuBos.Text,
+                : tbSettingOberstufenkoordination.Text.Replace(';', ',').TrimEnd(','),
+            StuBos = string.IsNullOrEmpty(tbSettingStuBos.Text)
+                ? ""
+                : tbSettingStuBos.Text.Replace(';', ',').TrimEnd(','),
         };
 
         await _myschool.SetSettings(settings);
+        loadSettingsToGUI(settings);
         await _myschool.StartTransaction();
         if (!await _myschool.GibtEsKurs("Erprobungsstufe" + settings.Kurssuffix))
         {
