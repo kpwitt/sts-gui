@@ -448,19 +448,26 @@ public class Schuldatenbank : IDisposable
     /// <param name="kbez"></param>
     public async Task AddLtoK(int lid, string kbez)
     {
-        if (lid == 0 || kbez == "") return;
-        var sqliteCmd = _sqliteConn.CreateCommand();
-        sqliteCmd.CommandText = "INSERT OR IGNORE INTO unterrichtet (lehrerid, kursbez) VALUES ($lid, $kbez);";
-        sqliteCmd.Parameters.AddWithValue("$lid", lid);
-        sqliteCmd.Parameters.AddWithValue("$kbez", kbez);
-        sqliteCmd.ExecuteNonQuery();
-        var kurs = await GetKurs(kbez);
-        var klkurs = kurs.Klasse + "KL";
-        List<string> stufen = ["EF", "Q1", "Q2"];
-        var kurse = GetKursVonLuL(lid).Result;
-        if (!stufen.Contains(kurs.Stufe) && kurse.All(k => k.Bezeichnung != klkurs))
+        while (true)
         {
-            await AddLtoK(lid, klkurs);
+            if (lid == 0 || string.IsNullOrEmpty(kbez)) return;
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText = "INSERT OR IGNORE INTO unterrichtet (lehrerid, kursbez) VALUES ($lid, $kbez);";
+            sqliteCmd.Parameters.AddWithValue("$lid", lid);
+            sqliteCmd.Parameters.AddWithValue("$kbez", kbez);
+            sqliteCmd.ExecuteNonQuery();
+            var kurs = await GetKurs(kbez);
+            if (string.IsNullOrEmpty(kurs.Bezeichnung)) return;
+            var klkurs = kurs.Klasse + "KL";
+            List<string> stufen = ["EF", "Q1", "Q2"];
+            var kurse = GetKursVonLuL(lid).Result;
+            if (!kurs.IstKurs && !stufen.Contains(kurs.Stufe) && kurse.All(k => k.Bezeichnung != klkurs))
+            {
+                kbez = klkurs;
+                continue;
+            }
+
+            break;
         }
     }
 
