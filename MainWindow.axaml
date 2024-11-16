@@ -370,7 +370,7 @@
                                         </StackPanel>
                                     </Grid>
                                     <StackPanel Orientation="Horizontal">
-                                        <Button x:Name="btnSettingSave" Click="BtnSettingSave_OnClick">
+                                        <Button x:Name="btnApplySettings" Click="BtnSettingSave_OnClick">
                                             Anwenden
                                         </Button>
                                         <Button x:Name="btnSettingsToFile" Click="BtnSettingsToFile_OnClick">In Datei speichern</Button>
