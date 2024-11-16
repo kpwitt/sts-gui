@@ -262,13 +262,13 @@ public partial class MainWindow : Window
         {
             Name = "cbMnuSucheAnmeldename",
             Content = "Anmeldename/Kürzel",
-            IsChecked = false,
+            IsChecked = true,
         };
         var cbSucheID = new CheckBox
         {
             Name = "cbMnuSucheID",
             Content = "ID",
-            IsChecked = false,
+            IsChecked = true,
         };
         var cbSucheExact = new CheckBox
         {
