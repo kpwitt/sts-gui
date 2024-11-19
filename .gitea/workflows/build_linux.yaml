@@ -1,6 +1,13 @@
-steps:
-  - uses: actions/checkout@master
-  - uses: actions/setup-dotnet@v1
-    with:
-      dotnet-version: '8.0.x'
-  - run: dotnet build StS-GUI-Avalonia
+name: Gitea Actions Demo
+run-name: ${{ gitea.actor }} is testing out Gitea Actions 🚀
+on: [push]
+
+jobs:
+  Explore-Gitea-Actions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '8.0.x'
+      - run: dotnet build StS-GUI-Avalonia
