@@ -1,0 +1,6 @@
+steps:
+  - uses: actions/checkout@master
+  - uses: actions/setup-dotnet@v1
+    with:
+      dotnet-version: '8.0.x'
+  - run: dotnet build StS-GUI-Avalonia
