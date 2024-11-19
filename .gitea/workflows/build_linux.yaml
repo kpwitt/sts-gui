@@ -5,9 +5,12 @@ on: [push]
 jobs:
   Explore-Gitea-Actions:
     runs-on: ubuntu-latest
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
     steps:
       - uses: actions/checkout@master
       - uses: actions/setup-dotnet@v1
         with:
           dotnet-version: '8.0.x'
-      - run: dotnet build StS-GUI-Avalonia
+      - run: dotnet build -c RELEASE
