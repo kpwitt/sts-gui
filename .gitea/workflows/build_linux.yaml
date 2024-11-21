@@ -1,5 +1,5 @@
 name: Gitea Actions Demo
-run-name: ${{ gitea.actor }} is testing out Gitea Actions 🚀
+run-name: Building and publishing
 on: [push]
 
 jobs:
@@ -13,4 +13,14 @@ jobs:
       - uses: actions/setup-dotnet@v1
         with:
           dotnet-version: '8.0.x'
-      - run: dotnet build -c RELEASE
+      - name: building release
+        run: dotnet build -c RELEASE
+      - name: publishing release
+        run: dotnet publish -c Release -r win-x64 -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true --self-contained true
+         - name: Use Go Action
+         id: use-go-action
+         uses: actions/release-action@main
+         with:
+           files: |-
+             publish/win-x64/**
+           api_key: '${{secrets.RELEASE_TOKEN}}'
