@@ -15,12 +15,3 @@ jobs:
           dotnet-version: '8.0.x'
       - name: building release
         run: dotnet build -c RELEASE
-      - name: publishing release
-        run: dotnet publish -c Release -r win-x64 -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true --self-contained true
-         - name: Use Go Action
-         id: use-go-action
-         uses: actions/release-action@main
-         with:
-           files: |-
-             publish/win-x64/**
-           api_key: '${{secrets.RELEASE_TOKEN}}'
