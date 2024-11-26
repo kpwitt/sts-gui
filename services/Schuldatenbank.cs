@@ -2286,7 +2286,7 @@ public class Schuldatenbank : IDisposable
                 if (tmpkurs[inn].Contains('#'))
                 {
                     nachname = tmpkurs[inn].Split('#')[0];
-                    kursklasse = tmpkurs[inn].Split('#')[1];
+                    kursklasse = tmpkurs[inn].Split('#')[1].Replace(" ","");
                 }
                 else
                 {
