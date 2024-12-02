@@ -832,7 +832,7 @@ public partial class MainWindow : Window
         var susnname = tbSuSnachname.Text;
         var susklasse = tbSuSKlasse.Text;
         var susnutzername = tbSuSNutzername.Text;
-        var susaximail = tbSuSAIXMail.Text;
+        var susaixmail = tbSuSAIXMail.Text;
         var suselternadresse = tbSuSElternadresse.Text;
         var suszweitadresse = tbSuSZweitadresse.Text;
         var susHatZweitaccount = cbSuSZweitaccount.IsChecked;
@@ -880,9 +880,10 @@ public partial class MainWindow : Window
         var sid = Convert.ToInt32(susid);
         if (await _myschool.GibtEsSchueler(sid))
         {
-            if (suszweitadresse != null)
+            _myschool.SetM365(sid, cbSuSM365.IsChecked != null && cbSuSM365.IsChecked.Value ?1:0);
+            if (suszweitadresse != null && susaixmail != null)
                 await _myschool.UpdateSchueler(sid, susvname, susnname, suselternadresse, susklasse, susnutzername,
-                    susaximail, susHatZweitaccount == false ? 0 : 1, suszweitadresse);
+                    susaixmail, susHatZweitaccount == false ? 0 : 1, suszweitadresse);
             var alteKurse = _myschool.GetKursVonSuS(sid).Result;
             foreach (var kurs in alteKurse.Where(kurs => !suskurse.Contains(kurs.Bezeichnung)))
             {
@@ -899,9 +900,9 @@ public partial class MainWindow : Window
         }
         else
         {
-            if (suszweitadresse != null)
+            if (suszweitadresse != null && susaixmail != null)
                 await _myschool.AddSchuelerIn(sid, susvname, susnname, suselternadresse, susklasse, susnutzername,
-                    susaximail, susHatZweitaccount == false ? 0 : 1, suszweitadresse);
+                    susaixmail, susHatZweitaccount == false ? 0 : 1, suszweitadresse);
             if (suskurse is [""]) return;
             foreach (var kursbez in suskurse)
             {
@@ -3591,6 +3592,6 @@ public partial class MainWindow : Window
         var susid_string = tbSuSID.Text;
         if (string.IsNullOrEmpty(susid_string) || !susid_string.All(char.IsDigit)) return;
         var sus = _myschool.GetSchueler(Convert.ToInt32(susid_string)).Result;
-        cbSuSM365.IsChecked = sus.HasM365Account;
+        _myschool.SetM365(sus.ID, cbSuSM365.IsChecked != null && cbSuSM365.IsChecked.Value ?1:0);
     }
 }
