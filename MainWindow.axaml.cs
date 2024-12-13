@@ -1715,7 +1715,7 @@ public partial class MainWindow : Window
             var ergebnisliste = new List<string>();
             if (cbFehlerLeereKurse.IsChecked != null && cbFehlerLeereKurse.IsChecked.Value)
             {
-                //TODO: Fehlerforstezen
+                //TODO: Fehlerforsetzen
                 ergebnisliste.Add("######BEGIN Leere Kurse######");
                 ergebnisliste.Add("Kursbezeichnung; Fehler");
                 foreach (var k in kursliste)
@@ -1807,7 +1807,7 @@ public partial class MainWindow : Window
                                           sus.ID + ";ohne gültige Mailadresse");
                     }
 
-                    if (sus is { Zweitaccount: true, Zweitmail: "" })
+                    if (sus.Zweitaccount&& (sus.Zweitmail=="" || sus.Zweitmail==sus.Mail) )
                     {
                         ergebnisliste.Add(sus.Nachname + ", " + sus.Vorname + ";Klasse " + sus.Klasse + ";" +
                                           sus.ID + ";ohne gültige Zweitmailadresse");
