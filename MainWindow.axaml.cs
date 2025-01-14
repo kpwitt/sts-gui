@@ -46,7 +46,10 @@ public partial class MainWindow : Window
     private int leftLastComboIndex = -1;
     private int rightLastComboIndex = -1;
 
+#pragma warning disable CS8618, CS9264
+    //InitGUi initilaisiert die nicht initialisierten Variablen/Objekte/etc.
     public MainWindow()
+
     {
 #if DEBUG
         InitializeComponent(true, false);
@@ -57,6 +60,7 @@ public partial class MainWindow : Window
     }
 
     public MainWindow(IReadOnlyList<string> args)
+#pragma warning restore CS8618, CS9264
     {
 #if DEBUG
         InitializeComponent(true, false);
