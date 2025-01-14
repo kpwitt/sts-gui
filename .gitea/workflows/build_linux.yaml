@@ -1,5 +1,5 @@
-name: Gitea Actions Demo
-run-name: Building and publishing
+name: Check for build errors
+run-name: Building
 on: [push]
 
 jobs:
