@@ -336,6 +336,23 @@ public partial class MainWindow : Window
         return files.Count > 0 ? files[0] : null;
     }
 
+    private async Task ShowImportSuccessful()
+    {
+        await Dispatcher.UIThread.InvokeAsync(() =>
+        {
+            InitData();
+            MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
+                {
+                    ButtonDefinitions = ButtonEnum.Ok,
+                    ContentTitle = "Information",
+                    ContentMessage = "Import abgeschlossen",
+                    Icon = MsBox.Avalonia.Enums.Icon.Info,
+                    WindowIcon = _msgBoxWindowIcon
+                })
+                .ShowAsPopupAsync(this);
+        });
+    }
+
     private async Task<IStorageFolder?> ShowOpenFolderDialog(string dialogtitle)
     {
         var topLevel = GetTopLevel(this);
@@ -698,20 +715,7 @@ public partial class MainWindow : Window
                 {
                     await _myschool.IdsEinlesen(aixcsvpath);
                 }
-
-                await Dispatcher.UIThread.InvokeAsync(() =>
-                {
-                    InitData();
-                    MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
-                        {
-                            ButtonDefinitions = ButtonEnum.Ok,
-                            ContentTitle = "Information",
-                            ContentMessage = "Import erfolgreich",
-                            Icon = MsBox.Avalonia.Enums.Icon.Info,
-                            WindowIcon = _msgBoxWindowIcon
-                        })
-                        .ShowAsPopupAsync(this);
-                });
+                await ShowImportSuccessful();
             }
         }
     }
@@ -727,6 +731,7 @@ public partial class MainWindow : Window
         if (files == null) return;
         var filePath = files.Path.LocalPath;
         await _myschool.SusEinlesen(filePath);
+        await ShowImportSuccessful();
     }
 
     private async void OnMnuloadlulfromfileClick(object? sender, RoutedEventArgs e)
@@ -740,7 +745,10 @@ public partial class MainWindow : Window
         if (files == null) return;
         var filePath = files.Path.LocalPath;
         await _myschool.LulEinlesen(filePath);
+        await ShowImportSuccessful();
     }
+
+
 
     private async void OnMnuloadkursefromfileClick(object? sender, RoutedEventArgs e)
     {
@@ -753,6 +761,7 @@ public partial class MainWindow : Window
         if (files == null) return;
         var filePath = files.Path.LocalPath;
         await _myschool.KurseEinlesen(filePath);
+        await ShowImportSuccessful();
     }
 
     private async void OnMnuloadusernamesmailClick(object? sender, RoutedEventArgs e)
@@ -766,6 +775,7 @@ public partial class MainWindow : Window
         if (files == null) return;
         var filePath = files.Path.LocalPath;
         await _myschool.IdsEinlesen(filePath);
+        await ShowImportSuccessful();
     }
 
     private async void OnMnuloadzweitaccountsClick(object? sender, RoutedEventArgs e)
@@ -779,6 +789,7 @@ public partial class MainWindow : Window
         if (files == null) return;
         var filePath = files.Path.LocalPath;
         await _myschool.ZweitAccountsEinlesen(filePath);
+        await ShowImportSuccessful();
     }
 
     private async void OnMnuexporttocsvClick(object? sender, RoutedEventArgs e)
