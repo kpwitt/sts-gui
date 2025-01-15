@@ -47,7 +47,7 @@ public partial class MainWindow : Window
     private int rightLastComboIndex = -1;
 
 #pragma warning disable CS8618, CS9264
-    //InitGUi initilaisiert die nicht initialisierten Variablen/Objekte/etc.
+    //InitGUi() initialisiert die nicht initialisierten Variablen/Objekte/etc.
     public MainWindow()
 
     {
@@ -340,23 +340,6 @@ public partial class MainWindow : Window
         return files.Count > 0 ? files[0] : null;
     }
 
-    private async Task ShowImportSuccessful()
-    {
-        await Dispatcher.UIThread.InvokeAsync(() =>
-        {
-            InitData();
-            MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
-                {
-                    ButtonDefinitions = ButtonEnum.Ok,
-                    ContentTitle = "Information",
-                    ContentMessage = "Import abgeschlossen",
-                    Icon = MsBox.Avalonia.Enums.Icon.Info,
-                    WindowIcon = _msgBoxWindowIcon
-                })
-                .ShowAsPopupAsync(this);
-        });
-    }
-
     private async Task<IStorageFolder?> ShowOpenFolderDialog(string dialogtitle)
     {
         var topLevel = GetTopLevel(this);
@@ -367,6 +350,28 @@ public partial class MainWindow : Window
             AllowMultiple = false,
         });
         return folders.Count > 0 ? folders[0] : null;
+    }
+    
+    private async Task ShowImportSuccessful()
+    {
+        await ShowCustomInfoMessage("Import abgeschlossen", "Information");
+    }
+    
+    private async Task ShowCustomInfoMessage(string message, string title)
+    {
+        await Dispatcher.UIThread.InvokeAsync(() =>
+        {
+            InitData();
+            MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
+                {
+                    ButtonDefinitions = ButtonEnum.Ok,
+                    ContentTitle = title,
+                    ContentMessage = message,
+                    Icon = MsBox.Avalonia.Enums.Icon.Info,
+                    WindowIcon = _msgBoxWindowIcon
+                })
+                .ShowAsPopupAsync(this);
+        });
     }
 
     private async void OnMnuSchoolLoadClick(object? sender, RoutedEventArgs e)
@@ -681,6 +686,7 @@ public partial class MainWindow : Window
             LocalCryptoServive.FileDecrypt(inputFilePath, outputFilePath, inputResult);
             _myschool = new Schuldatenbank(outputFilePath);
             await loadFavos();
+            await ShowCustomInfoMessage("Laden erfolgreich", "Information");
         }
     }
 
@@ -818,6 +824,7 @@ public partial class MainWindow : Window
                 if (override_res != ButtonResult.Yes) return;
                 await _myschool.DumpDataToCSVs(folderpath);
             }
+            await ShowCustomInfoMessage("Export abgeschlossen", "Information");
         }
     }
 
