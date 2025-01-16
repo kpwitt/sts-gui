@@ -44,7 +44,7 @@ public record struct Kurs(
     bool IstKurs,
     string Art);
 
-public record struct Settings
+public record struct Einstellungen
 {
     public string Mailsuffix { get; set; }
     public string Kurssuffix { get; set; }

@@ -165,7 +165,7 @@ public class Schuldatenbank : IDisposable
             var calcSuffix = DateTime.Now.Month < 8
                 ? (DateTime.Now.Year - 2001) + "" + (DateTime.Now.Year - 2000)
                 : (DateTime.Now.Year - 2000) + "" + (DateTime.Now.Year - 1999);
-            Settings settings = new()
+            Einstellungen einstellungen = new()
             {
                 Mailsuffix = "@schule.local",
                 Fachersetzung = "",
@@ -181,9 +181,9 @@ public class Schuldatenbank : IDisposable
                 StuBos = "",
                 Version = version
             };
-            sqliteCmd.Parameters.AddWithValue("$mailsuffixparam", settings.Mailsuffix);
-            sqliteCmd.Parameters.AddWithValue("$kurssuffixparam", settings.Kurssuffix);
-            sqliteCmd.Parameters.AddWithValue("$fachersatzparam", settings.Fachersetzung);
+            sqliteCmd.Parameters.AddWithValue("$mailsuffixparam", einstellungen.Mailsuffix);
+            sqliteCmd.Parameters.AddWithValue("$kurssuffixparam", einstellungen.Kurssuffix);
+            sqliteCmd.Parameters.AddWithValue("$fachersatzparam", einstellungen.Fachersetzung);
 
             sqliteCmd.Parameters.AddWithValue("$mailsuffix", "mailsuffix");
             sqliteCmd.Parameters.AddWithValue("$kurssuffix", "kurssuffix");
@@ -200,16 +200,16 @@ public class Schuldatenbank : IDisposable
             sqliteCmd.Parameters.AddWithValue("$version", "version");
 
             sqliteCmd.Parameters.AddWithValue("$erprobungstufenleitungparam",
-                settings.Erprobungstufenleitung);
+                einstellungen.Erprobungstufenleitung);
             sqliteCmd.Parameters.AddWithValue("$mittelstufenleitungparam",
-                settings.Mittelstufenleitung);
-            sqliteCmd.Parameters.AddWithValue("$efstufenleitungparam", settings.EFStufenleitung);
-            sqliteCmd.Parameters.AddWithValue("$q1stufenleitungparam", settings.Q1Stufenleitung);
-            sqliteCmd.Parameters.AddWithValue("$q2stufenleitungparam", settings.Q2Stufenleitung);
+                einstellungen.Mittelstufenleitung);
+            sqliteCmd.Parameters.AddWithValue("$efstufenleitungparam", einstellungen.EFStufenleitung);
+            sqliteCmd.Parameters.AddWithValue("$q1stufenleitungparam", einstellungen.Q1Stufenleitung);
+            sqliteCmd.Parameters.AddWithValue("$q2stufenleitungparam", einstellungen.Q2Stufenleitung);
             sqliteCmd.Parameters.AddWithValue("$oberstufenkoordinationparam",
-                settings.Oberstufenkoordination);
-            sqliteCmd.Parameters.AddWithValue("$stubosparam", settings.StuBos);
-            sqliteCmd.Parameters.AddWithValue("$versionparam", settings.Version);
+                einstellungen.Oberstufenkoordination);
+            sqliteCmd.Parameters.AddWithValue("$stubosparam", einstellungen.StuBos);
+            sqliteCmd.Parameters.AddWithValue("$versionparam", einstellungen.Version);
             sqliteCmd.CommandText =
                 "INSERT OR REPLACE INTO settings (setting,value) VALUES($mailsuffix, $mailsuffixparam)";
             sqliteCmd.ExecuteNonQuery();
@@ -1944,12 +1944,12 @@ public class Schuldatenbank : IDisposable
     /// <summary>
     /// gibt die schulspezifischen Einstellungen der Datenbank als Liste zurück
     /// </summary>
-    public async Task<Settings> GetSettings()
+    public async Task<Einstellungen> GetSettings()
     {
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText = "SELECT setting,value FROM settings;";
         var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
-        Settings settingsResult = new();
+        Einstellungen einstellungenResult = new();
         while (sqliteDatareader.Read())
         {
             var key = sqliteDatareader.GetString(0);
@@ -1957,34 +1957,34 @@ public class Schuldatenbank : IDisposable
             switch (key)
             {
                 case "mailsuffix":
-                    settingsResult.Mailsuffix = value;
+                    einstellungenResult.Mailsuffix = value;
                     break;
                 case "kurssuffix":
-                    settingsResult.Kurssuffix = value;
+                    einstellungenResult.Kurssuffix = value;
                     break;
                 case "fachersatz":
-                    settingsResult.Fachersetzung = value;
+                    einstellungenResult.Fachersetzung = value;
                     break;
                 case "erprobungsstufenleitung":
-                    settingsResult.Erprobungstufenleitung = value;
+                    einstellungenResult.Erprobungstufenleitung = value;
                     break;
                 case "mittelstufenleitung":
-                    settingsResult.Mittelstufenleitung = value;
+                    einstellungenResult.Mittelstufenleitung = value;
                     break;
                 case "efstufenleitung":
-                    settingsResult.EFStufenleitung = value;
+                    einstellungenResult.EFStufenleitung = value;
                     break;
                 case "q1stufenleitung":
-                    settingsResult.Q1Stufenleitung = value;
+                    einstellungenResult.Q1Stufenleitung = value;
                     break;
                 case "q2stufenleitung":
-                    settingsResult.Q2Stufenleitung = value;
+                    einstellungenResult.Q2Stufenleitung = value;
                     break;
                 case "oberstufenkoordination":
-                    settingsResult.Oberstufenkoordination = value;
+                    einstellungenResult.Oberstufenkoordination = value;
                     break;
                 case "stubos":
-                    settingsResult.StuBos = value;
+                    einstellungenResult.StuBos = value;
                     break;
             }
         }
@@ -2012,10 +2012,10 @@ public class Schuldatenbank : IDisposable
             fachl.Add(faecher.Split(';')[1]);
         }
 
-        settingsResult.Kurzfaecher = [.. fachk];
-        settingsResult.Langfaecher = [.. fachl];
-        settingsResult.Version = version;
-        return settingsResult;
+        einstellungenResult.Kurzfaecher = [.. fachk];
+        einstellungenResult.Langfaecher = [.. fachl];
+        einstellungenResult.Version = version;
+        return einstellungenResult;
     }
 
     /// <summary>
@@ -2686,12 +2686,14 @@ public class Schuldatenbank : IDisposable
     /// </summary>
     /// <param name="settings"></param>
     public async Task SetSettings(Settings settings)
+    /// <param name="einstellungen"></param>
+    public async Task SetSettings(Einstellungen einstellungen)
     {
         var sqliteCmd = _sqliteConn.CreateCommand();
         // sqliteCmd.CommandText = "INSERT OR IGNORE INTO settings (mailsuffix, kurssuffix, fachersetzung) VALUES ($mailsuffix, $kurssuffix, $fachersatz);";
-        sqliteCmd.Parameters.AddWithValue("$mailsuffixparam", settings.Mailsuffix);
-        sqliteCmd.Parameters.AddWithValue("$kurssuffixparam", settings.Kurssuffix);
-        sqliteCmd.Parameters.AddWithValue("$fachersatzparam", settings.Fachersetzung);
+        sqliteCmd.Parameters.AddWithValue("$mailsuffixparam", einstellungen.Mailsuffix);
+        sqliteCmd.Parameters.AddWithValue("$kurssuffixparam", einstellungen.Kurssuffix);
+        sqliteCmd.Parameters.AddWithValue("$fachersatzparam", einstellungen.Fachersetzung);
 
         sqliteCmd.Parameters.AddWithValue("$mailsuffix", "mailsuffix");
         sqliteCmd.Parameters.AddWithValue("$kurssuffix", "kurssuffix");
@@ -2707,18 +2709,18 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$version", "version");
 
         sqliteCmd.Parameters.AddWithValue("$erprobungstufenleitungparam",
-            settings.Erprobungstufenleitung);
+            einstellungen.Erprobungstufenleitung);
         sqliteCmd.Parameters.AddWithValue("$mittelstufenleitungparam",
-            string.IsNullOrEmpty(settings.Mittelstufenleitung) ? "" : settings.Mittelstufenleitung);
+            string.IsNullOrEmpty(einstellungen.Mittelstufenleitung) ? "" : einstellungen.Mittelstufenleitung);
         sqliteCmd.Parameters.AddWithValue("$efstufenleitungparam",
-            string.IsNullOrEmpty(settings.EFStufenleitung) ? "" : settings.EFStufenleitung);
+            string.IsNullOrEmpty(einstellungen.EFStufenleitung) ? "" : einstellungen.EFStufenleitung);
         sqliteCmd.Parameters.AddWithValue("$q1stufenleitungparam",
-            string.IsNullOrEmpty(settings.Q1Stufenleitung) ? "" : settings.Q1Stufenleitung);
+            string.IsNullOrEmpty(einstellungen.Q1Stufenleitung) ? "" : einstellungen.Q1Stufenleitung);
         sqliteCmd.Parameters.AddWithValue("$q2stufenleitungparam",
-            string.IsNullOrEmpty(settings.Q2Stufenleitung) ? "" : settings.Q2Stufenleitung);
+            string.IsNullOrEmpty(einstellungen.Q2Stufenleitung) ? "" : einstellungen.Q2Stufenleitung);
         sqliteCmd.Parameters.AddWithValue("$oberstufenkoordinationparam",
-            string.IsNullOrEmpty(settings.Oberstufenkoordination) ? "" : settings.Oberstufenkoordination);
-        sqliteCmd.Parameters.AddWithValue("$stubosparam", string.IsNullOrEmpty(settings.StuBos) ? "" : settings.StuBos);
+            string.IsNullOrEmpty(einstellungen.Oberstufenkoordination) ? "" : einstellungen.Oberstufenkoordination);
+        sqliteCmd.Parameters.AddWithValue("$stubosparam", string.IsNullOrEmpty(einstellungen.StuBos) ? "" : einstellungen.StuBos);
         sqliteCmd.Parameters.AddWithValue("versionparam", version);
         sqliteCmd.CommandText =
             "INSERT OR REPLACE INTO settings (setting,value) VALUES($mailsuffix, $mailsuffixparam)";
@@ -2753,7 +2755,7 @@ public class Schuldatenbank : IDisposable
             "INSERT OR REPLACE INTO settings (setting,value) VALUES($version, $versionparam)";
         sqliteCmd.ExecuteNonQuery();
         sqliteCmd.Parameters.Clear();
-        await SetKurzLangFach(settings.Kurzfaecher, settings.Langfaecher);
+        await SetKurzLangFach(einstellungen.Kurzfaecher, einstellungen.Langfaecher);
     }
 
     /// <summary>
