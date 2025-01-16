@@ -1,4 +1,6 @@
-﻿namespace SchulDB;
+﻿using System;
+
+namespace SchulDB;
 #pragma warning disable CS1591
 public record struct SuS(
     int ID,
@@ -10,7 +12,7 @@ public record struct SuS(
     string Aixmail,
     string Zweitmail,
     bool Zweitaccount,
-    bool HasM365Account=default)
+    bool HasM365Account = default)
 {
     public string GetStufe()
     {
@@ -59,4 +61,20 @@ public record struct Einstellungen
     public string Oberstufenkoordination { get; set; }
     public string Version { get; set; }
     public string StuBos { get; set; }
+}
+
+public record struct LogEintrag
+{
+    public string Warnstufe { get; set; }
+    public DateTime Eintragsdatum { get; set; }
+    public string Nachricht { get; set; }
+
+    public string Datumsstring() {
+        return Eintragsdatum.ToLongDateString() +" "+ Eintragsdatum.ToLongTimeString();
+    }
+
+    public override string ToString()
+    {
+        return Warnstufe + "\t" + Datumsstring() + "\t" + Nachricht;
+    }
 }

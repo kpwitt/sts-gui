@@ -1852,9 +1852,9 @@ public partial class MainWindow : Window
         catch (Exception ex)
         {
 #if DEBUG
-            _ = _myschool.AddLogMessage("Debug", ex.StackTrace + ";" + ex.Message);
+            _ = _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Nachricht = ex.Message, Warnstufe = "Debug"});
 #endif
-            _ = _myschool.AddLogMessage("Fehler", "Fehler bei der Fehlersuche " + ex.Message);
+            _ = _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Nachricht = "Fehler bei der Fehlersuche " + ex.Message, Warnstufe = "Fehler"});
         }
     }
 
@@ -2267,7 +2267,7 @@ public partial class MainWindow : Window
     private async void BtnLogReload_OnClick(object? sender, RoutedEventArgs e)
     {
         var items = await _myschool.GetLog();
-        ResetItemsSource(lbLogDisplay, items.Select(message => message.Replace('\t', ' ').TrimEnd('\t')));
+        ResetItemsSource(lbLogDisplay, items.Select(x=>x.ToString()));
     }
 
     private async void BtnKurseAdd_OnClick(object? sender, RoutedEventArgs e)
@@ -3464,7 +3464,7 @@ public partial class MainWindow : Window
                 }
                 catch (Exception exception)
                 {
-                    await _myschool.AddLogMessage("Fehler", exception.Message);
+                    await _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Nachricht = exception.Message, Warnstufe = "Fehler"});
                     await ShowErrordialog("Speichern der Einstellungen fehlgeschlagen");
                 }
             });
@@ -3499,7 +3499,7 @@ public partial class MainWindow : Window
             }
             catch (Exception exception)
             {
-                await _myschool.AddLogMessage("Fehler", exception.Message);
+                await _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Nachricht = exception.Message, Warnstufe = "Fehler"});
                 await ShowErrordialog("Laden der Einstellungen fehlgeschlagen");
             }
         }
