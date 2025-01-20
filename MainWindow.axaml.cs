@@ -385,6 +385,7 @@ public partial class MainWindow : Window
         _myschool = new Schuldatenbank(filepath);
         Title = "SchildToSchule - " + await _myschool.GetFilePath();
         InitData();
+        SetStatusText();
     }
 
     private async Task loadFavos()
@@ -698,6 +699,7 @@ public partial class MainWindow : Window
     private async void OnMnuloadfolderClick(object? sender, RoutedEventArgs e)
     {
         await Dispatcher.UIThread.InvokeAsync(ReadFileTask);
+        SetStatusText();
         return;
 
         async Task ReadFileTask()
@@ -771,6 +773,7 @@ public partial class MainWindow : Window
         if (files == null) return;
         var filePath = files.Path.LocalPath;
         await _myschool.KurseEinlesen(filePath);
+        SetStatusText();
         await ShowImportSuccessful();
     }
 
@@ -785,6 +788,7 @@ public partial class MainWindow : Window
         if (files == null) return;
         var filePath = files.Path.LocalPath;
         await _myschool.IdsEinlesen(filePath);
+        SetStatusText();
         await ShowImportSuccessful();
     }
 
@@ -799,6 +803,7 @@ public partial class MainWindow : Window
         if (files == null) return;
         var filePath = files.Path.LocalPath;
         await _myschool.ZweitAccountsEinlesen(filePath);
+        SetStatusText();
         await ShowImportSuccessful();
     }
 
@@ -876,6 +881,7 @@ public partial class MainWindow : Window
                         WindowIcon = _msgBoxWindowIcon
                     }).ShowAsPopupAsync(this);
             });
+            SetStatusText();
             return;
         }
 
@@ -968,6 +974,7 @@ public partial class MainWindow : Window
         await _myschool.StopTransaction();
         OnLeftDataChanged(true);
         OnRightDataChanged(true);
+        SetStatusText();
     }
 
     private async void OnbtnsuseinschreibenClick(object? sender, RoutedEventArgs e)
@@ -979,6 +986,7 @@ public partial class MainWindow : Window
         await _myschool.AddStoKlassenKurse(await _myschool.GetSchueler(sid), susklasse);
         OnLeftDataChanged(true);
         OnRightDataChanged(true);
+        SetStatusText();
     }
 
     private async void OnBtnluladdClick(object? sender, RoutedEventArgs e)
@@ -1061,6 +1069,7 @@ public partial class MainWindow : Window
 
         OnLeftDataChanged(true);
         OnRightDataChanged(true);
+        SetStatusText();
     }
 
     private async void OnBtnluldelClick(object? sender, RoutedEventArgs e)
@@ -1096,6 +1105,7 @@ public partial class MainWindow : Window
         await _myschool.StopTransaction();
         OnLeftDataChanged(true);
         OnRightDataChanged(true);
+        SetStatusText();
     }
 
     private async void InitData()
@@ -2397,6 +2407,7 @@ public partial class MainWindow : Window
         await _myschool.StopTransaction();
         OnLeftDataChanged(true);
         OnRightDataChanged(true);
+        SetStatusText();
     }
 
     private async void OnLeftTimedEvent(object? source, ElapsedEventArgs e)
