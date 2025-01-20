@@ -2589,19 +2589,19 @@ public partial class MainWindow : Window
                     break;
                 case 1:
                     var lliste = new List<LuL>();
-                    var cachlist = _myschool.GetLehrerListe().Result;
+                    var lcachelist = _myschool.GetLehrerListe().Result;
                     foreach (var eingabe in eingabeliste)
                     {
                         var lowereingabe = eingabe.ToLower();
                         lliste.AddRange(searchFields[5]
-                            ? cachlist.Where(l =>
+                            ? lcachelist.Where(l =>
                                 l.Kuerzel.ToLower().Equals(lowereingabe) ||
                                 searchFields[0] && l.Vorname.ToLower().Equals(lowereingabe) ||
                                 searchFields[1] && l.Nachname.ToLower().Equals(lowereingabe) ||
                                 searchFields[2] && l.Mail.Equals(lowereingabe) ||
                                 searchFields[3] && l.Kuerzel.Equals(lowereingabe) ||
                                 searchFields[4] && (l.ID + "").Equals(lowereingabe)).ToList()
-                            : cachlist.Where(l =>
+                            : lcachelist.Where(l =>
                                 l.Kuerzel.Contains(lowereingabe, StringComparison.CurrentCultureIgnoreCase) ||
                                 searchFields[0] && l.Vorname.Contains(lowereingabe,
                                     StringComparison.CurrentCultureIgnoreCase) ||
