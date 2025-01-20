@@ -666,6 +666,7 @@ public partial class MainWindow : Window
 
         await Dispatcher.UIThread.InvokeAsync(LoadEncDbFile);
         Title = "SchildToSchule - " + await _myschool.GetFilePath();
+        SetStatusText();
         return;
 
         async Task<string?> GetPasswordInput()
