@@ -49,7 +49,6 @@ public partial class MainWindow : Window
 #pragma warning disable CS8618, CS9264
     //InitGUi() initialisiert die nicht initialisierten Variablen/Objekte/etc.
     public MainWindow()
-
     {
 #if DEBUG
         InitializeComponent(true, false);
