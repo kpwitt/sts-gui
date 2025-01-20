@@ -714,8 +714,7 @@ public partial class MainWindow : Window
                 await _myschool.LulEinlesen(folderpath + "/lul.csv");
                 await _myschool.KurseEinlesen(folderpath + "/kurse.csv");
                 var aixcsvpath = "";
-                var d = new DirectoryInfo(folderpath);
-                var files = d.GetFiles();
+                var files = new DirectoryInfo(folderpath).GetFiles();
                 foreach (var csvFile in files)
                 {
                     if (!csvFile.Name.StartsWith("AlleSchueler")) continue;
