@@ -49,7 +49,6 @@ public partial class MainWindow : Window
 #pragma warning disable CS8618, CS9264
     //InitGUi() initialisiert die nicht initialisierten Variablen/Objekte/etc.
     public MainWindow()
-
     {
 #if DEBUG
         InitializeComponent(true, false);
@@ -386,6 +385,7 @@ public partial class MainWindow : Window
         _myschool = new Schuldatenbank(filepath);
         Title = "SchildToSchule - " + await _myschool.GetFilePath();
         InitData();
+        SetStatusText();
     }
 
     private async Task loadFavos()
@@ -667,6 +667,7 @@ public partial class MainWindow : Window
 
         await Dispatcher.UIThread.InvokeAsync(LoadEncDbFile);
         Title = "SchildToSchule - " + await _myschool.GetFilePath();
+        SetStatusText();
         return;
 
         async Task<string?> GetPasswordInput()
@@ -698,6 +699,7 @@ public partial class MainWindow : Window
     private async void OnMnuloadfolderClick(object? sender, RoutedEventArgs e)
     {
         await Dispatcher.UIThread.InvokeAsync(ReadFileTask);
+        SetStatusText();
         return;
 
         async Task ReadFileTask()
@@ -712,8 +714,7 @@ public partial class MainWindow : Window
                 await _myschool.LulEinlesen(folderpath + "/lul.csv");
                 await _myschool.KurseEinlesen(folderpath + "/kurse.csv");
                 var aixcsvpath = "";
-                var d = new DirectoryInfo(folderpath);
-                var files = d.GetFiles();
+                var files = new DirectoryInfo(folderpath).GetFiles();
                 foreach (var csvFile in files)
                 {
                     if (!csvFile.Name.StartsWith("AlleSchueler")) continue;
@@ -771,6 +772,7 @@ public partial class MainWindow : Window
         if (files == null) return;
         var filePath = files.Path.LocalPath;
         await _myschool.KurseEinlesen(filePath);
+        SetStatusText();
         await ShowImportSuccessful();
     }
 
@@ -785,6 +787,7 @@ public partial class MainWindow : Window
         if (files == null) return;
         var filePath = files.Path.LocalPath;
         await _myschool.IdsEinlesen(filePath);
+        SetStatusText();
         await ShowImportSuccessful();
     }
 
@@ -799,6 +802,7 @@ public partial class MainWindow : Window
         if (files == null) return;
         var filePath = files.Path.LocalPath;
         await _myschool.ZweitAccountsEinlesen(filePath);
+        SetStatusText();
         await ShowImportSuccessful();
     }
 
@@ -876,6 +880,7 @@ public partial class MainWindow : Window
                         WindowIcon = _msgBoxWindowIcon
                     }).ShowAsPopupAsync(this);
             });
+            SetStatusText();
             return;
         }
 
@@ -968,6 +973,7 @@ public partial class MainWindow : Window
         await _myschool.StopTransaction();
         OnLeftDataChanged(true);
         OnRightDataChanged(true);
+        SetStatusText();
     }
 
     private async void OnbtnsuseinschreibenClick(object? sender, RoutedEventArgs e)
@@ -979,6 +985,7 @@ public partial class MainWindow : Window
         await _myschool.AddStoKlassenKurse(await _myschool.GetSchueler(sid), susklasse);
         OnLeftDataChanged(true);
         OnRightDataChanged(true);
+        SetStatusText();
     }
 
     private async void OnBtnluladdClick(object? sender, RoutedEventArgs e)
@@ -1061,6 +1068,7 @@ public partial class MainWindow : Window
 
         OnLeftDataChanged(true);
         OnRightDataChanged(true);
+        SetStatusText();
     }
 
     private async void OnBtnluldelClick(object? sender, RoutedEventArgs e)
@@ -1096,6 +1104,7 @@ public partial class MainWindow : Window
         await _myschool.StopTransaction();
         OnLeftDataChanged(true);
         OnRightDataChanged(true);
+        SetStatusText();
     }
 
     private async void InitData()
@@ -2397,6 +2406,7 @@ public partial class MainWindow : Window
         await _myschool.StopTransaction();
         OnLeftDataChanged(true);
         OnRightDataChanged(true);
+        SetStatusText();
     }
 
     private async void OnLeftTimedEvent(object? source, ElapsedEventArgs e)
@@ -2579,19 +2589,19 @@ public partial class MainWindow : Window
                     break;
                 case 1:
                     var lliste = new List<LuL>();
-                    var cachlist = _myschool.GetLehrerListe().Result;
+                    var lcachelist = _myschool.GetLehrerListe().Result;
                     foreach (var eingabe in eingabeliste)
                     {
                         var lowereingabe = eingabe.ToLower();
                         lliste.AddRange(searchFields[5]
-                            ? cachlist.Where(l =>
+                            ? lcachelist.Where(l =>
                                 l.Kuerzel.ToLower().Equals(lowereingabe) ||
                                 searchFields[0] && l.Vorname.ToLower().Equals(lowereingabe) ||
                                 searchFields[1] && l.Nachname.ToLower().Equals(lowereingabe) ||
                                 searchFields[2] && l.Mail.Equals(lowereingabe) ||
                                 searchFields[3] && l.Kuerzel.Equals(lowereingabe) ||
                                 searchFields[4] && (l.ID + "").Equals(lowereingabe)).ToList()
-                            : cachlist.Where(l =>
+                            : lcachelist.Where(l =>
                                 l.Kuerzel.Contains(lowereingabe, StringComparison.CurrentCultureIgnoreCase) ||
                                 searchFields[0] && l.Vorname.Contains(lowereingabe,
                                     StringComparison.CurrentCultureIgnoreCase) ||
