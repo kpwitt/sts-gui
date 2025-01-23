@@ -30,6 +30,7 @@ public class Schuldatenbank : IDisposable
     public static readonly string[] erprobungsstufe = ["5", "6"];
     public static readonly string[] mittelstufe = ["7", "8", "9", "10"];
     public static readonly string[] oberstufe = ["EF", "Q1", "Q2"];
+    public static readonly string[] stubostufen = ["8", "9", "10", "EF", "Q1", "Q2"];
 
     /// <summary>
     /// erstellt, falls nicht vorhanden, die Datenbankstruktur und öffnet die Verbindung
@@ -569,9 +570,7 @@ public class Schuldatenbank : IDisposable
     /// <returns></returns>
     public async Task AddStoKlassenKurse(SuS schulerin, string klasse)
     {
-        if (klasse.StartsWith('5') || klasse.StartsWith('6') || klasse.StartsWith('7') || klasse.StartsWith('8') ||
-            klasse.StartsWith('9') ||
-            klasse.StartsWith("10"))
+        if (erprobungsstufe.Concat(mittelstufe).ToArray().Contains(KlasseToStufe(klasse)))
         {
             var kliste = GetKursListe().Result.ToList();
             kliste = kliste.FindAll(k => k.Bezeichnung.StartsWith(klasse) && k.IstKurs == false);
@@ -930,7 +929,7 @@ public class Schuldatenbank : IDisposable
                 ausgabeAIXL.Add("Vorname;Nachname;Referenz-ID;Arbeitsgruppen");
             }
 
-            string[] sekI = ["5", "6", "7", "8", "9", "10"];
+            var sekI = erprobungsstufe.Concat(mittelstufe).ToArray();
             if (whattoexport.Contains('k'))
             {
                 foreach (var kurs in kursliste)
@@ -1120,7 +1119,7 @@ public class Schuldatenbank : IDisposable
                     {
                         case true when sus.Zweitmail.Contains(','):
                         {
-                            if (sus.Klasse.StartsWith('5') || sus.Klasse.StartsWith('6'))
+                            if (erprobungsstufe.Contains(KlasseToStufe(sus.Klasse)))
                             {
                                 var zweitmails = sus.Zweitmail.Split(',');
                                 var zweitmail = zweitmails[0].Trim() != sus.Mail.Trim()
@@ -1137,8 +1136,7 @@ public class Schuldatenbank : IDisposable
                                 ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + "1,erprobungsstufe" +
                                                                  GetKursSuffix().Result);
                             }
-                            else if (sus.Klasse.StartsWith('7') || sus.Klasse.StartsWith('8') ||
-                                     sus.Klasse.StartsWith('9') | sus.Klasse.StartsWith("10"))
+                            else if (mittelstufe.Contains(KlasseToStufe(sus.Klasse)))
                             {
                                 ausgabeMoodleUser.Add(sus.Zweitmail.Split(',')[0] + ";Klasse" + sus.Klasse +
                                                       DateTime.Now.Year + "!" +
@@ -1164,7 +1162,7 @@ public class Schuldatenbank : IDisposable
                             break;
                     }
 
-                    if (sus.Klasse.StartsWith('5') || sus.Klasse.StartsWith('6'))
+                    if (erprobungsstufe.Contains(KlasseToStufe(sus.Klasse)))
                     {
                         ausgabeMoodleUser.Add(susmail + ";Klasse" + sus.Klasse + DateTime.Now.Year + "!" + ";" +
                                               sus.Nutzername + "_E;" + "E_" + sus.ID + ";" + sus.Nachname +
@@ -1174,8 +1172,7 @@ public class Schuldatenbank : IDisposable
                         ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + ",erprobungsstufe" +
                                                          GetKursSuffix().Result);
                     }
-                    else if (sus.Klasse.StartsWith('7') || sus.Klasse.StartsWith('8') ||
-                             sus.Klasse.StartsWith('9') | sus.Klasse.StartsWith("10"))
+                    else if (mittelstufe.Contains(KlasseToStufe(sus.Klasse)))
                     {
                         ausgabeMoodleUser.Add(susmail + ";Klasse" + sus.Klasse + DateTime.Now.Year + "!" + ";" +
                                               sus.Nutzername + "_E;" + "E_" + sus.ID + ";" + sus.Nachname +
@@ -2032,7 +2029,7 @@ public class Schuldatenbank : IDisposable
 
     private async Task<List<LuL>> getOberstufenleitung(string stufe)
     {
-        if (string.IsNullOrEmpty(stufe) || (stufe != "EF" && stufe != "Q1" && stufe != "Q2"))
+        if (string.IsNullOrEmpty(stufe) || !oberstufe.Contains(stufe))
             return [];
         List<LuL> luls = [];
         switch (stufe)
@@ -2311,7 +2308,7 @@ public class Schuldatenbank : IDisposable
                         }
 
                         var stufe = klasse[..2];
-                        if (!(stufe.Equals("EF") || stufe.Equals("Q1") || stufe.Equals("Q2")))
+                        if (!oberstufe.Contains(stufe))
                         {
                             if (!stufe.Equals("10"))
                             {
@@ -3176,5 +3173,15 @@ public class Schuldatenbank : IDisposable
     {
         return GetLehrerListe().Result.Where(l => !string.IsNullOrEmpty(l.Favo) || !string.IsNullOrEmpty(l.SFavo))
             .ToList();
+    }
+
+    private static string KlasseToStufe(string klasse)
+    {
+        return klasse.Length switch
+        {
+            2 => klasse[..1],
+            3 => klasse[..2],
+            _ => ""
+        };
     }
 }

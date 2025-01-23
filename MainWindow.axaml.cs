@@ -2237,8 +2237,7 @@ public partial class MainWindow : Window
             }
             else
             {
-                string[] stufen = ["8", "9", "10", "EF", "Q1", "Q2"];
-                foreach (var stufe in stufen)
+                foreach (var stufe in Schuldatenbank.stubostufen)
                 {
                     await _myschool.AddKurs("StuBo-" + stufe, "StuBo", stufe, stufe,
                         _myschool.GetSettings().Result.Kurssuffix, 1);
