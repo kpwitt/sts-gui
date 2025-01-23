@@ -350,12 +350,12 @@ public partial class MainWindow : Window
         });
         return folders.Count > 0 ? folders[0] : null;
     }
-    
+
     private async Task ShowImportSuccessful()
     {
         await ShowCustomInfoMessage("Import abgeschlossen", "Information");
     }
-    
+
     private async Task ShowCustomInfoMessage(string message, string title)
     {
         await Dispatcher.UIThread.InvokeAsync(() =>
@@ -726,6 +726,7 @@ public partial class MainWindow : Window
                 {
                     await _myschool.IdsEinlesen(aixcsvpath);
                 }
+
                 await ShowImportSuccessful();
             }
         }
@@ -758,7 +759,6 @@ public partial class MainWindow : Window
         await _myschool.LulEinlesen(filePath);
         await ShowImportSuccessful();
     }
-
 
 
     private async void OnMnuloadkursefromfileClick(object? sender, RoutedEventArgs e)
@@ -828,6 +828,7 @@ public partial class MainWindow : Window
                 if (override_res != ButtonResult.Yes) return;
                 await _myschool.DumpDataToCSVs(folderpath);
             }
+
             await ShowCustomInfoMessage("Export abgeschlossen", "Information");
         }
     }
@@ -907,7 +908,7 @@ public partial class MainWindow : Window
         var sid = Convert.ToInt32(susid);
         if (await _myschool.GibtEsSchueler(sid))
         {
-            _myschool.SetM365(sid, cbSuSM365.IsChecked != null && cbSuSM365.IsChecked.Value ?1:0);
+            _myschool.SetM365(sid, cbSuSM365.IsChecked != null && cbSuSM365.IsChecked.Value ? 1 : 0);
             if (suszweitadresse != null && susaixmail != null)
                 await _myschool.UpdateSchueler(sid, susvname, susnname, suselternadresse, susklasse, susnutzername,
                     susaixmail, susHatZweitaccount == false ? 0 : 1, suszweitadresse);
@@ -1049,11 +1050,9 @@ public partial class MainWindow : Window
             }
 
             if (lulkurse.Count <= 0) return;
+            foreach (var kurs in lulkurse)
             {
-                foreach (var kurs in lulkurse)
-                {
-                    await _myschool.AddLtoK(lid, kurs);
-                }
+                await _myschool.AddLtoK(lid, kurs);
             }
         }
         else
@@ -1838,7 +1837,7 @@ public partial class MainWindow : Window
                                           sus.ID + ";ohne gültige Mailadresse");
                     }
 
-                    if (sus.Zweitaccount&& (sus.Zweitmail=="" || sus.Zweitmail==sus.Mail) )
+                    if (sus.Zweitaccount && (sus.Zweitmail == "" || sus.Zweitmail == sus.Mail))
                     {
                         ergebnisliste.Add(sus.Nachname + ", " + sus.Vorname + ";Klasse " + sus.Klasse + ";" +
                                           sus.ID + ";ohne gültige Zweitmailadresse");
@@ -1861,9 +1860,14 @@ public partial class MainWindow : Window
         catch (Exception ex)
         {
 #if DEBUG
-            _ = _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Nachricht = ex.Message, Warnstufe = "Debug"});
+            _ = _myschool.AddLogMessage(new LogEintrag
+                { Eintragsdatum = DateTime.Now, Nachricht = ex.Message, Warnstufe = "Debug" });
 #endif
-            _ = _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Nachricht = "Fehler bei der Fehlersuche " + ex.Message, Warnstufe = "Fehler"});
+            _ = _myschool.AddLogMessage(new LogEintrag
+            {
+                Eintragsdatum = DateTime.Now, Nachricht = "Fehler bei der Fehlersuche " + ex.Message,
+                Warnstufe = "Fehler"
+            });
         }
     }
 
@@ -2276,7 +2280,7 @@ public partial class MainWindow : Window
     private async void BtnLogReload_OnClick(object? sender, RoutedEventArgs e)
     {
         var items = await _myschool.GetLog();
-        ResetItemsSource(lbLogDisplay, items.Select(x=>x.ToString()));
+        ResetItemsSource(lbLogDisplay, items.Select(x => x.ToString()));
     }
 
     private async void BtnKurseAdd_OnClick(object? sender, RoutedEventArgs e)
@@ -3341,7 +3345,7 @@ public partial class MainWindow : Window
                 if (override_res != ButtonResult.Yes) return;
             }
 
-            var favos = await _myschool.getFavos();
+            var favos = await _myschool.GetFavos();
             var stringifiedFavos = favos.Select(lehrkraft => "add,student," + lehrkraft.ID + ",EtatK").ToList();
             await File.WriteAllLinesAsync(filepath, stringifiedFavos, Encoding.UTF8);
             await Dispatcher.UIThread.InvokeAsync(() =>
@@ -3474,7 +3478,8 @@ public partial class MainWindow : Window
                 }
                 catch (Exception exception)
                 {
-                    await _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Nachricht = exception.Message, Warnstufe = "Fehler"});
+                    await _myschool.AddLogMessage(new LogEintrag
+                        { Eintragsdatum = DateTime.Now, Nachricht = exception.Message, Warnstufe = "Fehler" });
                     await ShowErrordialog("Speichern der Einstellungen fehlgeschlagen");
                 }
             });
@@ -3509,7 +3514,8 @@ public partial class MainWindow : Window
             }
             catch (Exception exception)
             {
-                await _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Nachricht = exception.Message, Warnstufe = "Fehler"});
+                await _myschool.AddLogMessage(new LogEintrag
+                    { Eintragsdatum = DateTime.Now, Nachricht = exception.Message, Warnstufe = "Fehler" });
                 await ShowErrordialog("Laden der Einstellungen fehlgeschlagen");
             }
         }
@@ -3624,6 +3630,6 @@ public partial class MainWindow : Window
         var susid_string = tbSuSID.Text;
         if (string.IsNullOrEmpty(susid_string) || !susid_string.All(char.IsDigit)) return;
         var sus = _myschool.GetSchueler(Convert.ToInt32(susid_string)).Result;
-        _myschool.SetM365(sus.ID, cbSuSM365.IsChecked != null && cbSuSM365.IsChecked.Value ?1:0);
+        _myschool.SetM365(sus.ID, cbSuSM365.IsChecked != null && cbSuSM365.IsChecked.Value ? 1 : 0);
     }
 }
