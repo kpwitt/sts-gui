@@ -27,6 +27,9 @@ public class Schuldatenbank : IDisposable
     private SqliteTransaction? _dbtrans;
     private bool _activeTransaction = false;
     private bool _disposed = false;
+    public static readonly string[] erprobungsstufe = ["5", "6"];
+    public static readonly string[] mittelstufe = ["7", "8", "9", "10"];
+    public static readonly string[] oberstufe = ["EF", "Q1", "Q2"];
 
     /// <summary>
     /// erstellt, falls nicht vorhanden, die Datenbankstruktur und öffnet die Verbindung
@@ -456,9 +459,8 @@ public class Schuldatenbank : IDisposable
             var kurs = await GetKurs(kbez);
             if (string.IsNullOrEmpty(kurs.Bezeichnung)) return;
             var klkurs = kurs.Klasse + "KL";
-            List<string> stufen = ["EF", "Q1", "Q2"];
             var kurse = GetKursVonLuL(lid).Result;
-            if (!kurs.IstKurs && !stufen.Contains(kurs.Stufe) && kurse.All(k => k.Bezeichnung != klkurs))
+            if (!kurs.IstKurs && !oberstufe.Contains(kurs.Stufe) && kurse.All(k => k.Bezeichnung != klkurs))
             {
                 kbez = klkurs;
                 continue;
@@ -605,7 +607,7 @@ public class Schuldatenbank : IDisposable
     }
 
     /// <summary>
-    /// Pflichtimplementierung um sicherzustellen, dass beim Löschen des Objekt Ressourcen etc. freigegeben werden. 
+    /// Pflichtimplementierung um sicherzustellen, dass beim Löschen des Objekt Ressourcen etc. freigegeben werden.
     /// Schließt die Datenbank
     /// </summary>
     public void Dispose()
@@ -690,7 +692,8 @@ public class Schuldatenbank : IDisposable
         catch (Exception ex)
         {
 #if DEBUG
-            await AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Nachricht = ex.Message, Warnstufe = "Debug"});
+            await AddLogMessage(new LogEintrag
+                { Eintragsdatum = DateTime.Now, Nachricht = ex.Message, Warnstufe = "Debug" });
 #endif
             return -1;
         }
@@ -725,7 +728,8 @@ public class Schuldatenbank : IDisposable
         catch (Exception ex)
         {
 #if DEBUG
-            await AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Nachricht = ex.Message, Warnstufe = "Debug"});
+            await AddLogMessage(new LogEintrag
+                { Eintragsdatum = DateTime.Now, Nachricht = ex.Message, Warnstufe = "Debug" });
 #endif
             return -1;
         }
@@ -770,7 +774,6 @@ public class Schuldatenbank : IDisposable
         //log übertragen
         foreach (var entry in await importfrom.GetLog())
         {
-
             await AddLogMessage(entry);
         }
 
@@ -832,15 +835,18 @@ public class Schuldatenbank : IDisposable
                 }
                 catch (Exception e)
                 {
-                    await AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Nachricht = e.Message, Warnstufe = "Fehler"});
+                    await AddLogMessage(new LogEintrag
+                        { Eintragsdatum = DateTime.Now, Nachricht = e.Message, Warnstufe = "Fehler" });
                 }
             }
             catch (Exception ex)
             {
 #if DEBUG
-                await AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Nachricht = ex.Message, Warnstufe = "Debug"});
+                await AddLogMessage(new LogEintrag
+                    { Eintragsdatum = DateTime.Now, Nachricht = ex.Message, Warnstufe = "Debug" });
 #endif
-                await AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Nachricht = ex.Message, Warnstufe = "Fehler"});
+                await AddLogMessage(new LogEintrag
+                    { Eintragsdatum = DateTime.Now, Nachricht = ex.Message, Warnstufe = "Fehler" });
             }
         }
 
@@ -1148,8 +1154,13 @@ public class Schuldatenbank : IDisposable
                             break;
                         }
                         case true when !sus.Zweitmail.Contains(','):
-                            await AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Nachricht = sus.Klasse + ":" + sus.Nachname + ", " + sus.Vorname +
-                                " ohne Zweitmail trotz gesetzter Flag", Warnstufe = "Fehler"});
+                            await AddLogMessage(new LogEintrag
+                            {
+                                Eintragsdatum = DateTime.Now, Nachricht =
+                                    sus.Klasse + ":" + sus.Nachname + ", " + sus.Vorname +
+                                    " ohne Zweitmail trotz gesetzter Flag",
+                                Warnstufe = "Fehler"
+                            });
                             break;
                     }
 
@@ -1362,7 +1373,8 @@ public class Schuldatenbank : IDisposable
                 catch (Exception ex)
                 {
 #if DEBUG
-                    await AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Nachricht = ex.Message, Warnstufe = "Debug"});
+                    await AddLogMessage(new LogEintrag
+                        { Eintragsdatum = DateTime.Now, Nachricht = ex.Message, Warnstufe = "Debug" });
 #endif
                     return -1;
                 }
@@ -1400,7 +1412,8 @@ public class Schuldatenbank : IDisposable
         catch (Exception ex)
         {
 #if DEBUG
-            await AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Nachricht = ex.Message, Warnstufe = "Debug"});
+            await AddLogMessage(new LogEintrag
+                { Eintragsdatum = DateTime.Now, Nachricht = ex.Message, Warnstufe = "Debug" });
 #endif
             return -1;
         }
@@ -2199,15 +2212,18 @@ public class Schuldatenbank : IDisposable
                 }
                 catch (Exception e)
                 {
-                    await AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Nachricht = e.Message, Warnstufe = "Debug"});
+                    await AddLogMessage(new LogEintrag
+                        { Eintragsdatum = DateTime.Now, Nachricht = e.Message, Warnstufe = "Debug" });
                 }
             }
             catch (Exception ex)
             {
 #if DEBUG
-                await AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Nachricht = ex.Message, Warnstufe = "Debug"});
+                await AddLogMessage(new LogEintrag
+                    { Eintragsdatum = DateTime.Now, Nachricht = ex.Message, Warnstufe = "Debug" });
 #endif
-                await AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Nachricht = "Fehler beim Einlesen der IDs", Warnstufe = "Fehler"});
+                await AddLogMessage(new LogEintrag
+                    { Eintragsdatum = DateTime.Now, Nachricht = "Fehler beim Einlesen der IDs", Warnstufe = "Fehler" });
             }
         }
 
@@ -2275,7 +2291,7 @@ public class Schuldatenbank : IDisposable
                 if (tmpkurs[inn].Contains('#'))
                 {
                     nachname = tmpkurs[inn].Split('#')[0];
-                    kursklasse = tmpkurs[inn].Split('#')[1].Replace(" ","");
+                    kursklasse = tmpkurs[inn].Split('#')[1].Replace(" ", "");
                 }
                 else
                 {
@@ -2365,24 +2381,37 @@ public class Schuldatenbank : IDisposable
                         }
                         else
                         {
-                            await AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Nachricht = "SuS" + stmp.ID + ":" + stmp.Nachname + "," + stmp.Vorname + " aus " + stmp.Klasse +
-                                " hat invalide Kurs-Art", Warnstufe = "Fehler"});
-
+                            await AddLogMessage(new LogEintrag
+                            {
+                                Eintragsdatum = DateTime.Now, Nachricht =
+                                    "SuS" + stmp.ID + ":" + stmp.Nachname + "," + stmp.Vorname + " aus " + stmp.Klasse +
+                                    " hat invalide Kurs-Art",
+                                Warnstufe = "Fehler"
+                            });
                         }
                     }
                     else
                     {
-                        await AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Nachricht = "LehrerIn\t" + krz + " oder SchülerIn " + stmp.ID + " " + tmpkurs[inv] + " " +
-                            tmpkurs[inn] + "\tunbekannt", Warnstufe = "Hinweis"});
+                        await AddLogMessage(new LogEintrag
+                        {
+                            Eintragsdatum = DateTime.Now, Nachricht =
+                                "LehrerIn\t" + krz + " oder SchülerIn " + stmp.ID + " " + tmpkurs[inv] + " " +
+                                tmpkurs[inn] + "\tunbekannt",
+                            Warnstufe = "Hinweis"
+                        });
                     }
                 }
             }
             catch (Exception ex)
             {
 #if DEBUG
-                await AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Nachricht = ex.Message, Warnstufe = "Debug"});
+                await AddLogMessage(new LogEintrag
+                    { Eintragsdatum = DateTime.Now, Nachricht = ex.Message, Warnstufe = "Debug" });
 #endif
-                await AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Nachricht = "Fehler beim Einlesen der Kurse", Warnstufe = "Fehler"});
+                await AddLogMessage(new LogEintrag
+                {
+                    Eintragsdatum = DateTime.Now, Nachricht = "Fehler beim Einlesen der Kurse", Warnstufe = "Fehler"
+                });
                 await StopTransaction();
                 return;
             }
@@ -2397,7 +2426,8 @@ public class Schuldatenbank : IDisposable
     public async Task LoescheLog()
     {
         var sqliteCmd = _sqliteConn.CreateCommand();
-        sqliteCmd.CommandText = "DELETE FROM log WHERE stufe = 'Info' OR stufe = 'Hinweis' OR stufe = 'Fehler' OR stufe = 'Debug';";
+        sqliteCmd.CommandText =
+            "DELETE FROM log WHERE stufe = 'Info' OR stufe = 'Hinweis' OR stufe = 'Fehler' OR stufe = 'Debug';";
         sqliteCmd.ExecuteNonQuery();
     }
 
@@ -2470,13 +2500,20 @@ public class Schuldatenbank : IDisposable
 
                     await Addlehrkraft(Convert.ToInt32(tmpkuk[ini]), tmpkuk[inv], tmpkuk[inn],
                         tmpkuk[inkrz].ToUpper(), tmpkuk[inm], tmpkuk[infak].TrimEnd(';'), "", "");
-                    await AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Nachricht = "LehrerIn\t" + tmpkuk[inn] + "\t" + tmpkuk[inv] + "\t" + tmpkuk[inm] + "\t angelegt", Warnstufe = "Info"});
+                    await AddLogMessage(new LogEintrag
+                    {
+                        Eintragsdatum = DateTime.Now,
+                        Nachricht =
+                            "LehrerIn\t" + tmpkuk[inn] + "\t" + tmpkuk[inv] + "\t" + tmpkuk[inm] + "\t angelegt",
+                        Warnstufe = "Info"
+                    });
                 }
             }
             catch (Exception ex)
             {
 #if DEBUG
-                await AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Nachricht = ex.Message, Warnstufe = "Debug"});
+                await AddLogMessage(new LogEintrag
+                    { Eintragsdatum = DateTime.Now, Nachricht = ex.Message, Warnstufe = "Debug" });
 #endif
             }
 
@@ -2504,7 +2541,11 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$kbez", kbez);
         sqliteCmd.ExecuteNonQuery();
         sqliteCmd.Parameters.Clear();
-        await AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Nachricht = "Kurs mit der Bezeichnung " + kbez + " gelöscht", Warnstufe = "Info"});
+        await AddLogMessage(new LogEintrag
+        {
+            Eintragsdatum = DateTime.Now, Nachricht = "Kurs mit der Bezeichnung " + kbez + " gelöscht",
+            Warnstufe = "Info"
+        });
     }
 
     /// <summary>
@@ -2533,7 +2574,10 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$lid", lid);
         sqliteCmd.ExecuteNonQuery();
         sqliteCmd.Parameters.Clear();
-        await AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Nachricht = "Lehrkraft mit der ID " + lid + " gelöscht", Warnstufe = "Info"});
+        await AddLogMessage(new LogEintrag
+        {
+            Eintragsdatum = DateTime.Now, Nachricht = "Lehrkraft mit der ID " + lid + " gelöscht", Warnstufe = "Info"
+        });
     }
 
     /// <summary>
@@ -2569,7 +2613,12 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$lid", lid);
         sqliteCmd.Parameters.AddWithValue("$kbez", kbez);
         sqliteCmd.ExecuteNonQuery();
-        await AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Nachricht = "Lehrkraft mit der ID " + lid + " aus Kurs " + kbez + " gelöscht, Warnstufe = ", Warnstufe = "Info"});
+        await AddLogMessage(new LogEintrag
+        {
+            Eintragsdatum = DateTime.Now,
+            Nachricht = "Lehrkraft mit der ID " + lid + " aus Kurs " + kbez + " gelöscht, Warnstufe = ",
+            Warnstufe = "Info"
+        });
     }
 
     /// <summary>
@@ -2599,7 +2648,9 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$sid", sid);
         sqliteCmd.ExecuteNonQuery();
         sqliteCmd.Parameters.Clear();
-        await AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Nachricht = "SuS mit der ID " + sid + " gelöscht", Warnstufe = "Info"});    }
+        await AddLogMessage(new LogEintrag
+            { Eintragsdatum = DateTime.Now, Nachricht = "SuS mit der ID " + sid + " gelöscht", Warnstufe = "Info" });
+    }
 
     /// <summary>
     /// löscht den/die angegebene Schüler/Schülerin und die Kurszuordnungen
@@ -2624,7 +2675,11 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$sid", sid);
         sqliteCmd.Parameters.AddWithValue("$kbez", kbez);
         sqliteCmd.ExecuteNonQuery();
-        await AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Nachricht = "SuS mit der ID " + sid + " aus Kurs " + kbez + " gelöscht", Warnstufe = "Info"});
+        await AddLogMessage(new LogEintrag
+        {
+            Eintragsdatum = DateTime.Now, Nachricht = "SuS mit der ID " + sid + " aus Kurs " + kbez + " gelöscht",
+            Warnstufe = "Info"
+        });
     }
 
     /// <summary>
@@ -2703,7 +2758,8 @@ public class Schuldatenbank : IDisposable
             string.IsNullOrEmpty(einstellungen.Q2Stufenleitung) ? "" : einstellungen.Q2Stufenleitung);
         sqliteCmd.Parameters.AddWithValue("$oberstufenkoordinationparam",
             string.IsNullOrEmpty(einstellungen.Oberstufenkoordination) ? "" : einstellungen.Oberstufenkoordination);
-        sqliteCmd.Parameters.AddWithValue("$stubosparam", string.IsNullOrEmpty(einstellungen.StuBos) ? "" : einstellungen.StuBos);
+        sqliteCmd.Parameters.AddWithValue("$stubosparam",
+            string.IsNullOrEmpty(einstellungen.StuBos) ? "" : einstellungen.StuBos);
         sqliteCmd.Parameters.AddWithValue("versionparam", version);
         sqliteCmd.CommandText =
             "INSERT OR REPLACE INTO settings (setting,value) VALUES($mailsuffix, $mailsuffixparam)";
@@ -2819,14 +2875,22 @@ public class Schuldatenbank : IDisposable
                 }
                 else
                 {
-                    await AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Nachricht = "SuS\t" + tmpsus[ini] + "\tohne primäre Mailadresse", Warnstufe = "Hinweis"});
+                    await AddLogMessage(new LogEintrag
+                    {
+                        Eintragsdatum = DateTime.Now, Nachricht = "SuS\t" + tmpsus[ini] + "\tohne primäre Mailadresse",
+                        Warnstufe = "Hinweis"
+                    });
                 }
 
                 maillist = maillist.Distinct().ToList();
                 var klasse = tmpsus[ink].Contains(' ') ? tmpsus[ink].Replace(" ", "") : tmpsus[ink];
                 if (mail.Contains(';'))
                 {
-                    await AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Nachricht = "Mailfehler bei SuS mit der ID "+tmpsus[ini], Warnstufe = "Fehler"});
+                    await AddLogMessage(new LogEintrag
+                    {
+                        Eintragsdatum = DateTime.Now, Nachricht = "Mailfehler bei SuS mit der ID " + tmpsus[ini],
+                        Warnstufe = "Fehler"
+                    });
                 }
 
                 maillist.Remove(mail);
@@ -2834,16 +2898,22 @@ public class Schuldatenbank : IDisposable
                 mails = mails.TrimEnd(',');
                 await AddSchuelerIn(Convert.ToInt32(tmpsus[ini]), tmpsus[inv].Replace("'", ""),
                     tmpsus[inn].Replace("'", ""), mail, klasse, "", "", 0, mails);
-                await AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Nachricht = "SchülerIn\t" + tmpsus[inn] + "\t" + tmpsus[inv] + "\t" + mail + "\t angelegt", Warnstufe = "Info"});
-
+                await AddLogMessage(new LogEintrag
+                {
+                    Eintragsdatum = DateTime.Now,
+                    Nachricht = "SchülerIn\t" + tmpsus[inn] + "\t" + tmpsus[inv] + "\t" + mail + "\t angelegt",
+                    Warnstufe = "Info"
+                });
             }
             catch (Exception ex)
             {
 #if DEBUG
-                await AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Nachricht = ex.Message, Warnstufe = "Debug"});
+                await AddLogMessage(new LogEintrag
+                    { Eintragsdatum = DateTime.Now, Nachricht = ex.Message, Warnstufe = "Debug" });
                 //Debug.WriteLine("Zeile " + i + ": " + lines[i]);
 #endif
-                await AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Nachricht = "Fehler beim Einlesen der SuS", Warnstufe = "Fehler"});
+                await AddLogMessage(new LogEintrag
+                    { Eintragsdatum = DateTime.Now, Nachricht = "Fehler beim Einlesen der SuS", Warnstufe = "Fehler" });
             }
         }
     }
@@ -3073,7 +3143,8 @@ public class Schuldatenbank : IDisposable
             catch (Exception ex)
             {
 #if DEBUG
-                await AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Nachricht = ex.Message, Warnstufe = "Debug"});
+                await AddLogMessage(new LogEintrag
+                    { Eintragsdatum = DateTime.Now, Nachricht = ex.Message, Warnstufe = "Debug" });
                 // Debug.WriteLine("Zeile " + i + ": " + lines[i]);
 #endif
             }
@@ -3101,7 +3172,7 @@ public class Schuldatenbank : IDisposable
     /// Gibt die Fachvorsitzenden und Stellvertreter zurück
     /// </summary>
     /// <returns>Liste der Fachvorsitzenden und Stellvertreter</returns>
-    public async Task<List<LuL>> getFavos()
+    public async Task<List<LuL>> GetFavos()
     {
         return GetLehrerListe().Result.Where(l => !string.IsNullOrEmpty(l.Favo) || !string.IsNullOrEmpty(l.SFavo))
             .ToList();
