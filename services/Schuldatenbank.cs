@@ -353,6 +353,11 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$suffix", suffix);
         sqliteCmd.Parameters.AddWithValue("$istkurs", istkurs);
         sqliteCmd.ExecuteNonQuery();
+        await AddLogMessage(new LogEintrag
+        {
+            Eintragsdatum = DateTime.Now, Nachricht = "Kurs\t" + bez + "\t\t angelegt",
+            Warnstufe = "Info"
+        });
     }
 
     /// <summary>
@@ -372,6 +377,11 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$suffix", kurs.Suffix);
         sqliteCmd.Parameters.AddWithValue("$istkurs", kurs.IstKurs);
         sqliteCmd.ExecuteNonQuery();
+        await AddLogMessage(new LogEintrag
+        {
+            Eintragsdatum = DateTime.Now, Nachricht = "Kurs\t" + kurs.Bezeichnung + "\t\t angelegt",
+            Warnstufe = "Info"
+        });
     }
 
     /// <summary>
@@ -401,6 +411,13 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$favo", favo);
         sqliteCmd.Parameters.AddWithValue("$sfavo", sfavo);
         sqliteCmd.ExecuteNonQuery();
+        await AddLogMessage(new LogEintrag
+        {
+            Eintragsdatum = DateTime.Now,
+            Nachricht =
+                "LehrerIn\t" + nachname + "\t" + vorname + "\t" + mail + "\t angelegt",
+            Warnstufe = "Info"
+        });
     }
 
     /// <summary>
@@ -424,6 +441,13 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$favo", lehrkraft.Favo);
         sqliteCmd.Parameters.AddWithValue("$sfavo", lehrkraft.SFavo);
         sqliteCmd.ExecuteNonQuery();
+        await AddLogMessage(new LogEintrag
+        {
+            Eintragsdatum = DateTime.Now,
+            Nachricht =
+                "LehrerIn\t" + lehrkraft.Nachname + "\t" + lehrkraft.Vorname + "\t" + lehrkraft.Mail + "\t angelegt",
+            Warnstufe = "Info"
+        });
     }
 
     /// <summary>
@@ -467,6 +491,12 @@ public class Schuldatenbank : IDisposable
                 continue;
             }
 
+            await AddLogMessage(new LogEintrag
+            {
+                Eintragsdatum = DateTime.Now,
+                Nachricht = "Lehrkraft\t" + lid + "\tzu Kurs\t" + kbez + "\t hinzugefügt",
+                Warnstufe = "Info"
+            });
             break;
         }
     }
@@ -511,6 +541,12 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$zweitaccount", zweitaccount);
         sqliteCmd.Parameters.AddWithValue("$zweitmail", zweitmail);
         sqliteCmd.ExecuteNonQuery();
+        await AddLogMessage(new LogEintrag
+        {
+            Eintragsdatum = DateTime.Now,
+            Nachricht = "SchülerIn\t" + nachname + "\t" + vorname + "\t" + mail + "\t angelegt",
+            Warnstufe = "Info"
+        });
     }
 
     /// <summary>
@@ -533,6 +569,13 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$zweitaccount", schulerin.Zweitaccount);
         sqliteCmd.Parameters.AddWithValue("$zweitmail", schulerin.Zweitmail);
         sqliteCmd.ExecuteNonQuery();
+        await AddLogMessage(new LogEintrag
+        {
+            Eintragsdatum = DateTime.Now,
+            Nachricht = "SchülerIn\t" + schulerin.Nachname + "\t" + schulerin.Vorname + "\t" + schulerin.Mail +
+                        "\t angelegt",
+            Warnstufe = "Info"
+        });
     }
 
     /// <summary>
@@ -548,6 +591,12 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$sid", sid);
         sqliteCmd.Parameters.AddWithValue("$kbez", kbez);
         sqliteCmd.ExecuteNonQuery();
+        await AddLogMessage(new LogEintrag
+        {
+            Eintragsdatum = DateTime.Now,
+            Nachricht = "SchülerIn\t" + sid + "\tzu Kurs\t" + kbez + "\t hinzugefügt",
+            Warnstufe = "Info"
+        });
     }
 
     /// <summary>
@@ -583,6 +632,12 @@ public class Schuldatenbank : IDisposable
                 sqliteCmd.Parameters.AddWithValue("$kbez", k.Bezeichnung);
                 sqliteCmd.ExecuteNonQuery();
                 sqliteCmd.Parameters.Clear();
+                await AddLogMessage(new LogEintrag
+                {
+                    Eintragsdatum = DateTime.Now,
+                    Nachricht = "SchülerIn\t" + schulerin.ID + "\tzu Klassenkurs\t" + k.Bezeichnung + "\t hinzugefügt",
+                    Warnstufe = "Info"
+                });
             }
         }
     }
@@ -2497,13 +2552,6 @@ public class Schuldatenbank : IDisposable
 
                     await Addlehrkraft(Convert.ToInt32(tmpkuk[ini]), tmpkuk[inv], tmpkuk[inn],
                         tmpkuk[inkrz].ToUpper(), tmpkuk[inm], tmpkuk[infak].TrimEnd(';'), "", "");
-                    await AddLogMessage(new LogEintrag
-                    {
-                        Eintragsdatum = DateTime.Now,
-                        Nachricht =
-                            "LehrerIn\t" + tmpkuk[inn] + "\t" + tmpkuk[inv] + "\t" + tmpkuk[inm] + "\t angelegt",
-                        Warnstufe = "Info"
-                    });
                 }
             }
             catch (Exception ex)
@@ -2895,12 +2943,6 @@ public class Schuldatenbank : IDisposable
                 mails = mails.TrimEnd(',');
                 await AddSchuelerIn(Convert.ToInt32(tmpsus[ini]), tmpsus[inv].Replace("'", ""),
                     tmpsus[inn].Replace("'", ""), mail, klasse, "", "", 0, mails);
-                await AddLogMessage(new LogEintrag
-                {
-                    Eintragsdatum = DateTime.Now,
-                    Nachricht = "SchülerIn\t" + tmpsus[inn] + "\t" + tmpsus[inv] + "\t" + mail + "\t angelegt",
-                    Warnstufe = "Info"
-                });
             }
             catch (Exception ex)
             {
