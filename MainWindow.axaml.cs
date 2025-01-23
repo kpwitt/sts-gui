@@ -440,7 +440,7 @@ public partial class MainWindow : Window
             // solved via https://github.com/AvaloniaUI/Avalonia/discussions/10144
         }
 
-        var favos = await _myschool.getFavos();
+        var favos = await _myschool.GetFavos();
 
         foreach (var fach in faecher)
         {
@@ -3362,7 +3362,7 @@ public partial class MainWindow : Window
     private async void BtnFavoSave_OnClick(object? sender, RoutedEventArgs e)
     {
         await _myschool.StartTransaction();
-        var favos = await _myschool.getFavos();
+        var favos = await _myschool.GetFavos();
         foreach (var l in favos)
         {
             await _myschool.UpdateLehrkraft(l.ID, l.Vorname, l.Nachname, l.Kuerzel, l.Mail, l.Fakultas, l.Pwttemp,

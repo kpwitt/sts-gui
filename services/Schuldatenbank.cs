@@ -3104,7 +3104,7 @@ public class Schuldatenbank : IDisposable
     /// Gibt die Fachvorsitzenden und Stellvertreter zurück
     /// </summary>
     /// <returns>Liste der Fachvorsitzenden und Stellvertreter</returns>
-    public async Task<List<LuL>> getFavos()
+    public async Task<List<LuL>> GetFavos()
     {
         return GetLehrerListe().Result.Where(l => !string.IsNullOrEmpty(l.Favo) || !string.IsNullOrEmpty(l.SFavo))
             .ToList();
