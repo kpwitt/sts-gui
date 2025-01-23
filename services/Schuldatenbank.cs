@@ -25,7 +25,7 @@ public class Schuldatenbank : IDisposable
     private readonly string _dbpath;
     private readonly SqliteConnection _sqliteConn;
     private SqliteTransaction? _dbtrans;
-    private bool _ActiveTransaction;
+    private bool _activeTransaction = false;
     private bool _disposed = false;
 
     /// <summary>
@@ -591,10 +591,10 @@ public class Schuldatenbank : IDisposable
     /// </summary>
     private void CloseDB()
     {
-        if (_ActiveTransaction)
+        if (_activeTransaction)
         {
             _dbtrans?.Commit();
-            _ActiveTransaction = false;
+            _activeTransaction = false;
         }
 
         if (_sqliteConn.State != ConnectionState.Open) return;
@@ -2746,7 +2746,7 @@ public class Schuldatenbank : IDisposable
     /// </summary>
     public async Task StartTransaction()
     {
-        _ActiveTransaction = true;
+        _activeTransaction = true;
         _dbtrans = _sqliteConn.BeginTransaction();
     }
 
@@ -2755,7 +2755,7 @@ public class Schuldatenbank : IDisposable
     /// </summary>
     public async Task StopTransaction()
     {
-        _ActiveTransaction = false;
+        _activeTransaction = false;
         if (_dbtrans == null) return;
         await _dbtrans.CommitAsync();
     }
