@@ -25,7 +25,7 @@ public class Schuldatenbank : IDisposable
     private readonly string _dbpath;
     private readonly SqliteConnection _sqliteConn;
     private SqliteTransaction? _dbtrans;
-    private bool _ActiveTransaction;
+    private bool _activeTransaction = false;
     private bool _disposed = false;
 
     /// <summary>
