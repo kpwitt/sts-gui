@@ -27,6 +27,9 @@ public class Schuldatenbank : IDisposable
     private SqliteTransaction? _dbtrans;
     private bool _activeTransaction = false;
     private bool _disposed = false;
+    public static readonly string[] erprobungsstufe = ["5", "6"];
+    public static readonly string[] mittelstufe = ["7", "8", "9", "10"];
+    public static readonly string[] oberstufe = ["EF", "Q1", "Q2"];
 
     /// <summary>
     /// erstellt, falls nicht vorhanden, die Datenbankstruktur und öffnet die Verbindung
@@ -458,7 +461,7 @@ public class Schuldatenbank : IDisposable
             var klkurs = kurs.Klasse + "KL";
             List<string> stufen = ["EF", "Q1", "Q2"];
             var kurse = GetKursVonLuL(lid).Result;
-            if (!kurs.IstKurs && !stufen.Contains(kurs.Stufe) && kurse.All(k => k.Bezeichnung != klkurs))
+            if (!kurs.IstKurs && !oberstufe.Contains(kurs.Stufe) && kurse.All(k => k.Bezeichnung != klkurs))
             {
                 kbez = klkurs;
                 continue;
