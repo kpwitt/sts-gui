@@ -313,7 +313,7 @@ public partial class MainWindow : Window
     }
 
     private async Task<IStorageFile?> ShowSaveFileDialog(string dialogtitle,
-        IReadOnlyList<FilePickerFileType> extensions)
+        List<FilePickerFileType> extensions)
     {
         var topLevel = GetTopLevel(this);
         if (topLevel == null) return null;
