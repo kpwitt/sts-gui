@@ -35,7 +35,7 @@ public partial class MainWindow : Window
     private readonly ContextMenu _leftListContext = new();
     private readonly Brush _darkBackgroundColor = new SolidColorBrush(Color.FromRgb(80, 80, 80));
     private readonly Brush _lightBackgroundColor = new SolidColorBrush(Color.FromRgb(242, 242, 242));
-    private bool _rightMutex;
+    private bool _rightMutex = false;
     private WindowIcon _msgBoxWindowIcon;
     private MenuItem _mnuItemCopySuSid;
     private MenuItem _mnuItemCopySuSMail;
