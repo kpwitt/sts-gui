@@ -30,6 +30,7 @@ public class Schuldatenbank : IDisposable
     public static readonly string[] erprobungsstufe = ["5", "6"];
     public static readonly string[] mittelstufe = ["7", "8", "9", "10"];
     public static readonly string[] oberstufe = ["EF", "Q1", "Q2"];
+    public static readonly string[] stubostufen = ["8", "9", "10", "EF", "Q1", "Q2"];
 
     /// <summary>
     /// erstellt, falls nicht vorhanden, die Datenbankstruktur und öffnet die Verbindung
@@ -352,6 +353,11 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$suffix", suffix);
         sqliteCmd.Parameters.AddWithValue("$istkurs", istkurs);
         sqliteCmd.ExecuteNonQuery();
+        await AddLogMessage(new LogEintrag
+        {
+            Eintragsdatum = DateTime.Now, Nachricht = "Kurs\t" + bez + "\t\t angelegt",
+            Warnstufe = "Info"
+        });
     }
 
     /// <summary>
@@ -371,6 +377,11 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$suffix", kurs.Suffix);
         sqliteCmd.Parameters.AddWithValue("$istkurs", kurs.IstKurs);
         sqliteCmd.ExecuteNonQuery();
+        await AddLogMessage(new LogEintrag
+        {
+            Eintragsdatum = DateTime.Now, Nachricht = "Kurs\t" + kurs.Bezeichnung + "\t\t angelegt",
+            Warnstufe = "Info"
+        });
     }
 
     /// <summary>
@@ -400,6 +411,13 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$favo", favo);
         sqliteCmd.Parameters.AddWithValue("$sfavo", sfavo);
         sqliteCmd.ExecuteNonQuery();
+        await AddLogMessage(new LogEintrag
+        {
+            Eintragsdatum = DateTime.Now,
+            Nachricht =
+                "LehrerIn\t" + nachname + "\t" + vorname + "\t" + mail + "\t angelegt",
+            Warnstufe = "Info"
+        });
     }
 
     /// <summary>
@@ -423,6 +441,13 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$favo", lehrkraft.Favo);
         sqliteCmd.Parameters.AddWithValue("$sfavo", lehrkraft.SFavo);
         sqliteCmd.ExecuteNonQuery();
+        await AddLogMessage(new LogEintrag
+        {
+            Eintragsdatum = DateTime.Now,
+            Nachricht =
+                "LehrerIn\t" + lehrkraft.Nachname + "\t" + lehrkraft.Vorname + "\t" + lehrkraft.Mail + "\t angelegt",
+            Warnstufe = "Info"
+        });
     }
 
     /// <summary>
@@ -466,6 +491,12 @@ public class Schuldatenbank : IDisposable
                 continue;
             }
 
+            await AddLogMessage(new LogEintrag
+            {
+                Eintragsdatum = DateTime.Now,
+                Nachricht = "Lehrkraft\t" + lid + "\tzu Kurs\t" + kbez + "\t hinzugefügt",
+                Warnstufe = "Info"
+            });
             break;
         }
     }
@@ -510,6 +541,12 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$zweitaccount", zweitaccount);
         sqliteCmd.Parameters.AddWithValue("$zweitmail", zweitmail);
         sqliteCmd.ExecuteNonQuery();
+        await AddLogMessage(new LogEintrag
+        {
+            Eintragsdatum = DateTime.Now,
+            Nachricht = "SchülerIn\t" + nachname + "\t" + vorname + "\t" + mail + "\t angelegt",
+            Warnstufe = "Info"
+        });
     }
 
     /// <summary>
@@ -532,6 +569,13 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$zweitaccount", schulerin.Zweitaccount);
         sqliteCmd.Parameters.AddWithValue("$zweitmail", schulerin.Zweitmail);
         sqliteCmd.ExecuteNonQuery();
+        await AddLogMessage(new LogEintrag
+        {
+            Eintragsdatum = DateTime.Now,
+            Nachricht = "SchülerIn\t" + schulerin.Nachname + "\t" + schulerin.Vorname + "\t" + schulerin.Mail +
+                        "\t angelegt",
+            Warnstufe = "Info"
+        });
     }
 
     /// <summary>
@@ -547,6 +591,12 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$sid", sid);
         sqliteCmd.Parameters.AddWithValue("$kbez", kbez);
         sqliteCmd.ExecuteNonQuery();
+        await AddLogMessage(new LogEintrag
+        {
+            Eintragsdatum = DateTime.Now,
+            Nachricht = "SchülerIn\t" + sid + "\tzu Kurs\t" + kbez + "\t hinzugefügt",
+            Warnstufe = "Info"
+        });
     }
 
     /// <summary>
@@ -569,9 +619,7 @@ public class Schuldatenbank : IDisposable
     /// <returns></returns>
     public async Task AddStoKlassenKurse(SuS schulerin, string klasse)
     {
-        if (klasse.StartsWith('5') || klasse.StartsWith('6') || klasse.StartsWith('7') || klasse.StartsWith('8') ||
-            klasse.StartsWith('9') ||
-            klasse.StartsWith("10"))
+        if (erprobungsstufe.Concat(mittelstufe).ToArray().Contains(KlasseToStufe(klasse)))
         {
             var kliste = GetKursListe().Result.ToList();
             kliste = kliste.FindAll(k => k.Bezeichnung.StartsWith(klasse) && k.IstKurs == false);
@@ -584,6 +632,12 @@ public class Schuldatenbank : IDisposable
                 sqliteCmd.Parameters.AddWithValue("$kbez", k.Bezeichnung);
                 sqliteCmd.ExecuteNonQuery();
                 sqliteCmd.Parameters.Clear();
+                await AddLogMessage(new LogEintrag
+                {
+                    Eintragsdatum = DateTime.Now,
+                    Nachricht = "SchülerIn\t" + schulerin.ID + "\tzu Klassenkurs\t" + k.Bezeichnung + "\t hinzugefügt",
+                    Warnstufe = "Info"
+                });
             }
         }
     }
@@ -930,7 +984,7 @@ public class Schuldatenbank : IDisposable
                 ausgabeAIXL.Add("Vorname;Nachname;Referenz-ID;Arbeitsgruppen");
             }
 
-            string[] sekI = ["5", "6", "7", "8", "9", "10"];
+            var sekI = erprobungsstufe.Concat(mittelstufe).ToArray();
             if (whattoexport.Contains('k'))
             {
                 foreach (var kurs in kursliste)
@@ -1120,7 +1174,7 @@ public class Schuldatenbank : IDisposable
                     {
                         case true when sus.Zweitmail.Contains(','):
                         {
-                            if (sus.Klasse.StartsWith('5') || sus.Klasse.StartsWith('6'))
+                            if (erprobungsstufe.Contains(KlasseToStufe(sus.Klasse)))
                             {
                                 var zweitmails = sus.Zweitmail.Split(',');
                                 var zweitmail = zweitmails[0].Trim() != sus.Mail.Trim()
@@ -1137,8 +1191,7 @@ public class Schuldatenbank : IDisposable
                                 ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + "1,erprobungsstufe" +
                                                                  GetKursSuffix().Result);
                             }
-                            else if (sus.Klasse.StartsWith('7') || sus.Klasse.StartsWith('8') ||
-                                     sus.Klasse.StartsWith('9') | sus.Klasse.StartsWith("10"))
+                            else if (mittelstufe.Contains(KlasseToStufe(sus.Klasse)))
                             {
                                 ausgabeMoodleUser.Add(sus.Zweitmail.Split(',')[0] + ";Klasse" + sus.Klasse +
                                                       DateTime.Now.Year + "!" +
@@ -1164,7 +1217,7 @@ public class Schuldatenbank : IDisposable
                             break;
                     }
 
-                    if (sus.Klasse.StartsWith('5') || sus.Klasse.StartsWith('6'))
+                    if (erprobungsstufe.Contains(KlasseToStufe(sus.Klasse)))
                     {
                         ausgabeMoodleUser.Add(susmail + ";Klasse" + sus.Klasse + DateTime.Now.Year + "!" + ";" +
                                               sus.Nutzername + "_E;" + "E_" + sus.ID + ";" + sus.Nachname +
@@ -1174,8 +1227,7 @@ public class Schuldatenbank : IDisposable
                         ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + ",erprobungsstufe" +
                                                          GetKursSuffix().Result);
                     }
-                    else if (sus.Klasse.StartsWith('7') || sus.Klasse.StartsWith('8') ||
-                             sus.Klasse.StartsWith('9') | sus.Klasse.StartsWith("10"))
+                    else if (mittelstufe.Contains(KlasseToStufe(sus.Klasse)))
                     {
                         ausgabeMoodleUser.Add(susmail + ";Klasse" + sus.Klasse + DateTime.Now.Year + "!" + ";" +
                                               sus.Nutzername + "_E;" + "E_" + sus.ID + ";" + sus.Nachname +
@@ -2032,7 +2084,7 @@ public class Schuldatenbank : IDisposable
 
     private async Task<List<LuL>> getOberstufenleitung(string stufe)
     {
-        if (string.IsNullOrEmpty(stufe) || (stufe != "EF" && stufe != "Q1" && stufe != "Q2"))
+        if (string.IsNullOrEmpty(stufe) || !oberstufe.Contains(stufe))
             return [];
         List<LuL> luls = [];
         switch (stufe)
@@ -2311,7 +2363,7 @@ public class Schuldatenbank : IDisposable
                         }
 
                         var stufe = klasse[..2];
-                        if (!(stufe.Equals("EF") || stufe.Equals("Q1") || stufe.Equals("Q2")))
+                        if (!oberstufe.Contains(stufe))
                         {
                             if (!stufe.Equals("10"))
                             {
@@ -2500,13 +2552,6 @@ public class Schuldatenbank : IDisposable
 
                     await Addlehrkraft(Convert.ToInt32(tmpkuk[ini]), tmpkuk[inv], tmpkuk[inn],
                         tmpkuk[inkrz].ToUpper(), tmpkuk[inm], tmpkuk[infak].TrimEnd(';'), "", "");
-                    await AddLogMessage(new LogEintrag
-                    {
-                        Eintragsdatum = DateTime.Now,
-                        Nachricht =
-                            "LehrerIn\t" + tmpkuk[inn] + "\t" + tmpkuk[inv] + "\t" + tmpkuk[inm] + "\t angelegt",
-                        Warnstufe = "Info"
-                    });
                 }
             }
             catch (Exception ex)
@@ -2898,12 +2943,6 @@ public class Schuldatenbank : IDisposable
                 mails = mails.TrimEnd(',');
                 await AddSchuelerIn(Convert.ToInt32(tmpsus[ini]), tmpsus[inv].Replace("'", ""),
                     tmpsus[inn].Replace("'", ""), mail, klasse, "", "", 0, mails);
-                await AddLogMessage(new LogEintrag
-                {
-                    Eintragsdatum = DateTime.Now,
-                    Nachricht = "SchülerIn\t" + tmpsus[inn] + "\t" + tmpsus[inv] + "\t" + mail + "\t angelegt",
-                    Warnstufe = "Info"
-                });
             }
             catch (Exception ex)
             {
@@ -2960,7 +2999,7 @@ public class Schuldatenbank : IDisposable
         if (string.IsNullOrEmpty(kuerzel) || id <= 0) return;
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
-            "UPDATE lehrkraft SET nachname=$nachname, vorname=$vorname, kuerzel= $kuerzel, mail=$mail, fakultas=$fakultas,pwtemp = $pwtemp, favo = $favo, sfavo=$sfavo WHERE id=$id;";
+            "UPDATE lehrkraft SET nachname=$nachname, vorname=$vorname, kuerzel= $kuerzel, mail=$mail, fakultas=$fakultas, pwtemp = $pwtemp, favo = $favo, sfavo=$sfavo WHERE id=$id;";
         sqliteCmd.Parameters.AddWithValue("$id", id);
         sqliteCmd.Parameters.AddWithValue("$vorname", vorname);
         sqliteCmd.Parameters.AddWithValue("$nachname", nachname);
@@ -3176,5 +3215,15 @@ public class Schuldatenbank : IDisposable
     {
         return GetLehrerListe().Result.Where(l => !string.IsNullOrEmpty(l.Favo) || !string.IsNullOrEmpty(l.SFavo))
             .ToList();
+    }
+
+    private static string KlasseToStufe(string klasse)
+    {
+        return klasse.Length switch
+        {
+            2 => klasse[..1],
+            3 => klasse[..2],
+            _ => ""
+        };
     }
 }

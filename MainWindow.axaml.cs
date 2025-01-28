@@ -35,7 +35,7 @@ public partial class MainWindow : Window
     private readonly ContextMenu _leftListContext = new();
     private readonly Brush _darkBackgroundColor = new SolidColorBrush(Color.FromRgb(80, 80, 80));
     private readonly Brush _lightBackgroundColor = new SolidColorBrush(Color.FromRgb(242, 242, 242));
-    private bool _rightMutex;
+    private bool _rightMutex = false;
     private WindowIcon _msgBoxWindowIcon;
     private MenuItem _mnuItemCopySuSid;
     private MenuItem _mnuItemCopySuSMail;
@@ -313,7 +313,7 @@ public partial class MainWindow : Window
     }
 
     private async Task<IStorageFile?> ShowSaveFileDialog(string dialogtitle,
-        IReadOnlyList<FilePickerFileType> extensions)
+        List<FilePickerFileType> extensions)
     {
         var topLevel = GetTopLevel(this);
         if (topLevel == null) return null;
@@ -2237,8 +2237,7 @@ public partial class MainWindow : Window
             }
             else
             {
-                string[] stufen = ["8", "9", "10", "EF", "Q1", "Q2"];
-                foreach (var stufe in stufen)
+                foreach (var stufe in Schuldatenbank.stubostufen)
                 {
                     await _myschool.AddKurs("StuBo-" + stufe, "StuBo", stufe, stufe,
                         _myschool.GetSettings().Result.Kurssuffix, 1);
