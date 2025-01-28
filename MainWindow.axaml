@@ -425,7 +425,16 @@
                                     </Panel>
                                 </Button>
                             </StackPanel>
-                            <ListBox Grid.Row="1" x:Name="lbLogDisplay" SelectionMode="Multiple" />
+                            <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="5">
+                                <ListBox x:Name="lbLogDisplay" SelectionMode="Multiple" />
+                                <ListBox x:Name="lbLogLevel" SelectionChanged="BtnLogReload_OnClick"
+                                         SelectionMode="Multiple">
+                                    <ListBoxItem>Info</ListBoxItem>
+                                    <ListBoxItem>Warnung</ListBoxItem>
+                                    <ListBoxItem>Fehler</ListBoxItem>
+                                    <ListBoxItem>Debug</ListBoxItem>
+                                </ListBox>
+                            </StackPanel>
                         </Grid>
                     </TabItem>
                     <TabItem Header="Sonstiges" Classes="Header">
