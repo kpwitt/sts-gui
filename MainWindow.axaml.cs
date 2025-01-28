@@ -2278,8 +2278,19 @@ public partial class MainWindow : Window
 
     private async void BtnLogReload_OnClick(object? sender, RoutedEventArgs e)
     {
-        var items = await _myschool.GetLog();
-        ResetItemsSource(lbLogDisplay, items.Select(x => x.ToString()));
+        if (lbLogLevel.SelectedItems == null) return;
+        var items = _myschool.GetLog().Result;
+        var tlist = new List<string>();
+        foreach (ListBoxItem item in lbLogLevel.SelectedItems)
+        {
+            if (item?.Content != null)
+            {
+                tlist.Add(item.Content.ToString() ?? throw new InvalidOperationException());
+            }
+        }
+
+        var filtered_items = items.Where(x => tlist.Contains(x.Warnstufe));
+        ResetItemsSource(lbLogDisplay, filtered_items.Select(x => x.ToString()));
     }
 
     private async void BtnKurseAdd_OnClick(object? sender, RoutedEventArgs e)
