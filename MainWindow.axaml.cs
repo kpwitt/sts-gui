@@ -1598,7 +1598,7 @@ public partial class MainWindow : Window
         tbSuSElternadresse.Text = s.Mail;
         tbSuSZweitadresse.Text = s.Zweitmail;
         tbSuSKurse.Text = _myschool.GetKursVonSuS(s.ID).Result
-            .Aggregate("", (current, kurs) => current + (kurs.Bezeichnung + ",")).TrimEnd(',');
+            .Aggregate("", (current, kurs) => current + kurs.Bezeichnung + ",").TrimEnd(',');
         cbSuSZweitaccount.IsChecked = s.Zweitaccount;
         cbSuSM365.IsChecked = s.HasM365Account;
     }
@@ -1614,7 +1614,7 @@ public partial class MainWindow : Window
         tbLuLMail.Text = l.Mail;
         tbLuLtmpPwd.Text = l.Pwttemp;
         tbLuLKurse.Text = _myschool.GetKursVonLuL(l.ID).Result
-            .Aggregate("", (current, kurs) => current + (kurs.Bezeichnung + ",")).TrimEnd(',');
+            .Aggregate("", (current, kurs) => current + kurs.Bezeichnung + ",").TrimEnd(',');
         tbLuLFavo.Text = l.Favo;
         tbLuLSFavo.Text = l.SFavo;
     }
@@ -1624,7 +1624,7 @@ public partial class MainWindow : Window
         if (string.IsNullOrEmpty(k.Bezeichnung)) return;
         tbKursbezeichnung.Text = k.Bezeichnung;
         tbKursLuL.Text = _myschool.GetLuLAusKurs(k.Bezeichnung).Result
-            .Aggregate("", (current, lul) => current + (lul.Kuerzel + ";")).TrimEnd(';');
+            .Aggregate("", (current, lul) => current + lul.Kuerzel + ",").TrimEnd(',');
         tbKursFach.Text = k.Fach;
         tbKursSuffix.Text = k.Suffix;
         tbKursKlasse.Text = k.Klasse;
