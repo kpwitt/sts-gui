@@ -12,7 +12,7 @@ public record struct SuS(
     string Aixmail,
     string Zweitmail,
     bool Zweitaccount,
-    bool HasM365Account = default)
+    bool HasM365Account = false)
 {
     public string GetStufe()
     {

@@ -714,17 +714,34 @@ public partial class MainWindow : Window
                 await _myschool.LulEinlesen(folderpath + "/lul.csv");
                 await _myschool.KurseEinlesen(folderpath + "/kurse.csv");
                 var aixcsvpath = "";
+                var dvfile = "";
                 var files = new DirectoryInfo(folderpath).GetFiles();
                 foreach (var csvFile in files)
                 {
-                    if (!csvFile.Name.StartsWith("AlleSchueler")) continue;
-                    aixcsvpath = csvFile.FullName;
-                    break;
+                    if (csvFile.Name.StartsWith("AlleSchueler")){
+                        ;
+                        aixcsvpath = csvFile.FullName;
+                    }
+
+                    if (csvFile.Name.StartsWith("Ohne DV"))
+                    {
+                        dvfile = csvFile.FullName;
+                    }
                 }
 
                 if (aixcsvpath != "")
                 {
                     await _myschool.IdsEinlesen(aixcsvpath);
+                }
+
+                if (dvfile != "")
+                {
+                    foreach (var id_string in await File.ReadAllLinesAsync(dvfile))
+                    {
+                        if (!id_string.All(char.IsDigit)) continue;
+                        var sus_id = Convert.ToInt32(id_string);
+                        _myschool.SetM365(sus_id,0);
+                    }
                 }
 
                 await ShowImportSuccessful();
