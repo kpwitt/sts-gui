@@ -1598,7 +1598,7 @@ public partial class MainWindow : Window
         tbSuSElternadresse.Text = s.Mail;
         tbSuSZweitadresse.Text = s.Zweitmail;
         tbSuSKurse.Text = _myschool.GetKursVonSuS(s.ID).Result
-            .Aggregate("", (current, kurs) => current + (kurs.Bezeichnung + ",")).TrimEnd(',');
+            .Aggregate("", (current, kurs) => current + kurs.Bezeichnung + ",").TrimEnd(',');
         cbSuSZweitaccount.IsChecked = s.Zweitaccount;
         cbSuSM365.IsChecked = s.HasM365Account;
     }
@@ -1614,7 +1614,7 @@ public partial class MainWindow : Window
         tbLuLMail.Text = l.Mail;
         tbLuLtmpPwd.Text = l.Pwttemp;
         tbLuLKurse.Text = _myschool.GetKursVonLuL(l.ID).Result
-            .Aggregate("", (current, kurs) => current + (kurs.Bezeichnung + ",")).TrimEnd(',');
+            .Aggregate("", (current, kurs) => current + kurs.Bezeichnung + ",").TrimEnd(',');
         tbLuLFavo.Text = l.Favo;
         tbLuLSFavo.Text = l.SFavo;
     }
@@ -1624,7 +1624,7 @@ public partial class MainWindow : Window
         if (string.IsNullOrEmpty(k.Bezeichnung)) return;
         tbKursbezeichnung.Text = k.Bezeichnung;
         tbKursLuL.Text = _myschool.GetLuLAusKurs(k.Bezeichnung).Result
-            .Aggregate("", (current, lul) => current + (lul.Kuerzel + ";")).TrimEnd(';');
+            .Aggregate("", (current, lul) => current + lul.Kuerzel + ",").TrimEnd(',');
         tbKursFach.Text = k.Fach;
         tbKursSuffix.Text = k.Suffix;
         tbKursKlasse.Text = k.Klasse;
@@ -2328,7 +2328,7 @@ public partial class MainWindow : Window
             await _myschool.UpdateKurs(kursbez, kursfach, kursklasse, kursstufe, kurssuffix,
                 Convert.ToInt32(istKurs));
             List<LuL> tList = [];
-            foreach (var lehrkraft in lehrkraefte.Split(';'))
+            foreach (var lehrkraft in lehrkraefte.Split(','))
             {
                 tList.Add(await _myschool.GetLehrkraft(lehrkraft));
             }
@@ -2349,7 +2349,7 @@ public partial class MainWindow : Window
             await _myschool.AddKurs(kursbez, kursfach, kursklasse, kursstufe, kurssuffix, Convert.ToInt32(istKurs));
         }
 
-        foreach (var lehrkraft in lehrkraefte.Split((';')))
+        foreach (var lehrkraft in lehrkraefte.Split(','))
         {
             await _myschool.AddLtoK(await _myschool.GetLehrkraft(lehrkraft), await _myschool.GetKurs(kursbez));
         }
@@ -2364,7 +2364,7 @@ public partial class MainWindow : Window
 
         if (cbKursSuSdStufeEinschreiben.IsChecked != null && cbKursSuSdStufeEinschreiben.IsChecked.Value)
         {
-            foreach (var stufe in kursstufe.Split(';'))
+            foreach (var stufe in kursstufe.Split(','))
             {
                 foreach (var sus in await _myschool.GetSusAusStufe(stufe))
                 {
@@ -3641,5 +3641,64 @@ public partial class MainWindow : Window
         if (string.IsNullOrEmpty(susid_string) || !susid_string.All(char.IsDigit)) return;
         var sus = _myschool.GetSchueler(Convert.ToInt32(susid_string)).Result;
         _myschool.SetM365(sus.ID, cbSuSM365.IsChecked != null && cbSuSM365.IsChecked.Value ? 1 : 0);
+    }
+
+    private async void BtnLogExport_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (lbLogDisplay == null || lbLogDisplay.Items.Count == 0) return;
+        await Dispatcher.UIThread.InvokeAsync(SaveLogToFile);
+        return;
+
+        async Task SaveLogToFile()
+        {
+            var extx = new List<FilePickerFileType> { StSFileTypes.CSVFile };
+            var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
+            if (files == null) return;
+
+            var filepath = files.Path.LocalPath;
+            if (File.Exists(filepath))
+            {
+                var override_res = await ShowOverwriteDialog();
+                if (override_res != ButtonResult.Yes) return;
+            }
+
+            await Dispatcher.UIThread.InvokeAsync(async () =>
+            {
+                try
+                {
+                    var items = _myschool.GetLog().Result;
+                    var tlist = new List<string>();
+                    if (lbLogLevel.SelectedItems != null)
+                        foreach (ListBoxItem item in lbLogLevel.SelectedItems)
+                        {
+                            if (item?.Content != null)
+                            {
+                                tlist.Add(item.Content.ToString() ?? throw new InvalidOperationException());
+                            }
+                        }
+
+                    var filtered_items = items.Where(x => tlist.Contains(x.Warnstufe));
+                    await File.WriteAllTextAsync(filepath,
+                        string.Join(";",
+                            filtered_items.Select(x =>
+                                x.Warnstufe+ ";"+x.Eintragsdatum+";"+x.Nachricht.Replace('\t',' ').Replace("  "," ").TrimEnd(' ') + "\n")).Replace("\n;","\n"));
+                    var saveSuccessful = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
+                    {
+                        ButtonDefinitions = ButtonEnum.Ok,
+                        ContentTitle = "Erfolg",
+                        ContentMessage = "Log erfolgreich gespeichert",
+                        Icon = MsBox.Avalonia.Enums.Icon.Success,
+                        WindowIcon = _msgBoxWindowIcon
+                    });
+                    await saveSuccessful.ShowAsPopupAsync(this);
+                }
+                catch (Exception exception)
+                {
+                    await _myschool.AddLogMessage(new LogEintrag
+                        { Eintragsdatum = DateTime.Now, Nachricht = exception.Message, Warnstufe = "Fehler" });
+                    await ShowErrordialog("Speichern des Logs fehlgeschlagen");
+                }
+            });
+        }
     }
 }
