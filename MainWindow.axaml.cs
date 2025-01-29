@@ -3642,4 +3642,63 @@ public partial class MainWindow : Window
         var sus = _myschool.GetSchueler(Convert.ToInt32(susid_string)).Result;
         _myschool.SetM365(sus.ID, cbSuSM365.IsChecked != null && cbSuSM365.IsChecked.Value ? 1 : 0);
     }
+
+    private async void BtnLogExport_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (lbLogDisplay == null || lbLogDisplay.Items.Count == 0) return;
+        await Dispatcher.UIThread.InvokeAsync(SaveLogToFile);
+        return;
+
+        async Task SaveLogToFile()
+        {
+            var extx = new List<FilePickerFileType> { StSFileTypes.CSVFile };
+            var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
+            if (files == null) return;
+
+            var filepath = files.Path.LocalPath;
+            if (File.Exists(filepath))
+            {
+                var override_res = await ShowOverwriteDialog();
+                if (override_res != ButtonResult.Yes) return;
+            }
+
+            await Dispatcher.UIThread.InvokeAsync(async () =>
+            {
+                try
+                {
+                    var items = _myschool.GetLog().Result;
+                    var tlist = new List<string>();
+                    if (lbLogLevel.SelectedItems != null)
+                        foreach (ListBoxItem item in lbLogLevel.SelectedItems)
+                        {
+                            if (item?.Content != null)
+                            {
+                                tlist.Add(item.Content.ToString() ?? throw new InvalidOperationException());
+                            }
+                        }
+
+                    var filtered_items = items.Where(x => tlist.Contains(x.Warnstufe));
+                    await File.WriteAllTextAsync(filepath,
+                        string.Join(";",
+                            filtered_items.Select(x =>
+                                x.Warnstufe+ ";"+x.Eintragsdatum+";"+x.Nachricht.Replace('\t',' ').Replace("  "," ").TrimEnd(' ') + "\n")).Replace("\n;","\n"));
+                    var saveSuccessful = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
+                    {
+                        ButtonDefinitions = ButtonEnum.Ok,
+                        ContentTitle = "Erfolg",
+                        ContentMessage = "Log erfolgreich gespeichert",
+                        Icon = MsBox.Avalonia.Enums.Icon.Success,
+                        WindowIcon = _msgBoxWindowIcon
+                    });
+                    await saveSuccessful.ShowAsPopupAsync(this);
+                }
+                catch (Exception exception)
+                {
+                    await _myschool.AddLogMessage(new LogEintrag
+                        { Eintragsdatum = DateTime.Now, Nachricht = exception.Message, Warnstufe = "Fehler" });
+                    await ShowErrordialog("Speichern des Logs fehlgeschlagen");
+                }
+            });
+        }
+    }
 }

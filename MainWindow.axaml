@@ -424,6 +424,9 @@
                                         <Image Source="/Assets/gfx/delete.png" />
                                     </Panel>
                                 </Button>
+                                <Button x:Name="btnLogExport" Click="BtnLogExport_OnClick"
+                                        ToolTip.Tip="Exportiert das komplette Log">Exportieren
+                                </Button>
                             </StackPanel>
                             <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="5">
                                 <ListBox x:Name="lbLogDisplay" SelectionMode="Multiple" />
