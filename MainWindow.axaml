@@ -430,7 +430,7 @@
                                 <ListBox x:Name="lbLogLevel" SelectionChanged="BtnLogReload_OnClick"
                                          SelectionMode="Multiple">
                                     <ListBoxItem>Info</ListBoxItem>
-                                    <ListBoxItem>Warnung</ListBoxItem>
+                                    <ListBoxItem>Hinweis</ListBoxItem>
                                     <ListBoxItem>Fehler</ListBoxItem>
                                     <ListBoxItem>Debug</ListBoxItem>
                                 </ListBox>
