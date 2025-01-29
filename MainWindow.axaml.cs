@@ -2328,7 +2328,7 @@ public partial class MainWindow : Window
             await _myschool.UpdateKurs(kursbez, kursfach, kursklasse, kursstufe, kurssuffix,
                 Convert.ToInt32(istKurs));
             List<LuL> tList = [];
-            foreach (var lehrkraft in lehrkraefte.Split(';'))
+            foreach (var lehrkraft in lehrkraefte.Split(','))
             {
                 tList.Add(await _myschool.GetLehrkraft(lehrkraft));
             }
@@ -2349,7 +2349,7 @@ public partial class MainWindow : Window
             await _myschool.AddKurs(kursbez, kursfach, kursklasse, kursstufe, kurssuffix, Convert.ToInt32(istKurs));
         }
 
-        foreach (var lehrkraft in lehrkraefte.Split((';')))
+        foreach (var lehrkraft in lehrkraefte.Split(','))
         {
             await _myschool.AddLtoK(await _myschool.GetLehrkraft(lehrkraft), await _myschool.GetKurs(kursbez));
         }
@@ -2364,7 +2364,7 @@ public partial class MainWindow : Window
 
         if (cbKursSuSdStufeEinschreiben.IsChecked != null && cbKursSuSdStufeEinschreiben.IsChecked.Value)
         {
-            foreach (var stufe in kursstufe.Split(';'))
+            foreach (var stufe in kursstufe.Split(','))
             {
                 foreach (var sus in await _myschool.GetSusAusStufe(stufe))
                 {
