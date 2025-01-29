@@ -273,6 +273,10 @@ public class Schuldatenbank : IDisposable
         Dispose(true);
     }
 
+    /// <summary>
+    /// Räumt beim schließen der Datenbankverbindung auf
+    /// </summary>
+    /// <param name="disposing"></param>
     private void Dispose(bool disposing)
     {
         if (_disposed) return;
@@ -2082,6 +2086,11 @@ public class Schuldatenbank : IDisposable
         return result;
     }
 
+    /// <summary>
+    /// Gibt eine Liste mit Lehrkräften zurück, die die Leitung der entsprechenden Stufe haben 
+    /// </summary>
+    /// <param name="stufe"></param>
+    /// <returns></returns>
     private async Task<List<LuL>> getOberstufenleitung(string stufe)
     {
         if (string.IsNullOrEmpty(stufe) || !oberstufe.Contains(stufe))
@@ -3012,6 +3021,10 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.ExecuteNonQuery();
     }
 
+    /// <summary>
+    /// setzt für per ID angebenen Lehrperson die Daten neu
+    /// </summary>
+    /// <param name="l"></param>
     public async void UpdateLehrkraft(LuL l)
     {
         if (string.IsNullOrEmpty(l.Kuerzel) || l.ID <= 0) return;
@@ -3086,6 +3099,10 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.ExecuteNonQuery();
     }
 
+    /// <summary>
+    /// Liefert alle SuS-IDs, welche keine M365-Einwilligung vorliegen haben
+    /// </summary>
+    /// <returns></returns>
     public async Task<ReadOnlyCollection<int>> GetM365Blacklist()
     {
         List<int> ids = [];
@@ -3120,6 +3137,11 @@ public class Schuldatenbank : IDisposable
         return tpwd;
     }
 
+    /// <summary>
+    /// Setzt für die übergebene ID, ob eine M365-Einwilligung vorliegt (1), oder nicht (0)
+    /// </summary>
+    /// <param name="susid"></param>
+    /// <param name="has_m365"></param>
     public async void SetM365(int susid, int has_m365)
     {
         if (susid <= 0) return;
@@ -3217,6 +3239,11 @@ public class Schuldatenbank : IDisposable
             .ToList();
     }
 
+    /// <summary>
+    /// Hilfsmethode, die die Klasse der Stufe zuordnet
+    /// </summary>
+    /// <param name="klasse"></param>
+    /// <returns></returns>
     private static string KlasseToStufe(string klasse)
     {
         return klasse.Length switch
