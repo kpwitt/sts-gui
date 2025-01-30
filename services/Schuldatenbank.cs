@@ -3122,7 +3122,7 @@ public class Schuldatenbank : IDisposable
     /// </summary>
     /// <param name="lehrerid">Die lehrerid, für die das temporäre Passwort ausgelesen werden soll</param>
     /// <returns>String temporäre Passwort</returns>
-    private async Task<string> GetTempPasswort(int lehrerid)
+    public async Task<string> GetTempPasswort(int lehrerid)
     {
         if (lehrerid <= 0) return "";
         var sqliteCmd = _sqliteConn.CreateCommand();
