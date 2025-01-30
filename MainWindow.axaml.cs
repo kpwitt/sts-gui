@@ -718,8 +718,8 @@ public partial class MainWindow : Window
                 var files = new DirectoryInfo(folderpath).GetFiles();
                 foreach (var csvFile in files)
                 {
-                    if (csvFile.Name.StartsWith("AlleSchueler")){
-                        ;
+                    if (csvFile.Name.StartsWith("AlleSchueler"))
+                    {
                         aixcsvpath = csvFile.FullName;
                     }
 
@@ -740,7 +740,7 @@ public partial class MainWindow : Window
                     {
                         if (!id_string.All(char.IsDigit)) continue;
                         var sus_id = Convert.ToInt32(id_string);
-                        _myschool.SetM365(sus_id,0);
+                        _myschool.SetM365(sus_id, 0);
                     }
                 }
 
@@ -2690,32 +2690,68 @@ public partial class MainWindow : Window
             var extx = new List<FilePickerFileType> { StSFileTypes.CSVFile };
             var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
             if (files == null) return;
-            var folder = files.Path.LocalPath;
-            List<string> susausgabe = ["Vorname;Nachname;Anmeldename;Kennwort;E-Mail;Klasse"];
+            var file_path = files.Path.LocalPath;
+            List<string> ausgabe;
             switch (cboxDataLeft.SelectedIndex)
             {
                 case 0:
-                    susausgabe.AddRange(leftListBox.SelectedItems.Cast<string>()
+                    ausgabe = ["Vorname;Nachname;Anmeldename;Kennwort;E-Mail;Klasse"];
+                    ausgabe.AddRange(leftListBox.SelectedItems.Cast<string>()
                         .ToList()
                         .Select(sus => _myschool.GetSchueler(Convert.ToInt32(sus.Split(';')[1])).Result)
                         .Select(s =>
                             s.Vorname + ";" + s.Nachname + ";" + s.Nutzername + ";" + "Klasse" + s.Klasse +
                             DateTime.Now.Year + "!;" + s.Aixmail + ";" + s.Klasse));
                     break;
+                case 1:
+                    var lul_liste = leftListBox.SelectedItems.Cast<string>()
+                        .ToList()
+                        .Select(lul => _myschool.GetLehrkraft(lul.Split(';')[0]).Result);
+                    ausgabe =
+                    [
+                        "kuerzel;nachname;vorname;plz_ort_;adresse;tel_privat;tel_mobil;email_privat;email_dienst;gebdatum_;status_;mail_Adresse;fach1;fach2;fach3;fakult;funktion_;pw_temp;aktiv;gebdatum;plz;ort;titel;nachname;pop3_dienst;pop3_menge"
+                    ];
+                    foreach (var lt in lul_liste)
+                    {
+                        var fakultas = lt.Fakultas.Split(',');
+                        var maildienst = lt.Mail.Split('@')[0];
+                        var firstChar = maildienst[0];
+                        var UpperCaseFirstCharacter = char.ToUpper(firstChar);
+                        maildienst = UpperCaseFirstCharacter + maildienst[1..];
+                        var fakult = fakultas.Aggregate("", (current, t) => current + t + ";");
+                        switch (fakultas.Length)
+                        {
+                            case 2:
+                                fakult += ";" + lt.Fakultas; //; oder ,
+                                break;
+                            case 3:
+                                fakult += lt.Fakultas;
+                                break;
+                        }
+
+                        ausgabe.Add(lt.Kuerzel + ";" + lt.Nachname + ";" + lt.Vorname + ";;;;;" + ";" +
+                                    maildienst + ";;;" + lt.Mail + ";" + fakult + ";;" +
+                                    _myschool.GetTempPasswort(lt.ID).Result + ";1;;;;;" + lt.Nachname + ";" +
+                                    maildienst.ToLower() + ";1");
+                    }
+
+                    break;
                 case 2:
+                    ausgabe = ["Vorname;Nachname;Anmeldename;Kennwort;E-Mail;Klasse"];
                     foreach (string kursbez in leftListBox.SelectedItems)
                     {
-                        susausgabe.AddRange(_myschool.GetSuSAusKurs(kursbez).Result.Distinct().Select(s =>
+                        ausgabe.AddRange(_myschool.GetSuSAusKurs(kursbez).Result.Distinct().Select(s =>
                             s.Vorname + ";" + s.Nachname + ";" + s.Nutzername + ";" + "Klasse" + s.Klasse +
                             DateTime.Now.Year + "!;" + s.Aixmail + ";" + s.Klasse));
                     }
+
 
                     break;
                 default:
                     return;
             }
 
-            await File.WriteAllLinesAsync(folder, susausgabe.Distinct().ToList(), Encoding.UTF8);
+            await File.WriteAllLinesAsync(file_path, ausgabe.Distinct().ToList(), Encoding.UTF8);
         }
     }
 
@@ -3697,8 +3733,10 @@ public partial class MainWindow : Window
                     var filtered_items = items.Where(x => tlist.Contains(x.Warnstufe));
                     await File.WriteAllTextAsync(filepath,
                         string.Join(";",
-                            filtered_items.Select(x =>
-                                x.Warnstufe+ ";"+x.Eintragsdatum+";"+x.Nachricht.Replace('\t',' ').Replace("  "," ").TrimEnd(' ') + "\n")).Replace("\n;","\n"));
+                                filtered_items.Select(x =>
+                                    x.Warnstufe + ";" + x.Eintragsdatum + ";" +
+                                    x.Nachricht.Replace('\t', ' ').Replace("  ", " ").TrimEnd(' ') + "\n"))
+                            .Replace("\n;", "\n"));
                     var saveSuccessful = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
                     {
                         ButtonDefinitions = ButtonEnum.Ok,
