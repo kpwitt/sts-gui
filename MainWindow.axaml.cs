@@ -718,8 +718,8 @@ public partial class MainWindow : Window
                 var files = new DirectoryInfo(folderpath).GetFiles();
                 foreach (var csvFile in files)
                 {
-                    if (csvFile.Name.StartsWith("AlleSchueler")){
-                        ;
+                    if (csvFile.Name.StartsWith("AlleSchueler"))
+                    {
                         aixcsvpath = csvFile.FullName;
                     }
 
@@ -740,7 +740,7 @@ public partial class MainWindow : Window
                     {
                         if (!id_string.All(char.IsDigit)) continue;
                         var sus_id = Convert.ToInt32(id_string);
-                        _myschool.SetM365(sus_id,0);
+                        _myschool.SetM365(sus_id, 0);
                     }
                 }
 
@@ -2710,6 +2710,7 @@ public partial class MainWindow : Window
                             DateTime.Now.Year + "!;" + s.Aixmail + ";" + s.Klasse));
                     }
 
+
                     break;
                 default:
                     return;
@@ -3697,8 +3698,10 @@ public partial class MainWindow : Window
                     var filtered_items = items.Where(x => tlist.Contains(x.Warnstufe));
                     await File.WriteAllTextAsync(filepath,
                         string.Join(";",
-                            filtered_items.Select(x =>
-                                x.Warnstufe+ ";"+x.Eintragsdatum+";"+x.Nachricht.Replace('\t',' ').Replace("  "," ").TrimEnd(' ') + "\n")).Replace("\n;","\n"));
+                                filtered_items.Select(x =>
+                                    x.Warnstufe + ";" + x.Eintragsdatum + ";" +
+                                    x.Nachricht.Replace('\t', ' ').Replace("  ", " ").TrimEnd(' ') + "\n"))
+                            .Replace("\n;", "\n"));
                     var saveSuccessful = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
                     {
                         ButtonDefinitions = ButtonEnum.Ok,
