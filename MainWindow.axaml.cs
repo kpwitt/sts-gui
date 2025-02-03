@@ -51,7 +51,7 @@ public partial class MainWindow : Window
     public MainWindow()
     {
 #if DEBUG
-        InitializeComponent(true, false);
+        InitializeComponent(true);
 #else
             InitializeComponent();
 #endif
@@ -62,7 +62,7 @@ public partial class MainWindow : Window
 #pragma warning restore CS8618, CS9264
     {
 #if DEBUG
-        InitializeComponent(true, false);
+        InitializeComponent(true);
 #else
             InitializeComponent();
 #endif
