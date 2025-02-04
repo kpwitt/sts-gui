@@ -1475,6 +1475,21 @@ public class Schuldatenbank : IDisposable
         }
     }
 
+    private async Task<ReadOnlyCollection<string>> ExportSuS(ReadOnlyCollection<int> susids, bool eltern, bool passwort, string targets)
+    {
+        return new ReadOnlyCollection<string>(susids.Select(x=>x.ToString()).ToList());
+    }
+
+    private async Task<ReadOnlyCollection<string>> ExportLuL(ReadOnlyCollection<int> lulids, bool passwort, string targets)
+    {
+        return new ReadOnlyCollection<string>(lulids.Select(x=>x.ToString()).ToList());
+    }
+
+    private async Task<ReadOnlyCollection<string>> ExportKurse(ReadOnlyCollection<string> kursBez, string targets)
+    {
+        return kursBez;
+    }
+
     /// <summary>
     /// generiert ein Passwort bestehend aus Buchstaben, Ziffern und Sonderzeichen
     /// </summary>
