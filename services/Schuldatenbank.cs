@@ -915,7 +915,7 @@ public class Schuldatenbank : IDisposable
     /// exportiert die SuS/Lehrkräfte und Kursdaten für AIX und Moodle; baut dazu die nötigen Strings auf und schreibt diese in CSV-Dateien
     /// </summary>
     /// <param name="folder">Zielordner</param>
-    /// <param name="destsys">m für Moodle, a für AIX</param>
+    /// <param name="targetSystems">m für Moodle, a für AIX</param>
     /// <param name="whattoexport">s für SuS, l für Lehrkräfte, e für Eltern, k für Kurse</param>
     /// <param name="withPasswort">mit Erstpasswort: true für ja, false für nein</param>
     /// <param name="passwort">das Passwort, welches gesetzt werden soll</param>
@@ -925,7 +925,7 @@ public class Schuldatenbank : IDisposable
     /// <param name="susidliste">Liste mit SuS-IDs</param>
     /// <param name="lulidliste">Liste mit LuL-IDs</param>
     /// <param name="kursliste">Liste mit Kurs-Bezeichnungen</param>
-    public async Task<int> ExportCSV(string folder, string destsys, string whattoexport, bool withPasswort,
+    public async Task<int> ExportToCSV(string folder, string targetSystems, string whattoexport, bool withPasswort,
         string passwort,
         bool expandfiles, bool nurMoodleSuffix, string[] kursvorlage, List<int> susidliste,
         ReadOnlyCollection<int> lulidliste,
@@ -934,9 +934,9 @@ public class Schuldatenbank : IDisposable
         var blacklist = await GetM365Blacklist();
         try
         {
-            if (destsys.Equals("all"))
+            if (targetSystems.Equals("all"))
             {
-                return await ExportCSV(folder, "ami", whattoexport, withPasswort, passwort, expandfiles,
+                return await ExportToCSV(folder, "ami", whattoexport, withPasswort, passwort, expandfiles,
                     nurMoodleSuffix,
                     kursvorlage, susidliste,
                     lulidliste, kursliste);
@@ -944,7 +944,7 @@ public class Schuldatenbank : IDisposable
 
             if (whattoexport.Equals("all"))
             {
-                return await ExportCSV(folder, destsys, "ksle", withPasswort, passwort, expandfiles,
+                return await ExportToCSV(folder, targetSystems, "ksle", withPasswort, passwort, expandfiles,
                     nurMoodleSuffix, kursvorlage,
                     susidliste,
                     lulidliste, kursliste);
@@ -1318,7 +1318,7 @@ public class Schuldatenbank : IDisposable
                 });
             }
 
-            if (destsys.Contains('i'))
+            if (targetSystems.Contains('i'))
             {
                 foreach (var l in lulidliste)
                 {
@@ -1350,7 +1350,7 @@ public class Schuldatenbank : IDisposable
             {
                 try
                 {
-                    if (destsys.Contains('a'))
+                    if (targetSystems.Contains('a'))
                     {
                         if (File.Exists(folder + "/aix_sus.csv"))
                         {
@@ -1371,7 +1371,7 @@ public class Schuldatenbank : IDisposable
                         }
                     }
 
-                    if (destsys.Contains('m'))
+                    if (targetSystems.Contains('m'))
                     {
                         if (File.Exists(folder + "/mdl_einschreibungen.csv"))
                         {
@@ -1412,7 +1412,7 @@ public class Schuldatenbank : IDisposable
                         }
                     }
 
-                    if (destsys.Contains('i'))
+                    if (targetSystems.Contains('i'))
                     {
                         if (File.Exists(folder + "/Lehrerdaten_anschreiben.csv"))
                         {
@@ -1437,7 +1437,7 @@ public class Schuldatenbank : IDisposable
             }
             else
             {
-                if (destsys.Contains('a'))
+                if (targetSystems.Contains('a'))
                 {
                     await File.WriteAllLinesAsync(folder + "/aix_sus.csv", ausgabeAIXS.Distinct().ToList(),
                         Encoding.UTF8);
@@ -1445,7 +1445,7 @@ public class Schuldatenbank : IDisposable
                         Encoding.UTF8);
                 }
 
-                if (destsys.Contains('m'))
+                if (targetSystems.Contains('m'))
                 {
                     await File.WriteAllLinesAsync(folder + "/mdl_einschreibungen.csv",
                         ausgabeMoodleEinschreibungen.Distinct().ToList(), Encoding.UTF8);
@@ -1455,7 +1455,7 @@ public class Schuldatenbank : IDisposable
                         Encoding.UTF8);
                 }
 
-                if (destsys.Contains('i'))
+                if (targetSystems.Contains('i'))
                 {
                     await File.WriteAllLinesAsync(folder + "/Lehrerdaten_anschreiben.csv",
                         ausgabeIntern.Distinct().ToList(),
