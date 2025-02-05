@@ -357,7 +357,7 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$suffix", suffix);
         sqliteCmd.Parameters.AddWithValue("$istkurs", istkurs);
         sqliteCmd.ExecuteNonQuery();
-        await AddLogMessage(new LogEintrag
+        AddLogMessage(new LogEintrag
         {
             Eintragsdatum = DateTime.Now, Nachricht = "Kurs\t" + bez + "\t\t angelegt",
             Warnstufe = "Info"
@@ -381,7 +381,7 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$suffix", kurs.Suffix);
         sqliteCmd.Parameters.AddWithValue("$istkurs", kurs.IstKurs);
         sqliteCmd.ExecuteNonQuery();
-        await AddLogMessage(new LogEintrag
+        AddLogMessage(new LogEintrag
         {
             Eintragsdatum = DateTime.Now, Nachricht = "Kurs\t" + kurs.Bezeichnung + "\t\t angelegt",
             Warnstufe = "Info"
@@ -415,7 +415,7 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$favo", favo);
         sqliteCmd.Parameters.AddWithValue("$sfavo", sfavo);
         sqliteCmd.ExecuteNonQuery();
-        await AddLogMessage(new LogEintrag
+        AddLogMessage(new LogEintrag
         {
             Eintragsdatum = DateTime.Now,
             Nachricht =
@@ -445,7 +445,7 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$favo", lehrkraft.Favo);
         sqliteCmd.Parameters.AddWithValue("$sfavo", lehrkraft.SFavo);
         sqliteCmd.ExecuteNonQuery();
-        await AddLogMessage(new LogEintrag
+        AddLogMessage(new LogEintrag
         {
             Eintragsdatum = DateTime.Now,
             Nachricht =
@@ -458,7 +458,7 @@ public class Schuldatenbank : IDisposable
     /// fügt eine Nachricht ins Log hinzu, Stufe entweder Info, Hinweis oder Fehler
     /// </summary>
     /// <param name="eintrag"></param>
-    public async Task<int> AddLogMessage(LogEintrag eintrag)
+    public async void AddLogMessage(LogEintrag eintrag)
     {
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
@@ -467,7 +467,6 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$dnow", eintrag.Datumsstring());
         sqliteCmd.Parameters.AddWithValue("$nachricht", eintrag.Nachricht);
         sqliteCmd.ExecuteNonQuery();
-        return 0;
     }
 
     /// <summary>
@@ -495,7 +494,7 @@ public class Schuldatenbank : IDisposable
                 continue;
             }
 
-            await AddLogMessage(new LogEintrag
+            AddLogMessage(new LogEintrag
             {
                 Eintragsdatum = DateTime.Now,
                 Nachricht = "Lehrkraft\t" + lid + "\tzu Kurs\t" + kbez + "\t hinzugefügt",
@@ -545,7 +544,7 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$zweitaccount", zweitaccount);
         sqliteCmd.Parameters.AddWithValue("$zweitmail", zweitmail);
         sqliteCmd.ExecuteNonQuery();
-        await AddLogMessage(new LogEintrag
+        AddLogMessage(new LogEintrag
         {
             Eintragsdatum = DateTime.Now,
             Nachricht = "SchülerIn\t" + nachname + "\t" + vorname + "\t" + mail + "\t angelegt",
@@ -573,7 +572,7 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$zweitaccount", schulerin.Zweitaccount);
         sqliteCmd.Parameters.AddWithValue("$zweitmail", schulerin.Zweitmail);
         sqliteCmd.ExecuteNonQuery();
-        await AddLogMessage(new LogEintrag
+        AddLogMessage(new LogEintrag
         {
             Eintragsdatum = DateTime.Now,
             Nachricht = "SchülerIn\t" + schulerin.Nachname + "\t" + schulerin.Vorname + "\t" + schulerin.Mail +
@@ -595,7 +594,7 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$sid", sid);
         sqliteCmd.Parameters.AddWithValue("$kbez", kbez);
         sqliteCmd.ExecuteNonQuery();
-        await AddLogMessage(new LogEintrag
+        AddLogMessage(new LogEintrag
         {
             Eintragsdatum = DateTime.Now,
             Nachricht = "SchülerIn\t" + sid + "\tzu Kurs\t" + kbez + "\t hinzugefügt",
@@ -636,7 +635,7 @@ public class Schuldatenbank : IDisposable
                 sqliteCmd.Parameters.AddWithValue("$kbez", k.Bezeichnung);
                 sqliteCmd.ExecuteNonQuery();
                 sqliteCmd.Parameters.Clear();
-                await AddLogMessage(new LogEintrag
+                AddLogMessage(new LogEintrag
                 {
                     Eintragsdatum = DateTime.Now,
                     Nachricht = "SchülerIn\t" + schulerin.ID + "\tzu Klassenkurs\t" + k.Bezeichnung + "\t hinzugefügt",
@@ -750,7 +749,7 @@ public class Schuldatenbank : IDisposable
         catch (Exception ex)
         {
 #if DEBUG
-            await AddLogMessage(new LogEintrag
+            AddLogMessage(new LogEintrag
                 { Eintragsdatum = DateTime.Now, Nachricht = ex.Message, Warnstufe = "Debug" });
 #endif
             return -1;
@@ -786,7 +785,7 @@ public class Schuldatenbank : IDisposable
         catch (Exception ex)
         {
 #if DEBUG
-            await AddLogMessage(new LogEintrag
+            AddLogMessage(new LogEintrag
                 { Eintragsdatum = DateTime.Now, Nachricht = ex.Message, Warnstufe = "Debug" });
 #endif
             return -1;
@@ -832,7 +831,7 @@ public class Schuldatenbank : IDisposable
         //log übertragen
         foreach (var entry in await importfrom.GetLog())
         {
-            await AddLogMessage(entry);
+            AddLogMessage(entry);
         }
 
         await StopTransaction();
@@ -893,17 +892,17 @@ public class Schuldatenbank : IDisposable
                 }
                 catch (Exception e)
                 {
-                    await AddLogMessage(new LogEintrag
+                    AddLogMessage(new LogEintrag
                         { Eintragsdatum = DateTime.Now, Nachricht = e.Message, Warnstufe = "Fehler" });
                 }
             }
             catch (Exception ex)
             {
 #if DEBUG
-                await AddLogMessage(new LogEintrag
+                AddLogMessage(new LogEintrag
                     { Eintragsdatum = DateTime.Now, Nachricht = ex.Message, Warnstufe = "Debug" });
 #endif
-                await AddLogMessage(new LogEintrag
+                AddLogMessage(new LogEintrag
                     { Eintragsdatum = DateTime.Now, Nachricht = ex.Message, Warnstufe = "Fehler" });
             }
         }
@@ -927,7 +926,7 @@ public class Schuldatenbank : IDisposable
     /// <param name="kursliste">Liste mit Kurs-Bezeichnungen</param>
     public async Task<int> ExportToCSV(string folder, string targetSystems, string whattoexport, bool withPasswort,
         string passwort,
-        bool expandfiles, bool nurMoodleSuffix, string[] kursvorlage, List<int> susidliste,
+        bool expandfiles, bool nurMoodleSuffix, string[] kursvorlage, ReadOnlyCollection<int> susidliste,
         ReadOnlyCollection<int> lulidliste,
         ReadOnlyCollection<string> kursliste)
     {
@@ -991,91 +990,7 @@ public class Schuldatenbank : IDisposable
             var sekI = erprobungsstufe.Concat(mittelstufe).ToArray();
             if (whattoexport.Contains('k'))
             {
-                foreach (var kurs in kursliste)
-                {
-                    if (kurs.EndsWith('-')) continue;
-                    var k = GetKurs(kurs.Split(';')[0]).Result;
-                    if (k.Bezeichnung.Contains("Erprobungsstufe") || k.Bezeichnung.Contains("Mittelstufe") ||
-                        k.Bezeichnung.Contains("Einführungsphase") || k.Bezeichnung.Contains("Qualifikationsphase"))
-                    {
-                        ausgabeMoodleKurse.Add(k.Bezeichnung + k.Suffix + ";" + k.Bezeichnung +
-                                               " SJ" + k.Suffix.Substring(1, 2) + "/" +
-                                               k.Suffix.Substring(3, 2) + ";" + k.Bezeichnung +
-                                               k.Suffix + ";SJ" + k.Suffix + ";tiles");
-                    }
-                    else if (k.Bezeichnung.Contains("konferenz"))
-                    {
-                        ausgabeMoodleKurse.Add(k.Bezeichnung + k.Suffix + ";" + k.Bezeichnung +
-                                               " SJ" + k.Suffix.Substring(1, 2) + "/" +
-                                               k.Suffix.Substring(3, 2) + ";" + k.Bezeichnung +
-                                               k.Suffix + ";lehrkraefte;tiles");
-                    }
-                    else if (ohne_kursvorlagen)
-                    {
-                        if (k.IstKurs)
-                        {
-                            if (sekI.Contains(k.Stufe))
-                            {
-                                ausgabeMoodleKurse.Add(k.Bezeichnung + k.Suffix + ";" + k.Klasse + " " +
-                                                       GetLangeFachbezeichnung(k.Fach).Result + "-" +
-                                                       k.Art.Substring(k.Art.Length - 1, 1) + " SJ" +
-                                                       k.Suffix.Substring(1, 2) + "/" +
-                                                       k.Suffix.Substring(3, 2) + ";" + k.Bezeichnung +
-                                                       k.Suffix + ";stufe_" + k.Stufe + k.Suffix + ";tiles");
-                            }
-                            else
-                            {
-                                ausgabeMoodleKurse.Add(k.Bezeichnung + k.Suffix + ";" + k.Klasse + " " +
-                                                       GetLangeFachbezeichnung(k.Fach).Result + "-" + k.Art +
-                                                       " SJ" + k.Suffix.Substring(1, 2) + "/" +
-                                                       k.Suffix.Substring(3, 2) + ";" + k.Bezeichnung +
-                                                       k.Suffix + ";stufe_" + k.Stufe + k.Suffix + ";tiles");
-                            }
-                        }
-                        else
-                        {
-                            ausgabeMoodleKurse.Add(k.Bezeichnung + k.Suffix + ";" + k.Klasse + " " +
-                                                   GetLangeFachbezeichnung(k.Fach).Result + " SJ" +
-                                                   k.Suffix.Substring(1, 2) + "/" + k.Suffix.Substring(3, 2) +
-                                                   ";" + k.Bezeichnung + k.Suffix + ";" + k.Klasse + k.Suffix +
-                                                   ";tiles");
-                        }
-                    }
-                    else
-                    {
-                        var strkursvorlage = k.Bezeichnung.Contains("KL") ? kursvorlage[0] : kursvorlage[1];
-                        if (k.IstKurs)
-                        {
-                            if (sekI.Contains(k.Stufe))
-                            {
-                                ausgabeMoodleKurse.Add(k.Bezeichnung + k.Suffix + ";" + k.Klasse + " " +
-                                                       GetLangeFachbezeichnung(k.Fach).Result + "-" +
-                                                       k.Art.Substring(k.Art.Length - 1, 1) + " SJ" +
-                                                       k.Suffix.Substring(1, 2) + "/" +
-                                                       k.Suffix.Substring(3, 2) + ";" + k.Bezeichnung +
-                                                       k.Suffix + ";stufe_" + k.Stufe + k.Suffix + ";tiles;" +
-                                                       strkursvorlage);
-                            }
-                            else
-                            {
-                                ausgabeMoodleKurse.Add(k.Bezeichnung + k.Suffix + ";" + k.Klasse + " " +
-                                                       GetLangeFachbezeichnung(k.Fach).Result + "-" + k.Art +
-                                                       " SJ" + k.Suffix.Substring(1, 2) + "/" +
-                                                       k.Suffix.Substring(3, 2) + ";" + k.Bezeichnung +
-                                                       k.Suffix + ";stufe_" + k.Stufe + k.Suffix + ";tiles;" +
-                                                       strkursvorlage);
-                            }
-                        }
-                        else
-                        {
-                            ausgabeMoodleKurse.Add(k.Bezeichnung + k.Suffix + ";" + k.Klasse + " " +
-                                                   GetLangeFachbezeichnung(k.Fach).Result + " SJ" +
-                                                   k.Suffix.Substring(1, 2) + "/" + k.Suffix.Substring(3, 2) +
-                                                   ";" + k.Bezeichnung + k.Suffix + ";" + k.Klasse + k.Suffix +
-                                                   ";tiles;" + strkursvorlage);
-                        }
-                    }
-                }
+                ExportKurse(ref ausgabeMoodleKurse, kursliste, targetSystems, kursvorlage);
             }
 
             if (whattoexport.Contains('s'))
@@ -1164,84 +1079,7 @@ public class Schuldatenbank : IDisposable
 
             if (whattoexport.Contains('e'))
             {
-                if (!whattoexport.Contains('m'))
-                {
-                    whattoexport += "m";
-                }
-
-                await Parallel.ForEachAsync(susidliste, CancellationToken.None, async (s, CancellationToken) =>
-                    //foreach (var s in susidliste)
-                {
-                    var sus = GetSchueler(s).Result;
-                    var susmail = sus.Mail.Contains(' ') ? sus.Mail.Split(' ')[0] : sus.Mail;
-                    switch (sus.Zweitaccount)
-                    {
-                        case true when sus.Zweitmail.Contains(','):
-                        {
-                            if (erprobungsstufe.Contains(KlasseToStufe(sus.Klasse)))
-                            {
-                                var zweitmails = sus.Zweitmail.Split(',');
-                                var zweitmail = zweitmails[0].Trim() != sus.Mail.Trim()
-                                    ? zweitmails[0].Trim()
-                                    : zweitmails[1].Trim();
-                                ausgabeMoodleUser.Add(zweitmail + ";Klasse" + sus.Klasse +
-                                                      DateTime.Now.Year + "!" + ";" + sus.Nutzername + "_E1;" +
-                                                      "E_" +
-                                                      sus.ID + "1;" + sus.Nachname + "_Eltern;" + sus.Vorname +
-                                                      ";eltern");
-                                ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + "1," + sus.Klasse +
-                                                                 "KL" +
-                                                                 GetKursSuffix().Result);
-                                ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + "1,erprobungsstufe" +
-                                                                 GetKursSuffix().Result);
-                            }
-                            else if (mittelstufe.Contains(KlasseToStufe(sus.Klasse)))
-                            {
-                                ausgabeMoodleUser.Add(sus.Zweitmail.Split(',')[0] + ";Klasse" + sus.Klasse +
-                                                      DateTime.Now.Year + "!" +
-                                                      ";" + sus.Nutzername + "_E1;" + "E_" + sus.ID + "1;" +
-                                                      sus.Nachname + "_Eltern;" + sus.Vorname + ";eltern");
-                                ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + "1," + sus.Klasse +
-                                                                 "KL" +
-                                                                 GetKursSuffix().Result);
-                                ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + "1,mittelstufe" +
-                                                                 GetKursSuffix().Result);
-                            }
-
-                            break;
-                        }
-                        case true when !sus.Zweitmail.Contains(','):
-                            await AddLogMessage(new LogEintrag
-                            {
-                                Eintragsdatum = DateTime.Now, Nachricht =
-                                    sus.Klasse + ":" + sus.Nachname + ", " + sus.Vorname +
-                                    " ohne Zweitmail trotz gesetzter Flag",
-                                Warnstufe = "Fehler"
-                            });
-                            break;
-                    }
-
-                    if (erprobungsstufe.Contains(KlasseToStufe(sus.Klasse)))
-                    {
-                        ausgabeMoodleUser.Add(susmail + ";Klasse" + sus.Klasse + DateTime.Now.Year + "!" + ";" +
-                                              sus.Nutzername + "_E;" + "E_" + sus.ID + ";" + sus.Nachname +
-                                              "_Eltern;" + sus.Vorname + ";eltern");
-                        ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + "," + sus.Klasse + "KL" +
-                                                         GetKursSuffix().Result);
-                        ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + ",erprobungsstufe" +
-                                                         GetKursSuffix().Result);
-                    }
-                    else if (mittelstufe.Contains(KlasseToStufe(sus.Klasse)))
-                    {
-                        ausgabeMoodleUser.Add(susmail + ";Klasse" + sus.Klasse + DateTime.Now.Year + "!" + ";" +
-                                              sus.Nutzername + "_E;" + "E_" + sus.ID + ";" + sus.Nachname +
-                                              "_Eltern;" + sus.Vorname + ";eltern");
-                        ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + "," + sus.Klasse + "KL" +
-                                                         GetKursSuffix().Result);
-                        ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + ",mittelstufe" +
-                                                         GetKursSuffix().Result);
-                    }
-                });
+                ExportEltern(ref ausgabeMoodleUser, ref ausgabeMoodleEinschreibungen, susidliste, targetSystems, kursvorlage);
             }
 
             if (whattoexport.Contains('l'))
@@ -1429,7 +1267,7 @@ public class Schuldatenbank : IDisposable
                 catch (Exception ex)
                 {
 #if DEBUG
-                    await AddLogMessage(new LogEintrag
+                    AddLogMessage(new LogEintrag
                         { Eintragsdatum = DateTime.Now, Nachricht = ex.Message, Warnstufe = "Debug" });
 #endif
                     return -1;
@@ -1468,26 +1306,198 @@ public class Schuldatenbank : IDisposable
         catch (Exception ex)
         {
 #if DEBUG
-            await AddLogMessage(new LogEintrag
+            AddLogMessage(new LogEintrag
                 { Eintragsdatum = DateTime.Now, Nachricht = ex.Message, Warnstufe = "Debug" });
 #endif
             return -1;
         }
     }
 
-    private async Task<ReadOnlyCollection<string>> ExportSuS(ReadOnlyCollection<int> susids, bool eltern, bool passwort, string targets)
+    private void ExportEltern(ref List<string> ausgabeMoodleUser, ref List<string> ausgabeMoodleEinschreibungen,
+        ReadOnlyCollection<int> susids, string targetSystems,
+        string[] kursvorlage)
     {
-        return new ReadOnlyCollection<string>(susids.Select(x=>x.ToString()).ToList());
+        if (!targetSystems.Contains('m'))
+        {
+            targetSystems += "m";
+        }
+
+        //Parallel.ForEachAsync(susids, CancellationToken.None, async (s, CancellationToken) =>
+        foreach (var s in susids)
+        {
+            var sus = GetSchueler(s).Result;
+            var susmail = sus.Mail.Contains(' ') ? sus.Mail.Split(' ')[0] : sus.Mail;
+            switch (sus.Zweitaccount)
+            {
+                case true when sus.Zweitmail.Contains(','):
+                {
+                    if (erprobungsstufe.Contains(KlasseToStufe(sus.Klasse)))
+                    {
+                        var zweitmails = sus.Zweitmail.Split(',');
+                        var zweitmail = zweitmails[0].Trim() != sus.Mail.Trim()
+                            ? zweitmails[0].Trim()
+                            : zweitmails[1].Trim();
+                        ausgabeMoodleUser.Add(zweitmail + ";Klasse" + sus.Klasse +
+                                              DateTime.Now.Year + "!" + ";" + sus.Nutzername + "_E1;" +
+                                              "E_" +
+                                              sus.ID + "1;" + sus.Nachname + "_Eltern;" + sus.Vorname +
+                                              ";eltern");
+                        ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + "1," + sus.Klasse +
+                                                         "KL" +
+                                                         GetKursSuffix().Result);
+                        ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + "1,erprobungsstufe" +
+                                                         GetKursSuffix().Result);
+                    }
+                    else if (mittelstufe.Contains(KlasseToStufe(sus.Klasse)))
+                    {
+                        ausgabeMoodleUser.Add(sus.Zweitmail.Split(',')[0] + ";Klasse" + sus.Klasse +
+                                              DateTime.Now.Year + "!" +
+                                              ";" + sus.Nutzername + "_E1;" + "E_" + sus.ID + "1;" +
+                                              sus.Nachname + "_Eltern;" + sus.Vorname + ";eltern");
+                        ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + "1," + sus.Klasse +
+                                                         "KL" +
+                                                         GetKursSuffix().Result);
+                        ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + "1,mittelstufe" +
+                                                         GetKursSuffix().Result);
+                    }
+
+                    break;
+                }
+                case true when !sus.Zweitmail.Contains(','):
+                    AddLogMessage(new LogEintrag
+                    {
+                        Eintragsdatum = DateTime.Now, Nachricht =
+                            sus.Klasse + ":" + sus.Nachname + ", " + sus.Vorname +
+                            " ohne Zweitmail trotz gesetzter Flag",
+                        Warnstufe = "Fehler"
+                    });
+                    break;
+            }
+
+            if (erprobungsstufe.Contains(KlasseToStufe(sus.Klasse)))
+            {
+                ausgabeMoodleUser.Add(susmail + ";Klasse" + sus.Klasse + DateTime.Now.Year + "!" + ";" +
+                                      sus.Nutzername + "_E;" + "E_" + sus.ID + ";" + sus.Nachname +
+                                      "_Eltern;" + sus.Vorname + ";eltern");
+                ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + "," + sus.Klasse + "KL" +
+                                                 GetKursSuffix().Result);
+                ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + ",erprobungsstufe" +
+                                                 GetKursSuffix().Result);
+            }
+            else if (mittelstufe.Contains(KlasseToStufe(sus.Klasse)))
+            {
+                ausgabeMoodleUser.Add(susmail + ";Klasse" + sus.Klasse + DateTime.Now.Year + "!" + ";" +
+                                      sus.Nutzername + "_E;" + "E_" + sus.ID + ";" + sus.Nachname +
+                                      "_Eltern;" + sus.Vorname + ";eltern");
+                ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + "," + sus.Klasse + "KL" +
+                                                 GetKursSuffix().Result);
+                ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + ",mittelstufe" +
+                                                 GetKursSuffix().Result);
+            }
+        }
     }
 
-    private async Task<ReadOnlyCollection<string>> ExportLuL(ReadOnlyCollection<int> lulids, bool passwort, string targets)
+    private void ExportSuS(ReadOnlyCollection<int> susids, bool eltern, bool passwort,
+        string targets)
     {
-        return new ReadOnlyCollection<string>(lulids.Select(x=>x.ToString()).ToList());
     }
 
-    private async Task<ReadOnlyCollection<string>> ExportKurse(ReadOnlyCollection<string> kursBez, string targets)
+    private void ExportLuL(ReadOnlyCollection<int> lulids, bool passwort,
+        string targets)
     {
-        return kursBez;
+    }
+
+    private void ExportKurse(ref List<string> ausgabeMoodleKurse,
+        ReadOnlyCollection<string> kursBez, string targetsystems,
+        string[] kursvorlage)
+    {
+        var sekI = erprobungsstufe.Concat(mittelstufe).ToArray();
+        var ohne_kursvorlagen = kursvorlage[0].Equals("") && kursvorlage[1].Equals("");
+        foreach (var kurs in kursBez)
+        {
+            if (kurs.EndsWith('-')) continue;
+            var k = GetKurs(kurs.Split(';')[0]).Result;
+            if (k.Bezeichnung.Contains("Erprobungsstufe") || k.Bezeichnung.Contains("Mittelstufe") ||
+                k.Bezeichnung.Contains("Einführungsphase") || k.Bezeichnung.Contains("Qualifikationsphase"))
+            {
+                ausgabeMoodleKurse.Add(k.Bezeichnung + k.Suffix + ";" + k.Bezeichnung +
+                                       " SJ" + k.Suffix.Substring(1, 2) + "/" +
+                                       k.Suffix.Substring(3, 2) + ";" + k.Bezeichnung +
+                                       k.Suffix + ";SJ" + k.Suffix + ";tiles");
+            }
+            else if (k.Bezeichnung.Contains("konferenz"))
+            {
+                ausgabeMoodleKurse.Add(k.Bezeichnung + k.Suffix + ";" + k.Bezeichnung +
+                                       " SJ" + k.Suffix.Substring(1, 2) + "/" +
+                                       k.Suffix.Substring(3, 2) + ";" + k.Bezeichnung +
+                                       k.Suffix + ";lehrkraefte;tiles");
+            }
+            else if (ohne_kursvorlagen)
+            {
+                if (k.IstKurs)
+                {
+                    if (sekI.Contains(k.Stufe))
+                    {
+                        ausgabeMoodleKurse.Add(k.Bezeichnung + k.Suffix + ";" + k.Klasse + " " +
+                                               GetLangeFachbezeichnung(k.Fach).Result + "-" +
+                                               k.Art.Substring(k.Art.Length - 1, 1) + " SJ" +
+                                               k.Suffix.Substring(1, 2) + "/" +
+                                               k.Suffix.Substring(3, 2) + ";" + k.Bezeichnung +
+                                               k.Suffix + ";stufe_" + k.Stufe + k.Suffix + ";tiles");
+                    }
+                    else
+                    {
+                        ausgabeMoodleKurse.Add(k.Bezeichnung + k.Suffix + ";" + k.Klasse + " " +
+                                               GetLangeFachbezeichnung(k.Fach).Result + "-" + k.Art +
+                                               " SJ" + k.Suffix.Substring(1, 2) + "/" +
+                                               k.Suffix.Substring(3, 2) + ";" + k.Bezeichnung +
+                                               k.Suffix + ";stufe_" + k.Stufe + k.Suffix + ";tiles");
+                    }
+                }
+                else
+                {
+                    ausgabeMoodleKurse.Add(k.Bezeichnung + k.Suffix + ";" + k.Klasse + " " +
+                                           GetLangeFachbezeichnung(k.Fach).Result + " SJ" +
+                                           k.Suffix.Substring(1, 2) + "/" + k.Suffix.Substring(3, 2) +
+                                           ";" + k.Bezeichnung + k.Suffix + ";" + k.Klasse + k.Suffix +
+                                           ";tiles");
+                }
+            }
+            else
+            {
+                var strkursvorlage = k.Bezeichnung.Contains("KL") ? kursvorlage[0] : kursvorlage[1];
+                if (k.IstKurs)
+                {
+                    if (sekI.Contains(k.Stufe))
+                    {
+                        ausgabeMoodleKurse.Add(k.Bezeichnung + k.Suffix + ";" + k.Klasse + " " +
+                                               GetLangeFachbezeichnung(k.Fach).Result + "-" +
+                                               k.Art.Substring(k.Art.Length - 1, 1) + " SJ" +
+                                               k.Suffix.Substring(1, 2) + "/" +
+                                               k.Suffix.Substring(3, 2) + ";" + k.Bezeichnung +
+                                               k.Suffix + ";stufe_" + k.Stufe + k.Suffix + ";tiles;" +
+                                               strkursvorlage);
+                    }
+                    else
+                    {
+                        ausgabeMoodleKurse.Add(k.Bezeichnung + k.Suffix + ";" + k.Klasse + " " +
+                                               GetLangeFachbezeichnung(k.Fach).Result + "-" + k.Art +
+                                               " SJ" + k.Suffix.Substring(1, 2) + "/" +
+                                               k.Suffix.Substring(3, 2) + ";" + k.Bezeichnung +
+                                               k.Suffix + ";stufe_" + k.Stufe + k.Suffix + ";tiles;" +
+                                               strkursvorlage);
+                    }
+                }
+                else
+                {
+                    ausgabeMoodleKurse.Add(k.Bezeichnung + k.Suffix + ";" + k.Klasse + " " +
+                                           GetLangeFachbezeichnung(k.Fach).Result + " SJ" +
+                                           k.Suffix.Substring(1, 2) + "/" + k.Suffix.Substring(3, 2) +
+                                           ";" + k.Bezeichnung + k.Suffix + ";" + k.Klasse + k.Suffix +
+                                           ";tiles;" + strkursvorlage);
+                }
+            }
+        }
     }
 
     /// <summary>
@@ -2288,17 +2298,17 @@ public class Schuldatenbank : IDisposable
                 }
                 catch (Exception e)
                 {
-                    await AddLogMessage(new LogEintrag
+                    AddLogMessage(new LogEintrag
                         { Eintragsdatum = DateTime.Now, Nachricht = e.Message, Warnstufe = "Debug" });
                 }
             }
             catch (Exception ex)
             {
 #if DEBUG
-                await AddLogMessage(new LogEintrag
+                AddLogMessage(new LogEintrag
                     { Eintragsdatum = DateTime.Now, Nachricht = ex.Message, Warnstufe = "Debug" });
 #endif
-                await AddLogMessage(new LogEintrag
+                AddLogMessage(new LogEintrag
                     { Eintragsdatum = DateTime.Now, Nachricht = "Fehler beim Einlesen der IDs", Warnstufe = "Fehler" });
             }
         }
@@ -2457,7 +2467,7 @@ public class Schuldatenbank : IDisposable
                         }
                         else
                         {
-                            await AddLogMessage(new LogEintrag
+                            AddLogMessage(new LogEintrag
                             {
                                 Eintragsdatum = DateTime.Now, Nachricht =
                                     "SuS" + stmp.ID + ":" + stmp.Nachname + "," + stmp.Vorname + " aus " + stmp.Klasse +
@@ -2468,7 +2478,7 @@ public class Schuldatenbank : IDisposable
                     }
                     else
                     {
-                        await AddLogMessage(new LogEintrag
+                        AddLogMessage(new LogEintrag
                         {
                             Eintragsdatum = DateTime.Now, Nachricht =
                                 "LehrerIn\t" + krz + " oder SchülerIn " + stmp.ID + " " + tmpkurs[inv] + " " +
@@ -2481,10 +2491,10 @@ public class Schuldatenbank : IDisposable
             catch (Exception ex)
             {
 #if DEBUG
-                await AddLogMessage(new LogEintrag
+                AddLogMessage(new LogEintrag
                     { Eintragsdatum = DateTime.Now, Nachricht = ex.Message, Warnstufe = "Debug" });
 #endif
-                await AddLogMessage(new LogEintrag
+                AddLogMessage(new LogEintrag
                 {
                     Eintragsdatum = DateTime.Now, Nachricht = "Fehler beim Einlesen der Kurse", Warnstufe = "Fehler"
                 });
@@ -2581,7 +2591,7 @@ public class Schuldatenbank : IDisposable
             catch (Exception ex)
             {
 #if DEBUG
-                await AddLogMessage(new LogEintrag
+                AddLogMessage(new LogEintrag
                     { Eintragsdatum = DateTime.Now, Nachricht = ex.Message, Warnstufe = "Debug" });
 #endif
             }
@@ -2610,7 +2620,7 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$kbez", kbez);
         sqliteCmd.ExecuteNonQuery();
         sqliteCmd.Parameters.Clear();
-        await AddLogMessage(new LogEintrag
+        AddLogMessage(new LogEintrag
         {
             Eintragsdatum = DateTime.Now, Nachricht = "Kurs mit der Bezeichnung " + kbez + " gelöscht",
             Warnstufe = "Info"
@@ -2643,7 +2653,7 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$lid", lid);
         sqliteCmd.ExecuteNonQuery();
         sqliteCmd.Parameters.Clear();
-        await AddLogMessage(new LogEintrag
+        AddLogMessage(new LogEintrag
         {
             Eintragsdatum = DateTime.Now, Nachricht = "Lehrkraft mit der ID " + lid + " gelöscht", Warnstufe = "Info"
         });
@@ -2682,7 +2692,7 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$lid", lid);
         sqliteCmd.Parameters.AddWithValue("$kbez", kbez);
         sqliteCmd.ExecuteNonQuery();
-        await AddLogMessage(new LogEintrag
+        AddLogMessage(new LogEintrag
         {
             Eintragsdatum = DateTime.Now,
             Nachricht = "Lehrkraft mit der ID " + lid + " aus Kurs " + kbez + " gelöscht, Warnstufe = ",
@@ -2717,7 +2727,7 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$sid", sid);
         sqliteCmd.ExecuteNonQuery();
         sqliteCmd.Parameters.Clear();
-        await AddLogMessage(new LogEintrag
+        AddLogMessage(new LogEintrag
             { Eintragsdatum = DateTime.Now, Nachricht = "SuS mit der ID " + sid + " gelöscht", Warnstufe = "Info" });
     }
 
@@ -2744,7 +2754,7 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$sid", sid);
         sqliteCmd.Parameters.AddWithValue("$kbez", kbez);
         sqliteCmd.ExecuteNonQuery();
-        await AddLogMessage(new LogEintrag
+        AddLogMessage(new LogEintrag
         {
             Eintragsdatum = DateTime.Now, Nachricht = "SuS mit der ID " + sid + " aus Kurs " + kbez + " gelöscht",
             Warnstufe = "Info"
@@ -2944,7 +2954,7 @@ public class Schuldatenbank : IDisposable
                 }
                 else
                 {
-                    await AddLogMessage(new LogEintrag
+                    AddLogMessage(new LogEintrag
                     {
                         Eintragsdatum = DateTime.Now, Nachricht = "SuS\t" + tmpsus[ini] + "\tohne primäre Mailadresse",
                         Warnstufe = "Hinweis"
@@ -2955,7 +2965,7 @@ public class Schuldatenbank : IDisposable
                 var klasse = tmpsus[ink].Contains(' ') ? tmpsus[ink].Replace(" ", "") : tmpsus[ink];
                 if (mail.Contains(';'))
                 {
-                    await AddLogMessage(new LogEintrag
+                    AddLogMessage(new LogEintrag
                     {
                         Eintragsdatum = DateTime.Now, Nachricht = "Mailfehler bei SuS mit der ID " + tmpsus[ini],
                         Warnstufe = "Fehler"
@@ -2971,11 +2981,11 @@ public class Schuldatenbank : IDisposable
             catch (Exception ex)
             {
 #if DEBUG
-                await AddLogMessage(new LogEintrag
+                AddLogMessage(new LogEintrag
                     { Eintragsdatum = DateTime.Now, Nachricht = ex.Message, Warnstufe = "Debug" });
                 //Debug.WriteLine("Zeile " + i + ": " + lines[i]);
 #endif
-                await AddLogMessage(new LogEintrag
+                AddLogMessage(new LogEintrag
                     { Eintragsdatum = DateTime.Now, Nachricht = "Fehler beim Einlesen der SuS", Warnstufe = "Fehler" });
             }
         }
@@ -3219,7 +3229,7 @@ public class Schuldatenbank : IDisposable
             catch (Exception ex)
             {
 #if DEBUG
-                await AddLogMessage(new LogEintrag
+                AddLogMessage(new LogEintrag
                     { Eintragsdatum = DateTime.Now, Nachricht = ex.Message, Warnstufe = "Debug" });
                 // Debug.WriteLine("Zeile " + i + ": " + lines[i]);
 #endif

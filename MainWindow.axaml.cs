@@ -1747,7 +1747,7 @@ public partial class MainWindow : Window
 
             var res = await _myschool.ExportToCSV(folderpath, destsys, whattoexport,
                 cbExportwithPasswort.IsChecked != null && cbExportwithPasswort.IsChecked.Value, "", expandFiles,
-                nurMoodleSuffix, kursvorlagen, [.. _myschool.GetSchuelerIDListe().Result],
+                nurMoodleSuffix, kursvorlagen, new ReadOnlyCollection<int>(_myschool.GetSchuelerIDListe().Result),
                 await _myschool.GetLehrerIDListe(), await _myschool.GetKursBezListe());
             await CheckSuccesfulExport(res);
         }
@@ -1877,10 +1877,10 @@ public partial class MainWindow : Window
         catch (Exception ex)
         {
 #if DEBUG
-            _ = _myschool.AddLogMessage(new LogEintrag
+            _myschool.AddLogMessage(new LogEintrag
                 { Eintragsdatum = DateTime.Now, Nachricht = ex.Message, Warnstufe = "Debug" });
 #endif
-            _ = _myschool.AddLogMessage(new LogEintrag
+            _myschool.AddLogMessage(new LogEintrag
             {
                 Eintragsdatum = DateTime.Now, Nachricht = "Fehler bei der Fehlersuche " + ex.Message,
                 Warnstufe = "Fehler"
@@ -1919,7 +1919,7 @@ public partial class MainWindow : Window
                 var stufe = tbExportStufenkurse.Text;
                 susidlist.AddRange(_myschool.GetSusAusStufe(stufe).Result.Select(s => s.ID).ToList());
                 res = await _myschool.ExportToCSV(folderpath, "all", "s", false, "", false, nurMoodleSuffix,
-                    ["", ""], [..susidlist],
+                    ["", ""], new ReadOnlyCollection<int>([..susidlist]),
                     new ReadOnlyCollection<int>([]),
                     new ReadOnlyCollection<string>([]));
             }
@@ -1932,7 +1932,7 @@ public partial class MainWindow : Window
                 }
 
                 res = await _myschool.ExportToCSV(folderpath, "all", "s", false, "", false, nurMoodleSuffix,
-                    ["", ""], [..susidlist],
+                    ["", ""], new ReadOnlyCollection<int>([..susidlist]),
                     new ReadOnlyCollection<int>([]),
                     new ReadOnlyCollection<string>([]));
             }
@@ -1990,7 +1990,7 @@ public partial class MainWindow : Window
             var nurMoodleSuffix = cbNurMoodleSuffix.IsChecked is not false;
             var res = await _myschool.ExportToCSV(folderpath, "all", "s", true, "", false, nurMoodleSuffix,
                 ["", ""],
-                [.._myschool.GetSusAusStufe("5").Result.Select(s => s.ID).ToList()],
+                new ReadOnlyCollection<int>([.._myschool.GetSusAusStufe("5").Result.Select(s => s.ID).ToList()]),
                 new ReadOnlyCollection<int>([]), new ReadOnlyCollection<string>([]));
             await CheckSuccesfulExport(res);
         }
@@ -2293,7 +2293,7 @@ public partial class MainWindow : Window
         await _myschool.LoescheLog();
     }
 
-    private async void BtnLogReload_OnClick(object? sender, RoutedEventArgs e)
+    private void BtnLogReload_OnClick(object? sender, RoutedEventArgs e)
     {
         if (lbLogLevel.SelectedItems == null) return;
         var items = _myschool.GetLog().Result;
@@ -2881,7 +2881,7 @@ public partial class MainWindow : Window
                 var res = await _myschool.ExportToCSV(folderpath, destsys, whattoexport,
                     isAnfangsPasswortChecked != null && isAnfangsPasswortChecked.Value, "", expandFiles,
                     nurMoodleSuffix, kursvorlagen,
-                    [..suslist.Select(s => s.ID).Distinct().ToList()],
+                    new ReadOnlyCollection<int>([..suslist.Select(s => s.ID).Distinct().ToList()]),
                     new ReadOnlyCollection<int>(lullist.Select(l => l.ID).Distinct().ToList()),
                     new ReadOnlyCollection<string>(kurslist.Select(k => k.Bezeichnung).Distinct().ToList()));
                 await CheckSuccesfulExport(res);
@@ -3541,7 +3541,7 @@ public partial class MainWindow : Window
                 }
                 catch (Exception exception)
                 {
-                    await _myschool.AddLogMessage(new LogEintrag
+                    _myschool.AddLogMessage(new LogEintrag
                         { Eintragsdatum = DateTime.Now, Nachricht = exception.Message, Warnstufe = "Fehler" });
                     await ShowErrordialog("Speichern der Einstellungen fehlgeschlagen");
                 }
@@ -3577,7 +3577,7 @@ public partial class MainWindow : Window
             }
             catch (Exception exception)
             {
-                await _myschool.AddLogMessage(new LogEintrag
+                _myschool.AddLogMessage(new LogEintrag
                     { Eintragsdatum = DateTime.Now, Nachricht = exception.Message, Warnstufe = "Fehler" });
                 await ShowErrordialog("Laden der Einstellungen fehlgeschlagen");
             }
@@ -3749,7 +3749,7 @@ public partial class MainWindow : Window
                 }
                 catch (Exception exception)
                 {
-                    await _myschool.AddLogMessage(new LogEintrag
+                    _myschool.AddLogMessage(new LogEintrag
                         { Eintragsdatum = DateTime.Now, Nachricht = exception.Message, Warnstufe = "Fehler" });
                     await ShowErrordialog("Speichern des Logs fehlgeschlagen");
                 }
