@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
 
@@ -930,7 +929,6 @@ public class Schuldatenbank : IDisposable
         ReadOnlyCollection<int> lulidliste,
         ReadOnlyCollection<string> kursliste)
     {
-        var blacklist = await GetM365Blacklist();
         try
         {
             if (targetSystems.Equals("all"))
@@ -971,9 +969,6 @@ public class Schuldatenbank : IDisposable
             if (withPasswort)
             {
                 ausgabeMoodleUser.Add("email;password;username;idnumber;lastname;firstname;cohort1");
-                /*ausgabeAIXS.Add(
-                    "\"Vorname\";\"Nachname\";\"Klasse\";\"Referenz-ID\";\"Kennwort\";\"Arbeitsgruppen\"");
-                ausgabeAIXL.Add("\"Vorname\";\"Nachname\";\"Referenz-ID\";\"Kennwort\";\"Arbeitsgruppen\"");*/
                 ausgabeAIXS.Add(
                     "Vorname;Nachname;Klasse;Referenz-ID;Kennwort;Arbeitsgruppen");
                 ausgabeAIXL.Add("Vorname;Nachname;Referenz-ID;Kennwort;Arbeitsgruppen");
@@ -981,13 +976,10 @@ public class Schuldatenbank : IDisposable
             else
             {
                 ausgabeMoodleUser.Add("email;username;idnumber;lastname;firstname;cohort1");
-                /*ausgabeAIXS.Add("\"Vorname\";\"Nachname\";\"Klasse\";\"Referenz-ID\";\"Arbeitsgruppen\"");
-                ausgabeAIXL.Add("\"Vorname\";\"Nachname\";\"Referenz-ID\";\"Arbeitsgruppen\"");*/
                 ausgabeAIXS.Add("Vorname;Nachname;Klasse;Referenz-ID;Arbeitsgruppen");
                 ausgabeAIXL.Add("Vorname;Nachname;Referenz-ID;Arbeitsgruppen");
             }
 
-            var sekI = erprobungsstufe.Concat(mittelstufe).ToArray();
             if (whattoexport.Contains('k'))
             {
                 ExportKurse(ref ausgabeMoodleKurse, kursliste, targetSystems, kursvorlage);
@@ -995,165 +987,20 @@ public class Schuldatenbank : IDisposable
 
             if (whattoexport.Contains('s'))
             {
-                await Parallel.ForEachAsync(susidliste, CancellationToken.None, async (sus, CancellationToken) =>
-                    //   foreach (var sus in susidliste)
-                {
-                    var s = GetSchueler(sus).Result;
-                    var kListe = "";
-                    foreach (var kk in await GetKursVonSuS(s.ID))
-                    {
-                        if (string.IsNullOrEmpty(kk.Bezeichnung))
-                        {
-                            break;
-                        }
-
-                        kListe += kk.Bezeichnung + kk.Suffix + "|";
-                        if (kk.Fach.Equals("KL") || kk.Fach.Equals("StuBo"))
-                        {
-                            ausgabeMoodleEinschreibungen.Add("add,schueler," + s.ID + "," + kk.Bezeichnung +
-                                                             kk.Suffix);
-                        }
-                        else
-                        {
-                            ausgabeMoodleEinschreibungen.Add("add,student," + s.ID + "," + kk.Bezeichnung +
-                                                             kk.Suffix);
-                        }
-
-                        if (s.Klasse.StartsWith('5') || s.Klasse.StartsWith('6'))
-                        {
-                            ausgabeMoodleEinschreibungen.Add("add,schueler," + s.ID + ",erprobungsstufe" +
-                                                             GetKursSuffix().Result);
-                        }
-                        else if (s.Klasse.StartsWith('7') || s.Klasse.StartsWith('8') || s.Klasse.StartsWith('9') ||
-                                 s.Klasse.StartsWith("10"))
-                        {
-                            ausgabeMoodleEinschreibungen.Add("add,schueler," + s.ID + ",mittelstufe" +
-                                                             GetKursSuffix().Result);
-                        }
-                        else
-                        {
-                            ausgabeMoodleEinschreibungen.Add("add,schueler," + s.ID + ",Stufenkurs" + s.Klasse +
-                                                             GetKursSuffix().Result);
-                        }
-                    }
-
-                    kListe = kListe.TrimEnd('|');
-                    if (nurMoodleSuffix)
-                    {
-                        kListe = kListe.Replace(GetKursSuffix().Result, "");
-                    }
-
-                    var susmail = s.Mail.Contains(' ') ? s.Mail.Split(' ')[0] : s.Mail;
-                    if (withPasswort)
-                    {
-                        var pwd = passwort.Length > 7
-                            ? passwort
-                            : "Klasse" + s.Klasse + DateTime.Now.Year + "!";
-                        ausgabeMoodleUser.Add(susmail + ";" + pwd.Replace(" ", "") + ";" +
-                                              s.Nutzername + ";" + s.ID + ";" + s.Nachname + ";" + s.Vorname +
-                                              ";schueler");
-                        /*ausgabeAIXS.Add("\"" + s.Vorname + "\";\"" + s.Nachname + "\";\"" + s.Klasse + "\";\"" +
-                                        s.ID + "\";\"" +
-                                        pwd + "\";\"" + kListe + "\"");*/
-                        if (!blacklist.Contains(s.ID))
-                        {
-                            ausgabeAIXS.Add("" + s.Vorname + ";" + s.Nachname + ";" + s.Klasse + ";" +
-                                            s.ID + ";" +
-                                            pwd.Replace(" ", "") + ";" + kListe + "");
-                        }
-                    }
-                    else
-                    {
-                        ausgabeMoodleUser.Add(susmail + ";" + s.Nutzername + ";" + s.ID + ";" + s.Nachname + ";" +
-                                              s.Vorname + ";schueler");
-                        /*ausgabeAIXS.Add("\"" + s.Vorname + "\";\"" + s.Nachname + "\";\"" + s.Klasse + "\";\"" +
-                                        s.ID + "\";\"" + kListe + "\"");*/
-                        if (!blacklist.Contains(s.ID))
-                        {
-                            ausgabeAIXS.Add("" + s.Vorname + ";" + s.Nachname + ";" + s.Klasse + ";" +
-                                            s.ID + ";" + kListe + "");
-                        }
-                    }
-                });
+                ExportSuS(ref ausgabeMoodleUser, ref ausgabeMoodleEinschreibungen, ref ausgabeAIXS, susidliste,
+                    targetSystems, withPasswort
+                    , passwort, nurMoodleSuffix);
             }
 
             if (whattoexport.Contains('e'))
             {
-                ExportEltern(ref ausgabeMoodleUser, ref ausgabeMoodleEinschreibungen, susidliste, targetSystems, kursvorlage);
+                ExportEltern(ref ausgabeMoodleUser, ref ausgabeMoodleEinschreibungen, susidliste);
             }
 
             if (whattoexport.Contains('l'))
             {
-                await Parallel.ForEachAsync(lulidliste, CancellationToken.None, async (l, CancellationToken) =>
-                    //foreach (var l in lulidliste)
-                {
-                    var lt = await GetLehrkraft(l);
-                    var kListe = "";
-                    var fakultas = lt.Fakultas.Split(',');
-                    var fak = fakultas.Aggregate("", (current, fa) => current + ("|^Fako " + fa));
-
-                    fak += fak.Replace("^", "");
-                    fak = fak.TrimStart('|');
-                    foreach (var kurs in await GetKursVonLuL(lt.ID))
-                    {
-                        if (string.IsNullOrEmpty(kurs.Bezeichnung)) continue;
-                        if (kurs.Bezeichnung.Contains("Jahrgangsstufenkonferenz"))
-                        {
-                            var stufenleitungen = await getOberstufenleitung(kurs.Stufe);
-                            var role = stufenleitungen.Contains(lt) ||
-                                       GetSettings().Result.Oberstufenkoordination.Contains(lt.Kuerzel)
-                                ? "editingteacher"
-                                : "student";
-                            ausgabeMoodleEinschreibungen.Add("add," + role + "," + lt.ID + "," +
-                                                             kurs.Bezeichnung + kurs.Suffix);
-                        }
-                        else if (kurs.IstKurs)
-                        {
-                            ausgabeMoodleEinschreibungen.Add("add,editingteacher," + lt.ID + "," +
-                                                             kurs.Bezeichnung + kurs.Suffix);
-                        }
-                        else
-                        {
-                            ausgabeMoodleEinschreibungen.Add("add,editingteacher," + lt.ID + "," +
-                                                             kurs.Bezeichnung + kurs.Suffix);
-                        }
-
-                        if (kurs.Bezeichnung.Length > 20) continue;
-                        kListe += "^" + kurs.Bezeichnung + kurs.Suffix + "|";
-                    }
-
-                    ausgabeMoodleEinschreibungen.AddRange(lt.Fakultas.Split(',')
-                        .Select(fach => "add,editingteacher," + lt.ID + ",FS_" + fach));
-
-                    if (kListe == "^|")
-                    {
-                        kListe = "";
-                    }
-
-                    if (nurMoodleSuffix && kListe != "")
-                    {
-                        kListe = kListe.Replace(GetKursSuffix().Result, "");
-                    }
-
-                    if (withPasswort)
-                    {
-                        ausgabeMoodleUser.Add(lt.Mail + ";" + await GetTempPasswort(lt.ID) + ";" + lt.Kuerzel +
-                                              ";" + lt.ID + ";" + lt.Nachname + ";" + lt.Vorname + ";lehrer");
-                        /*ausgabeAIXL.Add("\"" + lt.Vorname + "\";\"" + lt.Nachname + "\";\"" + lt.ID + "\";\"" +
-                                        await GetTempPasswort(lt.ID) + "\";\"*|" + kListe + fak + "\"");*/
-                        ausgabeAIXL.Add("" + lt.Vorname + ";" + lt.Nachname + ";" + lt.ID + ";" +
-                                        await GetTempPasswort(lt.ID) + ";*|" + kListe + fak + "");
-                    }
-                    else
-                    {
-                        ausgabeMoodleUser.Add(lt.Mail + ";" + lt.Kuerzel + ";" + lt.ID + ";" + lt.Nachname + ";" +
-                                              lt.Vorname);
-                        /*ausgabeAIXL.Add("\"" + lt.Vorname + "\";\"" + lt.Nachname + "\";\"" + lt.ID + "\";\"*|" +
-                                        kListe + fak + "\"");*/
-                        ausgabeAIXL.Add("" + lt.Vorname + ";" + lt.Nachname + ";" + lt.ID + ";*|" +
-                                        kListe + fak + "");
-                    }
-                });
+                ExportLuL(ref ausgabeMoodleUser, ref ausgabeMoodleEinschreibungen, ref ausgabeAIXL, lulidliste,
+                    targetSystems, withPasswort, passwort, nurMoodleSuffix);
             }
 
             if (targetSystems.Contains('i'))
@@ -1314,15 +1161,8 @@ public class Schuldatenbank : IDisposable
     }
 
     private void ExportEltern(ref List<string> ausgabeMoodleUser, ref List<string> ausgabeMoodleEinschreibungen,
-        ReadOnlyCollection<int> susids, string targetSystems,
-        string[] kursvorlage)
+        ReadOnlyCollection<int> susids)
     {
-        if (!targetSystems.Contains('m'))
-        {
-            targetSystems += "m";
-        }
-
-        //Parallel.ForEachAsync(susids, CancellationToken.None, async (s, CancellationToken) =>
         foreach (var s in susids)
         {
             var sus = GetSchueler(s).Result;
@@ -1397,14 +1237,165 @@ public class Schuldatenbank : IDisposable
         }
     }
 
-    private void ExportSuS(ReadOnlyCollection<int> susids, bool eltern, bool passwort,
-        string targets)
+    private void ExportSuS(ref List<string> ausgabeMoodleUser, ref List<string> ausgabeMoodleEinschreibungen,
+        ref List<string> ausgabeAIXS, ReadOnlyCollection<int> susidliste,
+        string targets, bool withPasswort, string passwort, bool nurMoodleSuffix)
     {
+        if (targets == "all" || targets.Contains('m') || targets.Contains('a'))
+        {
+            var blacklist = GetM365Blacklist().Result;
+            foreach (var sus in susidliste)
+            {
+                var s = GetSchueler(sus).Result;
+                var kListe = "";
+                foreach (var kk in GetKursVonSuS(s.ID).Result)
+                {
+                    if (string.IsNullOrEmpty(kk.Bezeichnung))
+                    {
+                        break;
+                    }
+
+                    kListe += kk.Bezeichnung + kk.Suffix + "|";
+                    if (kk.Fach.Equals("KL") || kk.Fach.Equals("StuBo"))
+                    {
+                        ausgabeMoodleEinschreibungen.Add("add,schueler," + s.ID + "," + kk.Bezeichnung +
+                                                         kk.Suffix);
+                    }
+                    else
+                    {
+                        ausgabeMoodleEinschreibungen.Add("add,student," + s.ID + "," + kk.Bezeichnung +
+                                                         kk.Suffix);
+                    }
+
+                    if (s.Klasse.StartsWith('5') || s.Klasse.StartsWith('6'))
+                    {
+                        ausgabeMoodleEinschreibungen.Add("add,schueler," + s.ID + ",erprobungsstufe" +
+                                                         GetKursSuffix().Result);
+                    }
+                    else if (s.Klasse.StartsWith('7') || s.Klasse.StartsWith('8') || s.Klasse.StartsWith('9') ||
+                             s.Klasse.StartsWith("10"))
+                    {
+                        ausgabeMoodleEinschreibungen.Add("add,schueler," + s.ID + ",mittelstufe" +
+                                                         GetKursSuffix().Result);
+                    }
+                    else
+                    {
+                        ausgabeMoodleEinschreibungen.Add("add,schueler," + s.ID + ",Stufenkurs" + s.Klasse +
+                                                         GetKursSuffix().Result);
+                    }
+                }
+
+                kListe = kListe.TrimEnd('|');
+                if (nurMoodleSuffix)
+                {
+                    kListe = kListe.Replace(GetKursSuffix().Result, "");
+                }
+
+                var susmail = s.Mail.Contains(' ') ? s.Mail.Split(' ')[0] : s.Mail;
+                if (withPasswort)
+                {
+                    var pwd = passwort.Length > 7
+                        ? passwort
+                        : "Klasse" + s.Klasse + DateTime.Now.Year + "!";
+                    ausgabeMoodleUser.Add(susmail + ";" + pwd.Replace(" ", "") + ";" +
+                                          s.Nutzername + ";" + s.ID + ";" + s.Nachname + ";" + s.Vorname +
+                                          ";schueler");
+                    if (!blacklist.Contains(s.ID) && targets.Contains('a'))
+                    {
+                        ausgabeAIXS.Add("" + s.Vorname + ";" + s.Nachname + ";" + s.Klasse + ";" +
+                                        s.ID + ";" +
+                                        pwd.Replace(" ", "") + ";" + kListe + "");
+                    }
+                }
+                else
+                {
+                    ausgabeMoodleUser.Add(susmail + ";" + s.Nutzername + ";" + s.ID + ";" + s.Nachname + ";" +
+                                          s.Vorname + ";schueler");
+                    if (!blacklist.Contains(s.ID) && targets.Contains('a'))
+                    {
+                        ausgabeAIXS.Add("" + s.Vorname + ";" + s.Nachname + ";" + s.Klasse + ";" +
+                                        s.ID + ";" + kListe + "");
+                    }
+                }
+            }
+        }
     }
 
-    private void ExportLuL(ReadOnlyCollection<int> lulids, bool passwort,
-        string targets)
+    private void ExportLuL(ref List<string> ausgabeMoodleUser, ref List<string> ausgabeMoodleEinschreibungen,
+        ref List<string> ausgabeAIXL, ReadOnlyCollection<int> lulidliste,
+        string targets, bool withPasswort, string passwort, bool nurMoodleSuffix)
     {
+        foreach (var l in lulidliste)
+        {
+            var lt = GetLehrkraft(l).Result;
+            var kListe = "";
+            var fakultas = lt.Fakultas.Split(',');
+            var fak = fakultas.Aggregate("", (current, fa) => current + ("|^Fako " + fa));
+
+            fak += fak.Replace("^", "");
+            fak = fak.TrimStart('|');
+            foreach (var kurs in GetKursVonLuL(lt.ID).Result)
+            {
+                if (string.IsNullOrEmpty(kurs.Bezeichnung)) continue;
+                if (kurs.Bezeichnung.Contains("Jahrgangsstufenkonferenz"))
+                {
+                    var stufenleitungen = getOberstufenleitung(kurs.Stufe).Result;
+                    var role = stufenleitungen.Contains(lt) ||
+                               GetSettings().Result.Oberstufenkoordination.Contains(lt.Kuerzel)
+                        ? "editingteacher"
+                        : "student";
+                    ausgabeMoodleEinschreibungen.Add("add," + role + "," + lt.ID + "," +
+                                                     kurs.Bezeichnung + kurs.Suffix);
+                }
+                else if (kurs.IstKurs)
+                {
+                    ausgabeMoodleEinschreibungen.Add("add,editingteacher," + lt.ID + "," +
+                                                     kurs.Bezeichnung + kurs.Suffix);
+                }
+                else
+                {
+                    ausgabeMoodleEinschreibungen.Add("add,editingteacher," + lt.ID + "," +
+                                                     kurs.Bezeichnung + kurs.Suffix);
+                }
+
+                if (kurs.Bezeichnung.Length > 20) continue;
+                kListe += "^" + kurs.Bezeichnung + kurs.Suffix + "|";
+            }
+
+            ausgabeMoodleEinschreibungen.AddRange(lt.Fakultas.Split(',')
+                .Select(fach => "add,editingteacher," + lt.ID + ",FS_" + fach));
+
+            if (kListe == "^|")
+            {
+                kListe = "";
+            }
+
+            if (nurMoodleSuffix && kListe != "")
+            {
+                kListe = kListe.Replace(GetKursSuffix().Result, "");
+            }
+
+            if (withPasswort)
+            {
+                ausgabeMoodleUser.Add(lt.Mail + ";" + GetTempPasswort(lt.ID).Result + ";" + lt.Kuerzel +
+                                      ";" + lt.ID + ";" + lt.Nachname + ";" + lt.Vorname + ";lehrer");
+                if (targets.Contains('a'))
+                {
+                    ausgabeAIXL.Add("" + lt.Vorname + ";" + lt.Nachname + ";" + lt.ID + ";" +
+                                    GetTempPasswort(lt.ID).Result + ";*|" + kListe + fak + "");
+                }
+            }
+            else
+            {
+                ausgabeMoodleUser.Add(lt.Mail + ";" + lt.Kuerzel + ";" + lt.ID + ";" + lt.Nachname + ";" +
+                                      lt.Vorname);
+                if (targets.Contains('a'))
+                {
+                    ausgabeAIXL.Add("" + lt.Vorname + ";" + lt.Nachname + ";" + lt.ID + ";*|" +
+                                    kListe + fak + "");
+                }
+            }
+        }
     }
 
     private void ExportKurse(ref List<string> ausgabeMoodleKurse,
