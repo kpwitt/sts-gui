@@ -92,9 +92,9 @@
                     <MenuItem Header="_Hilfe">
                         <MenuItem Header="Über" x:Name="mnuAbout" Click="OnMnuaboutClick" />
                     </MenuItem>
-
                 </Menu>
             </DockPanel>
+
             <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Visible"
                           AllowAutoHide="True" x:Name="mainScroller">
                 <TabControl VerticalAlignment="Stretch">
@@ -425,7 +425,8 @@
                                     </Panel>
                                 </Button>
                                 <Button x:Name="btnLogExport" Click="BtnLogExport_OnClick"
-                                        ToolTip.Tip="Exportiert das komplette Log">Exportieren
+                                        ToolTip.Tip="Exportiert das komplette Log">
+                                    Exportieren
                                 </Button>
                             </StackPanel>
                             <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="5">
