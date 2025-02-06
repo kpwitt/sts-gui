@@ -980,27 +980,26 @@ public class Schuldatenbank : IDisposable
                 ausgabeAIXL.Add("Vorname;Nachname;Referenz-ID;Arbeitsgruppen");
             }
 
-            if (whattoexport.Contains('k'))
+            if (whattoexport.Contains('k') && targetSystems.Contains('m'))
             {
-                ExportKurse(ref ausgabeMoodleKurse, kursliste, targetSystems, kursvorlage);
+                ExportKurse(ref ausgabeMoodleKurse, kursliste, kursvorlage);
             }
 
-            if (whattoexport.Contains('s'))
+            if (whattoexport.Contains('s') && (targetSystems.Contains('a') || targetSystems.Contains('m')))
             {
                 ExportSuS(ref ausgabeMoodleUser, ref ausgabeMoodleEinschreibungen, ref ausgabeAIXS, susidliste,
-                    targetSystems, withPasswort
-                    , passwort, nurMoodleSuffix);
+                    targetSystems, withPasswort, passwort, nurMoodleSuffix);
             }
 
-            if (whattoexport.Contains('e'))
+            if (whattoexport.Contains('e') && targetSystems.Contains('m'))
             {
                 ExportEltern(ref ausgabeMoodleUser, ref ausgabeMoodleEinschreibungen, susidliste);
             }
 
-            if (whattoexport.Contains('l'))
+            if (whattoexport.Contains('l') && (targetSystems.Contains('a') || targetSystems.Contains('m')))
             {
                 ExportLuL(ref ausgabeMoodleUser, ref ausgabeMoodleEinschreibungen, ref ausgabeAIXL, lulidliste,
-                    targetSystems, withPasswort, passwort, nurMoodleSuffix);
+                    targetSystems, withPasswort, nurMoodleSuffix);
             }
 
             if (targetSystems.Contains('i'))
@@ -1323,14 +1322,14 @@ public class Schuldatenbank : IDisposable
 
     private void ExportLuL(ref List<string> ausgabeMoodleUser, ref List<string> ausgabeMoodleEinschreibungen,
         ref List<string> ausgabeAIXL, ReadOnlyCollection<int> lulidliste,
-        string targets, bool withPasswort, string passwort, bool nurMoodleSuffix)
+        string targets, bool withPasswort, bool nurMoodleSuffix)
     {
         foreach (var l in lulidliste)
         {
             var lt = GetLehrkraft(l).Result;
             var kListe = "";
             var fakultas = lt.Fakultas.Split(',');
-            var fak = fakultas.Aggregate("", (current, fa) => current + ("|^Fako " + fa));
+            var fak = fakultas.Aggregate("", (current, fa) => current + "|^Fako " + fa);
 
             fak += fak.Replace("^", "");
             fak = fak.TrimStart('|');
@@ -1398,8 +1397,7 @@ public class Schuldatenbank : IDisposable
         }
     }
 
-    private void ExportKurse(ref List<string> ausgabeMoodleKurse,
-        ReadOnlyCollection<string> kursBez, string targetsystems,
+    private void ExportKurse(ref List<string> ausgabeMoodleKurse, ReadOnlyCollection<string> kursBez,
         string[] kursvorlage)
     {
         var sekI = erprobungsstufe.Concat(mittelstufe).ToArray();
