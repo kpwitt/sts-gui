@@ -1240,81 +1240,79 @@ public class Schuldatenbank : IDisposable
         ref List<string> ausgabeAIXS, ReadOnlyCollection<int> susidliste,
         string targets, bool withPasswort, string passwort, bool nurMoodleSuffix)
     {
-        if (targets == "all" || targets.Contains('m') || targets.Contains('a'))
+        if (targets != "all" && !targets.Contains('m') && !targets.Contains('a')) return;
+        var blacklist = GetM365Blacklist().Result;
+        foreach (var sus in susidliste)
         {
-            var blacklist = GetM365Blacklist().Result;
-            foreach (var sus in susidliste)
+            var s = GetSchueler(sus).Result;
+            var kListe = "";
+            foreach (var kk in GetKursVonSuS(s.ID).Result)
             {
-                var s = GetSchueler(sus).Result;
-                var kListe = "";
-                foreach (var kk in GetKursVonSuS(s.ID).Result)
+                if (string.IsNullOrEmpty(kk.Bezeichnung))
                 {
-                    if (string.IsNullOrEmpty(kk.Bezeichnung))
-                    {
-                        break;
-                    }
-
-                    kListe += kk.Bezeichnung + kk.Suffix + "|";
-                    if (kk.Fach.Equals("KL") || kk.Fach.Equals("StuBo"))
-                    {
-                        ausgabeMoodleEinschreibungen.Add("add,schueler," + s.ID + "," + kk.Bezeichnung +
-                                                         kk.Suffix);
-                    }
-                    else
-                    {
-                        ausgabeMoodleEinschreibungen.Add("add,student," + s.ID + "," + kk.Bezeichnung +
-                                                         kk.Suffix);
-                    }
-
-                    if (s.Klasse.StartsWith('5') || s.Klasse.StartsWith('6'))
-                    {
-                        ausgabeMoodleEinschreibungen.Add("add,schueler," + s.ID + ",erprobungsstufe" +
-                                                         GetKursSuffix().Result);
-                    }
-                    else if (s.Klasse.StartsWith('7') || s.Klasse.StartsWith('8') || s.Klasse.StartsWith('9') ||
-                             s.Klasse.StartsWith("10"))
-                    {
-                        ausgabeMoodleEinschreibungen.Add("add,schueler," + s.ID + ",mittelstufe" +
-                                                         GetKursSuffix().Result);
-                    }
-                    else
-                    {
-                        ausgabeMoodleEinschreibungen.Add("add,schueler," + s.ID + ",Stufenkurs" + s.Klasse +
-                                                         GetKursSuffix().Result);
-                    }
+                    break;
                 }
 
-                kListe = kListe.TrimEnd('|');
-                if (nurMoodleSuffix)
+                kListe += kk.Bezeichnung + kk.Suffix + "|";
+                if (kk.Fach.Equals("KL") || kk.Fach.Equals("StuBo"))
                 {
-                    kListe = kListe.Replace(GetKursSuffix().Result, "");
-                }
-
-                var susmail = s.Mail.Contains(' ') ? s.Mail.Split(' ')[0] : s.Mail;
-                if (withPasswort)
-                {
-                    var pwd = passwort.Length > 7
-                        ? passwort
-                        : "Klasse" + s.Klasse + DateTime.Now.Year + "!";
-                    ausgabeMoodleUser.Add(susmail + ";" + pwd.Replace(" ", "") + ";" +
-                                          s.Nutzername + ";" + s.ID + ";" + s.Nachname + ";" + s.Vorname +
-                                          ";schueler");
-                    if (!blacklist.Contains(s.ID) && targets.Contains('a'))
-                    {
-                        ausgabeAIXS.Add("" + s.Vorname + ";" + s.Nachname + ";" + s.Klasse + ";" +
-                                        s.ID + ";" +
-                                        pwd.Replace(" ", "") + ";" + kListe + "");
-                    }
+                    ausgabeMoodleEinschreibungen.Add("add,schueler," + s.ID + "," + kk.Bezeichnung +
+                                                     kk.Suffix);
                 }
                 else
                 {
-                    ausgabeMoodleUser.Add(susmail + ";" + s.Nutzername + ";" + s.ID + ";" + s.Nachname + ";" +
-                                          s.Vorname + ";schueler");
-                    if (!blacklist.Contains(s.ID) && targets.Contains('a'))
-                    {
-                        ausgabeAIXS.Add("" + s.Vorname + ";" + s.Nachname + ";" + s.Klasse + ";" +
-                                        s.ID + ";" + kListe + "");
-                    }
+                    ausgabeMoodleEinschreibungen.Add("add,student," + s.ID + "," + kk.Bezeichnung +
+                                                     kk.Suffix);
+                }
+
+                if (s.Klasse.StartsWith('5') || s.Klasse.StartsWith('6'))
+                {
+                    ausgabeMoodleEinschreibungen.Add("add,schueler," + s.ID + ",erprobungsstufe" +
+                                                     GetKursSuffix().Result);
+                }
+                else if (s.Klasse.StartsWith('7') || s.Klasse.StartsWith('8') || s.Klasse.StartsWith('9') ||
+                         s.Klasse.StartsWith("10"))
+                {
+                    ausgabeMoodleEinschreibungen.Add("add,schueler," + s.ID + ",mittelstufe" +
+                                                     GetKursSuffix().Result);
+                }
+                else
+                {
+                    ausgabeMoodleEinschreibungen.Add("add,schueler," + s.ID + ",Stufenkurs" + s.Klasse +
+                                                     GetKursSuffix().Result);
+                }
+            }
+
+            kListe = kListe.TrimEnd('|');
+            if (nurMoodleSuffix)
+            {
+                kListe = kListe.Replace(GetKursSuffix().Result, "");
+            }
+
+            var susmail = s.Mail.Contains(' ') ? s.Mail.Split(' ')[0] : s.Mail;
+            if (withPasswort)
+            {
+                var pwd = passwort.Length > 7
+                    ? passwort
+                    : "Klasse" + s.Klasse + DateTime.Now.Year + "!";
+                ausgabeMoodleUser.Add(susmail + ";" + pwd.Replace(" ", "") + ";" +
+                                      s.Nutzername + ";" + s.ID + ";" + s.Nachname + ";" + s.Vorname +
+                                      ";schueler");
+                if (!blacklist.Contains(s.ID) && targets.Contains('a'))
+                {
+                    ausgabeAIXS.Add("" + s.Vorname + ";" + s.Nachname + ";" + s.Klasse + ";" +
+                                    s.ID + ";" +
+                                    pwd.Replace(" ", "") + ";" + kListe + "");
+                }
+            }
+            else
+            {
+                ausgabeMoodleUser.Add(susmail + ";" + s.Nutzername + ";" + s.ID + ";" + s.Nachname + ";" +
+                                      s.Vorname + ";schueler");
+                if (!blacklist.Contains(s.ID) && targets.Contains('a'))
+                {
+                    ausgabeAIXS.Add("" + s.Vorname + ";" + s.Nachname + ";" + s.Klasse + ";" +
+                                    s.ID + ";" + kListe + "");
                 }
             }
         }
