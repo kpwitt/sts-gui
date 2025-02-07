@@ -50,22 +50,14 @@ public partial class MainWindow : Window
     //InitGUi() initialisiert die nicht initialisierten Variablen/Objekte/etc.
     public MainWindow()
     {
-#if DEBUG
-        InitializeComponent(true);
-#else
-            InitializeComponent();
-#endif
+        InitializeComponent();
         InitGUI();
     }
 
     public MainWindow(IReadOnlyList<string> args)
     #pragma warning restore CS8618, CS9264
     {
-#if DEBUG
-        InitializeComponent(true);
-#else
-            InitializeComponent();
-#endif
+        InitializeComponent();
         InitGUI();
         if (args.Count != 1) return;
         var filepath = args[0];
