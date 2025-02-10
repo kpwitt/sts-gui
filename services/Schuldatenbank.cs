@@ -554,27 +554,27 @@ public class Schuldatenbank : IDisposable
     /// <summary>
     /// fügt den Schüler/die Schülerin hinzu
     /// </summary>
-    /// <param name="schulerin"></param>
+    /// <param name="schuelerin"></param>
     /// <returns></returns>
-    public async Task AddSchuelerIn(SuS schulerin)
+    public async Task AddSchuelerIn(SuS schuelerin)
     {
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
             "INSERT OR IGNORE INTO schueler (id, vorname, nachname, mail, klasse, nutzername, aixmail, zweitaccount, zweitmail) VALUES ($id, $vorname, $nachname, $mail, $klasse, $nutzername, $aixmail,$zweitaccount, $zweitmail);";
-        sqliteCmd.Parameters.AddWithValue("$id", schulerin.ID);
-        sqliteCmd.Parameters.AddWithValue("$vorname", schulerin.Vorname);
-        sqliteCmd.Parameters.AddWithValue("$nachname", schulerin.Nachname);
-        sqliteCmd.Parameters.AddWithValue("$mail", schulerin.Mail);
-        sqliteCmd.Parameters.AddWithValue("$klasse", schulerin.Klasse);
-        sqliteCmd.Parameters.AddWithValue("$nutzername", schulerin.Nutzername);
-        sqliteCmd.Parameters.AddWithValue("$aixmail", schulerin.Aixmail);
-        sqliteCmd.Parameters.AddWithValue("$zweitaccount", schulerin.Zweitaccount);
-        sqliteCmd.Parameters.AddWithValue("$zweitmail", schulerin.Zweitmail);
+        sqliteCmd.Parameters.AddWithValue("$id", schuelerin.ID);
+        sqliteCmd.Parameters.AddWithValue("$vorname", schuelerin.Vorname);
+        sqliteCmd.Parameters.AddWithValue("$nachname", schuelerin.Nachname);
+        sqliteCmd.Parameters.AddWithValue("$mail", schuelerin.Mail);
+        sqliteCmd.Parameters.AddWithValue("$klasse", schuelerin.Klasse);
+        sqliteCmd.Parameters.AddWithValue("$nutzername", schuelerin.Nutzername);
+        sqliteCmd.Parameters.AddWithValue("$aixmail", schuelerin.Aixmail);
+        sqliteCmd.Parameters.AddWithValue("$zweitaccount", schuelerin.Zweitaccount);
+        sqliteCmd.Parameters.AddWithValue("$zweitmail", schuelerin.Zweitmail);
         sqliteCmd.ExecuteNonQuery();
         AddLogMessage(new LogEintrag
         {
             Eintragsdatum = DateTime.Now,
-            Nachricht = "SchülerIn\t" + schulerin.Nachname + "\t" + schulerin.Vorname + "\t" + schulerin.Mail +
+            Nachricht = "SchülerIn\t" + schuelerin.Nachname + "\t" + schuelerin.Vorname + "\t" + schuelerin.Mail +
                         "\t angelegt",
             Warnstufe = "Info"
         });
