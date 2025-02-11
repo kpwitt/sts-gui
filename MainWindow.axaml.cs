@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -3715,17 +3714,14 @@ public partial class MainWindow : Window
                     List<LogEintrag> items = [];
                     if (lbLogDisplay.SelectedItems is { Count: > 0 })
                     {
-                        foreach (var entry in lbLogDisplay.SelectedItems.Cast<string>())
-                        {
-                            var logentry = entry.Split('\t');
-                            var cultureInfo = new CultureInfo("de-DE");
-                            var datum = DateTime.Parse(logentry[1]);
-                            items.Add(new LogEintrag
+                        items.AddRange(from entry in lbLogDisplay.SelectedItems.Cast<string>()
+                            select entry.Split('\t')
+                            into logentry
+                            select new LogEintrag
                             {
-                                Warnstufe = logentry[0], Eintragsdatum = datum,
+                                Warnstufe = logentry[0], Eintragsdatum = DateTime.Parse(logentry[1]),
                                 Nachricht = string.Join("\t", logentry[2..])
                             });
-                        }
                     }
                     else
                     {
