@@ -1410,23 +1410,25 @@ public class Schuldatenbank : IDisposable
         {
             if (kurs.EndsWith('-')) continue;
             var k = GetKurs(kurs.Split(';')[0]).Result;
-            if (k.Bezeichnung.Contains("Erprobungsstufe") || k.Bezeichnung.Contains("Mittelstufe") ||
-                k.Bezeichnung.Contains("Einführungsphase") || k.Bezeichnung.Contains("Qualifikationsphase"))
+            
+            if (ohne_kursvorlagen)
             {
-                ausgabeMoodleKurse.Add(k.Bezeichnung + k.Suffix + ";" + k.Bezeichnung +
-                                       " SJ" + k.Suffix.Substring(1, 2) + "/" +
-                                       k.Suffix.Substring(3, 2) + ";" + k.Bezeichnung +
-                                       k.Suffix + ";SJ" + k.Suffix + ";tiles");
-            }
-            else if (k.Bezeichnung.Contains("konferenz"))
-            {
-                ausgabeMoodleKurse.Add(k.Bezeichnung + k.Suffix + ";" + k.Bezeichnung +
-                                       " SJ" + k.Suffix.Substring(1, 2) + "/" +
-                                       k.Suffix.Substring(3, 2) + ";" + k.Bezeichnung +
-                                       k.Suffix + ";lehrkraefte;tiles");
-            }
-            else if (ohne_kursvorlagen)
-            {
+                if (k.Bezeichnung.Contains("Erprobungsstufe") || k.Bezeichnung.Contains("Mittelstufe") ||
+                    k.Bezeichnung.Contains("Einführungsphase") || k.Bezeichnung.Contains("Qualifikationsphase"))
+                {
+                    ausgabeMoodleKurse.Add(k.Bezeichnung + k.Suffix + ";" + k.Bezeichnung +
+                                           " SJ" + k.Suffix.Substring(1, 2) + "/" +
+                                           k.Suffix.Substring(3, 2) + ";" + k.Bezeichnung +
+                                           k.Suffix + ";SJ" + k.Suffix + ";tiles");
+                }
+                else if (k.Bezeichnung.Contains("konferenz"))
+                {
+                    ausgabeMoodleKurse.Add(k.Bezeichnung + k.Suffix + ";" + k.Bezeichnung +
+                                           " SJ" + k.Suffix.Substring(1, 2) + "/" +
+                                           k.Suffix.Substring(3, 2) + ";" + k.Bezeichnung +
+                                           k.Suffix + ";lehrkraefte;tiles");
+                }
+                
                 if (k.IstKurs)
                 {
                     if (sekI.Contains(k.Stufe))
@@ -1459,6 +1461,23 @@ public class Schuldatenbank : IDisposable
             else
             {
                 var strkursvorlage = k.Bezeichnung.Contains("KL") ? kursvorlage[0] : kursvorlage[1];
+                if (k.Bezeichnung.Contains("Erprobungsstufe") || k.Bezeichnung.Contains("Mittelstufe") ||
+                    k.Bezeichnung.Contains("Einführungsphase") || k.Bezeichnung.Contains("Qualifikationsphase"))
+                {
+                    ausgabeMoodleKurse.Add(k.Bezeichnung + k.Suffix + ";" + k.Bezeichnung +
+                                           " SJ" + k.Suffix.Substring(1, 2) + "/" +
+                                           k.Suffix.Substring(3, 2) + ";" + k.Bezeichnung +
+                                           k.Suffix + ";SJ" + k.Suffix + ";tiles;" +
+                                           strkursvorlage);
+                }
+                else if (k.Bezeichnung.Contains("konferenz"))
+                {
+                    ausgabeMoodleKurse.Add(k.Bezeichnung + k.Suffix + ";" + k.Bezeichnung +
+                                           " SJ" + k.Suffix.Substring(1, 2) + "/" +
+                                           k.Suffix.Substring(3, 2) + ";" + k.Bezeichnung +
+                                           k.Suffix + ";lehrkraefte;tiles;" +
+                    strkursvorlage);
+                }
                 if (k.IstKurs)
                 {
                     if (sekI.Contains(k.Stufe))
