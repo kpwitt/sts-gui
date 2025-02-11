@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -46,7 +47,7 @@ public partial class MainWindow : Window
     private int leftLastComboIndex = -1;
     private int rightLastComboIndex = -1;
 
-    #pragma warning disable CS8618, CS9264
+#pragma warning disable CS8618, CS9264
     //InitGUi() initialisiert die nicht initialisierten Variablen/Objekte/etc.
     public MainWindow()
     {
@@ -55,7 +56,7 @@ public partial class MainWindow : Window
     }
 
     public MainWindow(IReadOnlyList<string> args)
-    #pragma warning restore CS8618, CS9264
+#pragma warning restore CS8618, CS9264
     {
         InitializeComponent();
         InitGUI();
@@ -3711,9 +3712,29 @@ public partial class MainWindow : Window
             {
                 try
                 {
-                    var items = _myschool.GetLog().Result;
+                    List<LogEintrag> items = [];
+                    if (lbLogDisplay.SelectedItems is { Count: > 0 })
+                    {
+                        foreach (var entry in lbLogDisplay.SelectedItems.Cast<string>())
+                        {
+                            var logentry = entry.Split('\t');
+                            var cultureInfo = new CultureInfo("de-DE");
+                            var datum = DateTime.Parse(logentry[1]);
+                            items.Add(new LogEintrag
+                            {
+                                Warnstufe = logentry[0], Eintragsdatum = datum,
+                                Nachricht = string.Join("\t", logentry[2..])
+                            });
+                        }
+                    }
+                    else
+                    {
+                        items = _myschool.GetLog().Result.ToList();
+                    }
+
                     var tlist = new List<string>();
                     if (lbLogLevel.SelectedItems != null)
+                    {
                         foreach (ListBoxItem item in lbLogLevel.SelectedItems)
                         {
                             if (item?.Content != null)
@@ -3721,12 +3742,13 @@ public partial class MainWindow : Window
                                 tlist.Add(item.Content.ToString() ?? throw new InvalidOperationException());
                             }
                         }
+                    }
 
                     var filtered_items = items.Where(x => tlist.Contains(x.Warnstufe));
                     await File.WriteAllTextAsync(filepath,
                         string.Join(";",
                                 filtered_items.Select(x =>
-                                    x.Warnstufe + ";" + x.Eintragsdatum + ";" +
+                                    x.Warnstufe + "\t" + x.Datumsstring() + "\t" +
                                     x.Nachricht.Replace('\t', ' ').Replace("  ", " ").TrimEnd(' ') + "\n"))
                             .Replace("\n;", "\n"));
                     var saveSuccessful = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
