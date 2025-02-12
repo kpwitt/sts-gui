@@ -46,7 +46,7 @@ public partial class MainWindow : Window
     private int leftLastComboIndex = -1;
     private int rightLastComboIndex = -1;
 
-    #pragma warning disable CS8618, CS9264
+#pragma warning disable CS8618, CS9264
     //InitGUi() initialisiert die nicht initialisierten Variablen/Objekte/etc.
     public MainWindow()
     {
@@ -55,7 +55,7 @@ public partial class MainWindow : Window
     }
 
     public MainWindow(IReadOnlyList<string> args)
-    #pragma warning restore CS8618, CS9264
+#pragma warning restore CS8618, CS9264
     {
         InitializeComponent();
         InitGUI();
@@ -65,7 +65,7 @@ public partial class MainWindow : Window
         if (filepath.EndsWith(".sqlite"))
         {
             _myschool = new Schuldatenbank(filepath);
-            Title = "SchildToSchule - " + _myschool.GetFilePath().Result;
+            Title = "SchildToSchule - " + _myschool.GetFilePath();
         }
         else if (filepath.EndsWith(".aes"))
         {
@@ -376,7 +376,7 @@ public partial class MainWindow : Window
         if (files == null) return;
         var filepath = files.Path.LocalPath;
         _myschool = new Schuldatenbank(filepath);
-        Title = "SchildToSchule - " + await _myschool.GetFilePath();
+        Title = "SchildToSchule - " + _myschool.GetFilePath();
         InitData();
         SetStatusText();
     }
@@ -463,7 +463,7 @@ public partial class MainWindow : Window
 
     private async void OnMnuschuleschließenClick(object? sender, RoutedEventArgs e)
     {
-        if (_myschool.GetFilePath().Result != ":memory:")
+        if (_myschool.GetFilePath() != ":memory:")
         {
             var leftlist = this.GetControl<ListBox>("leftListBox");
             var rightlist = this.GetControl<ListBox>("rightListBox");
@@ -539,7 +539,7 @@ public partial class MainWindow : Window
     private async void OnMnuschulespeichernunterClick(object? sender, RoutedEventArgs e)
     {
         await Dispatcher.UIThread.InvokeAsync(SaveDbFileAs);
-        Title = "SchildToSchule - " + await _myschool.GetFilePath();
+        Title = "SchildToSchule - " + _myschool.GetFilePath();
         return;
 
         async Task SaveDbFileAs()
@@ -589,7 +589,7 @@ public partial class MainWindow : Window
 
     private async void OnMnuschuleversspeichernClick(object? sender, RoutedEventArgs e)
     {
-        if (_myschool.GetFilePath().Result == ":memory:") return;
+        if (_myschool.GetFilePath() == ":memory:") return;
 
         var inputResult = await Dispatcher.UIThread.InvokeAsync(GetPasswordInput, DispatcherPriority.Input);
         if (string.IsNullOrEmpty(inputResult)) return;
@@ -609,7 +609,7 @@ public partial class MainWindow : Window
                 if (override_res != ButtonResult.Yes) return;
             }
 
-            var dbPath = await _myschool.GetFilePath();
+            var dbPath = _myschool.GetFilePath();
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 //workaround damit der FileHandle geschlossen ist, vor dem verschlüsseln
@@ -659,7 +659,7 @@ public partial class MainWindow : Window
         if (string.IsNullOrEmpty(inputResult)) return;
 
         await Dispatcher.UIThread.InvokeAsync(LoadEncDbFile);
-        Title = "SchildToSchule - " + await _myschool.GetFilePath();
+        Title = "SchildToSchule - " + _myschool.GetFilePath();
         SetStatusText();
         return;
 

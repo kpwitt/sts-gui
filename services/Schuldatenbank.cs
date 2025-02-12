@@ -1538,7 +1538,7 @@ public class Schuldatenbank : IDisposable
     /// <summary>
     /// gibt den Pfad zur Datenbankdatei zurück
     /// </summary>
-    public async Task<string> GetFilePath()
+    public string GetFilePath()
     {
         return _dbpath;
     }
