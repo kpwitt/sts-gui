@@ -65,7 +65,7 @@ public partial class MainWindow : Window
         if (filepath.EndsWith(".sqlite"))
         {
             _myschool = new Schuldatenbank(filepath);
-            Title = "SchildToSchule - " + _myschool.GetFilePath().Result;
+            Title = "SchildToSchule - " + _myschool.GetFilePath();
         }
         else if (filepath.EndsWith(".aes"))
         {
@@ -317,6 +317,7 @@ public partial class MainWindow : Window
         return files;
     }
 
+    //TODO: Abfrage zum Überschreiben entfernen 
     private async Task<IStorageFile?> ShowOpenFileDialog(string dialogtitle,
         IReadOnlyList<FilePickerFileType> extensions)
     {
@@ -375,7 +376,7 @@ public partial class MainWindow : Window
         if (files == null) return;
         var filepath = files.Path.LocalPath;
         _myschool = new Schuldatenbank(filepath);
-        Title = "SchildToSchule - " + await _myschool.GetFilePath();
+        Title = "SchildToSchule - " + _myschool.GetFilePath();
         InitData();
         SetStatusText();
     }
@@ -462,7 +463,7 @@ public partial class MainWindow : Window
 
     private async void OnMnuschuleschließenClick(object? sender, RoutedEventArgs e)
     {
-        if (_myschool.GetFilePath().Result != ":memory:")
+        if (_myschool.GetFilePath() != ":memory:")
         {
             var leftlist = this.GetControl<ListBox>("leftListBox");
             var rightlist = this.GetControl<ListBox>("rightListBox");
@@ -538,7 +539,7 @@ public partial class MainWindow : Window
     private async void OnMnuschulespeichernunterClick(object? sender, RoutedEventArgs e)
     {
         await Dispatcher.UIThread.InvokeAsync(SaveDbFileAs);
-        Title = "SchildToSchule - " + await _myschool.GetFilePath();
+        Title = "SchildToSchule - " + _myschool.GetFilePath();
         return;
 
         async Task SaveDbFileAs()
@@ -588,7 +589,7 @@ public partial class MainWindow : Window
 
     private async void OnMnuschuleversspeichernClick(object? sender, RoutedEventArgs e)
     {
-        if (_myschool.GetFilePath().Result == ":memory:") return;
+        if (_myschool.GetFilePath() == ":memory:") return;
 
         var inputResult = await Dispatcher.UIThread.InvokeAsync(GetPasswordInput, DispatcherPriority.Input);
         if (string.IsNullOrEmpty(inputResult)) return;
@@ -608,7 +609,7 @@ public partial class MainWindow : Window
                 if (override_res != ButtonResult.Yes) return;
             }
 
-            var dbPath = await _myschool.GetFilePath();
+            var dbPath = _myschool.GetFilePath();
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 //workaround damit der FileHandle geschlossen ist, vor dem verschlüsseln
@@ -658,7 +659,7 @@ public partial class MainWindow : Window
         if (string.IsNullOrEmpty(inputResult)) return;
 
         await Dispatcher.UIThread.InvokeAsync(LoadEncDbFile);
-        Title = "SchildToSchule - " + await _myschool.GetFilePath();
+        Title = "SchildToSchule - " + _myschool.GetFilePath();
         SetStatusText();
         return;
 
