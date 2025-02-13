@@ -993,7 +993,18 @@ public partial class MainWindow : Window
         var sid = Convert.ToInt32(susid);
         var susklasse = string.IsNullOrEmpty(tbSuSKlasse.Text) ? "" : tbSuSKlasse.Text;
         if (susklasse == "" || sid == 0) return;
-        await _myschool.AddStoKlassenKurse(await _myschool.GetSchueler(sid), susklasse);
+        if (susklasse.Contains(','))
+        {
+            foreach (var klasse in susklasse.Split(','))
+            {
+                await _myschool.AddStoKlassenKurse(await _myschool.GetSchueler(sid), klasse);
+            }
+        }
+        else
+        {
+            await _myschool.AddStoKlassenKurse(await _myschool.GetSchueler(sid), susklasse);
+        }
+
         OnLeftDataChanged(true);
         OnRightDataChanged(true);
         SetStatusText();
