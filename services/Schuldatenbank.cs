@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.Data;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
@@ -413,7 +412,7 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$kuerzel", kuerzel.ToUpper());
         sqliteCmd.Parameters.AddWithValue("$mail", mail);
         sqliteCmd.Parameters.AddWithValue("$fakultas", fakultas.TrimEnd(';'));
-        sqliteCmd.Parameters.AddWithValue("$pwtemp", GeneratePasswort(8));
+        sqliteCmd.Parameters.AddWithValue("$pwtemp", Tooling.GeneratePasswort(8));
         sqliteCmd.Parameters.AddWithValue("$favo", favo);
         sqliteCmd.Parameters.AddWithValue("$sfavo", sfavo);
         sqliteCmd.ExecuteNonQuery();
@@ -444,7 +443,7 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$mail", lehrkraft.Mail);
         sqliteCmd.Parameters.AddWithValue("$fakultas", lehrkraft.Fakultas.TrimEnd(';'));
         sqliteCmd.Parameters.AddWithValue("$pwtemp",
-            lehrkraft.Pwttemp.Length > 7 ? lehrkraft.Pwttemp : GeneratePasswort(8));
+            lehrkraft.Pwttemp.Length > 7 ? lehrkraft.Pwttemp : Tooling.GeneratePasswort(8));
         sqliteCmd.Parameters.AddWithValue("$favo", lehrkraft.Favo);
         sqliteCmd.Parameters.AddWithValue("$sfavo", lehrkraft.SFavo);
         sqliteCmd.ExecuteNonQuery();
@@ -627,7 +626,7 @@ public class Schuldatenbank : IDisposable
     /// <returns></returns>
     public async Task AddStoKlassenKurse(SuS schulerin, string klasse)
     {
-        if (erprobungsstufe.Concat(mittelstufe).ToArray().Contains(KlasseToStufe(klasse)))
+        if (erprobungsstufe.Concat(mittelstufe).ToArray().Contains(Tooling.KlasseToStufe(klasse)))
         {
             var kliste = GetKursListe().Result.ToList();
             kliste = kliste.FindAll(k => k.Bezeichnung.StartsWith(klasse) && k.IstKurs == false);
@@ -1176,7 +1175,7 @@ public class Schuldatenbank : IDisposable
             {
                 case true when sus.Zweitmail.Contains(','):
                 {
-                    if (erprobungsstufe.Contains(KlasseToStufe(sus.Klasse)))
+                    if (erprobungsstufe.Contains(Tooling.KlasseToStufe(sus.Klasse)))
                     {
                         var zweitmails = sus.Zweitmail.Split(',');
                         var zweitmail = zweitmails[0].Trim() != sus.Mail.Trim()
@@ -1193,7 +1192,7 @@ public class Schuldatenbank : IDisposable
                         ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + "1,erprobungsstufe" +
                                                          GetKursSuffix().Result);
                     }
-                    else if (mittelstufe.Contains(KlasseToStufe(sus.Klasse)))
+                    else if (mittelstufe.Contains(Tooling.KlasseToStufe(sus.Klasse)))
                     {
                         ausgabeMoodleUser.Add(sus.Zweitmail.Split(',')[0] + ";Klasse" + sus.Klasse +
                                               DateTime.Now.Year + "!" +
@@ -1219,7 +1218,7 @@ public class Schuldatenbank : IDisposable
                     break;
             }
 
-            if (erprobungsstufe.Contains(KlasseToStufe(sus.Klasse)))
+            if (erprobungsstufe.Contains(Tooling.KlasseToStufe(sus.Klasse)))
             {
                 ausgabeMoodleUser.Add(susmail + ";Klasse" + sus.Klasse + DateTime.Now.Year + "!" + ";" +
                                       sus.Nutzername + "_E;" + "E_" + sus.ID + ";" + sus.Nachname +
@@ -1229,7 +1228,7 @@ public class Schuldatenbank : IDisposable
                 ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + ",erprobungsstufe" +
                                                  GetKursSuffix().Result);
             }
-            else if (mittelstufe.Contains(KlasseToStufe(sus.Klasse)))
+            else if (mittelstufe.Contains(Tooling.KlasseToStufe(sus.Klasse)))
             {
                 ausgabeMoodleUser.Add(susmail + ";Klasse" + sus.Klasse + DateTime.Now.Year + "!" + ";" +
                                       sus.Nutzername + "_E;" + "E_" + sus.ID + ";" + sus.Nachname +
@@ -1342,7 +1341,7 @@ public class Schuldatenbank : IDisposable
                 if (string.IsNullOrEmpty(kurs.Bezeichnung)) continue;
                 if (kurs.Bezeichnung.Contains("Jahrgangsstufenkonferenz"))
                 {
-                    var stufenleitungen = getOberstufenleitung(kurs.Stufe).Result;
+                    var stufenleitungen = GetOberstufenleitung(kurs.Stufe).Result;
                     var role = stufenleitungen.Contains(lt) ||
                                GetSettings().Result.Oberstufenkoordination.Contains(lt.Kuerzel)
                         ? "editingteacher"
@@ -1511,25 +1510,7 @@ public class Schuldatenbank : IDisposable
             }
         }
     }
-
-    /// <summary>
-    /// generiert ein Passwort bestehend aus Buchstaben, Ziffern und Sonderzeichen
-    /// </summary>
-    /// <param name="laenge">Länge des zu generierendes Passwort</param>
-    /// <returns>String das generierte Passwort aus Zufallszeichen</returns>
-    public static string GeneratePasswort(int laenge)
-    {
-        //erlaubt beim Hoster: /-_#*+!§,()=:.$äöüÄÖÜß
-        const string validPasswordChars = "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ1234567890+-.,()!*/_#";
-        StringBuilder res = new();
-        while (0 < laenge--)
-        {
-            res.Append(validPasswordChars[RandomNumberGenerator.GetInt32(validPasswordChars.Length)]);
-        }
-
-        return res.ToString();
-    }
-
+    
     /// <summary>
     /// gibt die die Gegenüberstellung der Fächer in Kurz- und Langschreibweise  als Liste zurück
     /// </summary>
@@ -2128,7 +2109,7 @@ public class Schuldatenbank : IDisposable
     /// </summary>
     /// <param name="stufe"></param>
     /// <returns></returns>
-    private async Task<List<LuL>> getOberstufenleitung(string stufe)
+    private async Task<List<LuL>> GetOberstufenleitung(string stufe)
     {
         if (string.IsNullOrEmpty(stufe) || !oberstufe.Contains(stufe))
             return [];
@@ -3274,20 +3255,5 @@ public class Schuldatenbank : IDisposable
     {
         return GetLehrerListe().Result.Where(l => !string.IsNullOrEmpty(l.Favo) || !string.IsNullOrEmpty(l.SFavo))
             .ToList();
-    }
-
-    /// <summary>
-    /// Hilfsmethode, die die Klasse der Stufe zuordnet
-    /// </summary>
-    /// <param name="klasse"></param>
-    /// <returns></returns>
-    private static string KlasseToStufe(string klasse)
-    {
-        return klasse.Length switch
-        {
-            2 => klasse[..1],
-            3 => klasse[..2],
-            _ => ""
-        };
     }
 }
