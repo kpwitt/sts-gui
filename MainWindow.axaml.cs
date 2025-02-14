@@ -1056,7 +1056,7 @@ public partial class MainWindow : Window
         if (lulid == "" || !lulid.All(char.IsDigit))
         {
             lulid = _myschool.GetLehrerIDListe().Result.Max() + 1 + "";
-            lulpwtemp = Schuldatenbank.GeneratePasswort(8);
+            lulpwtemp = Tooling.GeneratePasswort(8);
         }
 
         var lid = Convert.ToInt32(lulid);
@@ -2767,7 +2767,7 @@ public partial class MainWindow : Window
         foreach (string luleintrag in leftListBox.SelectedItems)
         {
             var lul = await _myschool.GetLehrkraft(luleintrag.Split(';')[0]);
-            _myschool.SetTPwd(lul.ID, Schuldatenbank.GeneratePasswort(8));
+            _myschool.SetTPwd(lul.ID, Tooling.GeneratePasswort(8));
         }
 
         await _myschool.StopTransaction();
@@ -2996,7 +2996,7 @@ public partial class MainWindow : Window
         if (tbLuLKuerzel == null || tbLuLID == null || string.IsNullOrEmpty(tbLuLKuerzel.Text) ||
             string.IsNullOrEmpty(tbLuLID.Text)) return;
         var lul = await _myschool.GetLehrkraft(tbLuLKuerzel.Text);
-        var pwd = Schuldatenbank.GeneratePasswort(8);
+        var pwd = Tooling.GeneratePasswort(8);
         _myschool.SetTPwd(lul.ID, pwd);
         tbLuLtmpPwd.Text = pwd;
     }
