@@ -1656,7 +1656,7 @@ public partial class MainWindow : Window
     private async void BtnExport_OnClick(object? sender, RoutedEventArgs e)
     {
         if (cbMoodle.IsChecked != null && !cbMoodle.IsChecked.Value && cbAIX.IsChecked != null &&
-            !cbAIX.IsChecked.Value)
+            !cbAIX.IsChecked.Value && cbAJAMF.IsChecked != null && !cbAJAMF.IsChecked.Value)
         {
             await Dispatcher.UIThread.InvokeAsync(() =>
                 {
@@ -1665,7 +1665,8 @@ public partial class MainWindow : Window
                         {
                             ButtonDefinitions = ButtonEnum.Ok,
                             ContentTitle = "Kein Zielsystem ausgewählt",
-                            ContentMessage = "Bitte wählen Sie entweder Moodle und/oder AIX als Zielsystem!",
+                            ContentMessage =
+                                "Bitte wählen Sie entweder Moodle und/oder AIX und/oder JAMF als Zielsystem!",
                             Icon = MsBox.Avalonia.Enums.Icon.Error,
                             WindowIcon = _msgBoxWindowIcon
                         }).ShowAsPopupAsync(this);
@@ -1685,7 +1686,8 @@ public partial class MainWindow : Window
             var expandFiles = false;
             if (File.Exists(folderpath + "/aix_sus.csv") || File.Exists(folderpath + "/aix_lul.csv") ||
                 File.Exists(folderpath + "/mdl_einschreibungen.csv") ||
-                File.Exists(folderpath + "/mdl_kurse.csv") || File.Exists(folderpath + "/mdl_nutzer.csv"))
+                File.Exists(folderpath + "/mdl_kurse.csv") || File.Exists(folderpath + "/mdl_nutzer.csv") ||
+                File.Exists(folderpath + "jamf_import.csv"))
             {
                 var overwriteFilesDialog = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
                 {
@@ -1736,6 +1738,11 @@ public partial class MainWindow : Window
             if (cbAIX.IsChecked != null && cbAIX.IsChecked.Value)
             {
                 destsys += "a";
+            }
+
+            if (cbAJAMF.IsChecked != null && cbAJAMF.IsChecked.Value)
+            {
+                destsys += "j";
             }
 
             var kursvorlagen = new[] { "", "" };

@@ -29,6 +29,7 @@ public class Schuldatenbank : IDisposable
     public static readonly string[] mittelstufe = ["7", "8", "9", "10"];
     public static readonly string[] oberstufe = ["EF", "Q1", "Q2"];
     public static readonly string[] stubostufen = ["8", "9", "10", "EF", "Q1", "Q2"];
+    public static readonly string[] jamfstufen = ["EF", "Q1", "Q2"];
 
     /// <summary>
     /// erstellt, falls nicht vorhanden, die Datenbankstruktur und öffnet die Verbindung
@@ -966,6 +967,7 @@ public class Schuldatenbank : IDisposable
             [
                 "kuerzel;nachname;vorname;plz_ort_;adresse;tel_privat;tel_mobil;email_privat;email_dienst;gebdatum_;status_;mail_Adresse;fach1;fach2;fach3;fakult;funktion_;pw_temp;aktiv;gebdatum;plz;ort;titel;nachname;pop3_dienst;pop3_menge"
             ];
+            List<string> ausgabeJAMF = [];
             var ohne_kursvorlagen = kursvorlage[0].Equals("") && kursvorlage[1].Equals("");
             ausgabeMoodleKurse.Add(ohne_kursvorlagen
                 ? "shortname;fullname;idnumber;category_idnumber;format"
@@ -977,12 +979,14 @@ public class Schuldatenbank : IDisposable
                 ausgabeAIXS.Add(
                     "Vorname;Nachname;Klasse;Referenz-ID;Kennwort;Arbeitsgruppen");
                 ausgabeAIXL.Add("Vorname;Nachname;Referenz-ID;Kennwort;Arbeitsgruppen");
+                ausgabeJAMF.Add("Username;Email;FirstName;LastName;Groups;TeacherGroups;Password");
             }
             else
             {
                 ausgabeMoodleUser.Add("email;username;idnumber;lastname;firstname;cohort1");
                 ausgabeAIXS.Add("Vorname;Nachname;Klasse;Referenz-ID;Arbeitsgruppen");
                 ausgabeAIXL.Add("Vorname;Nachname;Referenz-ID;Arbeitsgruppen");
+                ausgabeJAMF.Add("Username;Email;FirstName;LastName;Groups;TeacherGroups");
             }
 
             if (whattoexport.Contains('k') && targetSystems.Contains('m'))
@@ -1033,6 +1037,11 @@ public class Schuldatenbank : IDisposable
                                       GetTempPasswort(l).Result + ";1;;;;;" + lt.Nachname + ";" +
                                       maildienst.ToLower() + ";1");
                 }
+            }
+
+            if (targetSystems.Contains('j'))
+            {
+                ExportJAMF(ref ausgabeJAMF, susidliste, lulidliste, withPasswort);
             }
 
             if (expandfiles)
@@ -1113,6 +1122,18 @@ public class Schuldatenbank : IDisposable
                                 ausgabeIntern.Distinct().ToList(), Encoding.UTF8);
                         }
                     }
+
+                    if (targetSystems.Contains('j'))
+                    {
+                        if (File.Exists(folder + "jamf_import.csv"))
+                        {
+                            var jamf = (await File.ReadAllLinesAsync(folder + "jamf_import.csv")).ToList();
+                            jamf.RemoveAt(0);
+                            ausgabeJAMF.AddRange(jamf);
+                            await File.WriteAllLinesAsync(folder + "jamf_import.csv",
+                                ausgabeJAMF.Distinct().ToList(), Encoding.UTF8);
+                        }
+                    }
                 }
 
                 catch (Exception ex)
@@ -1149,6 +1170,12 @@ public class Schuldatenbank : IDisposable
                     await File.WriteAllLinesAsync(folder + "/Lehrerdaten_anschreiben.csv",
                         ausgabeIntern.Distinct().ToList(),
                         Encoding.UTF8);
+                }
+
+                if (targetSystems.Contains('j'))
+                {
+                    await File.WriteAllLinesAsync(folder + "jamf_import.csv",
+                        ausgabeJAMF.Distinct().ToList(), Encoding.UTF8);
                 }
             }
 
@@ -1510,7 +1537,37 @@ public class Schuldatenbank : IDisposable
             }
         }
     }
-    
+
+    /// <summary>
+    /// exportiert die angegebenen Nutzer nach JAMF
+    /// </summary>
+    /// <param name="ausgabeJamf"></param>
+    /// <param name="susidliste"></param>
+    /// <param name="lulidliste"></param>
+    /// <param name="withPasswort"></param>
+    /// <exception cref="NotImplementedException"></exception>
+    private void ExportJAMF(ref List<string> ausgabeJamf, ReadOnlyCollection<int> susidliste,
+        ReadOnlyCollection<int> lulidliste, bool withPasswort)
+    {
+        ausgabeJamf.AddRange(from susid in susidliste.Where(x => jamfstufen.Contains(GetSchueler(x).Result.GetStufe()))
+            let sus = GetSchueler(susid).Result
+            let kurse = GetKursVonSuS(susid)
+                .Result.Where(x => jamfstufen.Contains(x.Stufe))
+                .Select(x => x.Bezeichnung)
+                .Where(x => x.StartsWith(sus.Klasse))
+                .ToList()
+            select string.Join(";", sus.Nutzername, sus.Mail, sus.Vorname, sus.Nachname, string.Join(',', kurse), "",
+                withPasswort ? "Klasse" + sus.Klasse + DateTime.Now.Year + "!" : ""));
+
+        ausgabeJamf.AddRange(from lulid in lulidliste
+            let lul = GetLehrkraft(lulid).Result
+            let kurse = GetKursVonLuL(lulid)
+                .Result.Where(x => !string.IsNullOrEmpty(x.Fach) && jamfstufen.Contains(x.Stufe))
+                .Select(x => x.Bezeichnung)
+            select string.Join(";", lul.Kuerzel, lul.Mail, lul.Vorname, lul.Nachname, "", string.Join(',', kurse),
+                withPasswort ? GetTempPasswort(lulid).Result : ""));
+    }
+
     /// <summary>
     /// gibt die die Gegenüberstellung der Fächer in Kurz- und Langschreibweise  als Liste zurück
     /// </summary>
