@@ -29,6 +29,7 @@ public class Schuldatenbank : IDisposable
     public static readonly string[] mittelstufe = ["7", "8", "9", "10"];
     public static readonly string[] oberstufe = ["EF", "Q1", "Q2"];
     public static readonly string[] stubostufen = ["8", "9", "10", "EF", "Q1", "Q2"];
+    public static readonly string[] jamfstufen = ["EF", "Q1", "Q2"];
 
     /// <summary>
     /// erstellt, falls nicht vorhanden, die Datenbankstruktur und öffnet die Verbindung
@@ -1529,24 +1530,23 @@ public class Schuldatenbank : IDisposable
     private void ExportJAMF(ref List<string> ausgabeJamf, ReadOnlyCollection<int> susidliste,
         ReadOnlyCollection<int> lulidliste, bool withPasswort)
     {
-        foreach (var susid in susidliste)
-        {
-            var sus = GetSchueler(susid).Result;
-            var kurse = GetKursVonSuS(susid).Result.Select(x => x.Bezeichnung).Where(x => x.StartsWith(sus.Klasse))
-                .ToList();
-            //ausgabeJAMF.Add("Username;Email;FirstName;LastName;Groups;TeacherGroups;Password");
-            ausgabeJamf.Add(string.Join(";", sus.Nutzername, sus.Mail, sus.Vorname, sus.Nachname,
-                string.Join(',', kurse), "", withPasswort ? "Klasse" + sus.Klasse + DateTime.Now.Year + "!" : ""));
-        }
+        ausgabeJamf.AddRange(from susid in susidliste.Where(x => jamfstufen.Contains(GetSchueler(x).Result.GetStufe()))
+            let sus = GetSchueler(susid).Result
+            let kurse = GetKursVonSuS(susid)
+                .Result.Where(x => jamfstufen.Contains(x.Stufe))
+                .Select(x => x.Bezeichnung)
+                .Where(x => x.StartsWith(sus.Klasse))
+                .ToList()
+            select string.Join(";", sus.Nutzername, sus.Mail, sus.Vorname, sus.Nachname, string.Join(',', kurse), "",
+                withPasswort ? "Klasse" + sus.Klasse + DateTime.Now.Year + "!" : ""));
 
-        foreach (var lulid in lulidliste)
-        {
-            var lul = GetLehrkraft(lulid).Result;
-            var kurse = GetKursVonLuL(lulid).Result.Where(x => !string.IsNullOrEmpty(x.Fach))
-                .Select(x => x.Bezeichnung);
-            ausgabeJamf.Add(string.Join(";", lul.Kuerzel, lul.Mail, lul.Vorname, lul.Nachname, "",
-                string.Join(',', kurse), withPasswort ? GetTempPasswort(lulid).Result : ""));
-        }
+        ausgabeJamf.AddRange(from lulid in lulidliste
+            let lul = GetLehrkraft(lulid).Result
+            let kurse = GetKursVonLuL(lulid)
+                .Result.Where(x => !string.IsNullOrEmpty(x.Fach) && jamfstufen.Contains(x.Stufe))
+                .Select(x => x.Bezeichnung)
+            select string.Join(";", lul.Kuerzel, lul.Mail, lul.Vorname, lul.Nachname, "", string.Join(',', kurse),
+                withPasswort ? GetTempPasswort(lulid).Result : ""));
     }
 
     /// <summary>
