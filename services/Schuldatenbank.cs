@@ -1191,6 +1191,12 @@ public class Schuldatenbank : IDisposable
         }
     }
 
+    /// <summary>
+    /// Fügt die Eltern zum Export hinzu
+    /// </summary>
+    /// <param name="ausgabeMoodleUser"></param>
+    /// <param name="ausgabeMoodleEinschreibungen"></param>
+    /// <param name="susids"></param>
     private void ExportEltern(ref List<string> ausgabeMoodleUser, ref List<string> ausgabeMoodleEinschreibungen,
         ReadOnlyCollection<int> susids)
     {
@@ -1268,6 +1274,17 @@ public class Schuldatenbank : IDisposable
         }
     }
 
+    /// <summary>
+    /// Fügt die SuS zum Export hinzu
+    /// </summary>
+    /// <param name="ausgabeMoodleUser"></param>
+    /// <param name="ausgabeMoodleEinschreibungen"></param>
+    /// <param name="ausgabeAIXS"></param>
+    /// <param name="susidliste"></param>
+    /// <param name="targets"></param>
+    /// <param name="withPasswort"></param>
+    /// <param name="passwort"></param>
+    /// <param name="nurMoodleSuffix"></param>
     private void ExportSuS(ref List<string> ausgabeMoodleUser, ref List<string> ausgabeMoodleEinschreibungen,
         ref List<string> ausgabeAIXS, ReadOnlyCollection<int> susidliste,
         string targets, bool withPasswort, string passwort, bool nurMoodleSuffix)
@@ -1350,6 +1367,16 @@ public class Schuldatenbank : IDisposable
         }
     }
 
+    /// <summary>
+    /// Fügt die Lehrkräfte zum Export hinzu
+    /// </summary>
+    /// <param name="ausgabeMoodleUser"></param>
+    /// <param name="ausgabeMoodleEinschreibungen"></param>
+    /// <param name="ausgabeAIXL"></param>
+    /// <param name="lulidliste"></param>
+    /// <param name="targets"></param>
+    /// <param name="withPasswort"></param>
+    /// <param name="nurMoodleSuffix"></param>
     private void ExportLuL(ref List<string> ausgabeMoodleUser, ref List<string> ausgabeMoodleEinschreibungen,
         ref List<string> ausgabeAIXL, ReadOnlyCollection<int> lulidliste,
         string targets, bool withPasswort, bool nurMoodleSuffix)
@@ -1427,6 +1454,12 @@ public class Schuldatenbank : IDisposable
         }
     }
 
+    /// <summary>
+    /// Fügt die Kurse zum Export hinzu
+    /// </summary>
+    /// <param name="ausgabeMoodleKurse"></param>
+    /// <param name="kursBez"></param>
+    /// <param name="kursvorlage"></param>
     private void ExportKurse(ref List<string> ausgabeMoodleKurse, ReadOnlyCollection<string> kursBez,
         string[] kursvorlage)
     {
