@@ -411,7 +411,7 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$vorname", vorname);
         sqliteCmd.Parameters.AddWithValue("$nachname", nachname);
         sqliteCmd.Parameters.AddWithValue("$kuerzel", kuerzel.ToUpper());
-        sqliteCmd.Parameters.AddWithValue("$mail", mail);
+        sqliteCmd.Parameters.AddWithValue("$mail", mail.ToLower());
         sqliteCmd.Parameters.AddWithValue("$fakultas", fakultas.TrimEnd(';'));
         sqliteCmd.Parameters.AddWithValue("$pwtemp", Tooling.GeneratePasswort(8));
         sqliteCmd.Parameters.AddWithValue("$favo", favo);
@@ -441,7 +441,7 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$vorname", lehrkraft.Vorname);
         sqliteCmd.Parameters.AddWithValue("$nachname", lehrkraft.Nachname);
         sqliteCmd.Parameters.AddWithValue("$kuerzel", lehrkraft.Kuerzel.ToUpper());
-        sqliteCmd.Parameters.AddWithValue("$mail", lehrkraft.Mail);
+        sqliteCmd.Parameters.AddWithValue("$mail", lehrkraft.Mail.ToLower());
         sqliteCmd.Parameters.AddWithValue("$fakultas", lehrkraft.Fakultas.TrimEnd(';'));
         sqliteCmd.Parameters.AddWithValue("$pwtemp",
             lehrkraft.Pwttemp.Length > 7 ? lehrkraft.Pwttemp : Tooling.GeneratePasswort(8));
@@ -541,12 +541,12 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$id", id);
         sqliteCmd.Parameters.AddWithValue("$vorname", vorname);
         sqliteCmd.Parameters.AddWithValue("$nachname", nachname);
-        sqliteCmd.Parameters.AddWithValue("$mail", mail);
+        sqliteCmd.Parameters.AddWithValue("$mail", mail.ToLower());
         sqliteCmd.Parameters.AddWithValue("$klasse", klasse);
-        sqliteCmd.Parameters.AddWithValue("$nutzername", nutzername);
-        sqliteCmd.Parameters.AddWithValue("$aixmail", aixmail);
+        sqliteCmd.Parameters.AddWithValue("$nutzername", nutzername.ToLower());
+        sqliteCmd.Parameters.AddWithValue("$aixmail", aixmail.ToLower());
         sqliteCmd.Parameters.AddWithValue("$zweitaccount", zweitaccount);
-        sqliteCmd.Parameters.AddWithValue("$zweitmail", zweitmail);
+        sqliteCmd.Parameters.AddWithValue("$zweitmail", zweitmail.ToLower());
         sqliteCmd.ExecuteNonQuery();
         AddLogMessage(new LogEintrag
         {
@@ -570,12 +570,12 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$id", schuelerin.ID);
         sqliteCmd.Parameters.AddWithValue("$vorname", schuelerin.Vorname);
         sqliteCmd.Parameters.AddWithValue("$nachname", schuelerin.Nachname);
-        sqliteCmd.Parameters.AddWithValue("$mail", schuelerin.Mail);
+        sqliteCmd.Parameters.AddWithValue("$mail", schuelerin.Mail.ToLower());
         sqliteCmd.Parameters.AddWithValue("$klasse", schuelerin.Klasse);
-        sqliteCmd.Parameters.AddWithValue("$nutzername", schuelerin.Nutzername);
-        sqliteCmd.Parameters.AddWithValue("$aixmail", schuelerin.Aixmail);
+        sqliteCmd.Parameters.AddWithValue("$nutzername", schuelerin.Nutzername.ToLower());
+        sqliteCmd.Parameters.AddWithValue("$aixmail", schuelerin.Aixmail.ToLower());
         sqliteCmd.Parameters.AddWithValue("$zweitaccount", schuelerin.Zweitaccount);
-        sqliteCmd.Parameters.AddWithValue("$zweitmail", schuelerin.Zweitmail);
+        sqliteCmd.Parameters.AddWithValue("$zweitmail", schuelerin.Zweitmail.ToLower());
         sqliteCmd.ExecuteNonQuery();
         AddLogMessage(new LogEintrag
         {
@@ -1191,6 +1191,12 @@ public class Schuldatenbank : IDisposable
         }
     }
 
+    /// <summary>
+    /// Fügt die Eltern zum Export hinzu
+    /// </summary>
+    /// <param name="ausgabeMoodleUser"></param>
+    /// <param name="ausgabeMoodleEinschreibungen"></param>
+    /// <param name="susids"></param>
     private void ExportEltern(ref List<string> ausgabeMoodleUser, ref List<string> ausgabeMoodleEinschreibungen,
         ReadOnlyCollection<int> susids)
     {
@@ -1268,6 +1274,17 @@ public class Schuldatenbank : IDisposable
         }
     }
 
+    /// <summary>
+    /// Fügt die SuS zum Export hinzu
+    /// </summary>
+    /// <param name="ausgabeMoodleUser"></param>
+    /// <param name="ausgabeMoodleEinschreibungen"></param>
+    /// <param name="ausgabeAIXS"></param>
+    /// <param name="susidliste"></param>
+    /// <param name="targets"></param>
+    /// <param name="withPasswort"></param>
+    /// <param name="passwort"></param>
+    /// <param name="nurMoodleSuffix"></param>
     private void ExportSuS(ref List<string> ausgabeMoodleUser, ref List<string> ausgabeMoodleEinschreibungen,
         ref List<string> ausgabeAIXS, ReadOnlyCollection<int> susidliste,
         string targets, bool withPasswort, string passwort, bool nurMoodleSuffix)
@@ -1350,6 +1367,16 @@ public class Schuldatenbank : IDisposable
         }
     }
 
+    /// <summary>
+    /// Fügt die Lehrkräfte zum Export hinzu
+    /// </summary>
+    /// <param name="ausgabeMoodleUser"></param>
+    /// <param name="ausgabeMoodleEinschreibungen"></param>
+    /// <param name="ausgabeAIXL"></param>
+    /// <param name="lulidliste"></param>
+    /// <param name="targets"></param>
+    /// <param name="withPasswort"></param>
+    /// <param name="nurMoodleSuffix"></param>
     private void ExportLuL(ref List<string> ausgabeMoodleUser, ref List<string> ausgabeMoodleEinschreibungen,
         ref List<string> ausgabeAIXL, ReadOnlyCollection<int> lulidliste,
         string targets, bool withPasswort, bool nurMoodleSuffix)
@@ -1427,6 +1454,12 @@ public class Schuldatenbank : IDisposable
         }
     }
 
+    /// <summary>
+    /// Fügt die Kurse zum Export hinzu
+    /// </summary>
+    /// <param name="ausgabeMoodleKurse"></param>
+    /// <param name="kursBez"></param>
+    /// <param name="kursvorlage"></param>
     private void ExportKurse(ref List<string> ausgabeMoodleKurse, ReadOnlyCollection<string> kursBez,
         string[] kursvorlage)
     {
@@ -1436,7 +1469,7 @@ public class Schuldatenbank : IDisposable
         {
             if (kurs.EndsWith('-')) continue;
             var k = GetKurs(kurs.Split(';')[0]).Result;
-            
+
             if (ohne_kursvorlagen)
             {
                 if (k.Bezeichnung.Contains("Erprobungsstufe") || k.Bezeichnung.Contains("Mittelstufe") ||
@@ -1454,7 +1487,7 @@ public class Schuldatenbank : IDisposable
                                            k.Suffix.Substring(3, 2) + ";" + k.Bezeichnung +
                                            k.Suffix + ";lehrkraefte;tiles");
                 }
-                
+
                 if (k.IstKurs)
                 {
                     if (sekI.Contains(k.Stufe))
@@ -1502,8 +1535,9 @@ public class Schuldatenbank : IDisposable
                                            " SJ" + k.Suffix.Substring(1, 2) + "/" +
                                            k.Suffix.Substring(3, 2) + ";" + k.Bezeichnung +
                                            k.Suffix + ";lehrkraefte;tiles;" +
-                    strkursvorlage);
+                                           strkursvorlage);
                 }
+
                 if (k.IstKurs)
                 {
                     if (sekI.Contains(k.Stufe))
