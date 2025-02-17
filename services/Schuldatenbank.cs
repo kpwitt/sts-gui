@@ -1702,7 +1702,10 @@ public class Schuldatenbank : IDisposable
                 IstKurs = Convert.ToBoolean(sqliteDatareader.GetInt32(5))
             };
             retKurs.Art = retKurs.IstKurs ? "PUT" : "PUK";
-
+            if (retKurs is { IstKurs: true, Bezeichnung.Length: > 3 })
+            {
+                retKurs.Art = retKurs.Bezeichnung.Substring(retKurs.Bezeichnung.Length - 3, 3);
+            }
             kliste.Add(retKurs);
         }
 
