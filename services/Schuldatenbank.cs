@@ -938,7 +938,7 @@ public class Schuldatenbank : IDisposable
         {
             if (targetSystems.Equals("all"))
             {
-                return await ExportToCSV(folder, "ami", whattoexport, withPasswort, passwort, expandfiles,
+                return await ExportToCSV(folder, "amij", whattoexport, withPasswort, passwort, expandfiles,
                     nurMoodleSuffix,
                     kursvorlage, susidliste,
                     lulidliste, kursliste);

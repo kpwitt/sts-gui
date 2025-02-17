@@ -2813,7 +2813,7 @@ public partial class MainWindow : Window
             List<LuL> lullist = [];
             List<Kurs> kurslist = [];
             var whattoexport = "";
-            const string destsys = "ami";
+            const string destsys = "amij";
             switch (cboxDataLeft.SelectedIndex)
             {
                 case 0:
