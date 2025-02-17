@@ -916,7 +916,7 @@ public partial class MainWindow : Window
         }
 
         var sid = Convert.ToInt32(susid);
-        if (await _myschool.GibtEsSchueler(sid))
+        if (_myschool.GibtEsSchueler(sid))
         {
             _myschool.SetM365(sid, cbSuSM365.IsChecked != null && cbSuSM365.IsChecked.Value ? 1 : 0);
             if (suszweitadresse != null && susaixmail != null)
@@ -1060,7 +1060,7 @@ public partial class MainWindow : Window
         }
 
         var lid = Convert.ToInt32(lulid);
-        if (await _myschool.GibtEsLehrkraft(lid))
+        if (_myschool.GibtEsLehrkraft(lid))
         {
             await _myschool.UpdateLehrkraft(lid, lulvname, lulnname, lulkrz, lulmail, lulfakultas, lulpwtemp, favo,
                 sfavo);
@@ -1656,7 +1656,7 @@ public partial class MainWindow : Window
     private async void BtnExport_OnClick(object? sender, RoutedEventArgs e)
     {
         if (cbMoodle.IsChecked != null && !cbMoodle.IsChecked.Value && cbAIX.IsChecked != null &&
-            !cbAIX.IsChecked.Value)
+            !cbAIX.IsChecked.Value && cbAJAMF.IsChecked != null && !cbAJAMF.IsChecked.Value)
         {
             await Dispatcher.UIThread.InvokeAsync(() =>
                 {
@@ -1665,7 +1665,8 @@ public partial class MainWindow : Window
                         {
                             ButtonDefinitions = ButtonEnum.Ok,
                             ContentTitle = "Kein Zielsystem ausgewählt",
-                            ContentMessage = "Bitte wählen Sie entweder Moodle und/oder AIX als Zielsystem!",
+                            ContentMessage =
+                                "Bitte wählen Sie entweder Moodle und/oder AIX und/oder JAMF als Zielsystem!",
                             Icon = MsBox.Avalonia.Enums.Icon.Error,
                             WindowIcon = _msgBoxWindowIcon
                         }).ShowAsPopupAsync(this);
@@ -1685,7 +1686,8 @@ public partial class MainWindow : Window
             var expandFiles = false;
             if (File.Exists(folderpath + "/aix_sus.csv") || File.Exists(folderpath + "/aix_lul.csv") ||
                 File.Exists(folderpath + "/mdl_einschreibungen.csv") ||
-                File.Exists(folderpath + "/mdl_kurse.csv") || File.Exists(folderpath + "/mdl_nutzer.csv"))
+                File.Exists(folderpath + "/mdl_kurse.csv") || File.Exists(folderpath + "/mdl_nutzer.csv") ||
+                File.Exists(folderpath + "jamf_import.csv"))
             {
                 var overwriteFilesDialog = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
                 {
@@ -1736,6 +1738,11 @@ public partial class MainWindow : Window
             if (cbAIX.IsChecked != null && cbAIX.IsChecked.Value)
             {
                 destsys += "a";
+            }
+
+            if (cbAJAMF.IsChecked != null && cbAJAMF.IsChecked.Value)
+            {
+                destsys += "j";
             }
 
             var kursvorlagen = new[] { "", "" };
@@ -2045,7 +2052,7 @@ public partial class MainWindow : Window
         await _myschool.SetSettings(settings);
         loadSettingsToGUI(settings);
         await _myschool.StartTransaction();
-        if (!await _myschool.GibtEsKurs("Erprobungsstufe" + settings.Kurssuffix))
+        if (!_myschool.GibtEsKurs("Erprobungsstufe" + settings.Kurssuffix))
         {
             await _myschool.AddKurs("Erprobungsstufe", "", "", "", settings.Kurssuffix, 1);
             foreach (var s in await _myschool.GetSusAusStufe("5"))
@@ -2081,7 +2088,7 @@ public partial class MainWindow : Window
             }
         }
 
-        if (!_myschool.GibtEsKurs("Mittelstufe" + settings.Kurssuffix).Result)
+        if (!_myschool.GibtEsKurs("Mittelstufe" + settings.Kurssuffix))
         {
             await _myschool.AddKurs("Mittelstufe", "", "", "", settings.Kurssuffix, 1);
             foreach (var s in await _myschool.GetSusAusStufe("7"))
@@ -2122,7 +2129,7 @@ public partial class MainWindow : Window
             }
         }
 
-        if (!_myschool.GibtEsKurs("Einführungsphase" + settings.Kurssuffix).Result)
+        if (!_myschool.GibtEsKurs("Einführungsphase" + settings.Kurssuffix))
         {
             await _myschool.AddKurs("Einführungsphase", "", "EF", "EF", settings.Kurssuffix, 1);
             foreach (var s in await _myschool.GetSusAusStufe("EF"))
@@ -2148,7 +2155,7 @@ public partial class MainWindow : Window
             }
         }
 
-        if (!_myschool.GibtEsKurs("Qualifikationsphase 1" + settings.Kurssuffix).Result)
+        if (!_myschool.GibtEsKurs("Qualifikationsphase 1" + settings.Kurssuffix))
         {
             await _myschool.AddKurs("Qualifikationsphase 1", "", "Q1", "Q1", settings.Kurssuffix, 1);
             foreach (var s in await _myschool.GetSusAusStufe("Q1"))
@@ -2174,7 +2181,7 @@ public partial class MainWindow : Window
             }
         }
 
-        if (!_myschool.GibtEsKurs("Qualifikationsphase 2" + settings.Kurssuffix).Result)
+        if (!_myschool.GibtEsKurs("Qualifikationsphase 2" + settings.Kurssuffix))
         {
             await _myschool.AddKurs("Qualifikationsphase 2", "", "Q2", "Q2", settings.Kurssuffix, 1);
             foreach (var s in await _myschool.GetSusAusStufe("Q2"))
@@ -2344,7 +2351,7 @@ public partial class MainWindow : Window
             return;
         }
 
-        if (await _myschool.GibtEsKurs(kursbez))
+        if (_myschool.GibtEsKurs(kursbez))
         {
             await _myschool.UpdateKurs(kursbez, kursfach, kursklasse, kursstufe, kurssuffix,
                 Convert.ToInt32(istKurs));
@@ -3034,7 +3041,7 @@ public partial class MainWindow : Window
         var settingsCache = await _myschool.GetSettings();
         if (!string.IsNullOrEmpty(settingsCache.EFStufenleitung))
         {
-            if (!_myschool.GibtEsKurs(kursBez).Result)
+            if (!_myschool.GibtEsKurs(kursBez))
             {
                 await _myschool.AddKurs(kursBez, "-", "EF", "EF", settingsCache.Kurssuffix, 1);
             }
@@ -3058,7 +3065,7 @@ public partial class MainWindow : Window
         kursBez = "Jahrgangsstufenkonferenz Q1";
         if (!string.IsNullOrEmpty(settingsCache.Q1Stufenleitung))
         {
-            if (!_myschool.GibtEsKurs(kursBez).Result)
+            if (!_myschool.GibtEsKurs(kursBez))
             {
                 await _myschool.AddKurs(kursBez, "-", "Q1", "Q1", settingsCache.Kurssuffix, 1);
             }
@@ -3081,7 +3088,7 @@ public partial class MainWindow : Window
 
         kursBez = "Jahrgangsstufenkonferenz Q2";
         if (string.IsNullOrEmpty(settingsCache.Q2Stufenleitung)) return;
-        if (!_myschool.GibtEsKurs(kursBez).Result)
+        if (!_myschool.GibtEsKurs(kursBez))
         {
             await _myschool.AddKurs(kursBez, "-", "Q2", "Q2", settingsCache.Kurssuffix, 1);
         }
@@ -3723,9 +3730,26 @@ public partial class MainWindow : Window
             {
                 try
                 {
-                    var items = _myschool.GetLog().Result;
+                    List<LogEintrag> items = [];
+                    if (lbLogDisplay.SelectedItems is { Count: > 0 })
+                    {
+                        items.AddRange(from entry in lbLogDisplay.SelectedItems.Cast<string>()
+                            select entry.Split('\t')
+                            into logentry
+                            select new LogEintrag
+                            {
+                                Warnstufe = logentry[0], Eintragsdatum = DateTime.Parse(logentry[1]),
+                                Nachricht = string.Join("\t", logentry[2..])
+                            });
+                    }
+                    else
+                    {
+                        items = _myschool.GetLog().Result.ToList();
+                    }
+
                     var tlist = new List<string>();
                     if (lbLogLevel.SelectedItems != null)
+                    {
                         foreach (ListBoxItem item in lbLogLevel.SelectedItems)
                         {
                             if (item?.Content != null)
@@ -3733,12 +3757,13 @@ public partial class MainWindow : Window
                                 tlist.Add(item.Content.ToString() ?? throw new InvalidOperationException());
                             }
                         }
+                    }
 
                     var filtered_items = items.Where(x => tlist.Contains(x.Warnstufe));
                     await File.WriteAllTextAsync(filepath,
                         string.Join(";",
                                 filtered_items.Select(x =>
-                                    x.Warnstufe + ";" + x.Eintragsdatum + ";" +
+                                    x.Warnstufe + "\t" + x.Datumsstring() + "\t" +
                                     x.Nachricht.Replace('\t', ' ').Replace("  ", " ").TrimEnd(' ') + "\n"))
                             .Replace("\n;", "\n"));
                     var saveSuccessful = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams

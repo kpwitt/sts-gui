@@ -296,6 +296,7 @@
                                     <CheckBox x:Name="cbEltern">Eltern</CheckBox>
                                     <CheckBox x:Name="cbMoodle" IsChecked="True">Moodle</CheckBox>
                                     <CheckBox x:Name="cbAIX" IsChecked="True">AIX</CheckBox>
+                                    <CheckBox x:Name="cbAJAMF" IsChecked="True">JAMF</CheckBox>
                                     <CheckBox x:Name="cbLog">Log</CheckBox>
                                     <CheckBox x:Name="cbExportwithPasswort">Mit Anfangspasswort</CheckBox>
                                     <Button x:Name="btnExport" Click="BtnExport_OnClick">Exportieren</Button>

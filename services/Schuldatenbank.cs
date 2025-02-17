@@ -29,6 +29,7 @@ public class Schuldatenbank : IDisposable
     public static readonly string[] mittelstufe = ["7", "8", "9", "10"];
     public static readonly string[] oberstufe = ["EF", "Q1", "Q2"];
     public static readonly string[] stubostufen = ["8", "9", "10", "EF", "Q1", "Q2"];
+    public static readonly string[] jamfstufen = ["EF", "Q1", "Q2"];
 
     /// <summary>
     /// erstellt, falls nicht vorhanden, die Datenbankstruktur und öffnet die Verbindung
@@ -345,7 +346,7 @@ public class Schuldatenbank : IDisposable
     /// <param name="istkurs"></param>
     public async Task AddKurs(string bez, string fach, string klasse, string stufe, string suffix, int istkurs)
     {
-        if (GibtEsKurs(bez).Result) return;
+        if (GibtEsKurs(bez)) return;
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
             "INSERT OR IGNORE INTO kurse (bez, fach, klasse, stufe, suffix, istkurs) VALUES ($bez, $fach, $klasse, $stufe, $suffix, $istkurs);";
@@ -370,7 +371,7 @@ public class Schuldatenbank : IDisposable
     /// <returns></returns>
     public async Task AddKurs(Kurs kurs)
     {
-        if (GibtEsKurs(kurs.Bezeichnung).Result) return;
+        if (GibtEsKurs(kurs.Bezeichnung)) return;
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
             "INSERT OR IGNORE INTO kurse (bez, fach, klasse, stufe, suffix, istkurs) VALUES ($bez, $fach, $klasse, $stufe, $suffix, $istkurs);";
@@ -402,7 +403,7 @@ public class Schuldatenbank : IDisposable
     public async Task Addlehrkraft(int id, string vorname, string nachname, string kuerzel, string mail,
         string fakultas, string favo, string sfavo)
     {
-        if (GibtEsLehrkraft(id).Result) return;
+        if (GibtEsLehrkraft(id)) return;
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
             "INSERT OR IGNORE INTO lehrkraft (id, nachname, vorname, kuerzel, mail, fakultas, pwtemp, favo, sfavo) VALUES ($id, $nachname, $vorname, $kuerzel, $mail, $fakultas, $pwtemp, $favo, $sfavo);";
@@ -410,7 +411,7 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$vorname", vorname);
         sqliteCmd.Parameters.AddWithValue("$nachname", nachname);
         sqliteCmd.Parameters.AddWithValue("$kuerzel", kuerzel.ToUpper());
-        sqliteCmd.Parameters.AddWithValue("$mail", mail);
+        sqliteCmd.Parameters.AddWithValue("$mail", mail.ToLower());
         sqliteCmd.Parameters.AddWithValue("$fakultas", fakultas.TrimEnd(';'));
         sqliteCmd.Parameters.AddWithValue("$pwtemp", Tooling.GeneratePasswort(8));
         sqliteCmd.Parameters.AddWithValue("$favo", favo);
@@ -432,7 +433,7 @@ public class Schuldatenbank : IDisposable
     /// <returns></returns>
     public async Task Addlehrkraft(LuL lehrkraft)
     {
-        if (GibtEsLehrkraft(lehrkraft.ID).Result) return;
+        if (GibtEsLehrkraft(lehrkraft.ID)) return;
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
             "INSERT OR IGNORE INTO lehrkraft (id, nachname, vorname, kuerzel, mail, fakultas, pwtemp, favo, sfavo) VALUES ($id, $nachname, $vorname, $kuerzel, $mail, $fakultas, $pwtemp, $favo, $sfavo);";
@@ -440,7 +441,7 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$vorname", lehrkraft.Vorname);
         sqliteCmd.Parameters.AddWithValue("$nachname", lehrkraft.Nachname);
         sqliteCmd.Parameters.AddWithValue("$kuerzel", lehrkraft.Kuerzel.ToUpper());
-        sqliteCmd.Parameters.AddWithValue("$mail", lehrkraft.Mail);
+        sqliteCmd.Parameters.AddWithValue("$mail", lehrkraft.Mail.ToLower());
         sqliteCmd.Parameters.AddWithValue("$fakultas", lehrkraft.Fakultas.TrimEnd(';'));
         sqliteCmd.Parameters.AddWithValue("$pwtemp",
             lehrkraft.Pwttemp.Length > 7 ? lehrkraft.Pwttemp : Tooling.GeneratePasswort(8));
@@ -533,19 +534,19 @@ public class Schuldatenbank : IDisposable
     public async Task AddSchuelerIn(int id, string vorname, string nachname, string mail, string klasse,
         string nutzername, string aixmail, int zweitaccount, string zweitmail)
     {
-        if (GibtEsSchueler(id).Result) return;
+        if (GibtEsSchueler(id)) return;
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
             "INSERT OR IGNORE INTO schueler (id, vorname, nachname, mail, klasse, nutzername, aixmail, zweitaccount, zweitmail) VALUES ($id, $vorname, $nachname, $mail, $klasse, $nutzername, $aixmail,$zweitaccount, $zweitmail);";
         sqliteCmd.Parameters.AddWithValue("$id", id);
         sqliteCmd.Parameters.AddWithValue("$vorname", vorname);
         sqliteCmd.Parameters.AddWithValue("$nachname", nachname);
-        sqliteCmd.Parameters.AddWithValue("$mail", mail);
+        sqliteCmd.Parameters.AddWithValue("$mail", mail.ToLower());
         sqliteCmd.Parameters.AddWithValue("$klasse", klasse);
-        sqliteCmd.Parameters.AddWithValue("$nutzername", nutzername);
-        sqliteCmd.Parameters.AddWithValue("$aixmail", aixmail);
+        sqliteCmd.Parameters.AddWithValue("$nutzername", nutzername.ToLower());
+        sqliteCmd.Parameters.AddWithValue("$aixmail", aixmail.ToLower());
         sqliteCmd.Parameters.AddWithValue("$zweitaccount", zweitaccount);
-        sqliteCmd.Parameters.AddWithValue("$zweitmail", zweitmail);
+        sqliteCmd.Parameters.AddWithValue("$zweitmail", zweitmail.ToLower());
         sqliteCmd.ExecuteNonQuery();
         AddLogMessage(new LogEintrag
         {
@@ -562,19 +563,19 @@ public class Schuldatenbank : IDisposable
     /// <returns></returns>
     public async Task AddSchuelerIn(SuS schuelerin)
     {
-        if (GibtEsSchueler(schuelerin.ID).Result) return;
+        if (GibtEsSchueler(schuelerin.ID)) return;
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
             "INSERT OR IGNORE INTO schueler (id, vorname, nachname, mail, klasse, nutzername, aixmail, zweitaccount, zweitmail) VALUES ($id, $vorname, $nachname, $mail, $klasse, $nutzername, $aixmail,$zweitaccount, $zweitmail);";
         sqliteCmd.Parameters.AddWithValue("$id", schuelerin.ID);
         sqliteCmd.Parameters.AddWithValue("$vorname", schuelerin.Vorname);
         sqliteCmd.Parameters.AddWithValue("$nachname", schuelerin.Nachname);
-        sqliteCmd.Parameters.AddWithValue("$mail", schuelerin.Mail);
+        sqliteCmd.Parameters.AddWithValue("$mail", schuelerin.Mail.ToLower());
         sqliteCmd.Parameters.AddWithValue("$klasse", schuelerin.Klasse);
-        sqliteCmd.Parameters.AddWithValue("$nutzername", schuelerin.Nutzername);
-        sqliteCmd.Parameters.AddWithValue("$aixmail", schuelerin.Aixmail);
+        sqliteCmd.Parameters.AddWithValue("$nutzername", schuelerin.Nutzername.ToLower());
+        sqliteCmd.Parameters.AddWithValue("$aixmail", schuelerin.Aixmail.ToLower());
         sqliteCmd.Parameters.AddWithValue("$zweitaccount", schuelerin.Zweitaccount);
-        sqliteCmd.Parameters.AddWithValue("$zweitmail", schuelerin.Zweitmail);
+        sqliteCmd.Parameters.AddWithValue("$zweitmail", schuelerin.Zweitmail.ToLower());
         sqliteCmd.ExecuteNonQuery();
         AddLogMessage(new LogEintrag
         {
@@ -966,6 +967,7 @@ public class Schuldatenbank : IDisposable
             [
                 "kuerzel;nachname;vorname;plz_ort_;adresse;tel_privat;tel_mobil;email_privat;email_dienst;gebdatum_;status_;mail_Adresse;fach1;fach2;fach3;fakult;funktion_;pw_temp;aktiv;gebdatum;plz;ort;titel;nachname;pop3_dienst;pop3_menge"
             ];
+            List<string> ausgabeJAMF = [];
             var ohne_kursvorlagen = kursvorlage[0].Equals("") && kursvorlage[1].Equals("");
             ausgabeMoodleKurse.Add(ohne_kursvorlagen
                 ? "shortname;fullname;idnumber;category_idnumber;format"
@@ -977,12 +979,14 @@ public class Schuldatenbank : IDisposable
                 ausgabeAIXS.Add(
                     "Vorname;Nachname;Klasse;Referenz-ID;Kennwort;Arbeitsgruppen");
                 ausgabeAIXL.Add("Vorname;Nachname;Referenz-ID;Kennwort;Arbeitsgruppen");
+                ausgabeJAMF.Add("Username;Email;FirstName;LastName;Groups;TeacherGroups;Password");
             }
             else
             {
                 ausgabeMoodleUser.Add("email;username;idnumber;lastname;firstname;cohort1");
                 ausgabeAIXS.Add("Vorname;Nachname;Klasse;Referenz-ID;Arbeitsgruppen");
                 ausgabeAIXL.Add("Vorname;Nachname;Referenz-ID;Arbeitsgruppen");
+                ausgabeJAMF.Add("Username;Email;FirstName;LastName;Groups;TeacherGroups");
             }
 
             if (whattoexport.Contains('k') && targetSystems.Contains('m'))
@@ -1033,6 +1037,11 @@ public class Schuldatenbank : IDisposable
                                       GetTempPasswort(l).Result + ";1;;;;;" + lt.Nachname + ";" +
                                       maildienst.ToLower() + ";1");
                 }
+            }
+
+            if (targetSystems.Contains('j'))
+            {
+                ExportJAMF(ref ausgabeJAMF, susidliste, lulidliste, withPasswort);
             }
 
             if (expandfiles)
@@ -1113,6 +1122,18 @@ public class Schuldatenbank : IDisposable
                                 ausgabeIntern.Distinct().ToList(), Encoding.UTF8);
                         }
                     }
+
+                    if (targetSystems.Contains('j'))
+                    {
+                        if (File.Exists(folder + "jamf_import.csv"))
+                        {
+                            var jamf = (await File.ReadAllLinesAsync(folder + "jamf_import.csv")).ToList();
+                            jamf.RemoveAt(0);
+                            ausgabeJAMF.AddRange(jamf);
+                            await File.WriteAllLinesAsync(folder + "jamf_import.csv",
+                                ausgabeJAMF.Distinct().ToList(), Encoding.UTF8);
+                        }
+                    }
                 }
 
                 catch (Exception ex)
@@ -1150,6 +1171,12 @@ public class Schuldatenbank : IDisposable
                         ausgabeIntern.Distinct().ToList(),
                         Encoding.UTF8);
                 }
+
+                if (targetSystems.Contains('j'))
+                {
+                    await File.WriteAllLinesAsync(folder + "jamf_import.csv",
+                        ausgabeJAMF.Distinct().ToList(), Encoding.UTF8);
+                }
             }
 
             return 1;
@@ -1164,6 +1191,12 @@ public class Schuldatenbank : IDisposable
         }
     }
 
+    /// <summary>
+    /// Fügt die Eltern zum Export hinzu
+    /// </summary>
+    /// <param name="ausgabeMoodleUser"></param>
+    /// <param name="ausgabeMoodleEinschreibungen"></param>
+    /// <param name="susids"></param>
     private void ExportEltern(ref List<string> ausgabeMoodleUser, ref List<string> ausgabeMoodleEinschreibungen,
         ReadOnlyCollection<int> susids)
     {
@@ -1241,6 +1274,17 @@ public class Schuldatenbank : IDisposable
         }
     }
 
+    /// <summary>
+    /// Fügt die SuS zum Export hinzu
+    /// </summary>
+    /// <param name="ausgabeMoodleUser"></param>
+    /// <param name="ausgabeMoodleEinschreibungen"></param>
+    /// <param name="ausgabeAIXS"></param>
+    /// <param name="susidliste"></param>
+    /// <param name="targets"></param>
+    /// <param name="withPasswort"></param>
+    /// <param name="passwort"></param>
+    /// <param name="nurMoodleSuffix"></param>
     private void ExportSuS(ref List<string> ausgabeMoodleUser, ref List<string> ausgabeMoodleEinschreibungen,
         ref List<string> ausgabeAIXS, ReadOnlyCollection<int> susidliste,
         string targets, bool withPasswort, string passwort, bool nurMoodleSuffix)
@@ -1323,6 +1367,16 @@ public class Schuldatenbank : IDisposable
         }
     }
 
+    /// <summary>
+    /// Fügt die Lehrkräfte zum Export hinzu
+    /// </summary>
+    /// <param name="ausgabeMoodleUser"></param>
+    /// <param name="ausgabeMoodleEinschreibungen"></param>
+    /// <param name="ausgabeAIXL"></param>
+    /// <param name="lulidliste"></param>
+    /// <param name="targets"></param>
+    /// <param name="withPasswort"></param>
+    /// <param name="nurMoodleSuffix"></param>
     private void ExportLuL(ref List<string> ausgabeMoodleUser, ref List<string> ausgabeMoodleEinschreibungen,
         ref List<string> ausgabeAIXL, ReadOnlyCollection<int> lulidliste,
         string targets, bool withPasswort, bool nurMoodleSuffix)
@@ -1400,6 +1454,12 @@ public class Schuldatenbank : IDisposable
         }
     }
 
+    /// <summary>
+    /// Fügt die Kurse zum Export hinzu
+    /// </summary>
+    /// <param name="ausgabeMoodleKurse"></param>
+    /// <param name="kursBez"></param>
+    /// <param name="kursvorlage"></param>
     private void ExportKurse(ref List<string> ausgabeMoodleKurse, ReadOnlyCollection<string> kursBez,
         string[] kursvorlage)
     {
@@ -1409,23 +1469,25 @@ public class Schuldatenbank : IDisposable
         {
             if (kurs.EndsWith('-')) continue;
             var k = GetKurs(kurs.Split(';')[0]).Result;
-            if (k.Bezeichnung.Contains("Erprobungsstufe") || k.Bezeichnung.Contains("Mittelstufe") ||
-                k.Bezeichnung.Contains("Einführungsphase") || k.Bezeichnung.Contains("Qualifikationsphase"))
+
+            if (ohne_kursvorlagen)
             {
-                ausgabeMoodleKurse.Add(k.Bezeichnung + k.Suffix + ";" + k.Bezeichnung +
-                                       " SJ" + k.Suffix.Substring(1, 2) + "/" +
-                                       k.Suffix.Substring(3, 2) + ";" + k.Bezeichnung +
-                                       k.Suffix + ";SJ" + k.Suffix + ";tiles");
-            }
-            else if (k.Bezeichnung.Contains("konferenz"))
-            {
-                ausgabeMoodleKurse.Add(k.Bezeichnung + k.Suffix + ";" + k.Bezeichnung +
-                                       " SJ" + k.Suffix.Substring(1, 2) + "/" +
-                                       k.Suffix.Substring(3, 2) + ";" + k.Bezeichnung +
-                                       k.Suffix + ";lehrkraefte;tiles");
-            }
-            else if (ohne_kursvorlagen)
-            {
+                if (k.Bezeichnung.Contains("Erprobungsstufe") || k.Bezeichnung.Contains("Mittelstufe") ||
+                    k.Bezeichnung.Contains("Einführungsphase") || k.Bezeichnung.Contains("Qualifikationsphase"))
+                {
+                    ausgabeMoodleKurse.Add(k.Bezeichnung + k.Suffix + ";" + k.Bezeichnung +
+                                           " SJ" + k.Suffix.Substring(1, 2) + "/" +
+                                           k.Suffix.Substring(3, 2) + ";" + k.Bezeichnung +
+                                           k.Suffix + ";SJ" + k.Suffix + ";tiles");
+                }
+                else if (k.Bezeichnung.Contains("konferenz"))
+                {
+                    ausgabeMoodleKurse.Add(k.Bezeichnung + k.Suffix + ";" + k.Bezeichnung +
+                                           " SJ" + k.Suffix.Substring(1, 2) + "/" +
+                                           k.Suffix.Substring(3, 2) + ";" + k.Bezeichnung +
+                                           k.Suffix + ";lehrkraefte;tiles");
+                }
+
                 if (k.IstKurs)
                 {
                     if (sekI.Contains(k.Stufe))
@@ -1458,6 +1520,24 @@ public class Schuldatenbank : IDisposable
             else
             {
                 var strkursvorlage = k.Bezeichnung.Contains("KL") ? kursvorlage[0] : kursvorlage[1];
+                if (k.Bezeichnung.Contains("Erprobungsstufe") || k.Bezeichnung.Contains("Mittelstufe") ||
+                    k.Bezeichnung.Contains("Einführungsphase") || k.Bezeichnung.Contains("Qualifikationsphase"))
+                {
+                    ausgabeMoodleKurse.Add(k.Bezeichnung + k.Suffix + ";" + k.Bezeichnung +
+                                           " SJ" + k.Suffix.Substring(1, 2) + "/" +
+                                           k.Suffix.Substring(3, 2) + ";" + k.Bezeichnung +
+                                           k.Suffix + ";SJ" + k.Suffix + ";tiles;" +
+                                           strkursvorlage);
+                }
+                else if (k.Bezeichnung.Contains("konferenz"))
+                {
+                    ausgabeMoodleKurse.Add(k.Bezeichnung + k.Suffix + ";" + k.Bezeichnung +
+                                           " SJ" + k.Suffix.Substring(1, 2) + "/" +
+                                           k.Suffix.Substring(3, 2) + ";" + k.Bezeichnung +
+                                           k.Suffix + ";lehrkraefte;tiles;" +
+                                           strkursvorlage);
+                }
+
                 if (k.IstKurs)
                 {
                     if (sekI.Contains(k.Stufe))
@@ -1491,7 +1571,37 @@ public class Schuldatenbank : IDisposable
             }
         }
     }
-    
+
+    /// <summary>
+    /// exportiert die angegebenen Nutzer nach JAMF
+    /// </summary>
+    /// <param name="ausgabeJamf"></param>
+    /// <param name="susidliste"></param>
+    /// <param name="lulidliste"></param>
+    /// <param name="withPasswort"></param>
+    /// <exception cref="NotImplementedException"></exception>
+    private void ExportJAMF(ref List<string> ausgabeJamf, ReadOnlyCollection<int> susidliste,
+        ReadOnlyCollection<int> lulidliste, bool withPasswort)
+    {
+        ausgabeJamf.AddRange(from susid in susidliste.Where(x => jamfstufen.Contains(GetSchueler(x).Result.GetStufe()))
+            let sus = GetSchueler(susid).Result
+            let kurse = GetKursVonSuS(susid)
+                .Result.Where(x => jamfstufen.Contains(x.Stufe))
+                .Select(x => x.Bezeichnung)
+                .Where(x => x.StartsWith(sus.Klasse))
+                .ToList()
+            select string.Join(";", sus.Nutzername, sus.Mail, sus.Vorname, sus.Nachname, string.Join(',', kurse), "",
+                withPasswort ? "Klasse" + sus.Klasse + DateTime.Now.Year + "!" : ""));
+
+        ausgabeJamf.AddRange(from lulid in lulidliste
+            let lul = GetLehrkraft(lulid).Result
+            let kurse = GetKursVonLuL(lulid)
+                .Result.Where(x => !string.IsNullOrEmpty(x.Fach) && jamfstufen.Contains(x.Stufe))
+                .Select(x => x.Bezeichnung)
+            select string.Join(";", lul.Kuerzel, lul.Mail, lul.Vorname, lul.Nachname, "", string.Join(',', kurse),
+                withPasswort ? GetTempPasswort(lulid).Result : ""));
+    }
+
     /// <summary>
     /// gibt die die Gegenüberstellung der Fächer in Kurz- und Langschreibweise  als Liste zurück
     /// </summary>
@@ -1592,7 +1702,10 @@ public class Schuldatenbank : IDisposable
                 IstKurs = Convert.ToBoolean(sqliteDatareader.GetInt32(5))
             };
             retKurs.Art = retKurs.IstKurs ? "PUT" : "PUK";
-
+            if (retKurs is { IstKurs: true, Bezeichnung.Length: > 3 })
+            {
+                retKurs.Art = retKurs.Bezeichnung.Substring(retKurs.Bezeichnung.Length - 3, 3);
+            }
             kliste.Add(retKurs);
         }
 
@@ -1999,7 +2112,7 @@ public class Schuldatenbank : IDisposable
     }
 
     /// <summary>
-    /// gibt die schulspezifischen Einstellungen der Datenbank als Liste zurück
+    /// gibt die schulspezifischen Einstellungen der Datenbank als Settings-Struct zurück
     /// </summary>
     public async Task<Einstellungen> GetSettings()
     {
@@ -2204,7 +2317,7 @@ public class Schuldatenbank : IDisposable
     /// </summary>
     /// <param name="sid"></param>
     /// <returns>boolean</returns>
-    public async Task<bool> GibtEsSchueler(int sid)
+    public bool GibtEsSchueler(int sid)
     {
         return GetSchueler(sid).Result.ID > 0;
     }
@@ -2214,7 +2327,7 @@ public class Schuldatenbank : IDisposable
     /// </summary>
     /// <param name="lid"></param>
     /// <returns></returns>
-    public async Task<bool> GibtEsLehrkraft(int lid)
+    public bool GibtEsLehrkraft(int lid)
     {
         return GetLehrkraft(lid).Result.ID > 0;
     }
@@ -2224,7 +2337,7 @@ public class Schuldatenbank : IDisposable
     /// </summary>
     /// <param name="kbez"></param>
     /// <returns></returns>
-    public async Task<bool> GibtEsKurs(string kbez)
+    public bool GibtEsKurs(string kbez)
     {
         return GetKurs(kbez).Result.Bezeichnung == kbez;
     }
