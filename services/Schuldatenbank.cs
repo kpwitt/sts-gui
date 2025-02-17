@@ -346,7 +346,7 @@ public class Schuldatenbank : IDisposable
     /// <param name="istkurs"></param>
     public async Task AddKurs(string bez, string fach, string klasse, string stufe, string suffix, int istkurs)
     {
-        if (GibtEsKurs(bez).Result) return;
+        if (GibtEsKurs(bez)) return;
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
             "INSERT OR IGNORE INTO kurse (bez, fach, klasse, stufe, suffix, istkurs) VALUES ($bez, $fach, $klasse, $stufe, $suffix, $istkurs);";
@@ -371,7 +371,7 @@ public class Schuldatenbank : IDisposable
     /// <returns></returns>
     public async Task AddKurs(Kurs kurs)
     {
-        if (GibtEsKurs(kurs.Bezeichnung).Result) return;
+        if (GibtEsKurs(kurs.Bezeichnung)) return;
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
             "INSERT OR IGNORE INTO kurse (bez, fach, klasse, stufe, suffix, istkurs) VALUES ($bez, $fach, $klasse, $stufe, $suffix, $istkurs);";
@@ -403,7 +403,7 @@ public class Schuldatenbank : IDisposable
     public async Task Addlehrkraft(int id, string vorname, string nachname, string kuerzel, string mail,
         string fakultas, string favo, string sfavo)
     {
-        if (GibtEsLehrkraft(id).Result) return;
+        if (GibtEsLehrkraft(id)) return;
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
             "INSERT OR IGNORE INTO lehrkraft (id, nachname, vorname, kuerzel, mail, fakultas, pwtemp, favo, sfavo) VALUES ($id, $nachname, $vorname, $kuerzel, $mail, $fakultas, $pwtemp, $favo, $sfavo);";
@@ -433,7 +433,7 @@ public class Schuldatenbank : IDisposable
     /// <returns></returns>
     public async Task Addlehrkraft(LuL lehrkraft)
     {
-        if (GibtEsLehrkraft(lehrkraft.ID).Result) return;
+        if (GibtEsLehrkraft(lehrkraft.ID)) return;
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
             "INSERT OR IGNORE INTO lehrkraft (id, nachname, vorname, kuerzel, mail, fakultas, pwtemp, favo, sfavo) VALUES ($id, $nachname, $vorname, $kuerzel, $mail, $fakultas, $pwtemp, $favo, $sfavo);";
@@ -534,7 +534,7 @@ public class Schuldatenbank : IDisposable
     public async Task AddSchuelerIn(int id, string vorname, string nachname, string mail, string klasse,
         string nutzername, string aixmail, int zweitaccount, string zweitmail)
     {
-        if (GibtEsSchueler(id).Result) return;
+        if (GibtEsSchueler(id)) return;
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
             "INSERT OR IGNORE INTO schueler (id, vorname, nachname, mail, klasse, nutzername, aixmail, zweitaccount, zweitmail) VALUES ($id, $vorname, $nachname, $mail, $klasse, $nutzername, $aixmail,$zweitaccount, $zweitmail);";
@@ -563,7 +563,7 @@ public class Schuldatenbank : IDisposable
     /// <returns></returns>
     public async Task AddSchuelerIn(SuS schuelerin)
     {
-        if (GibtEsSchueler(schuelerin.ID).Result) return;
+        if (GibtEsSchueler(schuelerin.ID)) return;
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
             "INSERT OR IGNORE INTO schueler (id, vorname, nachname, mail, klasse, nutzername, aixmail, zweitaccount, zweitmail) VALUES ($id, $vorname, $nachname, $mail, $klasse, $nutzername, $aixmail,$zweitaccount, $zweitmail);";
@@ -2021,7 +2021,7 @@ public class Schuldatenbank : IDisposable
     }
 
     /// <summary>
-    /// gibt die schulspezifischen Einstellungen der Datenbank als Liste zurück
+    /// gibt die schulspezifischen Einstellungen der Datenbank als Settings-Struct zurück
     /// </summary>
     public async Task<Einstellungen> GetSettings()
     {
@@ -2226,7 +2226,7 @@ public class Schuldatenbank : IDisposable
     /// </summary>
     /// <param name="sid"></param>
     /// <returns>boolean</returns>
-    public async Task<bool> GibtEsSchueler(int sid)
+    public bool GibtEsSchueler(int sid)
     {
         return GetSchueler(sid).Result.ID > 0;
     }
@@ -2236,7 +2236,7 @@ public class Schuldatenbank : IDisposable
     /// </summary>
     /// <param name="lid"></param>
     /// <returns></returns>
-    public async Task<bool> GibtEsLehrkraft(int lid)
+    public bool GibtEsLehrkraft(int lid)
     {
         return GetLehrkraft(lid).Result.ID > 0;
     }
@@ -2246,7 +2246,7 @@ public class Schuldatenbank : IDisposable
     /// </summary>
     /// <param name="kbez"></param>
     /// <returns></returns>
-    public async Task<bool> GibtEsKurs(string kbez)
+    public bool GibtEsKurs(string kbez)
     {
         return GetKurs(kbez).Result.Bezeichnung == kbez;
     }

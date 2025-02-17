@@ -916,7 +916,7 @@ public partial class MainWindow : Window
         }
 
         var sid = Convert.ToInt32(susid);
-        if (await _myschool.GibtEsSchueler(sid))
+        if (_myschool.GibtEsSchueler(sid))
         {
             _myschool.SetM365(sid, cbSuSM365.IsChecked != null && cbSuSM365.IsChecked.Value ? 1 : 0);
             if (suszweitadresse != null && susaixmail != null)
@@ -1060,7 +1060,7 @@ public partial class MainWindow : Window
         }
 
         var lid = Convert.ToInt32(lulid);
-        if (await _myschool.GibtEsLehrkraft(lid))
+        if (_myschool.GibtEsLehrkraft(lid))
         {
             await _myschool.UpdateLehrkraft(lid, lulvname, lulnname, lulkrz, lulmail, lulfakultas, lulpwtemp, favo,
                 sfavo);
@@ -2045,7 +2045,7 @@ public partial class MainWindow : Window
         await _myschool.SetSettings(settings);
         loadSettingsToGUI(settings);
         await _myschool.StartTransaction();
-        if (!await _myschool.GibtEsKurs("Erprobungsstufe" + settings.Kurssuffix))
+        if (!_myschool.GibtEsKurs("Erprobungsstufe" + settings.Kurssuffix))
         {
             await _myschool.AddKurs("Erprobungsstufe", "", "", "", settings.Kurssuffix, 1);
             foreach (var s in await _myschool.GetSusAusStufe("5"))
@@ -2081,7 +2081,7 @@ public partial class MainWindow : Window
             }
         }
 
-        if (!_myschool.GibtEsKurs("Mittelstufe" + settings.Kurssuffix).Result)
+        if (!_myschool.GibtEsKurs("Mittelstufe" + settings.Kurssuffix))
         {
             await _myschool.AddKurs("Mittelstufe", "", "", "", settings.Kurssuffix, 1);
             foreach (var s in await _myschool.GetSusAusStufe("7"))
@@ -2122,7 +2122,7 @@ public partial class MainWindow : Window
             }
         }
 
-        if (!_myschool.GibtEsKurs("Einführungsphase" + settings.Kurssuffix).Result)
+        if (!_myschool.GibtEsKurs("Einführungsphase" + settings.Kurssuffix))
         {
             await _myschool.AddKurs("Einführungsphase", "", "EF", "EF", settings.Kurssuffix, 1);
             foreach (var s in await _myschool.GetSusAusStufe("EF"))
@@ -2148,7 +2148,7 @@ public partial class MainWindow : Window
             }
         }
 
-        if (!_myschool.GibtEsKurs("Qualifikationsphase 1" + settings.Kurssuffix).Result)
+        if (!_myschool.GibtEsKurs("Qualifikationsphase 1" + settings.Kurssuffix))
         {
             await _myschool.AddKurs("Qualifikationsphase 1", "", "Q1", "Q1", settings.Kurssuffix, 1);
             foreach (var s in await _myschool.GetSusAusStufe("Q1"))
@@ -2174,7 +2174,7 @@ public partial class MainWindow : Window
             }
         }
 
-        if (!_myschool.GibtEsKurs("Qualifikationsphase 2" + settings.Kurssuffix).Result)
+        if (!_myschool.GibtEsKurs("Qualifikationsphase 2" + settings.Kurssuffix))
         {
             await _myschool.AddKurs("Qualifikationsphase 2", "", "Q2", "Q2", settings.Kurssuffix, 1);
             foreach (var s in await _myschool.GetSusAusStufe("Q2"))
@@ -2344,7 +2344,7 @@ public partial class MainWindow : Window
             return;
         }
 
-        if (await _myschool.GibtEsKurs(kursbez))
+        if (_myschool.GibtEsKurs(kursbez))
         {
             await _myschool.UpdateKurs(kursbez, kursfach, kursklasse, kursstufe, kurssuffix,
                 Convert.ToInt32(istKurs));
@@ -3034,7 +3034,7 @@ public partial class MainWindow : Window
         var settingsCache = await _myschool.GetSettings();
         if (!string.IsNullOrEmpty(settingsCache.EFStufenleitung))
         {
-            if (!_myschool.GibtEsKurs(kursBez).Result)
+            if (!_myschool.GibtEsKurs(kursBez))
             {
                 await _myschool.AddKurs(kursBez, "-", "EF", "EF", settingsCache.Kurssuffix, 1);
             }
@@ -3058,7 +3058,7 @@ public partial class MainWindow : Window
         kursBez = "Jahrgangsstufenkonferenz Q1";
         if (!string.IsNullOrEmpty(settingsCache.Q1Stufenleitung))
         {
-            if (!_myschool.GibtEsKurs(kursBez).Result)
+            if (!_myschool.GibtEsKurs(kursBez))
             {
                 await _myschool.AddKurs(kursBez, "-", "Q1", "Q1", settingsCache.Kurssuffix, 1);
             }
@@ -3081,7 +3081,7 @@ public partial class MainWindow : Window
 
         kursBez = "Jahrgangsstufenkonferenz Q2";
         if (string.IsNullOrEmpty(settingsCache.Q2Stufenleitung)) return;
-        if (!_myschool.GibtEsKurs(kursBez).Result)
+        if (!_myschool.GibtEsKurs(kursBez))
         {
             await _myschool.AddKurs(kursBez, "-", "Q2", "Q2", settingsCache.Kurssuffix, 1);
         }
