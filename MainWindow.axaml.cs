@@ -1226,6 +1226,7 @@ public partial class MainWindow : Window
         tbSuSZweitadresse.Text = "";
         tbSuSKurse.Text = "";
         cbSuSZweitaccount.IsChecked = false;
+        cbSuSM365.IsChecked = false;
     }
 
     private void cboxDataRight_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
