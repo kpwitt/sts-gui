@@ -3154,7 +3154,7 @@ public partial class MainWindow : Window
                 return;
         }
 
-        if (rbEinschreiben.IsChecked == true)
+        if (rbEinschreibenDatenbank.IsChecked == true)
         {
             var kursliste = kurscache.Where(k => tbSonst3.Text.Split(";").Contains(k.Bezeichnung)).ToList();
             if (kursliste.Count < 1) return;
@@ -3194,7 +3194,7 @@ public partial class MainWindow : Window
                 }
             }
         }
-        else if (rbDateiEinschreiben.IsChecked == true)
+        else if (rbEinschreibenDatei.IsChecked == true)
         {
             var filepath = await Dispatcher.UIThread.InvokeAsync(AskForFilepath);
             if (string.IsNullOrEmpty(filepath)) return;
@@ -3222,7 +3222,7 @@ public partial class MainWindow : Window
                 }
             }
         }
-        else if (rbDateiEinschreiben.IsChecked == true)
+        else if (rbEinschreibenDatei.IsChecked == true)
         {
             var filepath = await Dispatcher.UIThread.InvokeAsync(AskForFilepath);
             if (string.IsNullOrEmpty(filepath)) return;

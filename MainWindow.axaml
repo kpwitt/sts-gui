@@ -464,8 +464,8 @@
                                     <ComboBoxItem>die Kurse</ComboBoxItem>
                                 </ComboBox>
                                 <TextBox x:Name="tbSonst3">-</TextBox>
-                                <RadioButton VerticalAlignment="Center" x:Name="rbEinschreiben" IsChecked="True"> einschreiben</RadioButton>
-                                <RadioButton VerticalAlignment="Center" x:Name="rbDateiEinschreiben"> Datei generieren</RadioButton>
+                                <RadioButton VerticalAlignment="Center" x:Name="rbEinschreibenDatenbank" IsChecked="True"> einschreiben</RadioButton>
+                                <RadioButton VerticalAlignment="Center" x:Name="rbEinschreibenDatei"> Datei generieren</RadioButton>
                                 <Button x:Name="btnModErstellung" Click="BtnModErstellung_OnClick">Ausführen</Button>
                             </StackPanel>
                             <Button Grid.Row="1" x:Name="btnSonstOberstufenLuLKurse"
