@@ -826,20 +826,28 @@ public partial class MainWindow : Window
             var folder = await ShowOpenFolderDialog("Bitte den Ordner mit den Dateien auswählen");
             if (folder == null) return;
             var folderpath = folder.Path.LocalPath;
+            var res = 0;
             if (!File.Exists(folderpath + "/sus.csv") && !File.Exists(folderpath + "/lul.csv") &&
                 !File.Exists(folderpath + "/kurse.csv") &&
                 !File.Exists(folderpath + "/temp_accounts.csv"))
             {
-                await _myschool.DumpDataToCSVs(folderpath);
+                res = await _myschool.DumpDataToCSVs(folderpath);
             }
             else
             {
                 var override_res = await ShowOverwriteDialog();
                 if (override_res != ButtonResult.Yes) return;
-                await _myschool.DumpDataToCSVs(folderpath);
+                res = await _myschool.DumpDataToCSVs(folderpath);
             }
 
-            await ShowCustomInfoMessage("Export abgeschlossen", "Information");
+            if (res==1)
+            {
+                await ShowCustomInfoMessage("Export abgeschlossen", "Information");
+            }
+            else
+            {
+                await ShowErrordialog("Fehler beim Export");
+            }
         }
     }
 
