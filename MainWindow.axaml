@@ -450,6 +450,7 @@
                                     <ComboBoxItem>Einige Schüler:innen</ComboBoxItem>
                                     <ComboBoxItem>Alle Lehrkräfte</ComboBoxItem>
                                     <ComboBoxItem>Einige Lehrkräfte</ComboBoxItem>
+                                    <ComboBoxItem>Alle Schüler:innen und Erziehungsberechtigte</ComboBoxItem>
                                 </ComboBox>
                                 <TextBox x:Name="tbSonst1">-</TextBox>
                                 <TextBlock x:Name="tbSonst11" VerticalAlignment="Center"> aus der </TextBlock>

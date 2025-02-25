@@ -3122,7 +3122,7 @@ public partial class MainWindow : Window
         var lulliste = new List<LuL>();
         switch (cbSonst1.SelectedIndex)
         {
-            case 0:
+            case 0 or 4:
                 susliste = cbSonst2.SelectedIndex switch
                 {
                     0 => suscache.Where(s => tbSonst2.Text.Split(';').Contains(s.GetStufe())).ToList(),
@@ -3200,11 +3200,15 @@ public partial class MainWindow : Window
             {
                 case 0 or 1 when susliste.Count < 1:
                     return;
-                case 0 or 1:
+                case 0 or 1 or 4:
                 {
                     foreach (var kurs in tbSonst3.Text.Split(';'))
                     {
                         ListToFile.AddRange(susliste.Select(sus => $"add,schueler,{sus.ID},{kurs}"));
+                        if (cbSonst1.SelectedIndex == 4)
+                        {
+                            ListToFile.AddRange(susliste.Select(sus => $"add,eltern,{sus.ID}_e,{kurs}"));
+                        }
                     }
 
                     await _myschool.StopTransaction();
