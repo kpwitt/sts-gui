@@ -826,20 +826,28 @@ public partial class MainWindow : Window
             var folder = await ShowOpenFolderDialog("Bitte den Ordner mit den Dateien auswählen");
             if (folder == null) return;
             var folderpath = folder.Path.LocalPath;
+            var res = 0;
             if (!File.Exists(folderpath + "/sus.csv") && !File.Exists(folderpath + "/lul.csv") &&
                 !File.Exists(folderpath + "/kurse.csv") &&
                 !File.Exists(folderpath + "/temp_accounts.csv"))
             {
-                await _myschool.DumpDataToCSVs(folderpath);
+                res = await _myschool.DumpDataToCSVs(folderpath);
             }
             else
             {
                 var override_res = await ShowOverwriteDialog();
                 if (override_res != ButtonResult.Yes) return;
-                await _myschool.DumpDataToCSVs(folderpath);
+                res = await _myschool.DumpDataToCSVs(folderpath);
             }
 
-            await ShowCustomInfoMessage("Export abgeschlossen", "Information");
+            if (res==1)
+            {
+                await ShowCustomInfoMessage("Export abgeschlossen", "Information");
+            }
+            else
+            {
+                await ShowErrordialog("Fehler beim Export");
+            }
         }
     }
 
@@ -3146,7 +3154,7 @@ public partial class MainWindow : Window
                 return;
         }
 
-        if (rbEinschreiben.IsChecked == true)
+        if (rbEinschreibenDatenbank.IsChecked == true)
         {
             var kursliste = kurscache.Where(k => tbSonst3.Text.Split(";").Contains(k.Bezeichnung)).ToList();
             if (kursliste.Count < 1) return;
@@ -3186,7 +3194,7 @@ public partial class MainWindow : Window
                 }
             }
         }
-        else if (rbDateiEinschreiben.IsChecked == true)
+        else if (rbEinschreibenDatei.IsChecked == true)
         {
             var filepath = await Dispatcher.UIThread.InvokeAsync(AskForFilepath);
             if (string.IsNullOrEmpty(filepath)) return;
@@ -3214,7 +3222,7 @@ public partial class MainWindow : Window
                 }
             }
         }
-        else if (rbDateiEinschreiben.IsChecked == true)
+        else if (rbEinschreibenDatei.IsChecked == true)
         {
             var filepath = await Dispatcher.UIThread.InvokeAsync(AskForFilepath);
             if (string.IsNullOrEmpty(filepath)) return;

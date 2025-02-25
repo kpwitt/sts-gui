@@ -1204,11 +1204,12 @@ public class Schuldatenbank : IDisposable
         {
             var sus = GetSchueler(s).Result;
             var susmail = sus.Mail.Contains(' ') ? sus.Mail.Split(' ')[0] : sus.Mail;
+            var schuelerstufe = Tooling.KlasseToStufe(sus.Klasse);
             switch (sus.Zweitaccount)
             {
                 case true when sus.Zweitmail.Contains(','):
                 {
-                    if (erprobungsstufe.Contains(Tooling.KlasseToStufe(sus.Klasse)))
+                    if (erprobungsstufe.Contains(schuelerstufe))
                     {
                         var zweitmails = sus.Zweitmail.Split(',');
                         var zweitmail = zweitmails[0].Trim() != sus.Mail.Trim()
@@ -1225,7 +1226,7 @@ public class Schuldatenbank : IDisposable
                         ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + "1,erprobungsstufe" +
                                                          GetKursSuffix().Result);
                     }
-                    else if (mittelstufe.Contains(Tooling.KlasseToStufe(sus.Klasse)))
+                    else if (mittelstufe.Contains(schuelerstufe))
                     {
                         ausgabeMoodleUser.Add(sus.Zweitmail.Split(',')[0] + ";Klasse" + sus.Klasse +
                                               DateTime.Now.Year + "!" +
@@ -1251,7 +1252,7 @@ public class Schuldatenbank : IDisposable
                     break;
             }
 
-            if (erprobungsstufe.Contains(Tooling.KlasseToStufe(sus.Klasse)))
+            if (erprobungsstufe.Contains(schuelerstufe))
             {
                 ausgabeMoodleUser.Add(susmail + ";Klasse" + sus.Klasse + DateTime.Now.Year + "!" + ";" +
                                       sus.Nutzername + "_E;" + "E_" + sus.ID + ";" + sus.Nachname +
@@ -1261,7 +1262,7 @@ public class Schuldatenbank : IDisposable
                 ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + ",erprobungsstufe" +
                                                  GetKursSuffix().Result);
             }
-            else if (mittelstufe.Contains(Tooling.KlasseToStufe(sus.Klasse)))
+            else if (mittelstufe.Contains(schuelerstufe))
             {
                 ausgabeMoodleUser.Add(susmail + ";Klasse" + sus.Klasse + DateTime.Now.Year + "!" + ";" +
                                       sus.Nutzername + "_E;" + "E_" + sus.ID + ";" + sus.Nachname +
@@ -1294,6 +1295,7 @@ public class Schuldatenbank : IDisposable
         foreach (var sus in susidliste)
         {
             var s = GetSchueler(sus).Result;
+            var schuelerstufe = Tooling.KlasseToStufe(s.Klasse);
             var kListe = "";
             foreach (var kk in GetKursVonSuS(s.ID).Result)
             {
@@ -1314,13 +1316,12 @@ public class Schuldatenbank : IDisposable
                                                      kk.Suffix);
                 }
 
-                if (s.Klasse.StartsWith('5') || s.Klasse.StartsWith('6'))
+                if (erprobungsstufe.Contains(schuelerstufe))
                 {
                     ausgabeMoodleEinschreibungen.Add("add,schueler," + s.ID + ",erprobungsstufe" +
                                                      GetKursSuffix().Result);
                 }
-                else if (s.Klasse.StartsWith('7') || s.Klasse.StartsWith('8') || s.Klasse.StartsWith('9') ||
-                         s.Klasse.StartsWith("10"))
+                else if (mittelstufe.Contains(schuelerstufe))
                 {
                     ausgabeMoodleEinschreibungen.Add("add,schueler," + s.ID + ",mittelstufe" +
                                                      GetKursSuffix().Result);
@@ -1396,11 +1397,11 @@ public class Schuldatenbank : IDisposable
                 if (kurs.Bezeichnung.Contains("Jahrgangsstufenkonferenz"))
                 {
                     var stufenleitungen = GetOberstufenleitung(kurs.Stufe).Result;
-                    var role = stufenleitungen.Contains(lt) ||
+                    var rolle = stufenleitungen.Contains(lt) ||
                                GetSettings().Result.Oberstufenkoordination.Contains(lt.Kuerzel)
                         ? "editingteacher"
                         : "student";
-                    ausgabeMoodleEinschreibungen.Add("add," + role + "," + lt.ID + "," +
+                    ausgabeMoodleEinschreibungen.Add("add," + rolle + "," + lt.ID + "," +
                                                      kurs.Bezeichnung + kurs.Suffix);
                 }
                 else if (kurs.IstKurs)
