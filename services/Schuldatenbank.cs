@@ -464,7 +464,8 @@ public class Schuldatenbank : IDisposable
     /// <param name="eintrag"></param>
     public async void AddLogMessage(LogEintrag eintrag)
     {
-        await File.AppendAllTextAsync(new DirectoryInfo(_dbpath).FullName + _dbpath.Replace("sqlite", "log"),
+        var logpath = new DirectoryInfo(_dbpath).FullName + _dbpath.Replace("sqlite", "log");
+        await File.AppendAllTextAsync(logpath,
             eintrag.ToString(), Encoding.UTF8,
             CancellationToken.None);
     }
