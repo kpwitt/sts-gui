@@ -5,6 +5,7 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
 
@@ -463,13 +464,9 @@ public class Schuldatenbank : IDisposable
     /// <param name="eintrag"></param>
     public async void AddLogMessage(LogEintrag eintrag)
     {
-        var sqliteCmd = _sqliteConn.CreateCommand();
-        sqliteCmd.CommandText =
-            "INSERT OR IGNORE INTO log (stufe, datum, nachricht) VALUES ($stufe, $dnow, $nachricht);";
-        sqliteCmd.Parameters.AddWithValue("$stufe", eintrag.Warnstufe);
-        sqliteCmd.Parameters.AddWithValue("$dnow", eintrag.Datumsstring());
-        sqliteCmd.Parameters.AddWithValue("$nachricht", eintrag.Nachricht);
-        sqliteCmd.ExecuteNonQuery();
+        await File.AppendAllTextAsync(new DirectoryInfo(_dbpath).FullName + _dbpath.Replace("sqlite", "log"),
+            eintrag.ToString(), Encoding.UTF8,
+            CancellationToken.None);
     }
 
     /// <summary>
@@ -1879,19 +1876,14 @@ public class Schuldatenbank : IDisposable
     public async Task<ReadOnlyCollection<LogEintrag>> GetLog()
     {
         List<LogEintrag> log = [];
-        var sqliteCmd = _sqliteConn.CreateCommand();
-        sqliteCmd.CommandText = "SELECT stufe,datum, nachricht FROM log;";
-        var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
-        while (sqliteDatareader.Read())
+        var logpath = _dbpath.Replace("sqlite", "log");
+        if (!File.Exists(logpath)) return log.AsReadOnly();
+        var entries = await File.ReadAllLinesAsync(logpath);
+        log.AddRange(entries.Select(entry => entry.Split('\t')).Select(logentry => new LogEintrag
         {
-            log.Add(new LogEintrag
-            {
-                Warnstufe = sqliteDatareader.GetString(0),
-                Eintragsdatum = DateTime.Parse(sqliteDatareader.GetString(1)),
-                Nachricht = sqliteDatareader.GetString(2),
-            });
-        }
-
+            Warnstufe = logentry[0], Eintragsdatum = DateTime.Parse(logentry[1]),
+            Nachricht = string.Join("\t", logentry[2..])
+        }));
         return log.AsReadOnly();
     }
 
@@ -1900,25 +1892,18 @@ public class Schuldatenbank : IDisposable
     /// </summary>
     /// <param name="stufe">Das Log-Level (Info, Hinweis oder Fehler)</param>
     /// <returns>String-Liste der Nachrichten </returns>
-    public async Task<ReadOnlyCollection<string>> GetLog(string stufe)
+    public async Task<ReadOnlyCollection<LogEintrag>> GetLog(string stufe)
     {
-        List<string> log = [];
-        var sqliteCmd = _sqliteConn.CreateCommand();
-        sqliteCmd.CommandText = "SELECT stufe,datum, nachricht FROM log WHERE stufe = $stufe;";
-        sqliteCmd.Parameters.AddWithValue("$stufe", stufe);
-        var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
-        while (sqliteDatareader.Read())
+        List<LogEintrag> log = [];
+        var logpath = _dbpath.Replace("sqlite", "log");
+        if (!File.Exists(logpath)) return log.AsReadOnly();
+        var entries = await File.ReadAllLinesAsync(logpath);
+        log.AddRange(entries.Select(entry => entry.Split('\t')).Select(logentry => new LogEintrag
         {
-            var returnstr = "";
-            for (var i = 0; i < sqliteDatareader.FieldCount; i++)
-            {
-                returnstr += sqliteDatareader.GetString(i) + "\t";
-            }
-
-            log.Add(returnstr);
-        }
-
-        return new ReadOnlyCollection<string>(log);
+            Warnstufe = logentry[0], Eintragsdatum = DateTime.Parse(logentry[1]),
+            Nachricht = string.Join("\t", logentry[2..])
+        }));
+        return log.Where(eintrag=>eintrag.Warnstufe==stufe).ToList().AsReadOnly();
     }
 
     /// <summary>
