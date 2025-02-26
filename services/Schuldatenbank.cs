@@ -482,7 +482,7 @@ public class Schuldatenbank : IDisposable
         while (true)
         {
             if (lid == 0 || string.IsNullOrEmpty(kbez)) return;
-            var kursliste = GetKursVonLuL(lid).Result.Select(k=>k.Bezeichnung).ToList();
+            var kursliste = GetKursVonLuL(lid).Result.Select(k => k.Bezeichnung).ToList();
             if (kursliste.Count == 0) return;
             if (kursliste.Contains(kbez)) return;
             var sqliteCmd = _sqliteConn.CreateCommand();
@@ -597,7 +597,7 @@ public class Schuldatenbank : IDisposable
     public async Task AddStoK(int sid, string kbez)
     {
         if (sid == 0 || kbez == "") return;
-        var kursliste = GetKursVonSuS(sid).Result.Select(k=>k.Bezeichnung).ToList();
+        var kursliste = GetKursVonSuS(sid).Result.Select(k => k.Bezeichnung).ToList();
         if (kursliste.Count == 0) return;
         if (kursliste.Contains(kbez)) return;
         var sqliteCmd = _sqliteConn.CreateCommand();
@@ -1404,7 +1404,7 @@ public class Schuldatenbank : IDisposable
                 {
                     var stufenleitungen = GetOberstufenleitung(kurs.Stufe).Result;
                     var rolle = stufenleitungen.Contains(lt) ||
-                               GetSettings().Result.Oberstufenkoordination.Contains(lt.Kuerzel)
+                                GetSettings().Result.Oberstufenkoordination.Contains(lt.Kuerzel)
                         ? "editingteacher"
                         : "student";
                     ausgabeMoodleEinschreibungen.Add("add," + rolle + "," + lt.ID + "," +
@@ -1713,6 +1713,7 @@ public class Schuldatenbank : IDisposable
             {
                 retKurs.Art = retKurs.Bezeichnung.Substring(retKurs.Bezeichnung.Length - 3, 3);
             }
+
             kliste.Add(retKurs);
         }
 
