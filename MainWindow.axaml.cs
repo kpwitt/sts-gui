@@ -724,7 +724,7 @@ public partial class MainWindow : Window
 
                 if (aixcsvpath != "")
                 {
-                    await _myschool.IdsEinlesen(aixcsvpath);
+                    await _myschool.AIXDatenEinlesen(aixcsvpath);
                 }
 
                 if (dvfile != "")
@@ -796,7 +796,7 @@ public partial class MainWindow : Window
         var files = await ShowOpenFileDialog("Lade Nutzernamen & Mailadressen", extx);
         if (files == null) return;
         var filePath = files.Path.LocalPath;
-        await _myschool.IdsEinlesen(filePath);
+        await _myschool.AIXDatenEinlesen(filePath);
         SetStatusText();
         await ShowImportSuccessful();
     }
@@ -840,7 +840,7 @@ public partial class MainWindow : Window
                 res = await _myschool.DumpDataToCSVs(folderpath);
             }
 
-            if (res==1)
+            if (res == 1)
             {
                 await ShowCustomInfoMessage("Export abgeschlossen", "Information");
             }

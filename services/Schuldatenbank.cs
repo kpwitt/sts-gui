@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -22,6 +23,7 @@ public class Schuldatenbank : IDisposable
 {
     private const string version = "0.6";
     private readonly string _dbpath;
+    private string _logpath;
     private readonly SqliteConnection _sqliteConn;
     private SqliteTransaction? _dbtrans;
     private bool _activeTransaction = false;
@@ -38,6 +40,9 @@ public class Schuldatenbank : IDisposable
     public Schuldatenbank(string path)
     {
         _dbpath = path;
+        _logpath = _dbpath == ":memory:"
+            ? Path.Combine(Path.GetTempPath(), Path.ChangeExtension(Guid.NewGuid() + "_tmp", "log"))
+            : _dbpath.Replace("sqlite", "log");
         var strconnection = "Data Source=" + _dbpath;
         _sqliteConn = new SqliteConnection(strconnection);
         _sqliteConn.Open();
@@ -139,17 +144,6 @@ public class Schuldatenbank : IDisposable
                                             [kurzfach]   NVARCHAR(16) NOT NULL,
                                             [langfach]  NVARCHAR(64) NOT NULL,
                                             PRIMARY KEY(kurzfach,langfach)
-                                          )
-                                    """;
-            sqliteCmd.ExecuteNonQuery();
-
-            sqliteCmd.CommandText = """
-                                    CREATE TABLE IF NOT EXISTS
-                                            [log] (
-                                            [id]  INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-                                            [stufe]   NVARCHAR(16) NOT NULL,
-                                            [datum]    NVARCHAR(128) NOT NULL,   
-                                            [nachricht]  NVARCHAR(4096) NOT NULL
                                           )
                                     """;
             sqliteCmd.ExecuteNonQuery();
@@ -464,9 +458,8 @@ public class Schuldatenbank : IDisposable
     /// <param name="eintrag"></param>
     public async void AddLogMessage(LogEintrag eintrag)
     {
-        var logpath = new DirectoryInfo(_dbpath).FullName + _dbpath.Replace("sqlite", "log");
-        await File.AppendAllTextAsync(logpath,
-            eintrag.ToString(), Encoding.UTF8,
+        await File.AppendAllTextAsync(_logpath,
+            eintrag + "\n", Encoding.UTF8,
             CancellationToken.None);
     }
 
@@ -836,17 +829,14 @@ public class Schuldatenbank : IDisposable
                 await AddLtoK(Convert.ToInt32(lehrkraft.ID), kurs.Bezeichnung);
             }
         }
-
-        //log übertragen
-        foreach (var entry in await importfrom.GetLog())
-        {
-            AddLogMessage(entry);
-        }
-
-        await StopTransaction();
-
         //Settings übertragen
         await SetSettings(await importfrom.GetSettings());
+        await StopTransaction();
+
+        //log übertragen
+        var logs = importfrom.GetLog().Result.Select(l=>l.ToString());
+        await File.WriteAllLinesAsync(_logpath, logs, Encoding.UTF8);
+        
         return 0;
     }
 
@@ -1877,13 +1867,27 @@ public class Schuldatenbank : IDisposable
     public async Task<ReadOnlyCollection<LogEintrag>> GetLog()
     {
         List<LogEintrag> log = [];
-        var logpath = _dbpath.Replace("sqlite", "log");
-        if (!File.Exists(logpath)) return log.AsReadOnly();
-        var entries = await File.ReadAllLinesAsync(logpath);
-        log.AddRange(entries.Select(entry => entry.Split('\t')).Select(logentry => new LogEintrag
+        if (!File.Exists(_logpath)) return log.AsReadOnly();
+        var entries = File.ReadAllLinesAsync(_logpath).Result.Where(x=>x.Length>43).ToList();
+        Debug.WriteLine(entries.Count+ ": "+ _logpath);
+        log.AddRange(entries.Select(entry => entry.Split('\t')).Select(logentry =>
         {
-            Warnstufe = logentry[0], Eintragsdatum = DateTime.Parse(logentry[1]),
-            Nachricht = string.Join("\t", logentry[2..])
+            if (logentry.Length > 2)
+            {
+                return new LogEintrag
+                {
+                    Warnstufe = logentry[0], Eintragsdatum = DateTime.Parse(logentry[1]),
+                    Nachricht = string.Join("\t", logentry[2..])
+                };
+            }
+            else
+            {
+                return new LogEintrag
+                {
+                    Warnstufe = "Debug", Eintragsdatum = DateTime.Now,
+                    Nachricht = "Dummy message " + string.Join(',', logentry)
+                };
+            }
         }));
         return log.AsReadOnly();
     }
@@ -1896,15 +1900,14 @@ public class Schuldatenbank : IDisposable
     public async Task<ReadOnlyCollection<LogEintrag>> GetLog(string stufe)
     {
         List<LogEintrag> log = [];
-        var logpath = _dbpath.Replace("sqlite", "log");
-        if (!File.Exists(logpath)) return log.AsReadOnly();
-        var entries = await File.ReadAllLinesAsync(logpath);
+        if (!File.Exists(_logpath)) return log.AsReadOnly();
+        var entries = await File.ReadAllLinesAsync(_logpath);
         log.AddRange(entries.Select(entry => entry.Split('\t')).Select(logentry => new LogEintrag
         {
             Warnstufe = logentry[0], Eintragsdatum = DateTime.Parse(logentry[1]),
             Nachricht = string.Join("\t", logentry[2..])
         }));
-        return log.Where(eintrag=>eintrag.Warnstufe==stufe).ToList().AsReadOnly();
+        return log.Where(eintrag => eintrag.Warnstufe == stufe).ToList().AsReadOnly();
     }
 
     /// <summary>
@@ -2340,7 +2343,7 @@ public class Schuldatenbank : IDisposable
     /// liest die Nutzernamen und AIX-Mailadressen für SuS aus einem Suite-Export ein und updated diese (inkrementell oder gesamt)
     /// </summary>
     /// <param name="idfile"></param>
-    public async Task IdsEinlesen(string idfile)
+    public async Task AIXDatenEinlesen(string idfile)
     {
         var lines = await File.ReadAllLinesAsync(idfile);
         int ina = -1, inid = -1, imail = -1;
@@ -2369,7 +2372,7 @@ public class Schuldatenbank : IDisposable
             try
             {
                 var line = lines[i].Split(';');
-                if (line[inid] == "") continue;
+                if (line[inid] == "" || !line[inid].All(char.IsDigit)) continue;
                 try
                 {
                     var sus = await GetSchueler(Convert.ToInt32(line[inid]));
@@ -2592,10 +2595,10 @@ public class Schuldatenbank : IDisposable
     /// </summary>
     public async Task LoescheLog()
     {
-        var sqliteCmd = _sqliteConn.CreateCommand();
-        sqliteCmd.CommandText =
-            "DELETE FROM log WHERE stufe = 'Info' OR stufe = 'Hinweis' OR stufe = 'Fehler' OR stufe = 'Debug';";
-        sqliteCmd.ExecuteNonQuery();
+        if (File.Exists(_logpath))
+        {
+            File.Delete(_logpath);
+        }
     }
 
     /// <summary>
@@ -2604,10 +2607,7 @@ public class Schuldatenbank : IDisposable
     /// <param name="stufe">"Fehler", "Hinweis", oder "Info"</param>
     public async Task LoescheLog(string stufe)
     {
-        var sqliteCmd = _sqliteConn.CreateCommand();
-        sqliteCmd.CommandText = "DELETE FROM log WHERE stufe = $stufe;";
-        sqliteCmd.Parameters.AddWithValue("$stufe", stufe);
-        sqliteCmd.ExecuteNonQuery();
+        //ToDo: Implementierung
     }
 
     /// <summary>
@@ -2962,6 +2962,7 @@ public class Schuldatenbank : IDisposable
     /// </summary>
     public async Task StartTransaction()
     {
+        if (_activeTransaction) return;
         _activeTransaction = true;
         _dbtrans = _sqliteConn.BeginTransaction();
     }
@@ -2971,6 +2972,7 @@ public class Schuldatenbank : IDisposable
     /// </summary>
     public async Task StopTransaction()
     {
+        if (_activeTransaction==false) return;
         _activeTransaction = false;
         if (_dbtrans == null) return;
         await _dbtrans.CommitAsync();
@@ -3343,5 +3345,10 @@ public class Schuldatenbank : IDisposable
     {
         return GetLehrerListe().Result.Where(l => !string.IsNullOrEmpty(l.Favo) || !string.IsNullOrEmpty(l.SFavo))
             .ToList();
+    }
+
+    public string GetLogPath()
+    {
+        return _logpath;
     }
 }
