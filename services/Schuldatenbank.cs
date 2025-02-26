@@ -482,6 +482,9 @@ public class Schuldatenbank : IDisposable
         while (true)
         {
             if (lid == 0 || string.IsNullOrEmpty(kbez)) return;
+            var kursliste = GetKursVonLuL(lid).Result.Select(k=>k.Bezeichnung).ToList();
+            if (kursliste.Count == 0) return;
+            if (kursliste.Contains(kbez)) return;
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText = "INSERT OR IGNORE INTO unterrichtet (lehrerid, kursbez) VALUES ($lid, $kbez);";
             sqliteCmd.Parameters.AddWithValue("$lid", lid);
@@ -594,6 +597,9 @@ public class Schuldatenbank : IDisposable
     public async Task AddStoK(int sid, string kbez)
     {
         if (sid == 0 || kbez == "") return;
+        var kursliste = GetKursVonSuS(sid).Result.Select(k=>k.Bezeichnung).ToList();
+        if (kursliste.Count == 0) return;
+        if (kursliste.Contains(kbez)) return;
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText = "INSERT OR IGNORE INTO nimmtteil (schuelerid, kursbez) VALUES ($sid, $kbez);";
         sqliteCmd.Parameters.AddWithValue("$sid", sid);
