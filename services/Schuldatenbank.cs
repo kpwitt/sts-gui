@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -829,14 +828,15 @@ public class Schuldatenbank : IDisposable
                 await AddLtoK(Convert.ToInt32(lehrkraft.ID), kurs.Bezeichnung);
             }
         }
+
         //Settings übertragen
         await SetSettings(await importfrom.GetSettings());
         await StopTransaction();
 
         //log übertragen
-        var logs = importfrom.GetLog().Result.Select(l=>l.ToString());
-        await File.WriteAllLinesAsync(_logpath, logs, Encoding.UTF8);
-        
+        var logs = importfrom.GetLog().Select(l => l.ToString());
+        File.WriteAllLines(_logpath, logs, Encoding.UTF8);
+
         return 0;
     }
 
@@ -1864,12 +1864,11 @@ public class Schuldatenbank : IDisposable
     /// gibt die Log-Meldungen zurück
     /// </summary>
     /// <returns>String-Liste der Nachrichten </returns>
-    public async Task<ReadOnlyCollection<LogEintrag>> GetLog()
+    public ReadOnlyCollection<LogEintrag> GetLog()
     {
         List<LogEintrag> log = [];
         if (!File.Exists(_logpath)) return log.AsReadOnly();
-        var entries = File.ReadAllLinesAsync(_logpath).Result.Where(x=>x.Length>43).ToList();
-        Debug.WriteLine(entries.Count+ ": "+ _logpath);
+        var entries = File.ReadAllLines(_logpath).Where(x => x.Length > 43).ToList();
         log.AddRange(entries.Select(entry => entry.Split('\t')).Select(logentry =>
         {
             if (logentry.Length > 2)
@@ -2972,7 +2971,7 @@ public class Schuldatenbank : IDisposable
     /// </summary>
     public async Task StopTransaction()
     {
-        if (_activeTransaction==false) return;
+        if (_activeTransaction == false) return;
         _activeTransaction = false;
         if (_dbtrans == null) return;
         await _dbtrans.CommitAsync();

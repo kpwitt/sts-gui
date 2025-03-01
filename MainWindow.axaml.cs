@@ -2316,7 +2316,7 @@ public partial class MainWindow : Window
     private void BtnLogReload_OnClick(object? sender, RoutedEventArgs e)
     {
         if (lbLogLevel.SelectedItems == null) return;
-        var items = _myschool.GetLog().Result;
+        var items = _myschool.GetLog();
         var tlist = new List<string>();
         foreach (ListBoxItem item in lbLogLevel.SelectedItems)
         {
@@ -3757,7 +3757,7 @@ public partial class MainWindow : Window
                     }
                     else
                     {
-                        items = _myschool.GetLog().Result.ToList();
+                        items = _myschool.GetLog().ToList();
                     }
 
                     var tlist = new List<string>();
