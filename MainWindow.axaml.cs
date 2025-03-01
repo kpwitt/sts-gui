@@ -840,7 +840,7 @@ public partial class MainWindow : Window
                 res = await _myschool.DumpDataToCSVs(folderpath);
             }
 
-            if (res==1)
+            if (res == 1)
             {
                 await ShowCustomInfoMessage("Export abgeschlossen", "Information");
             }
@@ -2477,6 +2477,7 @@ public partial class MainWindow : Window
                     break;
             }
 
+            tbLeftSearch.Text = tbLeftSearch.Text.TrimStart(' ').TrimEnd(' ');
             var eingabeliste = tbLeftSearch.Text.Split(";");
             if (tbLeftSearch.ContextMenu?.ItemsSource == null) return;
             var searchContextMenu = tbLeftSearch.ContextMenu.ItemsSource.Cast<CheckBox>().ToList();
@@ -2592,6 +2593,7 @@ public partial class MainWindow : Window
                     break;
             }
 
+            tbRightSearch.Text = tbRightSearch.Text.TrimStart(' ').TrimEnd(' ');
             var eingabeliste = tbRightSearch.Text.Split(";");
             if (tbLeftSearch?.ContextMenu?.ItemsSource == null) return;
             var searchContextMenu = tbLeftSearch.ContextMenu.ItemsSource.Cast<CheckBox>().ToList();
