@@ -107,7 +107,7 @@
                                                   Grid.Row="0"
                                                   x:Name="cboxDataLeft"
                                                   SelectionChanged="cboxDataLeft_OnSelectionChanged">
-                                            <ComboBoxItem Content="Schüler*in" />
+                                            <ComboBoxItem Content="Schüler:in" />
                                             <ComboBoxItem Content="Lehrkräfte" />
                                             <ComboBoxItem Content="Klasse/Kurs" />
                                         </ComboBox>
@@ -125,7 +125,7 @@
                                         <ComboBox Width="250" VerticalAlignment="Top"
                                                   Grid.Row="0" x:Name="cboxDataRight"
                                                   SelectionChanged="cboxDataRight_OnSelectionChanged">
-                                            <ComboBoxItem Content="Schüler*in" />
+                                            <ComboBoxItem Content="Schüler:in" />
                                             <ComboBoxItem Content="Lehrkräfte" />
                                             <ComboBoxItem Content="Klasse/Kurs" />
                                         </ComboBox>
@@ -465,7 +465,10 @@
                                     <ComboBoxItem>die Kurse</ComboBoxItem>
                                 </ComboBox>
                                 <TextBox x:Name="tbSonst3">-</TextBox>
-                                <RadioButton VerticalAlignment="Center" x:Name="rbEinschreibenDatenbank" IsChecked="True"> einschreiben</RadioButton>
+                                <RadioButton VerticalAlignment="Center" x:Name="rbEinschreibenDatenbank"
+                                             IsChecked="True">
+                                    einschreiben
+                                </RadioButton>
                                 <RadioButton VerticalAlignment="Center" x:Name="rbEinschreibenDatei"> Datei generieren</RadioButton>
                                 <Button x:Name="btnModErstellung" Click="BtnModErstellung_OnClick">Ausführen</Button>
                             </StackPanel>
