@@ -1451,7 +1451,7 @@ public class Schuldatenbank : IDisposable
             else
             {
                 ausgabeMoodleUser.Add(lt.Mail + ";" + lt.Kuerzel + ";" + lt.ID + ";" + lt.Nachname + ";" +
-                                      lt.Vorname);
+                                      lt.Vorname + ";lehrer");
                 if (targets.Contains('a'))
                 {
                     ausgabeAIXL.Add("" + lt.Vorname + ";" + lt.Nachname + ";" + lt.ID + ";*|" +
