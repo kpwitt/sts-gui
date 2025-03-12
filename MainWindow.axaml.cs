@@ -3218,7 +3218,7 @@ public partial class MainWindow : Window
                         ListToFile.AddRange(susliste.Select(sus => $"add,schueler,{sus.ID},{kurs}"));
                         if (cbSonst1.SelectedIndex == 4)
                         {
-                            ListToFile.AddRange(susliste.Select(sus => $"add,eltern,{sus.ID}_e,{kurs}"));
+                            ListToFile.AddRange(susliste.Select(sus => $"add,eltern,E_{sus.ID},{kurs}"));
                         }
                     }
 
