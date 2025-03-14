@@ -2326,7 +2326,7 @@ public partial class MainWindow : Window
             }
         }
 
-        var filtered_items = items.Where(x => tlist.Contains(x.Warnstufe));
+        var filtered_items = items.Result.Where(x => tlist.Contains(x.Warnstufe));
         ResetItemsSource(lbLogDisplay, filtered_items.Select(x => x.ToString()));
     }
 
@@ -3757,7 +3757,7 @@ public partial class MainWindow : Window
                     }
                     else
                     {
-                        items = _myschool.GetLog().ToList();
+                        items = _myschool.GetLog().Result.ToList();
                     }
 
                     var tlist = new List<string>();
