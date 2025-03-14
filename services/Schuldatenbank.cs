@@ -1863,7 +1863,7 @@ public class Schuldatenbank : IDisposable
     /// <summary>
     /// gibt die Log-Meldungen zurück
     /// </summary>
-    /// <returns>String-Liste der Nachrichten </returns>
+    /// <returns>Log-Entrag-Liste der Nachrichten </returns>
     public async Task<ReadOnlyCollection<LogEintrag>> GetLog()
     {
         List<LogEintrag> log = [];
