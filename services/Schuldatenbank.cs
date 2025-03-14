@@ -829,14 +829,15 @@ public class Schuldatenbank : IDisposable
                 await AddLtoK(Convert.ToInt32(lehrkraft.ID), kurs.Bezeichnung);
             }
         }
+
         //Settings übertragen
         await SetSettings(await importfrom.GetSettings());
         await StopTransaction();
 
         //log übertragen
-        var logs = importfrom.GetLog().Result.Select(l=>l.ToString());
-        await File.WriteAllLinesAsync(_logpath, logs, Encoding.UTF8);
-        
+        var logs = importfrom.GetLog().Result.Select(l => l.ToString());
+        File.WriteAllLines(_logpath, logs, Encoding.UTF8);
+
         return 0;
     }
 
@@ -2972,7 +2973,7 @@ public class Schuldatenbank : IDisposable
     /// </summary>
     public async Task StopTransaction()
     {
-        if (_activeTransaction==false) return;
+        if (_activeTransaction == false) return;
         _activeTransaction = false;
         if (_dbtrans == null) return;
         await _dbtrans.CommitAsync();
