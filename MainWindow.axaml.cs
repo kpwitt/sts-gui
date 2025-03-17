@@ -497,11 +497,11 @@ public partial class MainWindow : Window
             }
 
             var filepath = files.Path.LocalPath;
-            if (File.Exists(filepath))
+            /*if (File.Exists(filepath))
             {
                 var override_res = await ShowOverwriteDialog();
                 if (override_res != ButtonResult.Yes) return;
-            }
+            }*/
 
             var tempDB = new Schuldatenbank(filepath);
             var res = await tempDB.Import(_myschool);
@@ -548,11 +548,11 @@ public partial class MainWindow : Window
             var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
             if (files == null) return;
             var filepath = files.Path.LocalPath;
-            if (File.Exists(filepath))
+            /*if (File.Exists(filepath))
             {
                 var override_res = await ShowOverwriteDialog();
                 if (override_res != ButtonResult.Yes) return;
-            }
+            }*/
 
             var tempDB = new Schuldatenbank(filepath);
             var res = await tempDB.Import(_myschool);
@@ -603,11 +603,11 @@ public partial class MainWindow : Window
             var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
             if (files == null) return;
             var filepath = files.Path.LocalPath;
-            if (File.Exists(filepath))
+            /*if (File.Exists(filepath))
             {
                 var override_res = await ShowOverwriteDialog();
                 if (override_res != ButtonResult.Yes) return;
-            }
+            }*/
 
             var dbPath = _myschool.GetFilePath();
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -2935,11 +2935,11 @@ public partial class MainWindow : Window
             var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
             if (files == null) return;
             var filepath = files.Path.LocalPath;
-            if (File.Exists(filepath))
+            /*if (File.Exists(filepath))
             {
                 var override_res = await ShowOverwriteDialog();
                 if (override_res != ButtonResult.Yes) return;
-            }
+            }*/
 
             List<string> lulliste = ["Kürzel;Nachname;Fächer;Mailadresse"];
             lulliste.AddRange(_myschool.GetLehrerListe().Result.Select(lehrer =>
@@ -3543,11 +3543,11 @@ public partial class MainWindow : Window
             if (files == null) return;
 
             var filepath = files.Path.LocalPath;
-            if (File.Exists(filepath))
+            /*if (File.Exists(filepath))
             {
                 var override_res = await ShowOverwriteDialog();
                 if (override_res != ButtonResult.Yes) return;
-            }
+            }*/
 
             await Dispatcher.UIThread.InvokeAsync(async () =>
             {
@@ -3735,11 +3735,11 @@ public partial class MainWindow : Window
             if (files == null) return;
 
             var filepath = files.Path.LocalPath;
-            if (File.Exists(filepath))
+            /*if (File.Exists(filepath))
             {
                 var override_res = await ShowOverwriteDialog();
                 if (override_res != ButtonResult.Yes) return;
-            }
+            }*/
 
             await Dispatcher.UIThread.InvokeAsync(async () =>
             {
