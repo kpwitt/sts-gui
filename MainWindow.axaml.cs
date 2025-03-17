@@ -3642,6 +3642,8 @@ public partial class MainWindow : Window
                 _myschool.SetM365(id, 1);
             }
         }
+
+        await ShowCustomInfoMessage("Import erfolgreich.", "Erfolg");
     }
 
     private async void MnuTempAccountsEinlesen_OnClick(object? sender, RoutedEventArgs e)
