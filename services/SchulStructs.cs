@@ -12,7 +12,8 @@ public record struct SuS(
     string Aixmail,
     string Zweitmail,
     bool Zweitaccount,
-    bool HasM365Account = false)
+    bool HasM365Account = false,
+    bool IstAktiv = true)
 {
     public string GetStufe()
     {
@@ -35,7 +36,8 @@ public record struct LuL(
     string Fakultas,
     string Pwttemp,
     string Favo,
-    string SFavo);
+    string SFavo,
+    bool IstAktiv = true);
 
 public record struct Kurs(
     string Bezeichnung,

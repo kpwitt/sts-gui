@@ -927,6 +927,7 @@ public partial class MainWindow : Window
         if (_myschool.GibtEsSchueler(sid))
         {
             _myschool.SetM365(sid, cbSuSM365.IsChecked != null && cbSuSM365.IsChecked.Value ? 1 : 0);
+            _myschool.SetzeAktivstatusSchueler(sid, cbSuSAktiv.IsChecked != null && cbSuSAktiv.IsChecked.Value);
             if (suszweitadresse != null && susaixmail != null)
                 await _myschool.UpdateSchueler(sid, susvname, susnname, suselternadresse, susklasse, susnutzername,
                     susaixmail, susHatZweitaccount == false ? 0 : 1, suszweitadresse);
