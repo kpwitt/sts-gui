@@ -456,11 +456,10 @@ public class Schuldatenbank : IDisposable
     /// fügt eine Nachricht ins Log hinzu, Stufe entweder Info, Hinweis oder Fehler
     /// </summary>
     /// <param name="eintrag"></param>
-    public async void AddLogMessage(LogEintrag eintrag)
+    public void AddLogMessage(LogEintrag eintrag)
     {
-        await File.AppendAllTextAsync(_logpath,
-            eintrag + "\n", Encoding.UTF8,
-            CancellationToken.None);
+        File.AppendAllText(_logpath,
+            eintrag + "\n", Encoding.UTF8);
     }
 
     /// <summary>
