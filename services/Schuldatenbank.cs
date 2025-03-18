@@ -6,7 +6,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
 
@@ -835,7 +834,7 @@ public class Schuldatenbank : IDisposable
 
         //log übertragen
         var logs = importfrom.GetLog().Result.Select(l => l.ToString());
-        File.WriteAllLines(_logpath, logs, Encoding.UTF8);
+        await File.WriteAllLinesAsync(_logpath, logs, Encoding.UTF8);
 
         return 0;
     }
