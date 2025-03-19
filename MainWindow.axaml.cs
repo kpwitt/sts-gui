@@ -893,7 +893,7 @@ public partial class MainWindow : Window
         if (string.IsNullOrEmpty(susid) || string.IsNullOrEmpty(susvname) || string.IsNullOrEmpty(susnname) ||
             string.IsNullOrEmpty(susklasse) || string.IsNullOrEmpty(susnutzername) ||
             string.IsNullOrEmpty(suselternadresse) ||
-            susHatZweitaccount == null || string.IsNullOrEmpty(tbSuSKurse.Text)||susIstAktiv==null)
+            susHatZweitaccount == null || string.IsNullOrEmpty(tbSuSKurse.Text) || susIstAktiv == null)
         {
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
@@ -1083,7 +1083,7 @@ public partial class MainWindow : Window
         {
             await _myschool.UpdateLehrkraft(lid, lulvname, lulnname, lulkrz, lulmail, lulfakultas, lulpwtemp, lulfavo,
                 lulsfavo);
-            _myschool.SetzeAktivstatusLehrkraft(lid, cbLuLAktiv.IsChecked!=null && lulistAktiv.Value);
+            _myschool.SetzeAktivstatusLehrkraft(lid, cbLuLAktiv.IsChecked != null && lulistAktiv.Value);
             var alteKurse = _myschool.GetKursVonLuL(lid).Result;
             foreach (var kurs in alteKurse.Where(kurs => !lulkurse.Contains(kurs.Bezeichnung)))
             {
@@ -1298,7 +1298,8 @@ public partial class MainWindow : Window
 
                 if (leftListBox.SelectedItems.Count < 1 || leftListBox.SelectedItems == null || hasComboBoxChanged)
                 {
-                    var slist = _myschool.GetSchuelerListe().Result.Where(s=>s.IstAktiv|| (_cbZeigeInaktiv.IsChecked!=null&&_cbZeigeInaktiv.IsChecked.Value))
+                    var slist = _myschool.GetSchuelerListe().Result.Where(s =>
+                            s.IstAktiv || (_cbZeigeInaktiv.IsChecked != null && _cbZeigeInaktiv.IsChecked.Value))
                         .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID)).Distinct().ToList();
                     slist.Sort(Comparer<string>.Default);
                     ResetItemsSource(leftListBox, slist);
@@ -1340,7 +1341,8 @@ public partial class MainWindow : Window
 
                 if (leftListBox.SelectedItems.Count < 1 || leftListBox.SelectedItems == null || hasComboBoxChanged)
                 {
-                    var lullist = _myschool.GetLehrerListe().Result.Where(l=>l.IstAktiv|| (_cbZeigeInaktiv.IsChecked!=null&&_cbZeigeInaktiv.IsChecked.Value))
+                    var lullist = _myschool.GetLehrerListe().Result.Where(l =>
+                            l.IstAktiv || (_cbZeigeInaktiv.IsChecked != null && _cbZeigeInaktiv.IsChecked.Value))
                         .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).Distinct().ToList();
                     lullist.Sort(Comparer<string>.Default);
                     ResetItemsSource(leftListBox, lullist);
