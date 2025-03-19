@@ -3816,4 +3816,11 @@ public partial class MainWindow : Window
             });
         }
     }
+
+    private void BtnExportInaktive_OnClick(object? sender, RoutedEventArgs e)
+    {
+        var inaktiveSuS = _myschool.GetSchuelerListe().Result.Where(s => s.IstAktiv == false).ToList();
+        var inaktiveLuL = _myschool.GetLehrerListe().Result.Where(l => l.IstAktiv == false).ToList();
+        List<string> exportListe = ["Test"];
+    }
 }
