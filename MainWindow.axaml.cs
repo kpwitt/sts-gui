@@ -22,6 +22,7 @@ using MsBox.Avalonia.Dto;
 using MsBox.Avalonia.Enums;
 using SchulDB;
 using StS_GUI_Avalonia.services;
+using Timer = System.Timers.Timer;
 
 // ReSharper disable InconsistentNaming
 
@@ -1081,6 +1082,13 @@ public partial class MainWindow : Window
         var lid = Convert.ToInt32(lulid);
         if (_myschool.GibtEsLehrkraft(lid))
         {
+            if (_myschool.GetKursVonLuL(lid).Result.Count > 0)
+            {
+                await ShowCustomInfoMessage(
+                    "Die Lehrkraft hat noch zugeordnete Kurse, bitte stellen Sie sicher, dass es eine passende Vertretung gibt und tragen Sie sie ggf. aus.",
+                    "Vorsicht");
+            }
+
             await _myschool.UpdateLehrkraft(lid, lulvname, lulnname, lulkrz, lulmail, lulfakultas, lulpwtemp, lulfavo,
                 lulsfavo);
             _myschool.SetzeAktivstatusLehrkraft(lid, cbLuLAktiv.IsChecked != null && lulistAktiv.Value);
@@ -1662,7 +1670,7 @@ public partial class MainWindow : Window
             .Aggregate("", (current, kurs) => current + kurs.Bezeichnung + ",").TrimEnd(',');
         tbLuLFavo.Text = l.Favo;
         tbLuLSFavo.Text = l.SFavo;
-        cbLuL.IsChecked = l.IstAktiv;
+        cbLuLAktiv.IsChecked = l.IstAktiv;
     }
 
     private void LoadKursData(Kurs k)
@@ -3819,10 +3827,34 @@ public partial class MainWindow : Window
         }
     }
 
-    private void BtnExportInaktive_OnClick(object? sender, RoutedEventArgs e)
+    private async void BtnExportInaktive_OnClick(object? sender, RoutedEventArgs e)
     {
         var inaktiveSuS = _myschool.GetSchuelerListe().Result.Where(s => s.IstAktiv == false).ToList();
         var inaktiveLuL = _myschool.GetLehrerListe().Result.Where(l => l.IstAktiv == false).ToList();
-        List<string> exportListe = ["Test"];
+        List<string> exportMoodleListe = ["email;username;idnumber;lastname;firstname;suspended"];
+        Parallel.ForEach(inaktiveSuS,
+            (s, state) =>
+            {
+                exportMoodleListe.Add(string.Join(';', s.Mail, s.Nutzername, s.ID.ToString(), s.Nachname, s.Vorname,
+                    1.ToString()));
+            });
+        Parallel.ForEach(inaktiveLuL,
+            (l, state) =>
+            {
+                exportMoodleListe.Add(string.Join(';', l.Mail, l.Kuerzel, l.ID.ToString(), l.Nachname, l.Vorname,
+                    1.ToString()));
+            });
+
+        var extx = new List<FilePickerFileType>
+        {
+            StSFileTypes.CSVFile,
+            FilePickerFileTypes.All
+        };
+        var file = await ShowSaveFileDialog("Deaktivierte Accounts speichern", extx);
+        if (file is null) return;
+        var InaktiveFilePath = file.Path.LocalPath;
+        await File.WriteAllLinesAsync(InaktiveFilePath, exportMoodleListe, Encoding.UTF8);
+
+        await ShowCustomInfoMessage("Speichern erfolgreich.", "Erfolg");
     }
 }
