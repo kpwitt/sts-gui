@@ -19,7 +19,7 @@ namespace SchulDB;
 /// </summary>
 public class Schuldatenbank : IDisposable
 {
-    private const string version = "0.6";
+    private const string version = "0.7";
     private readonly string _dbpath;
     private readonly SqliteConnection _sqliteConn;
     private SqliteTransaction? _dbtrans;
@@ -55,7 +55,8 @@ public class Schuldatenbank : IDisposable
                                             [fakultas]  NVARCHAR(16) NOT NULL,
                                             [pwtemp] NVARCHAR(16) NOT NULL,
                                             [favo] NVARCHAR(8) NOT NULL,
-                                            [sfavo] NVARCHAR(8) NOT NULL
+                                            [sfavo] NVARCHAR(8) NOT NULL,
+                                            [aktiv] BOOLEAN NOT NULL DEFAULT TRUE
                                           )
                                     """;
             sqliteCmd.ExecuteNonQuery();
@@ -75,7 +76,8 @@ public class Schuldatenbank : IDisposable
                                             [aixmail] NVARCHAR(128) NOT NULL,
                                             [zweitaccount] INTEGER DEFAULT 0,
                                             [zweitmail] NVARCHAR(512) DEFAULT '',
-                                            [m365] INTEGER DEFAULT 1
+                                            [m365] INTEGER DEFAULT 1,
+                                            [aktiv] BOOLEAN NOT NULL DEFAULT TRUE
                                           )
                                     """;
             sqliteCmd.ExecuteNonQuery();
@@ -298,22 +300,11 @@ public class Schuldatenbank : IDisposable
     /// <param name="sqliteCmd"></param>
     private static void upgradeDB(SqliteCommand sqliteCmd)
     {
-        //upgrade DB to 0.6
-        sqliteCmd.CommandText =
-            $"SELECT COUNT(*) AS m365_col_count FROM pragma_table_info('schueler') WHERE name='m365'";
-        sqliteCmd.ExecuteNonQuery();
-        var sqliteDatareader = sqliteCmd.ExecuteReader();
-        var output = 0;
-        while (sqliteDatareader.Read())
-        {
-            output = Convert.ToInt32(sqliteDatareader.GetString("m365_col_count"));
-        }
-
-        sqliteDatareader.Close();
+        //Überprüfung ob Datenbank initialisiert ist
         sqliteCmd.CommandText =
             $"SELECT COUNT(*) AS id_col_count FROM pragma_table_info('schueler') WHERE name='id'";
         sqliteCmd.ExecuteNonQuery();
-        sqliteDatareader = sqliteCmd.ExecuteReader();
+        var sqliteDatareader = sqliteCmd.ExecuteReader();
         var db_version = 0;
         while (sqliteDatareader.Read())
         {
@@ -321,18 +312,97 @@ public class Schuldatenbank : IDisposable
         }
 
         sqliteDatareader.Close();
-        if (output != 0 || db_version <= 0) return;
-        try
+
+        //upgrade DB to 0.6
+        if (db_version != 1) return;
+
+        sqliteCmd.CommandText =
+            $"SELECT COUNT(*) AS m365_col_count FROM pragma_table_info('schueler') WHERE name='m365'";
+        sqliteCmd.ExecuteNonQuery();
+        sqliteDatareader = sqliteCmd.ExecuteReader();
+        var output = 0;
+        while (sqliteDatareader.Read())
         {
-            sqliteCmd.CommandText =
-                $"ALTER TABLE schueler ADD COLUMN m365 INTEGER NOT NULL DEFAULT 1";
-            sqliteCmd.ExecuteNonQuery();
+            output = Convert.ToInt32(sqliteDatareader.GetString("m365_col_count"));
         }
-        catch (Exception ex)
+
+        sqliteDatareader.Close();
+        if (output == 0)
         {
-            Console.WriteLine("Fehler: " + ex.Message);
-            Environment.Exit(-1);
+            try
+            {
+                sqliteCmd.CommandText =
+                    $"ALTER TABLE schueler ADD COLUMN m365 INTEGER NOT NULL DEFAULT 1";
+                sqliteCmd.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                sqliteDatareader.Close();
+                Console.WriteLine("Fehler1: " + ex.Message);
+                Environment.Exit(-1);
+            }
         }
+        //Ende Update 0.6
+
+        //Begin Update 0.7
+        sqliteCmd.CommandText =
+            $"SELECT COUNT(*) AS sus_column_count FROM pragma_table_info('schueler') WHERE name='aktiv'";
+        sqliteCmd.ExecuteNonQuery();
+        sqliteDatareader = sqliteCmd.ExecuteReader();
+        var sus_column_count = 0;
+        while (sqliteDatareader.Read())
+        {
+            sus_column_count = Convert.ToInt32(sqliteDatareader.GetString("sus_column_count"));
+        }
+
+        sqliteDatareader.Close();
+        sqliteCmd.CommandText =
+            $"SELECT COUNT(*) AS lul_column_count FROM pragma_table_info('lehrkraft') WHERE name='aktiv'";
+        sqliteCmd.ExecuteNonQuery();
+        sqliteDatareader = sqliteCmd.ExecuteReader();
+        var lul_column_count = 0;
+        while (sqliteDatareader.Read())
+        {
+            lul_column_count = Convert.ToInt32(sqliteDatareader.GetString("lul_column_count"));
+        }
+
+        sqliteDatareader.Close();
+
+        if (sus_column_count == 0)
+        {
+            try
+            {
+                sqliteCmd.CommandText =
+                    $"ALTER TABLE schueler ADD COLUMN aktiv BOOLEAN NOT NULL DEFAULT TRUE";
+                sqliteCmd.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                sqliteDatareader.Close();
+                Console.WriteLine("Fehler2: " + ex.Message);
+                Environment.Exit(-1);
+            }
+        }
+
+        sqliteDatareader.Close();
+
+        if (lul_column_count == 0)
+        {
+            try
+            {
+                sqliteCmd.CommandText =
+                    $"ALTER TABLE lehrkraft ADD COLUMN aktiv BOOLEAN NOT NULL DEFAULT TRUE";
+                sqliteCmd.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                sqliteDatareader.Close();
+                Console.WriteLine("Fehler3: " + ex.Message);
+                Environment.Exit(-1);
+            }
+        }
+
+        sqliteDatareader.Close();
     }
 
     /// <summary>
@@ -482,7 +552,7 @@ public class Schuldatenbank : IDisposable
         while (true)
         {
             if (lid == 0 || string.IsNullOrEmpty(kbez)) return;
-            var kursliste = GetKursVonLuL(lid).Result.Select(k=>k.Bezeichnung).ToList();
+            var kursliste = GetKursVonLuL(lid).Result.Select(k => k.Bezeichnung).ToList();
             if (kursliste.Count == 0) return;
             if (kursliste.Contains(kbez)) return;
             var sqliteCmd = _sqliteConn.CreateCommand();
@@ -597,7 +667,7 @@ public class Schuldatenbank : IDisposable
     public async Task AddStoK(int sid, string kbez)
     {
         if (sid == 0 || kbez == "") return;
-        var kursliste = GetKursVonSuS(sid).Result.Select(k=>k.Bezeichnung).ToList();
+        var kursliste = GetKursVonSuS(sid).Result.Select(k => k.Bezeichnung).ToList();
         if (kursliste.Count == 0) return;
         if (kursliste.Contains(kbez)) return;
         var sqliteCmd = _sqliteConn.CreateCommand();
@@ -1404,7 +1474,7 @@ public class Schuldatenbank : IDisposable
                 {
                     var stufenleitungen = GetOberstufenleitung(kurs.Stufe).Result;
                     var rolle = stufenleitungen.Contains(lt) ||
-                               GetSettings().Result.Oberstufenkoordination.Contains(lt.Kuerzel)
+                                GetSettings().Result.Oberstufenkoordination.Contains(lt.Kuerzel)
                         ? "editingteacher"
                         : "student";
                     ausgabeMoodleEinschreibungen.Add("add," + rolle + "," + lt.ID + "," +
@@ -1713,6 +1783,7 @@ public class Schuldatenbank : IDisposable
             {
                 retKurs.Art = retKurs.Bezeichnung.Substring(retKurs.Bezeichnung.Length - 3, 3);
             }
+
             kliste.Add(retKurs);
         }
 
@@ -1776,7 +1847,7 @@ public class Schuldatenbank : IDisposable
     {
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
-            "SELECT id,nachname,vorname,mail,kuerzel,fakultas,pwtemp,favo,sfavo FROM lehrkraft WHERE id = $id;";
+            "SELECT id,nachname,vorname,mail,kuerzel,fakultas,pwtemp,favo,sfavo,aktiv FROM lehrkraft WHERE id = $id;";
         sqliteCmd.Parameters.AddWithValue("$id", id);
         var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
         LuL lehrkraft = new();
@@ -1791,6 +1862,7 @@ public class Schuldatenbank : IDisposable
             lehrkraft.Pwttemp = sqliteDatareader.GetString(6);
             lehrkraft.Favo = sqliteDatareader.GetString(7);
             lehrkraft.SFavo = sqliteDatareader.GetString(8);
+            lehrkraft.IstAktiv = sqliteDatareader.GetBoolean(9);
         }
 
         return lehrkraft;
@@ -1804,7 +1876,7 @@ public class Schuldatenbank : IDisposable
     {
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
-            "SELECT id,nachname,vorname,mail,kuerzel,fakultas,pwtemp,favo, sfavo FROM lehrkraft WHERE kuerzel = $kuerzel;";
+            "SELECT id,nachname,vorname,mail,kuerzel,fakultas,pwtemp,favo, sfavo, aktiv FROM lehrkraft WHERE kuerzel = $kuerzel;";
         sqliteCmd.Parameters.AddWithValue("$kuerzel", kuerzel);
         var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
         LuL lehrkraft = new();
@@ -1819,6 +1891,7 @@ public class Schuldatenbank : IDisposable
             lehrkraft.Pwttemp = sqliteDatareader.GetString(6);
             lehrkraft.Favo = sqliteDatareader.GetString(7);
             lehrkraft.SFavo = sqliteDatareader.GetString(8);
+            lehrkraft.IstAktiv = sqliteDatareader.GetBoolean(9);
         }
 
         return lehrkraft;
@@ -1849,7 +1922,7 @@ public class Schuldatenbank : IDisposable
         List<LuL> llist = [];
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
-            "SELECT id,nachname,vorname,mail,kuerzel,fakultas,pwtemp,favo,sfavo FROM lehrkraft;";
+            "SELECT id, nachname, vorname, mail, kuerzel, fakultas, pwtemp, favo, sfavo, aktiv FROM lehrkraft;";
         var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
         while (sqliteDatareader.Read())
         {
@@ -1864,6 +1937,7 @@ public class Schuldatenbank : IDisposable
                 Pwttemp = sqliteDatareader.GetString(6),
                 Favo = sqliteDatareader.GetString(7),
                 SFavo = sqliteDatareader.GetString(8),
+                IstAktiv = Convert.ToBoolean(sqliteDatareader.GetInt32(9)),
             };
             llist.Add(lehrkraft);
         }
@@ -2015,7 +2089,7 @@ public class Schuldatenbank : IDisposable
     {
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
-            "SELECT id,nachname,vorname,mail,klasse,nutzername,aixmail,zweitaccount,zweitmail, m365 FROM schueler WHERE id = $id;";
+            "SELECT id,nachname,vorname,mail,klasse,nutzername,aixmail,zweitaccount,zweitmail, m365, aktiv FROM schueler WHERE id = $id;";
         sqliteCmd.Parameters.AddWithValue("$id", id);
         var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
         SuS schuelerin = new();
@@ -2031,6 +2105,7 @@ public class Schuldatenbank : IDisposable
             schuelerin.Zweitaccount = Convert.ToBoolean(sqliteDatareader.GetInt32(7));
             schuelerin.Zweitmail = sqliteDatareader.GetString(8);
             schuelerin.HasM365Account = Convert.ToBoolean(sqliteDatareader.GetInt32(9));
+            schuelerin.IstAktiv = sqliteDatareader.GetBoolean(10);
         }
 
         return schuelerin;
@@ -2045,7 +2120,7 @@ public class Schuldatenbank : IDisposable
     {
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
-            "SELECT id,nachname,vorname,mail,klasse,nutzername,aixmail,zweitaccount,zweitmail, m365 FROM schueler WHERE vorname = $vorname AND nachname = $nachname;";
+            "SELECT id,nachname,vorname,mail,klasse,nutzername,aixmail,zweitaccount,zweitmail, m365,aktiv FROM schueler WHERE vorname = $vorname AND nachname = $nachname;";
         sqliteCmd.Parameters.AddWithValue("$vorname", vorname);
         sqliteCmd.Parameters.AddWithValue("$nachname", nachname);
         var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
@@ -2064,6 +2139,7 @@ public class Schuldatenbank : IDisposable
                 Zweitaccount = Convert.ToBoolean(sqliteDatareader.GetInt32(7)),
                 Zweitmail = sqliteDatareader.GetString(8),
                 HasM365Account = Convert.ToBoolean(sqliteDatareader.GetInt32(9)),
+                IstAktiv = sqliteDatareader.GetBoolean(10),
             };
             susliste.Add(schuelerin);
         }
@@ -2096,7 +2172,7 @@ public class Schuldatenbank : IDisposable
         List<SuS> slist = [];
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
-            "SELECT id,nachname,vorname,mail,klasse,nutzername,aixmail,zweitaccount,zweitmail FROM schueler;";
+            "SELECT id,nachname,vorname,mail,klasse,nutzername,aixmail,zweitaccount,zweitmail, aktiv FROM schueler;";
         var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
         while (sqliteDatareader.Read())
         {
@@ -2110,7 +2186,8 @@ public class Schuldatenbank : IDisposable
                 Nutzername = sqliteDatareader.GetString(5),
                 Aixmail = sqliteDatareader.GetString(6),
                 Zweitaccount = Convert.ToBoolean(sqliteDatareader.GetInt32(7)),
-                Zweitmail = sqliteDatareader.GetString(8)
+                Zweitmail = sqliteDatareader.GetString(8),
+                IstAktiv = Convert.ToBoolean(sqliteDatareader.GetInt32(9)),
             };
             slist.Add(schuelerin);
         }
@@ -3356,5 +3433,51 @@ public class Schuldatenbank : IDisposable
     {
         return GetLehrerListe().Result.Where(l => !string.IsNullOrEmpty(l.Favo) || !string.IsNullOrEmpty(l.SFavo))
             .ToList();
+    }
+
+    /// <summary>
+    /// setzt den Status für die Lehrkraft mit der übergebenen ID
+    /// </summary>
+    /// <param name="lulid"></param>
+    /// <param name="istAktiv"></param>
+    public void SetzeAktivstatusLehrkraft(int lulid, bool istAktiv)
+    {
+        var sqliteCmd = _sqliteConn.CreateCommand();
+        sqliteCmd.CommandText = "UPDATE lehrkraft SET aktiv = $istAktiv WHERE id = $lulid;";
+        sqliteCmd.Parameters.AddWithValue("$lulid", lulid);
+        sqliteCmd.Parameters.AddWithValue("istAktiv", istAktiv);
+        sqliteCmd.ExecuteNonQuery();
+    }
+
+    /// <summary>
+    /// setzt den Status für die Lehrkraft
+    /// </summary>
+    /// <param name="lehrkraft"></param>
+    /// <param name="istAktiv"></param>
+    public void SetzeAktivstatusLehrkraft(LuL lehrkraft, bool istAktiv)
+    {
+        SetzeAktivstatusLehrkraft(lehrkraft.ID, istAktiv);
+    }
+
+    /// <summary>
+    /// setzt den Status für den Schüler:in mit der übergebenen ID
+    /// </summary>
+    /// <param name="susid"></param>
+    /// <param name="istAktiv"></param>
+    public void SetzeAktivstatusSchueler(int susid, bool istAktiv)
+    {
+        var sqliteCmd = _sqliteConn.CreateCommand();
+        sqliteCmd.CommandText = "UPDATE schueler SET aktiv = $istAktiv WHERE id = $susid;";
+        sqliteCmd.Parameters.AddWithValue("$susid", susid);
+        sqliteCmd.Parameters.AddWithValue("istAktiv", istAktiv);
+        sqliteCmd.ExecuteNonQuery();
+    }
+
+    /// <summary>
+    /// setzt den Status für den übergebenen Schüler:in
+    /// </summary>
+    public void SetzeAktivstatusSchueler(SuS schueler, bool istAktiv)
+    {
+        SetzeAktivstatusSchueler(schueler.ID, istAktiv);
     }
 }
