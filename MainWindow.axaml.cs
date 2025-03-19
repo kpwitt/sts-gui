@@ -42,6 +42,7 @@ public partial class MainWindow : Window
     private MenuItem _mnuItemCopyKursBez;
     private MenuItem _mnuItemCopyLuLKrz;
     private MenuItem _mnuItemCopyLuLMails;
+    private CheckBox _cbZeigeInaktiv;
     private readonly ContextMenu _logListContextMenu = new();
     private int leftLastComboIndex = -1;
     private int rightLastComboIndex = -1;
@@ -271,12 +272,19 @@ public partial class MainWindow : Window
             Content = "Exakte Suche",
             IsChecked = false,
         };
+        _cbZeigeInaktiv = new CheckBox
+        {
+            Name = "cbMnuZeigeInaktiv",
+            Content = "Zeige Inaktive",
+            IsChecked = false,
+        };
         leftListButtonContextItems.Add(cbSucheVorname);
         leftListButtonContextItems.Add(cbSucheNachname);
         leftListButtonContextItems.Add(cbSucheMail);
         leftListButtonContextItems.Add(cbSucheAnmeldename);
         leftListButtonContextItems.Add(cbSucheID);
         leftListButtonContextItems.Add(cbSucheExact);
+        leftListButtonContextItems.Add(_cbZeigeInaktiv);
         tbLeftSearch.ContextMenu = new ContextMenu
         {
             ItemsSource = leftListButtonContextItems
@@ -881,10 +889,11 @@ public partial class MainWindow : Window
         var suselternadresse = tbSuSElternadresse.Text;
         var suszweitadresse = tbSuSZweitadresse.Text;
         var susHatZweitaccount = cbSuSZweitaccount.IsChecked;
+        var susIstAktiv = cbSuSAktiv.IsChecked;
         if (string.IsNullOrEmpty(susid) || string.IsNullOrEmpty(susvname) || string.IsNullOrEmpty(susnname) ||
             string.IsNullOrEmpty(susklasse) || string.IsNullOrEmpty(susnutzername) ||
             string.IsNullOrEmpty(suselternadresse) ||
-            susHatZweitaccount == null || string.IsNullOrEmpty(tbSuSKurse.Text))
+            susHatZweitaccount == null || string.IsNullOrEmpty(tbSuSKurse.Text)||susIstAktiv==null)
         {
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
@@ -1028,11 +1037,12 @@ public partial class MainWindow : Window
         var lulfakultas = tbLuLFach.Text;
         var lulmail = tbLuLMail.Text;
         var lulpwtemp = tbLuLtmpPwd.Text;
-        var favo = tbLuLFavo.Text;
-        var sfavo = tbLuLSFavo.Text;
+        var lulfavo = tbLuLFavo.Text;
+        var lulsfavo = tbLuLSFavo.Text;
+        var lulistAktiv = cbLuLAktiv.IsChecked;
         if (lulid == null || string.IsNullOrEmpty(lulvname) || string.IsNullOrEmpty(lulnname) ||
             string.IsNullOrEmpty(lulkrz) || string.IsNullOrEmpty(lulfakultas) ||
-            string.IsNullOrEmpty(lulmail) || lulpwtemp == null || tbLuLKurse.Text == null)
+            string.IsNullOrEmpty(lulmail) || lulpwtemp == null || tbLuLKurse.Text == null || lulistAktiv == null)
         {
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
@@ -1050,14 +1060,14 @@ public partial class MainWindow : Window
             return;
         }
 
-        if (string.IsNullOrEmpty(favo))
+        if (string.IsNullOrEmpty(lulfavo))
         {
-            favo = "";
+            lulfavo = "";
         }
 
-        if (string.IsNullOrEmpty(sfavo))
+        if (string.IsNullOrEmpty(lulsfavo))
         {
-            sfavo = "";
+            lulsfavo = "";
         }
 
         var lulkurse = tbLuLKurse.Text.Split(',').ToList();
@@ -1071,8 +1081,9 @@ public partial class MainWindow : Window
         var lid = Convert.ToInt32(lulid);
         if (_myschool.GibtEsLehrkraft(lid))
         {
-            await _myschool.UpdateLehrkraft(lid, lulvname, lulnname, lulkrz, lulmail, lulfakultas, lulpwtemp, favo,
-                sfavo);
+            await _myschool.UpdateLehrkraft(lid, lulvname, lulnname, lulkrz, lulmail, lulfakultas, lulpwtemp, lulfavo,
+                lulsfavo);
+            _myschool.SetzeAktivstatusLehrkraft(lid, cbLuLAktiv.IsChecked!=null && lulistAktiv.Value);
             var alteKurse = _myschool.GetKursVonLuL(lid).Result;
             foreach (var kurs in alteKurse.Where(kurs => !lulkurse.Contains(kurs.Bezeichnung)))
             {
@@ -1087,7 +1098,7 @@ public partial class MainWindow : Window
         }
         else
         {
-            await _myschool.Addlehrkraft(lid, lulvname, lulnname, lulkrz, lulmail, lulfakultas, favo, sfavo);
+            await _myschool.Addlehrkraft(lid, lulvname, lulnname, lulkrz, lulmail, lulfakultas, lulfavo, lulsfavo);
             if (lulkurse.Count == 0) return;
             foreach (var kurs in lulkurse)
             {
@@ -1287,7 +1298,7 @@ public partial class MainWindow : Window
 
                 if (leftListBox.SelectedItems.Count < 1 || leftListBox.SelectedItems == null || hasComboBoxChanged)
                 {
-                    var slist = _myschool.GetSchuelerListe().Result
+                    var slist = _myschool.GetSchuelerListe().Result.Where(s=>s.IstAktiv|| (_cbZeigeInaktiv.IsChecked!=null&&_cbZeigeInaktiv.IsChecked.Value))
                         .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID)).Distinct().ToList();
                     slist.Sort(Comparer<string>.Default);
                     ResetItemsSource(leftListBox, slist);
@@ -1329,7 +1340,7 @@ public partial class MainWindow : Window
 
                 if (leftListBox.SelectedItems.Count < 1 || leftListBox.SelectedItems == null || hasComboBoxChanged)
                 {
-                    var lullist = _myschool.GetLehrerListe().Result
+                    var lullist = _myschool.GetLehrerListe().Result.Where(l=>l.IstAktiv|| (_cbZeigeInaktiv.IsChecked!=null&&_cbZeigeInaktiv.IsChecked.Value))
                         .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).Distinct().ToList();
                     lullist.Sort(Comparer<string>.Default);
                     ResetItemsSource(leftListBox, lullist);
@@ -1632,6 +1643,7 @@ public partial class MainWindow : Window
             .Aggregate("", (current, kurs) => current + kurs.Bezeichnung + ",").TrimEnd(',');
         cbSuSZweitaccount.IsChecked = s.Zweitaccount;
         cbSuSM365.IsChecked = s.HasM365Account;
+        cbSuSAktiv.IsChecked = s.IstAktiv;
     }
 
     private void LoadLuLData(LuL l)
@@ -1648,6 +1660,7 @@ public partial class MainWindow : Window
             .Aggregate("", (current, kurs) => current + kurs.Bezeichnung + ",").TrimEnd(',');
         tbLuLFavo.Text = l.Favo;
         tbLuLSFavo.Text = l.SFavo;
+        cbLuL.IsChecked = l.IstAktiv;
     }
 
     private void LoadKursData(Kurs k)
