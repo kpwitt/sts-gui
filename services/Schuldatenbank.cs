@@ -310,11 +310,12 @@ public class Schuldatenbank : IDisposable
         {
             db_version = Convert.ToInt32(sqliteDatareader.GetString("id_col_count"));
         }
+
         sqliteDatareader.Close();
-        
+
         //upgrade DB to 0.6
         if (db_version != 1) return;
-        
+
         sqliteCmd.CommandText =
             $"SELECT COUNT(*) AS m365_col_count FROM pragma_table_info('schueler') WHERE name='m365'";
         sqliteCmd.ExecuteNonQuery();
@@ -341,7 +342,7 @@ public class Schuldatenbank : IDisposable
             }
         }
         //Ende Update 0.6
-        
+
         //Begin Update 0.7
         sqliteCmd.CommandText =
             $"SELECT COUNT(*) AS sus_column_count FROM pragma_table_info('schueler') WHERE name='aktiv'";
@@ -352,6 +353,7 @@ public class Schuldatenbank : IDisposable
         {
             sus_column_count = Convert.ToInt32(sqliteDatareader.GetString("sus_column_count"));
         }
+
         sqliteDatareader.Close();
         sqliteCmd.CommandText =
             $"SELECT COUNT(*) AS lul_column_count FROM pragma_table_info('lehrkraft') WHERE name='aktiv'";
@@ -379,8 +381,9 @@ public class Schuldatenbank : IDisposable
                 Environment.Exit(-1);
             }
         }
+
         sqliteDatareader.Close();
-        
+
         if (lul_column_count == 0)
         {
             try
@@ -396,6 +399,7 @@ public class Schuldatenbank : IDisposable
                 Environment.Exit(-1);
             }
         }
+
         sqliteDatareader.Close();
     }
 
@@ -546,7 +550,7 @@ public class Schuldatenbank : IDisposable
         while (true)
         {
             if (lid == 0 || string.IsNullOrEmpty(kbez)) return;
-            var kursliste = GetKursVonLuL(lid).Result.Select(k=>k.Bezeichnung).ToList();
+            var kursliste = GetKursVonLuL(lid).Result.Select(k => k.Bezeichnung).ToList();
             if (kursliste.Count == 0) return;
             if (kursliste.Contains(kbez)) return;
             var sqliteCmd = _sqliteConn.CreateCommand();
@@ -661,7 +665,7 @@ public class Schuldatenbank : IDisposable
     public async Task AddStoK(int sid, string kbez)
     {
         if (sid == 0 || kbez == "") return;
-        var kursliste = GetKursVonSuS(sid).Result.Select(k=>k.Bezeichnung).ToList();
+        var kursliste = GetKursVonSuS(sid).Result.Select(k => k.Bezeichnung).ToList();
         if (kursliste.Count == 0) return;
         if (kursliste.Contains(kbez)) return;
         var sqliteCmd = _sqliteConn.CreateCommand();
@@ -1468,7 +1472,7 @@ public class Schuldatenbank : IDisposable
                 {
                     var stufenleitungen = GetOberstufenleitung(kurs.Stufe).Result;
                     var rolle = stufenleitungen.Contains(lt) ||
-                               GetSettings().Result.Oberstufenkoordination.Contains(lt.Kuerzel)
+                                GetSettings().Result.Oberstufenkoordination.Contains(lt.Kuerzel)
                         ? "editingteacher"
                         : "student";
                     ausgabeMoodleEinschreibungen.Add("add," + rolle + "," + lt.ID + "," +
@@ -1777,6 +1781,7 @@ public class Schuldatenbank : IDisposable
             {
                 retKurs.Art = retKurs.Bezeichnung.Substring(retKurs.Bezeichnung.Length - 3, 3);
             }
+
             kliste.Add(retKurs);
         }
 
@@ -3455,7 +3460,7 @@ public class Schuldatenbank : IDisposable
     /// </summary>
     /// <param name="susid"></param>
     /// <param name="istAktiv"></param>
-    public void SetzeAktivstatusSchueler(int susid,bool istAktiv)
+    public void SetzeAktivstatusSchueler(int susid, bool istAktiv)
     {
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText = "UPDATE schueler SET aktiv = $istAktiv WHERE id = $susid;";
