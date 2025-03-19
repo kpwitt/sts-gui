@@ -327,7 +327,6 @@ public class Schuldatenbank : IDisposable
 
         sqliteDatareader.Close();        
         if (output == 0){
-            ;
             try
             {
                 sqliteCmd.CommandText =
@@ -3445,6 +3444,7 @@ public class Schuldatenbank : IDisposable
     /// setzt den Status für die Lehrkraft
     /// </summary>
     /// <param name="lehrkraft"></param>
+    /// <param name="istAktiv"></param>
     public void SetzeAktivstatusLehrkraft(LuL lehrkraft, bool istAktiv)
     {
         SetzeAktivstatusLehrkraft(lehrkraft.ID, istAktiv);
@@ -3454,6 +3454,7 @@ public class Schuldatenbank : IDisposable
     /// setzt den Status für den Schüler:in mit der übergebenen ID
     /// </summary>
     /// <param name="susid"></param>
+    /// <param name="istAktiv"></param>
     public void SetzeAktivstatusSchueler(int susid,bool istAktiv)
     {
         var sqliteCmd = _sqliteConn.CreateCommand();
