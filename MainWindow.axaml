@@ -235,16 +235,16 @@
                                         <TextBlock Classes="Header" Text="stellv. Fachvorsitz:" Grid.Column="0"
                                                    Grid.Row="10" />
                                         <TextBox x:Name="tbLuLSFavo" Grid.Column="1" Grid.Row="10" />
-                                        <CheckBox x:Name="cbLuLAktiv" Grid.Column="1" Grid.Row="11">Aktiv</CheckBox>
-                                        <Button x:Name="btnLuLAdd" Grid.Column="0" Grid.Row="11"
+                                        <CheckBox x:Name="cbLuLAktiv" Grid.Column="0" Grid.Row="11">Aktiv</CheckBox>
+                                        <Button x:Name="btnLuLAdd" Grid.Column="0" Grid.Row="12"
                                                 Click="OnBtnluladdClick">
                                             Hinzufügen/aktualisieren
                                         </Button>
-                                        <Button x:Name="btnLuLDel" Grid.Column="1" Grid.Row="11" Margin="5"
+                                        <Button x:Name="btnLuLDel" Grid.Column="1" Grid.Row="12" Margin="5"
                                                 Click="OnBtnluldelClick">
                                             markierte löschen
                                         </Button>
-                                        <Button x:Name="btnLuLClearTextFields" Grid.Column="0" Grid.Row="12"
+                                        <Button x:Name="btnLuLClearTextFields" Grid.Column="0" Grid.Row="13"
                                                 Click="BtnLuLClearTextFields_OnClick">
                                             Clear
                                         </Button>
