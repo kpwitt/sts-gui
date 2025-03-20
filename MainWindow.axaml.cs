@@ -1240,6 +1240,7 @@ public partial class MainWindow : Window
         tbLuLMail.Text = "";
         tbLuLtmpPwd.Text = "";
         tbLuLKurse.Text = "";
+        cbLuLAktiv.IsChecked = false;
     }
 
     private void ClearSuSTextFields()
@@ -1255,6 +1256,7 @@ public partial class MainWindow : Window
         tbSuSKurse.Text = "";
         cbSuSZweitaccount.IsChecked = false;
         cbSuSM365.IsChecked = false;
+        cbSuSAktiv.IsChecked = false;
     }
 
     private void cboxDataRight_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
