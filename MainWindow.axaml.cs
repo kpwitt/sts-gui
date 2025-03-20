@@ -3650,13 +3650,14 @@ public partial class MainWindow : Window
             into id
             where id.All(char.IsDigit)
             select Convert.ToInt32(id)).ToList();
-        foreach (var id in _myschool.GetSchuelerIDListe().Result)
+        Parallel.ForEach(_myschool.GetSchuelerIDListe().Result, (id,state)=>
+        //foreach (var id in _myschool.GetSchuelerIDListe().Result)
         {
             if (IDListe.Contains(id))
             {
                 _myschool.SetM365(id, 0);
-                var sus = await _myschool.GetSchueler(id);
-                if (!string.IsNullOrEmpty(sus.Nutzername)) continue;
+                var sus = _myschool.GetSchueler(id).Result;
+                if (!string.IsNullOrEmpty(sus.Nutzername)) return;
                 sus.Nutzername = sus.Vorname[..3] +
                                  sus.Nachname[..3] + Random.Shared.NextInt64(10, 100);
                 _myschool.UpdateSchueler(sus);
@@ -3665,7 +3666,7 @@ public partial class MainWindow : Window
             {
                 _myschool.SetM365(id, 1);
             }
-        }
+        });
 
         await ShowCustomInfoMessage("Import erfolgreich.", "Erfolg");
     }
