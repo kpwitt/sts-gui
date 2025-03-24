@@ -2533,7 +2533,7 @@ public class Schuldatenbank : IDisposable
 
         await StartTransaction();
         //for (var i = 1; i < lines.Length; i++)
-        Parallel.ForEach(lines, async (line, state) =>
+        Parallel.ForEach(lines, async (line, _) =>
         {
             try
             {
@@ -2672,7 +2672,6 @@ public class Schuldatenbank : IDisposable
                     Eintragsdatum = DateTime.Now, Nachricht = "Fehler beim Einlesen der Kurse", Warnstufe = "Fehler"
                 });
                 await StopTransaction();
-                return;
             }
         });
 
@@ -2745,21 +2744,19 @@ public class Schuldatenbank : IDisposable
         }
 
         await StartTransaction();
-        Parallel.ForEach(lines, async (line, state) =>
+        Parallel.ForEach(lines, async (line, _) =>
         {
             try
             {
-                if (line != "")
+                if (line == "") return;
+                var tmpkuk = line.Split(';');
+                for (var j = 0; j < tmpkuk.Length; j++)
                 {
-                    var tmpkuk = line.Split(';');
-                    for (var j = 0; j < tmpkuk.Length; j++)
-                    {
-                        tmpkuk[j] = tmpkuk[j].Trim('"');
-                    }
-
-                    await Addlehrkraft(Convert.ToInt32(tmpkuk[ini]), tmpkuk[inv], tmpkuk[inn],
-                        tmpkuk[inkrz].ToUpper(), tmpkuk[inm], tmpkuk[infak].TrimEnd(';'), "", "");
+                    tmpkuk[j] = tmpkuk[j].Trim('"');
                 }
+
+                await Addlehrkraft(Convert.ToInt32(tmpkuk[ini]), tmpkuk[inv], tmpkuk[inn],
+                    tmpkuk[inkrz].ToUpper(), tmpkuk[inm], tmpkuk[infak].TrimEnd(';'), "", "");
             }
             catch (Exception ex)
             {

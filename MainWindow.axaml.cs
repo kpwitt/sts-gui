@@ -279,7 +279,7 @@ public partial class MainWindow : Window
             Content = "Zeige Inaktive",
             IsChecked = true,
         };
-        _cbZeigeInaktiv.Click += async (sender, args) =>
+        _cbZeigeInaktiv.Click += async (_, _) =>
         {
             await CallLeftTimer();
         };
@@ -304,7 +304,7 @@ public partial class MainWindow : Window
         lbLogDisplay.MaxWidth = ClientSize.Width * 1.1;
         _msgBoxWindowIcon =
             new WindowIcon(AssetLoader.Open(new Uri("avares://StS-GUI-Avalonia/Assets/gfx/school-building.png")));
-        Resized += (s, e) =>
+        Resized += (_, _) =>
         {
             if (FrameSize == null) return;
             mainScroller.MaxHeight = FrameSize.Value.Height * 0.9;
@@ -838,7 +838,7 @@ public partial class MainWindow : Window
             var folder = await ShowOpenFolderDialog("Bitte den Ordner mit den Dateien auswählen");
             if (folder == null) return;
             var folderpath = folder.Path.LocalPath;
-            var res = 0;
+            int res;
             if (!File.Exists(folderpath + "/sus.csv") && !File.Exists(folderpath + "/lul.csv") &&
                 !File.Exists(folderpath + "/kurse.csv") &&
                 !File.Exists(folderpath + "/temp_accounts.csv"))
@@ -3661,7 +3661,7 @@ public partial class MainWindow : Window
             into id
             where id.All(char.IsDigit)
             select Convert.ToInt32(id)).ToList();
-        Parallel.ForEach(_myschool.GetSchuelerIDListe().Result, (id,state)=>
+        Parallel.ForEach(_myschool.GetSchuelerIDListe().Result, (id,_)=>
         //foreach (var id in _myschool.GetSchuelerIDListe().Result)
         {
             if (IDListe.Contains(id))
@@ -3845,7 +3845,7 @@ public partial class MainWindow : Window
         var inaktiveLuL = _myschool.GetLehrerListe().Result.Where(l => l.IstAktiv == false).ToList();
         List<string> exportMoodleListe = ["email;username;idnumber;lastname;firstname;suspended"];
         Parallel.ForEach(inaktiveSuS,
-            (s, state) =>
+            (s, _) =>
             {
                 exportMoodleListe.Add(string.Join(';', s.Mail, s.Nutzername, s.ID.ToString(), s.Nachname, s.Vorname,
                     1.ToString()));
