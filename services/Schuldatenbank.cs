@@ -1885,7 +1885,7 @@ public class Schuldatenbank : IDisposable
             lehrkraft.Pwttemp = sqliteDatareader.GetString(6);
             lehrkraft.Favo = sqliteDatareader.GetString(7);
             lehrkraft.SFavo = sqliteDatareader.GetString(8);
-            lehrkraft.IstAktiv = Convert.ToBoolean(sqliteDatareader.GetInt32(9));
+            lehrkraft.IstAktiv = sqliteDatareader.GetBoolean(9);
         }
 
         return lehrkraft;
@@ -1916,7 +1916,7 @@ public class Schuldatenbank : IDisposable
         List<LuL> llist = [];
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
-            "SELECT id,nachname,vorname,mail,kuerzel,fakultas,pwtemp,favo,sfavo FROM lehrkraft;";
+            "SELECT id,nachname,vorname,mail,kuerzel,fakultas,pwtemp,favo,sfavo,aktiv FROM lehrkraft;";
         var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
         while (sqliteDatareader.Read())
         {
@@ -1931,6 +1931,7 @@ public class Schuldatenbank : IDisposable
                 Pwttemp = sqliteDatareader.GetString(6),
                 Favo = sqliteDatareader.GetString(7),
                 SFavo = sqliteDatareader.GetString(8),
+                IstAktiv = sqliteDatareader.GetBoolean(9),
             };
             llist.Add(lehrkraft);
         }
@@ -2132,7 +2133,7 @@ public class Schuldatenbank : IDisposable
                 Zweitaccount = Convert.ToBoolean(sqliteDatareader.GetInt32(7)),
                 Zweitmail = sqliteDatareader.GetString(8),
                 HasM365Account = Convert.ToBoolean(sqliteDatareader.GetInt32(9)),
-                IstAktiv = Convert.ToBoolean(sqliteDatareader.GetInt32(10)),
+                IstAktiv = sqliteDatareader.GetBoolean(10),
             };
             susliste.Add(schuelerin);
         }
@@ -2165,7 +2166,7 @@ public class Schuldatenbank : IDisposable
         List<SuS> slist = [];
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
-            "SELECT id,nachname,vorname,mail,klasse,nutzername,aixmail,zweitaccount,zweitmail FROM schueler;";
+            "SELECT id,nachname,vorname,mail,klasse,nutzername,aixmail,zweitaccount,zweitmail,m365, aktiv FROM schueler;";
         var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
         while (sqliteDatareader.Read())
         {
@@ -2179,7 +2180,9 @@ public class Schuldatenbank : IDisposable
                 Nutzername = sqliteDatareader.GetString(5),
                 Aixmail = sqliteDatareader.GetString(6),
                 Zweitaccount = Convert.ToBoolean(sqliteDatareader.GetInt32(7)),
-                Zweitmail = sqliteDatareader.GetString(8)
+                Zweitmail = sqliteDatareader.GetString(8),
+                HasM365Account = Convert.ToBoolean(sqliteDatareader.GetInt32(9)),
+                IstAktiv = sqliteDatareader.GetBoolean(10),
             };
             slist.Add(schuelerin);
         }
