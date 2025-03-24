@@ -277,7 +277,11 @@ public partial class MainWindow : Window
         {
             Name = "cbMnuZeigeInaktiv",
             Content = "Zeige Inaktive",
-            IsChecked = false,
+            IsChecked = true,
+        };
+        _cbZeigeInaktiv.Click += async (sender, args) =>
+        {
+            await CallLeftTimer();
         };
         leftListButtonContextItems.Add(cbSucheVorname);
         leftListButtonContextItems.Add(cbSucheNachname);
@@ -326,7 +330,6 @@ public partial class MainWindow : Window
         return files;
     }
 
-    //TODO: Abfrage zum Überschreiben entfernen 
     private async Task<IStorageFile?> ShowOpenFileDialog(string dialogtitle,
         IReadOnlyList<FilePickerFileType> extensions)
     {
@@ -1240,6 +1243,7 @@ public partial class MainWindow : Window
         tbLuLMail.Text = "";
         tbLuLtmpPwd.Text = "";
         tbLuLKurse.Text = "";
+        cbLuLAktiv.IsChecked = false;
     }
 
     private void ClearSuSTextFields()
@@ -1255,6 +1259,7 @@ public partial class MainWindow : Window
         tbSuSKurse.Text = "";
         cbSuSZweitaccount.IsChecked = false;
         cbSuSM365.IsChecked = false;
+        cbSuSAktiv.IsChecked = false;
     }
 
     private void cboxDataRight_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
@@ -1283,7 +1288,7 @@ public partial class MainWindow : Window
 
     private void OnLeftDataChanged(bool hasComboBoxChanged)
     {
-        if (leftListBox == null || rightListBox == null || cboxDataLeft == null || cboxDataRight == null) return;
+        if (leftListBox == null || rightListBox == null || cboxDataLeft == null || cboxDataRight == null || _cbZeigeInaktiv.IsChecked==null) return;
         if (leftListBox.SelectedItems == null) return;
         SetStatusText();
         if (_rightMutex && !hasComboBoxChanged) return;
@@ -1292,6 +1297,7 @@ public partial class MainWindow : Window
             ResetItemsSource(rightListBox, []);
         }
 
+        var zeigeInaktive = _cbZeigeInaktiv.IsChecked.Value;
         _mnuItemCopySuSid.IsVisible = _mnuItemCopySuSMail.IsVisible = cboxDataLeft.SelectedIndex == 0;
         _mnuItemCopyLuLKrz.IsVisible = _mnuItemCopyLuLMails.IsVisible = cboxDataLeft.SelectedIndex == 1;
         _mnuItemCopyKursBez.IsVisible = cboxDataLeft.SelectedIndex == 2;
@@ -1306,8 +1312,7 @@ public partial class MainWindow : Window
 
                 if (leftListBox.SelectedItems.Count < 1 || leftListBox.SelectedItems == null || hasComboBoxChanged)
                 {
-                    var slist = _myschool.GetSchuelerListe().Result.Where(s =>
-                            s.IstAktiv || (_cbZeigeInaktiv.IsChecked != null && _cbZeigeInaktiv.IsChecked.Value))
+                    var slist = _myschool.GetSchuelerListe().Result.Where(s=>s.IstAktiv || zeigeInaktive)
                         .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID)).Distinct().ToList();
                     slist.Sort(Comparer<string>.Default);
                     ResetItemsSource(leftListBox, slist);
@@ -1349,8 +1354,7 @@ public partial class MainWindow : Window
 
                 if (leftListBox.SelectedItems.Count < 1 || leftListBox.SelectedItems == null || hasComboBoxChanged)
                 {
-                    var lullist = _myschool.GetLehrerListe().Result.Where(l =>
-                            l.IstAktiv || (_cbZeigeInaktiv.IsChecked != null && _cbZeigeInaktiv.IsChecked.Value))
+                    var lullist = _myschool.GetLehrerListe().Result.Where(l=>l.IstAktiv|| zeigeInaktive)
                         .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).Distinct().ToList();
                     lullist.Sort(Comparer<string>.Default);
                     ResetItemsSource(leftListBox, lullist);
@@ -2486,6 +2490,11 @@ public partial class MainWindow : Window
 
     private async void OnLeftTimedEvent(object? source, ElapsedEventArgs e)
     {
+        await CallLeftTimer();
+    }
+
+    private async Task CallLeftTimer()
+    {
         await Dispatcher.UIThread.InvokeAsync(UpdateLeftList);
         _leftInputTimer.Enabled = false;
         return;
@@ -2501,11 +2510,13 @@ public partial class MainWindow : Window
                     break;
             }
 
+            if (_cbZeigeInaktiv.IsChecked == null) return;
+            var zeigeInaktive = _cbZeigeInaktiv.IsChecked.Value;
             tbLeftSearch.Text = tbLeftSearch.Text.TrimStart(' ').TrimEnd(' ');
             var eingabeliste = tbLeftSearch.Text.Split(";");
             if (tbLeftSearch.ContextMenu?.ItemsSource == null) return;
             var searchContextMenu = tbLeftSearch.ContextMenu.ItemsSource.Cast<CheckBox>().ToList();
-            var searchFields = new[] { false, false, false, false, false, false }; //v,n,m,a/k,i,e
+            var searchFields = new[] { false, false, false, false, false, false, false }; //v,n,m,a/k,i,e,ia
             for (var i = 0; i < searchContextMenu.Count; ++i)
             {
                 if (searchContextMenu[i].IsChecked == true)
@@ -2518,7 +2529,7 @@ public partial class MainWindow : Window
             {
                 case 0:
                     var sliste = new List<SuS>();
-                    var scachelist = _myschool.GetSchuelerListe().Result;
+                    var scachelist = _myschool.GetSchuelerListe().Result.Where(s=>s.IstAktiv || zeigeInaktive).ToList();
                     foreach (var eingabe in eingabeliste)
                     {
                         var lowereingabe = eingabe.ToLower();
@@ -2551,7 +2562,7 @@ public partial class MainWindow : Window
                     break;
                 case 1:
                     var lliste = new List<LuL>();
-                    var cachlist = _myschool.GetLehrerListe().Result;
+                    var cachlist = _myschool.GetLehrerListe().Result.Where(s=>s.IstAktiv || zeigeInaktive).ToList();
                     foreach (var eingabe in eingabeliste)
                     {
                         var lowereingabe = eingabe.ToLower();
