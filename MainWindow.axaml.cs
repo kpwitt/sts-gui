@@ -22,6 +22,7 @@ using MsBox.Avalonia.Dto;
 using MsBox.Avalonia.Enums;
 using SchulDB;
 using StS_GUI_Avalonia.services;
+using Timer = System.Timers.Timer;
 
 // ReSharper disable InconsistentNaming
 
@@ -896,7 +897,7 @@ public partial class MainWindow : Window
         if (string.IsNullOrEmpty(susid) || string.IsNullOrEmpty(susvname) || string.IsNullOrEmpty(susnname) ||
             string.IsNullOrEmpty(susklasse) || string.IsNullOrEmpty(susnutzername) ||
             string.IsNullOrEmpty(suselternadresse) ||
-            susHatZweitaccount == null || string.IsNullOrEmpty(tbSuSKurse.Text)||susIstAktiv==null)
+            susHatZweitaccount == null || string.IsNullOrEmpty(tbSuSKurse.Text) || susIstAktiv == null)
         {
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
@@ -1084,9 +1085,16 @@ public partial class MainWindow : Window
         var lid = Convert.ToInt32(lulid);
         if (_myschool.GibtEsLehrkraft(lid))
         {
+            if (_myschool.GetKursVonLuL(lid).Result.Count > 0)
+            {
+                await ShowCustomInfoMessage(
+                    "Die Lehrkraft hat noch zugeordnete Kurse, bitte stellen Sie sicher, dass es eine passende Vertretung gibt und tragen Sie sie ggf. aus.",
+                    "Vorsicht");
+            }
+
             await _myschool.UpdateLehrkraft(lid, lulvname, lulnname, lulkrz, lulmail, lulfakultas, lulpwtemp, lulfavo,
                 lulsfavo);
-            _myschool.SetzeAktivstatusLehrkraft(lid, cbLuLAktiv.IsChecked!=null && lulistAktiv.Value);
+            _myschool.SetzeAktivstatusLehrkraft(lid, cbLuLAktiv.IsChecked != null && lulistAktiv.Value);
             var alteKurse = _myschool.GetKursVonLuL(lid).Result;
             foreach (var kurs in alteKurse.Where(kurs => !lulkurse.Contains(kurs.Bezeichnung)))
             {
@@ -1235,6 +1243,7 @@ public partial class MainWindow : Window
         tbLuLMail.Text = "";
         tbLuLtmpPwd.Text = "";
         tbLuLKurse.Text = "";
+        cbLuLAktiv.IsChecked = false;
     }
 
     private void ClearSuSTextFields()
@@ -1250,6 +1259,7 @@ public partial class MainWindow : Window
         tbSuSKurse.Text = "";
         cbSuSZweitaccount.IsChecked = false;
         cbSuSM365.IsChecked = false;
+        cbSuSAktiv.IsChecked = false;
     }
 
     private void cboxDataRight_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
@@ -1664,7 +1674,7 @@ public partial class MainWindow : Window
             .Aggregate("", (current, kurs) => current + kurs.Bezeichnung + ",").TrimEnd(',');
         tbLuLFavo.Text = l.Favo;
         tbLuLSFavo.Text = l.SFavo;
-        cbLuL.IsChecked = l.IstAktiv;
+        cbLuLAktiv.IsChecked = l.IstAktiv;
     }
 
     private void LoadKursData(Kurs k)
@@ -3651,13 +3661,14 @@ public partial class MainWindow : Window
             into id
             where id.All(char.IsDigit)
             select Convert.ToInt32(id)).ToList();
-        foreach (var id in _myschool.GetSchuelerIDListe().Result)
+        Parallel.ForEach(_myschool.GetSchuelerIDListe().Result, (id,state)=>
+        //foreach (var id in _myschool.GetSchuelerIDListe().Result)
         {
             if (IDListe.Contains(id))
             {
                 _myschool.SetM365(id, 0);
-                var sus = await _myschool.GetSchueler(id);
-                if (!string.IsNullOrEmpty(sus.Nutzername)) continue;
+                var sus = _myschool.GetSchueler(id).Result;
+                if (!string.IsNullOrEmpty(sus.Nutzername)) return;
                 sus.Nutzername = sus.Vorname[..3] +
                                  sus.Nachname[..3] + Random.Shared.NextInt64(10, 100);
                 _myschool.UpdateSchueler(sus);
@@ -3666,7 +3677,7 @@ public partial class MainWindow : Window
             {
                 _myschool.SetM365(id, 1);
             }
-        }
+        });
 
         await ShowCustomInfoMessage("Import erfolgreich.", "Erfolg");
     }
@@ -3826,5 +3837,36 @@ public partial class MainWindow : Window
                 }
             });
         }
+    }
+
+    private async void BtnExportInaktive_OnClick(object? sender, RoutedEventArgs e)
+    {
+        var inaktiveSuS = _myschool.GetSchuelerListe().Result.Where(s => s.IstAktiv == false).ToList();
+        var inaktiveLuL = _myschool.GetLehrerListe().Result.Where(l => l.IstAktiv == false).ToList();
+        List<string> exportMoodleListe = ["email;username;idnumber;lastname;firstname;suspended"];
+        Parallel.ForEach(inaktiveSuS,
+            (s, state) =>
+            {
+                exportMoodleListe.Add(string.Join(';', s.Mail, s.Nutzername, s.ID.ToString(), s.Nachname, s.Vorname,
+                    1.ToString()));
+            });
+        Parallel.ForEach(inaktiveLuL,
+            (l, state) =>
+            {
+                exportMoodleListe.Add(string.Join(';', l.Mail, l.Kuerzel, l.ID.ToString(), l.Nachname, l.Vorname,
+                    1.ToString()));
+            });
+
+        var extx = new List<FilePickerFileType>
+        {
+            StSFileTypes.CSVFile,
+            FilePickerFileTypes.All
+        };
+        var file = await ShowSaveFileDialog("Deaktivierte Accounts speichern", extx);
+        if (file is null) return;
+        var InaktiveFilePath = file.Path.LocalPath;
+        await File.WriteAllLinesAsync(InaktiveFilePath, exportMoodleListe, Encoding.UTF8);
+
+        await ShowCustomInfoMessage("Speichern erfolgreich.", "Erfolg");
     }
 }

@@ -325,9 +325,9 @@ public class Schuldatenbank : IDisposable
             output = Convert.ToInt32(sqliteDatareader.GetString("m365_col_count"));
         }
 
-        sqliteDatareader.Close();        
-        if (output == 0){
-            ;
+        sqliteDatareader.Close();
+        if (output == 0)
+        {
             try
             {
                 sqliteCmd.CommandText =
@@ -342,7 +342,7 @@ public class Schuldatenbank : IDisposable
             }
         }
         //Ende Update 0.6
-        
+
         //Begin Update 0.7
         sqliteCmd.CommandText =
             $"SELECT COUNT(*) AS sus_column_count FROM pragma_table_info('schueler') WHERE name='aktiv'";
@@ -353,6 +353,7 @@ public class Schuldatenbank : IDisposable
         {
             sus_column_count = Convert.ToInt32(sqliteDatareader.GetString("sus_column_count"));
         }
+
         sqliteDatareader.Close();
         sqliteCmd.CommandText =
             $"SELECT COUNT(*) AS lul_column_count FROM pragma_table_info('lehrkraft') WHERE name='aktiv'";
@@ -363,9 +364,10 @@ public class Schuldatenbank : IDisposable
         {
             lul_column_count = Convert.ToInt32(sqliteDatareader.GetString("lul_column_count"));
         }
+
         sqliteDatareader.Close();
-        
-        if (sus_column_count ==0)
+
+        if (sus_column_count == 0)
         {
             try
             {
@@ -380,8 +382,9 @@ public class Schuldatenbank : IDisposable
                 Environment.Exit(-1);
             }
         }
+
         sqliteDatareader.Close();
-        
+
         if (lul_column_count == 0)
         {
             try
@@ -397,6 +400,7 @@ public class Schuldatenbank : IDisposable
                 Environment.Exit(-1);
             }
         }
+
         sqliteDatareader.Close();
     }
 
@@ -547,7 +551,7 @@ public class Schuldatenbank : IDisposable
         while (true)
         {
             if (lid == 0 || string.IsNullOrEmpty(kbez)) return;
-            var kursliste = GetKursVonLuL(lid).Result.Select(k=>k.Bezeichnung).ToList();
+            var kursliste = GetKursVonLuL(lid).Result.Select(k => k.Bezeichnung).ToList();
             if (kursliste.Count == 0) return;
             if (kursliste.Contains(kbez)) return;
             var sqliteCmd = _sqliteConn.CreateCommand();
@@ -662,7 +666,7 @@ public class Schuldatenbank : IDisposable
     public async Task AddStoK(int sid, string kbez)
     {
         if (sid == 0 || kbez == "") return;
-        var kursliste = GetKursVonSuS(sid).Result.Select(k=>k.Bezeichnung).ToList();
+        var kursliste = GetKursVonSuS(sid).Result.Select(k => k.Bezeichnung).ToList();
         if (kursliste.Count == 0) return;
         if (kursliste.Contains(kbez)) return;
         var sqliteCmd = _sqliteConn.CreateCommand();
@@ -1469,7 +1473,7 @@ public class Schuldatenbank : IDisposable
                 {
                     var stufenleitungen = GetOberstufenleitung(kurs.Stufe).Result;
                     var rolle = stufenleitungen.Contains(lt) ||
-                               GetSettings().Result.Oberstufenkoordination.Contains(lt.Kuerzel)
+                                GetSettings().Result.Oberstufenkoordination.Contains(lt.Kuerzel)
                         ? "editingteacher"
                         : "student";
                     ausgabeMoodleEinschreibungen.Add("add," + rolle + "," + lt.ID + "," +
@@ -1778,6 +1782,7 @@ public class Schuldatenbank : IDisposable
             {
                 retKurs.Art = retKurs.Bezeichnung.Substring(retKurs.Bezeichnung.Length - 3, 3);
             }
+
             kliste.Add(retKurs);
         }
 
@@ -1856,7 +1861,7 @@ public class Schuldatenbank : IDisposable
             lehrkraft.Pwttemp = sqliteDatareader.GetString(6);
             lehrkraft.Favo = sqliteDatareader.GetString(7);
             lehrkraft.SFavo = sqliteDatareader.GetString(8);
-            lehrkraft.IstAktiv = Convert.ToBoolean(sqliteDatareader.GetInt32(9));
+            lehrkraft.IstAktiv = sqliteDatareader.GetBoolean(9);
         }
 
         return lehrkraft;
@@ -2099,7 +2104,7 @@ public class Schuldatenbank : IDisposable
             schuelerin.Zweitaccount = Convert.ToBoolean(sqliteDatareader.GetInt32(7));
             schuelerin.Zweitmail = sqliteDatareader.GetString(8);
             schuelerin.HasM365Account = Convert.ToBoolean(sqliteDatareader.GetInt32(9));
-            schuelerin.IstAktiv = Convert.ToBoolean(sqliteDatareader.GetInt32(10));
+            schuelerin.IstAktiv = sqliteDatareader.GetBoolean(10);
         }
 
         return schuelerin;
@@ -2527,11 +2532,12 @@ public class Schuldatenbank : IDisposable
         }
 
         await StartTransaction();
-        for (var i = 1; i < lines.Length; i++)
+        //for (var i = 1; i < lines.Length; i++)
+        Parallel.ForEach(lines, async (line, state) =>
         {
             try
             {
-                var tmpkurs = lines[i].Split('|');
+                var tmpkurs = line.Split('|');
                 for (var j = 0; j < tmpkurs.Length; j++)
                 {
                     tmpkurs[j] = tmpkurs[j].Trim('"');
@@ -2636,7 +2642,8 @@ public class Schuldatenbank : IDisposable
                             AddLogMessage(new LogEintrag
                             {
                                 Eintragsdatum = DateTime.Now, Nachricht =
-                                    "SuS" + stmp.ID + ":" + stmp.Nachname + "," + stmp.Vorname + " aus " + stmp.Klasse +
+                                    "SuS" + stmp.ID + ":" + stmp.Nachname + "," + stmp.Vorname + " aus " +
+                                    stmp.Klasse +
                                     " hat invalide Kurs-Art",
                                 Warnstufe = "Fehler"
                             });
@@ -2667,7 +2674,7 @@ public class Schuldatenbank : IDisposable
                 await StopTransaction();
                 return;
             }
-        }
+        });
 
         await StopTransaction();
     }
@@ -2737,14 +2744,14 @@ public class Schuldatenbank : IDisposable
             }
         }
 
-        for (var i = 1; i < lines.Length; i++)
+        await StartTransaction();
+        Parallel.ForEach(lines, async (line, state) =>
         {
-            await StartTransaction();
             try
             {
-                if (lines[i] != "")
+                if (line != "")
                 {
-                    var tmpkuk = lines[i].Split(';');
+                    var tmpkuk = line.Split(';');
                     for (var j = 0; j < tmpkuk.Length; j++)
                     {
                         tmpkuk[j] = tmpkuk[j].Trim('"');
@@ -2761,9 +2768,8 @@ public class Schuldatenbank : IDisposable
                     { Eintragsdatum = DateTime.Now, Nachricht = ex.Message, Warnstufe = "Debug" });
 #endif
             }
-
-            await StopTransaction();
-        }
+        });
+        await StopTransaction();
     }
 
     /// <summary>
@@ -3047,6 +3053,7 @@ public class Schuldatenbank : IDisposable
     /// </summary>
     public async Task StartTransaction()
     {
+        if (_activeTransaction) return;
         _activeTransaction = true;
         _dbtrans = _sqliteConn.BeginTransaction();
     }
@@ -3056,6 +3063,7 @@ public class Schuldatenbank : IDisposable
     /// </summary>
     public async Task StopTransaction()
     {
+        if (!_activeTransaction) return;
         _activeTransaction = false;
         if (_dbtrans == null) return;
         await _dbtrans.CommitAsync();
@@ -3100,11 +3108,12 @@ public class Schuldatenbank : IDisposable
             }
         }
 
-        for (var i = 1; i < lines.Length; i++)
+        await StartTransaction();
+        Parallel.ForEach(lines, async (line, state) =>
         {
             try
             {
-                var tmpsus = lines[i].Split(';');
+                var tmpsus = line.Split(';');
                 for (var j = 0; j < tmpsus.Length; j++)
                 {
                     tmpsus[j] = tmpsus[j].Trim('"');
@@ -3154,7 +3163,8 @@ public class Schuldatenbank : IDisposable
                 AddLogMessage(new LogEintrag
                     { Eintragsdatum = DateTime.Now, Nachricht = "Fehler beim Einlesen der SuS", Warnstufe = "Fehler" });
             }
-        }
+        });
+        await StopTransaction();
     }
 
     /// <summary>
@@ -3448,6 +3458,7 @@ public class Schuldatenbank : IDisposable
     /// setzt den Status für die Lehrkraft
     /// </summary>
     /// <param name="lehrkraft"></param>
+    /// <param name="istAktiv"></param>
     public void SetzeAktivstatusLehrkraft(LuL lehrkraft, bool istAktiv)
     {
         SetzeAktivstatusLehrkraft(lehrkraft.ID, istAktiv);
@@ -3457,7 +3468,8 @@ public class Schuldatenbank : IDisposable
     /// setzt den Status für den Schüler:in mit der übergebenen ID
     /// </summary>
     /// <param name="susid"></param>
-    public void SetzeAktivstatusSchueler(int susid,bool istAktiv)
+    /// <param name="istAktiv"></param>
+    public void SetzeAktivstatusSchueler(int susid, bool istAktiv)
     {
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText = "UPDATE schueler SET aktiv = $istAktiv WHERE id = $susid;";
