@@ -3851,7 +3851,7 @@ public partial class MainWindow : Window
                     1.ToString()));
             });
         Parallel.ForEach(inaktiveLuL,
-            (l, state) =>
+            (l, _) =>
             {
                 exportMoodleListe.Add(string.Join(';', l.Mail, l.Kuerzel, l.ID.ToString(), l.Nachname, l.Vorname,
                     1.ToString()));

@@ -3106,7 +3106,7 @@ public class Schuldatenbank : IDisposable
         }
 
         await StartTransaction();
-        Parallel.ForEach(lines, async (line, state) =>
+        Parallel.ForEach(lines, async (line, _) =>
         {
             try
             {
