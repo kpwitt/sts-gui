@@ -1,0 +1,40 @@
+\documentclass[10pt, oneside]{report}
+\usepackage[a4paper,left=0.5cm,right=0.5cm,top=0.5cm,bottom=1.5cm]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage{pdflscape}
+\usepackage{tabularx}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{floatflt}
+\usepackage{longtable}
+\usepackage{makecell}
+\usepackage{fancyhdr}
+\usepackage{textcomp}
+\usepackage{lastpage}
+\usepackage[final]{pdfpages}
+\usepackage[ngerman]{babel}
+\usepackage[onehalfspacing]{setspace}
+\usepackage{booktabs}% http://ctan.org/pkg/booktabs
+\usepackage{wasysym}%Square
+\usepackage{pbox}
+\usepackage{csvsimple}
+\usepackage[bookmarksnumbered=true, colorlinks=true, linkcolor=black, urlcolor = black, pdftitle={Übersicht Lehrkräfte}, pdfauthor={WIB}]{hyperref}
+\pagestyle{fancy}
+
+\newcommand{\tabitem}{~~\llap{\textbullet}~~}
+\author{Schulname}
+\title{Übersicht Lehrkräfte}
+\begin{document}
+	\fancypagestyle{plain}{%
+		\fancyhf{} % clear all header and footer fields
+		\fancyfoot[C]{\bfseries \thepage} % except the center
+		\renewcommand{\headrulewidth}{0pt}
+		\renewcommand{\footrulewidth}{0pt}}
+	\begin{tabular}{p{13cm}p{3cm}}
+			\makecell{ {\Large Schulname}\\Kürzel-Liste der Lehrerinnen und Lehrer\\{\small Stand: \today }} &\makecell{\includegraphics[scale=0.4]{Logo.png}}
+	\end{tabular}
+	\tiny
+	\csvautolongtable[separator=semicolon]{HP_2sp.csv}
+\end{document}
