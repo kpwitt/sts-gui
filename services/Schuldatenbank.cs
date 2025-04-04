@@ -310,11 +310,12 @@ public class Schuldatenbank : IDisposable
         {
             db_version = Convert.ToInt32(sqliteDatareader.GetString("id_col_count"));
         }
+
         sqliteDatareader.Close();
-        
+
         //upgrade DB to 0.6
         if (db_version != 1) return;
-        
+
         sqliteCmd.CommandText =
             $"SELECT COUNT(*) AS m365_col_count FROM pragma_table_info('schueler') WHERE name='m365'";
         sqliteCmd.ExecuteNonQuery();
@@ -548,34 +549,33 @@ public class Schuldatenbank : IDisposable
     /// <param name="kbez"></param>
     public async Task AddLtoK(int lid, string kbez)
     {
-        while (true)
+        if (lid == 0 || string.IsNullOrEmpty(kbez)) return;
+        var kursliste = GetKursVonLuL(lid).Result.Select(k => k.Bezeichnung).ToList();
+        if (kursliste.Contains(kbez)) return;
+        var sqliteCmd = _sqliteConn.CreateCommand();
+        sqliteCmd.CommandText = "INSERT OR IGNORE INTO unterrichtet (lehrerid, kursbez) VALUES ($lid, $kbez);";
+        sqliteCmd.Parameters.AddWithValue("$lid", lid);
+        sqliteCmd.Parameters.AddWithValue("$kbez", kbez);
+        sqliteCmd.ExecuteNonQuery();
+        sqliteCmd.Parameters.Clear();
+        var kurs = await GetKurs(kbez);
+        if (string.IsNullOrEmpty(kurs.Bezeichnung)) return;
+        var klkurs = kurs.Klasse + "KL";
+        var kurse = GetKursVonLuL(lid).Result;
+        if (!kurs.IstKurs && !oberstufe.Contains(kurs.Stufe) && kurse.All(k => k.Bezeichnung != klkurs))
         {
-            if (lid == 0 || string.IsNullOrEmpty(kbez)) return;
-            var kursliste = GetKursVonLuL(lid).Result.Select(k => k.Bezeichnung).ToList();
-            if (kursliste.Contains(kbez)) return;
-            var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText = "INSERT OR IGNORE INTO unterrichtet (lehrerid, kursbez) VALUES ($lid, $kbez);";
             sqliteCmd.Parameters.AddWithValue("$lid", lid);
-            sqliteCmd.Parameters.AddWithValue("$kbez", kbez);
+            sqliteCmd.Parameters.AddWithValue("$kbez", klkurs);
             sqliteCmd.ExecuteNonQuery();
-            var kurs = await GetKurs(kbez);
-            if (string.IsNullOrEmpty(kurs.Bezeichnung)) return;
-            var klkurs = kurs.Klasse + "KL";
-            var kurse = GetKursVonLuL(lid).Result;
-            if (!kurs.IstKurs && !oberstufe.Contains(kurs.Stufe) && kurse.All(k => k.Bezeichnung != klkurs))
-            {
-                kbez = klkurs;
-                continue;
-            }
-
-            AddLogMessage(new LogEintrag
-            {
-                Eintragsdatum = DateTime.Now,
-                Nachricht = "Lehrkraft\t" + lid + "\tzu Kurs\t" + kbez + "\t hinzugefügt",
-                Warnstufe = "Info"
-            });
-            break;
         }
+
+        AddLogMessage(new LogEintrag
+        {
+            Eintragsdatum = DateTime.Now,
+            Nachricht = "Lehrkraft\t" + lid + "\tzu Kurs\t" + kbez + "\t hinzugefügt",
+            Warnstufe = "Info"
+        });
     }
 
     /// <summary>
