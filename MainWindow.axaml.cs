@@ -22,6 +22,7 @@ using MsBox.Avalonia.Dto;
 using MsBox.Avalonia.Enums;
 using SchulDB;
 using StS_GUI_Avalonia.services;
+using Timer = System.Timers.Timer;
 
 // ReSharper disable InconsistentNaming
 
@@ -42,6 +43,7 @@ public partial class MainWindow : Window
     private MenuItem _mnuItemCopyKursBez;
     private MenuItem _mnuItemCopyLuLKrz;
     private MenuItem _mnuItemCopyLuLMails;
+    private CheckBox _cbZeigeInaktiv;
     private readonly ContextMenu _logListContextMenu = new();
     private int leftLastComboIndex = -1;
     private int rightLastComboIndex = -1;
@@ -271,12 +273,23 @@ public partial class MainWindow : Window
             Content = "Exakte Suche",
             IsChecked = false,
         };
+        _cbZeigeInaktiv = new CheckBox
+        {
+            Name = "cbMnuZeigeInaktiv",
+            Content = "Zeige Inaktive",
+            IsChecked = true,
+        };
+        _cbZeigeInaktiv.Click += async (_, _) =>
+        {
+            await CallLeftTimer();
+        };
         leftListButtonContextItems.Add(cbSucheVorname);
         leftListButtonContextItems.Add(cbSucheNachname);
         leftListButtonContextItems.Add(cbSucheMail);
         leftListButtonContextItems.Add(cbSucheAnmeldename);
         leftListButtonContextItems.Add(cbSucheID);
         leftListButtonContextItems.Add(cbSucheExact);
+        leftListButtonContextItems.Add(_cbZeigeInaktiv);
         tbLeftSearch.ContextMenu = new ContextMenu
         {
             ItemsSource = leftListButtonContextItems
@@ -291,7 +304,7 @@ public partial class MainWindow : Window
         lbLogDisplay.MaxWidth = ClientSize.Width * 1.1;
         _msgBoxWindowIcon =
             new WindowIcon(AssetLoader.Open(new Uri("avares://StS-GUI-Avalonia/Assets/gfx/school-building.png")));
-        Resized += (s, e) =>
+        Resized += (_, _) =>
         {
             if (FrameSize == null) return;
             mainScroller.MaxHeight = FrameSize.Value.Height * 0.9;
@@ -317,7 +330,6 @@ public partial class MainWindow : Window
         return files;
     }
 
-    //TODO: Abfrage zum Überschreiben entfernen 
     private async Task<IStorageFile?> ShowOpenFileDialog(string dialogtitle,
         IReadOnlyList<FilePickerFileType> extensions)
     {
@@ -497,11 +509,11 @@ public partial class MainWindow : Window
             }
 
             var filepath = files.Path.LocalPath;
-            if (File.Exists(filepath))
+            /*if (File.Exists(filepath))
             {
                 var override_res = await ShowOverwriteDialog();
                 if (override_res != ButtonResult.Yes) return;
-            }
+            }*/
 
             var tempDB = new Schuldatenbank(filepath);
             var res = await tempDB.Import(_myschool);
@@ -548,11 +560,11 @@ public partial class MainWindow : Window
             var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
             if (files == null) return;
             var filepath = files.Path.LocalPath;
-            if (File.Exists(filepath))
+            /*if (File.Exists(filepath))
             {
                 var override_res = await ShowOverwriteDialog();
                 if (override_res != ButtonResult.Yes) return;
-            }
+            }*/
 
             var tempDB = new Schuldatenbank(filepath);
             var res = await tempDB.Import(_myschool);
@@ -603,11 +615,11 @@ public partial class MainWindow : Window
             var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
             if (files == null) return;
             var filepath = files.Path.LocalPath;
-            if (File.Exists(filepath))
+            /*if (File.Exists(filepath))
             {
                 var override_res = await ShowOverwriteDialog();
                 if (override_res != ButtonResult.Yes) return;
-            }
+            }*/
 
             var dbPath = _myschool.GetFilePath();
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -826,7 +838,7 @@ public partial class MainWindow : Window
             var folder = await ShowOpenFolderDialog("Bitte den Ordner mit den Dateien auswählen");
             if (folder == null) return;
             var folderpath = folder.Path.LocalPath;
-            var res = 0;
+            int res;
             if (!File.Exists(folderpath + "/sus.csv") && !File.Exists(folderpath + "/lul.csv") &&
                 !File.Exists(folderpath + "/kurse.csv") &&
                 !File.Exists(folderpath + "/temp_accounts.csv"))
@@ -881,10 +893,11 @@ public partial class MainWindow : Window
         var suselternadresse = tbSuSElternadresse.Text;
         var suszweitadresse = tbSuSZweitadresse.Text;
         var susHatZweitaccount = cbSuSZweitaccount.IsChecked;
+        var susIstAktiv = cbSuSAktiv.IsChecked;
         if (string.IsNullOrEmpty(susid) || string.IsNullOrEmpty(susvname) || string.IsNullOrEmpty(susnname) ||
             string.IsNullOrEmpty(susklasse) || string.IsNullOrEmpty(susnutzername) ||
             string.IsNullOrEmpty(suselternadresse) ||
-            susHatZweitaccount == null || string.IsNullOrEmpty(tbSuSKurse.Text))
+            susHatZweitaccount == null || string.IsNullOrEmpty(tbSuSKurse.Text) || susIstAktiv == null)
         {
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
@@ -927,6 +940,7 @@ public partial class MainWindow : Window
         if (_myschool.GibtEsSchueler(sid))
         {
             _myschool.SetM365(sid, cbSuSM365.IsChecked != null && cbSuSM365.IsChecked.Value ? 1 : 0);
+            _myschool.SetzeAktivstatusSchueler(sid, cbSuSAktiv.IsChecked != null && cbSuSAktiv.IsChecked.Value);
             if (suszweitadresse != null && susaixmail != null)
                 await _myschool.UpdateSchueler(sid, susvname, susnname, suselternadresse, susklasse, susnutzername,
                     susaixmail, susHatZweitaccount == false ? 0 : 1, suszweitadresse);
@@ -1027,11 +1041,12 @@ public partial class MainWindow : Window
         var lulfakultas = tbLuLFach.Text;
         var lulmail = tbLuLMail.Text;
         var lulpwtemp = tbLuLtmpPwd.Text;
-        var favo = tbLuLFavo.Text;
-        var sfavo = tbLuLSFavo.Text;
+        var lulfavo = tbLuLFavo.Text;
+        var lulsfavo = tbLuLSFavo.Text;
+        var lulistAktiv = cbLuLAktiv.IsChecked;
         if (lulid == null || string.IsNullOrEmpty(lulvname) || string.IsNullOrEmpty(lulnname) ||
             string.IsNullOrEmpty(lulkrz) || string.IsNullOrEmpty(lulfakultas) ||
-            string.IsNullOrEmpty(lulmail) || lulpwtemp == null || tbLuLKurse.Text == null)
+            string.IsNullOrEmpty(lulmail) || lulpwtemp == null || tbLuLKurse.Text == null || lulistAktiv == null)
         {
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
@@ -1049,14 +1064,14 @@ public partial class MainWindow : Window
             return;
         }
 
-        if (string.IsNullOrEmpty(favo))
+        if (string.IsNullOrEmpty(lulfavo))
         {
-            favo = "";
+            lulfavo = "";
         }
 
-        if (string.IsNullOrEmpty(sfavo))
+        if (string.IsNullOrEmpty(lulsfavo))
         {
-            sfavo = "";
+            lulsfavo = "";
         }
 
         var lulkurse = tbLuLKurse.Text.Split(',').ToList();
@@ -1070,8 +1085,16 @@ public partial class MainWindow : Window
         var lid = Convert.ToInt32(lulid);
         if (_myschool.GibtEsLehrkraft(lid))
         {
-            await _myschool.UpdateLehrkraft(lid, lulvname, lulnname, lulkrz, lulmail, lulfakultas, lulpwtemp, favo,
-                sfavo);
+            if (_myschool.GetKursVonLuL(lid).Result.Count > 0)
+            {
+                await ShowCustomInfoMessage(
+                    "Die Lehrkraft hat noch zugeordnete Kurse, bitte stellen Sie sicher, dass es eine passende Vertretung gibt und tragen Sie sie ggf. aus.",
+                    "Vorsicht");
+            }
+
+            await _myschool.UpdateLehrkraft(lid, lulvname, lulnname, lulkrz, lulmail, lulfakultas, lulpwtemp, lulfavo,
+                lulsfavo);
+            _myschool.SetzeAktivstatusLehrkraft(lid, cbLuLAktiv.IsChecked != null && lulistAktiv.Value);
             var alteKurse = _myschool.GetKursVonLuL(lid).Result;
             foreach (var kurs in alteKurse.Where(kurs => !lulkurse.Contains(kurs.Bezeichnung)))
             {
@@ -1086,7 +1109,7 @@ public partial class MainWindow : Window
         }
         else
         {
-            await _myschool.Addlehrkraft(lid, lulvname, lulnname, lulkrz, lulmail, lulfakultas, favo, sfavo);
+            await _myschool.Addlehrkraft(lid, lulvname, lulnname, lulkrz, lulmail, lulfakultas, lulfavo, lulsfavo);
             if (lulkurse.Count == 0) return;
             foreach (var kurs in lulkurse)
             {
@@ -1220,6 +1243,7 @@ public partial class MainWindow : Window
         tbLuLMail.Text = "";
         tbLuLtmpPwd.Text = "";
         tbLuLKurse.Text = "";
+        cbLuLAktiv.IsChecked = false;
     }
 
     private void ClearSuSTextFields()
@@ -1235,6 +1259,7 @@ public partial class MainWindow : Window
         tbSuSKurse.Text = "";
         cbSuSZweitaccount.IsChecked = false;
         cbSuSM365.IsChecked = false;
+        cbSuSAktiv.IsChecked = false;
     }
 
     private void cboxDataRight_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
@@ -1263,7 +1288,7 @@ public partial class MainWindow : Window
 
     private void OnLeftDataChanged(bool hasComboBoxChanged)
     {
-        if (leftListBox == null || rightListBox == null || cboxDataLeft == null || cboxDataRight == null) return;
+        if (leftListBox == null || rightListBox == null || cboxDataLeft == null || cboxDataRight == null || _cbZeigeInaktiv.IsChecked==null) return;
         if (leftListBox.SelectedItems == null) return;
         SetStatusText();
         if (_rightMutex && !hasComboBoxChanged) return;
@@ -1272,6 +1297,7 @@ public partial class MainWindow : Window
             ResetItemsSource(rightListBox, []);
         }
 
+        var zeigeInaktive = _cbZeigeInaktiv.IsChecked.Value;
         _mnuItemCopySuSid.IsVisible = _mnuItemCopySuSMail.IsVisible = cboxDataLeft.SelectedIndex == 0;
         _mnuItemCopyLuLKrz.IsVisible = _mnuItemCopyLuLMails.IsVisible = cboxDataLeft.SelectedIndex == 1;
         _mnuItemCopyKursBez.IsVisible = cboxDataLeft.SelectedIndex == 2;
@@ -1286,7 +1312,7 @@ public partial class MainWindow : Window
 
                 if (leftListBox.SelectedItems.Count < 1 || leftListBox.SelectedItems == null || hasComboBoxChanged)
                 {
-                    var slist = _myschool.GetSchuelerListe().Result
+                    var slist = _myschool.GetSchuelerListe().Result.Where(s=>s.IstAktiv || zeigeInaktive)
                         .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID)).Distinct().ToList();
                     slist.Sort(Comparer<string>.Default);
                     ResetItemsSource(leftListBox, slist);
@@ -1328,7 +1354,7 @@ public partial class MainWindow : Window
 
                 if (leftListBox.SelectedItems.Count < 1 || leftListBox.SelectedItems == null || hasComboBoxChanged)
                 {
-                    var lullist = _myschool.GetLehrerListe().Result
+                    var lullist = _myschool.GetLehrerListe().Result.Where(l=>l.IstAktiv|| zeigeInaktive)
                         .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).Distinct().ToList();
                     lullist.Sort(Comparer<string>.Default);
                     ResetItemsSource(leftListBox, lullist);
@@ -1631,6 +1657,7 @@ public partial class MainWindow : Window
             .Aggregate("", (current, kurs) => current + kurs.Bezeichnung + ",").TrimEnd(',');
         cbSuSZweitaccount.IsChecked = s.Zweitaccount;
         cbSuSM365.IsChecked = s.HasM365Account;
+        cbSuSAktiv.IsChecked = s.IstAktiv;
     }
 
     private void LoadLuLData(LuL l)
@@ -1647,6 +1674,7 @@ public partial class MainWindow : Window
             .Aggregate("", (current, kurs) => current + kurs.Bezeichnung + ",").TrimEnd(',');
         tbLuLFavo.Text = l.Favo;
         tbLuLSFavo.Text = l.SFavo;
+        cbLuLAktiv.IsChecked = l.IstAktiv;
     }
 
     private void LoadKursData(Kurs k)
@@ -2462,6 +2490,11 @@ public partial class MainWindow : Window
 
     private async void OnLeftTimedEvent(object? source, ElapsedEventArgs e)
     {
+        await CallLeftTimer();
+    }
+
+    private async Task CallLeftTimer()
+    {
         await Dispatcher.UIThread.InvokeAsync(UpdateLeftList);
         _leftInputTimer.Enabled = false;
         return;
@@ -2477,10 +2510,13 @@ public partial class MainWindow : Window
                     break;
             }
 
+            if (_cbZeigeInaktiv.IsChecked == null) return;
+            var zeigeInaktive = _cbZeigeInaktiv.IsChecked.Value;
+            tbLeftSearch.Text = tbLeftSearch.Text.TrimStart(' ').TrimEnd(' ');
             var eingabeliste = tbLeftSearch.Text.Split(";");
             if (tbLeftSearch.ContextMenu?.ItemsSource == null) return;
             var searchContextMenu = tbLeftSearch.ContextMenu.ItemsSource.Cast<CheckBox>().ToList();
-            var searchFields = new[] { false, false, false, false, false, false }; //v,n,m,a/k,i,e
+            var searchFields = new[] { false, false, false, false, false, false, false }; //v,n,m,a/k,i,e,ia
             for (var i = 0; i < searchContextMenu.Count; ++i)
             {
                 if (searchContextMenu[i].IsChecked == true)
@@ -2493,7 +2529,7 @@ public partial class MainWindow : Window
             {
                 case 0:
                     var sliste = new List<SuS>();
-                    var scachelist = _myschool.GetSchuelerListe().Result;
+                    var scachelist = _myschool.GetSchuelerListe().Result.Where(s=>s.IstAktiv || zeigeInaktive).ToList();
                     foreach (var eingabe in eingabeliste)
                     {
                         var lowereingabe = eingabe.ToLower();
@@ -2526,7 +2562,7 @@ public partial class MainWindow : Window
                     break;
                 case 1:
                     var lliste = new List<LuL>();
-                    var cachlist = _myschool.GetLehrerListe().Result;
+                    var cachlist = _myschool.GetLehrerListe().Result.Where(s=>s.IstAktiv || zeigeInaktive).ToList();
                     foreach (var eingabe in eingabeliste)
                     {
                         var lowereingabe = eingabe.ToLower();
@@ -2592,6 +2628,7 @@ public partial class MainWindow : Window
                     break;
             }
 
+            tbRightSearch.Text = tbRightSearch.Text.TrimStart(' ').TrimEnd(' ');
             var eingabeliste = tbRightSearch.Text.Split(";");
             if (tbLeftSearch?.ContextMenu?.ItemsSource == null) return;
             var searchContextMenu = tbLeftSearch.ContextMenu.ItemsSource.Cast<CheckBox>().ToList();
@@ -2933,11 +2970,11 @@ public partial class MainWindow : Window
             var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
             if (files == null) return;
             var filepath = files.Path.LocalPath;
-            if (File.Exists(filepath))
+            /*if (File.Exists(filepath))
             {
                 var override_res = await ShowOverwriteDialog();
                 if (override_res != ButtonResult.Yes) return;
-            }
+            }*/
 
             List<string> lulliste = ["Kürzel;Nachname;Fächer;Mailadresse"];
             lulliste.AddRange(_myschool.GetLehrerListe().Result.Select(lehrer =>
@@ -3216,7 +3253,7 @@ public partial class MainWindow : Window
                         ListToFile.AddRange(susliste.Select(sus => $"add,schueler,{sus.ID},{kurs}"));
                         if (cbSonst1.SelectedIndex == 4)
                         {
-                            ListToFile.AddRange(susliste.Select(sus => $"add,eltern,{sus.ID}_e,{kurs}"));
+                            ListToFile.AddRange(susliste.Select(sus => $"add,eltern,E_{sus.ID},{kurs}"));
                         }
                     }
 
@@ -3541,11 +3578,11 @@ public partial class MainWindow : Window
             if (files == null) return;
 
             var filepath = files.Path.LocalPath;
-            if (File.Exists(filepath))
+            /*if (File.Exists(filepath))
             {
                 var override_res = await ShowOverwriteDialog();
                 if (override_res != ButtonResult.Yes) return;
-            }
+            }*/
 
             await Dispatcher.UIThread.InvokeAsync(async () =>
             {
@@ -3624,13 +3661,14 @@ public partial class MainWindow : Window
             into id
             where id.All(char.IsDigit)
             select Convert.ToInt32(id)).ToList();
-        foreach (var id in _myschool.GetSchuelerIDListe().Result)
+        Parallel.ForEach(_myschool.GetSchuelerIDListe().Result, (id,_)=>
+        //foreach (var id in _myschool.GetSchuelerIDListe().Result)
         {
             if (IDListe.Contains(id))
             {
                 _myschool.SetM365(id, 0);
-                var sus = await _myschool.GetSchueler(id);
-                if (!string.IsNullOrEmpty(sus.Nutzername)) continue;
+                var sus = _myschool.GetSchueler(id).Result;
+                if (!string.IsNullOrEmpty(sus.Nutzername)) return;
                 sus.Nutzername = sus.Vorname[..3] +
                                  sus.Nachname[..3] + Random.Shared.NextInt64(10, 100);
                 _myschool.UpdateSchueler(sus);
@@ -3639,7 +3677,9 @@ public partial class MainWindow : Window
             {
                 _myschool.SetM365(id, 1);
             }
-        }
+        });
+
+        await ShowCustomInfoMessage("Import erfolgreich.", "Erfolg");
     }
 
     private async void MnuTempAccountsEinlesen_OnClick(object? sender, RoutedEventArgs e)
@@ -3733,11 +3773,11 @@ public partial class MainWindow : Window
             if (files == null) return;
 
             var filepath = files.Path.LocalPath;
-            if (File.Exists(filepath))
+            /*if (File.Exists(filepath))
             {
                 var override_res = await ShowOverwriteDialog();
                 if (override_res != ButtonResult.Yes) return;
-            }
+            }*/
 
             await Dispatcher.UIThread.InvokeAsync(async () =>
             {
@@ -3797,5 +3837,36 @@ public partial class MainWindow : Window
                 }
             });
         }
+    }
+
+    private async void BtnExportInaktive_OnClick(object? sender, RoutedEventArgs e)
+    {
+        var inaktiveSuS = _myschool.GetSchuelerListe().Result.Where(s => s.IstAktiv == false).ToList();
+        var inaktiveLuL = _myschool.GetLehrerListe().Result.Where(l => l.IstAktiv == false).ToList();
+        List<string> exportMoodleListe = ["email;username;idnumber;lastname;firstname;suspended"];
+        Parallel.ForEach(inaktiveSuS,
+            (s, _) =>
+            {
+                exportMoodleListe.Add(string.Join(';', s.Mail, s.Nutzername, s.ID.ToString(), s.Nachname, s.Vorname,
+                    1.ToString()));
+            });
+        Parallel.ForEach(inaktiveLuL,
+            (l, _) =>
+            {
+                exportMoodleListe.Add(string.Join(';', l.Mail, l.Kuerzel, l.ID.ToString(), l.Nachname, l.Vorname,
+                    1.ToString()));
+            });
+
+        var extx = new List<FilePickerFileType>
+        {
+            StSFileTypes.CSVFile,
+            FilePickerFileTypes.All
+        };
+        var file = await ShowSaveFileDialog("Deaktivierte Accounts speichern", extx);
+        if (file is null) return;
+        var InaktiveFilePath = file.Path.LocalPath;
+        await File.WriteAllLinesAsync(InaktiveFilePath, exportMoodleListe, Encoding.UTF8);
+
+        await ShowCustomInfoMessage("Speichern erfolgreich.", "Erfolg");
     }
 }
