@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -39,7 +40,7 @@ public class Schuldatenbank : IDisposable
     {
         _dbpath = path;
         _logpath = _dbpath == ":memory:"
-            ? Path.Combine(Path.GetTempPath(), Path.ChangeExtension(Guid.NewGuid() + "_tmp", "log"))
+            ? Path.Combine(Path.GetTempPath(), Path.ChangeExtension("StS_" + Guid.NewGuid() + "_tmp", "log"))
             : _dbpath.Replace("sqlite", "log");
         var strconnection = "Data Source=" + _dbpath;
         _sqliteConn = new SqliteConnection(strconnection);
@@ -526,8 +527,7 @@ public class Schuldatenbank : IDisposable
     /// <param name="eintrag"></param>
     public void AddLogMessage(LogEintrag eintrag)
     {
-        File.AppendAllText(_logpath,
-            eintrag + "\n", Encoding.UTF8);
+        File.AppendAllText(_logpath, eintrag + "\n", Encoding.UTF8);
     }
 
     /// <summary>
@@ -1936,8 +1936,8 @@ public class Schuldatenbank : IDisposable
     {
         List<LogEintrag> log = [];
         if (!File.Exists(_logpath)) return log.AsReadOnly();
-        var entries = File.ReadAllLinesAsync(_logpath).Result.Where(x=>x.Length>43).ToList();
-        Debug.WriteLine(entries.Count+ ": "+ _logpath);
+        var entries = File.ReadAllLinesAsync(_logpath).Result.Where(x => x.Length > 43).ToList();
+        Debug.WriteLine(entries.Count + ": " + _logpath);
         log.AddRange(entries.Select(entry => entry.Split('\t')).Select(logentry =>
         {
             if (logentry.Length > 2)
