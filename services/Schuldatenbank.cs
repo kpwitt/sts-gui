@@ -1710,7 +1710,8 @@ public class Schuldatenbank : IDisposable
         {
             foreach (var fach in favo.Favo.Split(','))
             {
-                var sfavos = SFaVos.Where(l => l.SFavo == fach).ToList();
+                if (string.IsNullOrEmpty(fach))continue;
+                var sfavos = SFaVos.Where(l => l.SFavo.Contains(fach)).ToList();
                 var favomitglieder = lulcache.Where(l => l.Fakultas.Split(',').Contains(fach)).ToList();
                 result.Add(new FaKo
                 {
