@@ -3876,37 +3876,44 @@ public partial class MainWindow : Window
 
         async Task ExportFaKo()
         {
-            var lulcache = await _myschool.GetLehrerListe();
             var fakos = await _myschool.GetFaKos();
 
-            List<string> favo_export = ["Fach;Vorsitz;Vertretung;Mitglieder"];
+            List<string> favo_export = [];
             foreach (var fako in fakos)
             {
                 var mailadressen = fako.Mitglieder.Aggregate("", (current, l) => current + l.Mail + ",").TrimEnd(',');
-                var fako_string = @"\underline{\href{mailto:" + mailadressen + "}{" + fako.Fach +
-                                  "}};";
-                fako_string += @"\underline{\href{mailto:" + fako.Vorsitz.Mail.ToLower() + "}{" +
-                               fako.Vorsitz.Kuerzel.ToLower() + @"}};\underline{\href{mailto:" +
-                               fako.Stellvertretung.Mail.ToLower() + "}{" +
-                               fako.Stellvertretung.Kuerzel.ToLower() + "}};";
+                var fako_string = "Fachschaft <a href=\"mailto:" + mailadressen + "\">" + fako.Fach +
+                                  "</a><br>";
+                fako_string += "Vorsitz: <a href=\"mailto:" + fako.Vorsitz.Mail.ToLower() + "\">" +
+                               fako.Vorsitz.Mail.ToLower() + "</a><br>Stellvertretung<a href=\"mailto:" +
+                               fako.Stellvertretung.Mail.ToLower() + "\">" +
+                               fako.Stellvertretung.Mail.ToLower() + "</a><br>Mitglieder: ";
                 foreach (var lul in fako.Mitglieder)
                 {
-                    fako_string += @"\underline{\href{mailto:" + lul.Mail.ToLower() + "}{" +
-                                   lul.Kuerzel.ToLower() + "}}, ";
+                    fako_string += "<a href=\"mailto:" + lul.Mail.ToLower() + "\">" +
+                                   lul.Mail.ToLower() + "</a>, ";
                 }
 
-                favo_export.Add(fako_string.TrimEnd(' ').TrimEnd(','));
+                favo_export.Add(fako_string.TrimEnd(' ').TrimEnd(',') + "<br><br>");
             }
+
 
             var extx = new List<FilePickerFileType>
             {
-                StSFileTypes.CSVFile,
                 FilePickerFileTypes.All
             };
             var file = await ShowSaveFileDialog("FaKos exportieren", extx);
             if (file is null) return;
             var InaktiveFilePath = file.Path.LocalPath;
-            await File.WriteAllLinesAsync(InaktiveFilePath, favo_export, Encoding.UTF8);
+            File.Delete(InaktiveFilePath);
+            await using (var outfs = File.AppendText(InaktiveFilePath))
+            {
+                outfs.Write("<!DOCTYPE html><body><table>\n");
+                foreach (var line in favo_export)
+                    outfs.Write(line);
+                //outfs.Write("<tr><td>" + string.Join("</td><td>", line.Split(',')) + "</td></tr>");
+                outfs.Write("\n</table></body></html>");
+            }
 
             await ShowCustomInfoMessage("Speichern erfolgreich.", "Erfolg");
         }
