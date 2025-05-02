@@ -3888,11 +3888,9 @@ public partial class MainWindow : Window
                                fako.Vorsitz.Mail.ToLower() + "</a><br>Stellvertretung: <a href=\"mailto:" +
                                fako.Stellvertretung.Mail.ToLower() + "\">" +
                                fako.Stellvertretung.Mail.ToLower() + "</a><br>Mitglieder: ";
-                foreach (var lul in fako.Mitglieder)
-                {
-                    fako_string += "<a href=\"mailto:" + lul.Mail.ToLower() + "\">" +
-                                   lul.Mail.ToLower() + "</a>, ";
-                }
+                fako_string = fako.Mitglieder.Aggregate(fako_string,
+                    (current, lul) =>
+                        current + "<a href=\"mailto:" + lul.Mail.ToLower() + "\">" + lul.Mail.ToLower() + "</a>, ");
 
                 favo_export.Add(fako_string.TrimEnd(' ').TrimEnd(',') + "<br><br>");
             }
