@@ -1708,16 +1708,12 @@ public class Schuldatenbank : IDisposable
         var lulcache = await GetLehrerListe();
         foreach (var favo in FaVos)
         {
-            foreach (var fach in favo.Favo.Split(','))
-            {
-                if (string.IsNullOrEmpty(fach))continue;
-                var sfavos = SFaVos.Where(l => l.SFavo.Contains(fach)).ToList();
-                var favomitglieder = lulcache.Where(l => l.Fakultas.Split(',').Contains(fach)).ToList();
-                result.Add(new FaKo
-                {
-                    Fach = fach, Vorsitz = favo, Stellvertretung = sfavos.First(), Mitglieder = favomitglieder
-                });
-            }
+            result.AddRange(from fach in favo.Favo.Split(',')
+                where !string.IsNullOrEmpty(fach)
+                let sfavos = SFaVos.Where(l => l.SFavo.Contains(fach)).ToList()
+                let favomitglieder = lulcache.Where(l => l.Fakultas.Split(',').Contains(fach)).ToList()
+                select new FaKo
+                    { Fach = fach, Vorsitz = favo, Stellvertretung = sfavos.First(), Mitglieder = favomitglieder });
         }
 
         result.Sort();
