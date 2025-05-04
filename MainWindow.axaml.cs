@@ -2631,7 +2631,7 @@ public partial class MainWindow : Window
             var eingabeliste = tbRightSearch.Text.Split(";");
             if (tbLeftSearch?.ContextMenu?.ItemsSource == null) return;
             var searchContextMenu = tbLeftSearch.ContextMenu.ItemsSource.Cast<CheckBox>().ToList();
-            var searchFields = new[] { false, false, false, false, false, false }; //v,n,m,a/k,i,e
+            var searchFields = new[] { false, false, false, false, false, false, false }; //v,n,m,a/k,i,e,ia
             for (var i = 0; i < searchContextMenu.Count; ++i)
             {
                 if (searchContextMenu[i].IsChecked == true)
