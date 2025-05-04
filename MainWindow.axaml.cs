@@ -3888,15 +3888,12 @@ public partial class MainWindow : Window
                                fako.Vorsitz.Mail.ToLower() + "</a><br>Stellvertretung: <a href=\"mailto:" +
                                fako.Stellvertretung.Mail.ToLower() + "\">" +
                                fako.Stellvertretung.Mail.ToLower() + "</a><br>Mitglieder: ";
-                foreach (var lul in fako.Mitglieder)
-                {
-                    fako_string += "<a href=\"mailto:" + lul.Mail.ToLower() + "\">" +
-                                   lul.Mail.ToLower() + "</a>, ";
-                }
+                fako_string = fako.Mitglieder.Aggregate(fako_string,
+                    (current, lul) =>
+                        current + "<a href=\"mailto:" + lul.Mail.ToLower() + "\">" + lul.Mail.ToLower() + "</a>, ");
 
                 favo_export.Add(fako_string.TrimEnd(' ').TrimEnd(',') + "<br><br>");
             }
-
 
             var extx = new List<FilePickerFileType>
             {
@@ -3908,11 +3905,11 @@ public partial class MainWindow : Window
             File.Delete(InaktiveFilePath);
             await using (var outfs = File.AppendText(InaktiveFilePath))
             {
-                outfs.Write("<!DOCTYPE html><body><table>\n");
+                await outfs.WriteAsync("<!DOCTYPE html><body><table>\n");
                 foreach (var line in favo_export)
-                    outfs.Write(line);
+                    await outfs.WriteAsync(line);
                 //outfs.Write("<tr><td>" + string.Join("</td><td>", line.Split(',')) + "</td></tr>");
-                outfs.Write("\n</table></body></html>");
+                await outfs.WriteAsync("\n</table></body></html>");
             }
 
             await ShowCustomInfoMessage("Speichern erfolgreich.", "Erfolg");
