@@ -940,7 +940,7 @@ public partial class MainWindow : Window
             _myschool.SetzeAktivstatusSchueler(sid, cbSuSAktiv.IsChecked != null && cbSuSAktiv.IsChecked.Value);
             if (suszweitadresse != null && susaixmail != null)
                 await _myschool.UpdateSchueler(sid, susvname, susnname, suselternadresse, susklasse, susnutzername,
-                    susaixmail, susHatZweitaccount == false ? 0 : 1, suszweitadresse);
+                    susaixmail, susHatZweitaccount == false ? 0 : 1, suszweitadresse, cbSuSM365.IsChecked!=null&&cbSuSM365.IsChecked.Value,cbSuSAktiv.IsChecked != null && cbSuSAktiv.IsChecked.Value);
             var alteKurse = _myschool.GetKursVonSuS(sid).Result;
             foreach (var kurs in alteKurse.Where(kurs => !suskurse.Contains(kurs.Bezeichnung)))
             {

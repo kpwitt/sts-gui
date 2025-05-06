@@ -965,7 +965,7 @@ public class Schuldatenbank : IDisposable
                     foreach (var sus in susliste.Where(sus => sus.Klasse == line[isk]))
                     {
                         await UpdateSchueler(sus.ID, sus.Vorname, sus.Nachname, sus.Mail, sus.Klasse,
-                            sus.Nutzername, sus.Aixmail, Convert.ToInt32(sus.Zweitaccount), line[imail]);
+                            sus.Nutzername, sus.Aixmail, Convert.ToInt32(sus.Zweitaccount), line[imail], false, true);
                     }
                 }
                 catch (Exception e)
@@ -3260,8 +3260,10 @@ public class Schuldatenbank : IDisposable
     /// <param name="aixmail"></param>
     /// <param name="zweitaccount"></param>
     /// <param name="zweitmail"></param>
+    /// <param name="hasM365"></param>
+    /// <param name="aktiv"></param>
     public async Task UpdateSchueler(int id, string vorname, string nachname, string mail, string klasse,
-        string nutzername, string aixmail, int zweitaccount, string zweitmail)
+        string nutzername, string aixmail, int zweitaccount, string zweitmail, bool hasM365, bool aktiv)
     {
         if (id <= 0) return;
         var sqliteCmd = _sqliteConn.CreateCommand();
@@ -3276,13 +3278,15 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$aixmail", aixmail);
         sqliteCmd.Parameters.AddWithValue("$zweitaccount", zweitaccount);
         sqliteCmd.Parameters.AddWithValue("$zweitmail", zweitmail);
+        sqliteCmd.Parameters.AddWithValue("$hasM365", hasM365);
+        sqliteCmd.Parameters.AddWithValue("$aktiv", aktiv);
         sqliteCmd.ExecuteNonQuery();
     }
 
     public async void UpdateSchueler(SuS sus)
     {
         await UpdateSchueler(sus.ID, sus.Vorname, sus.Nachname, sus.Mail, sus.Klasse, sus.Nutzername, sus.Aixmail,
-            sus.Zweitaccount ? 1 : 0, sus.Zweitmail);
+            sus.Zweitaccount ? 1 : 0, sus.Zweitmail, sus.HasM365Account, sus.IstAktiv);
     }
 
     /// <summary>
