@@ -445,7 +445,7 @@ public class Schuldatenbank : IDisposable
             }
         }
         sqliteDatareader.Close();
-        sqliteCmd.CommandText = "DROP TABLE IF EXISTS log";
+        sqliteCmd.CommandText = "DROP TABLE IF EXISTS log; VACUUM";
         sqliteDatareader = sqliteCmd.ExecuteReader();
         sqliteDatareader.Close();
     }
@@ -786,7 +786,7 @@ public class Schuldatenbank : IDisposable
 
         if (_sqliteConn.State != ConnectionState.Open) return;
         var sqliteCmd = _sqliteConn.CreateCommand();
-        sqliteCmd.CommandText = "pragma optimize;";
+        sqliteCmd.CommandText = "pragma optimize;VACUUM ";
         sqliteCmd.ExecuteNonQuery();
         _sqliteConn.Close();
     }
