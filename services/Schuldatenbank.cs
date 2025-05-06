@@ -1710,7 +1710,7 @@ public class Schuldatenbank : IDisposable
             let kurse = GetKursVonSuS(susid)
                 .Result.Where(x => jamfstufen.Contains(x.Stufe))
                 .Select(x => x.Bezeichnung)
-                .Where(x => x.StartsWith(sus.Klasse))
+               /* .Where(x => x.StartsWith(sus.Klasse))*/
                 .ToList()
             select string.Join(";", sus.Nutzername, sus.Mail, sus.Vorname, sus.Nachname, string.Join(',', kurse), "",
                 withPasswort ? "Klasse" + sus.Klasse + DateTime.Now.Year + "!" : ""));
