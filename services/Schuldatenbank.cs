@@ -3134,6 +3134,7 @@ public class Schuldatenbank : IDisposable
                     tmpsus[j] = tmpsus[j].Trim('"');
                 }
 
+                var susid = Convert.ToInt32(tmpsus[ini]);
                 var settings = GetSettings().Result;
                 var mail = tmpsus[ini] + settings.Mailsuffix;
                 var maillist = (from idm in inm where !tmpsus[idm].Equals("") select tmpsus[idm]).ToList();
@@ -3165,8 +3166,19 @@ public class Schuldatenbank : IDisposable
                 maillist.Remove(mail);
                 var mails = maillist.Aggregate("", (current, maileintrag) => current + (maileintrag + ","));
                 mails = mails.TrimEnd(',');
-                await AddSchuelerIn(Convert.ToInt32(tmpsus[ini]), tmpsus[inv].Replace("'", ""),
-                    tmpsus[inn].Replace("'", ""), mail, klasse, "", "", 0, mails);
+                if (GibtEsSchueler(susid))
+                {
+                    var sus = GetSchueler(susid).Result;
+                    sus.Klasse = klasse;
+                    sus.Mail = mail;
+                    sus.Zweitmail = mails;
+                    UpdateSchueler(sus);
+                }
+                else
+                {
+                    await AddSchuelerIn(susid, tmpsus[inv].Replace("'", ""),
+                        tmpsus[inn].Replace("'", ""), mail, klasse, "", "", 0, mails);
+                }
             }
             catch (Exception ex)
             {
@@ -3268,7 +3280,7 @@ public class Schuldatenbank : IDisposable
         if (id <= 0) return;
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
-            "UPDATE schueler SET nachname=$nachname, vorname=$vorname, mail=$mail, klasse=$klasse, nutzername=$nutzername, aixmail=$aixmail, zweitaccount = $zweitaccount, zweitmail=$zweitmail WHERE id=$id;";
+            "UPDATE schueler SET nachname=$nachname, vorname=$vorname, mail=$mail, klasse=$klasse, nutzername=$nutzername, aixmail=$aixmail, zweitaccount = $zweitaccount, zweitmail=$zweitmail, m365=$hasM365, aktiv=$aktiv WHERE id=$id;";
         sqliteCmd.Parameters.AddWithValue("$id", id);
         sqliteCmd.Parameters.AddWithValue("$vorname", vorname);
         sqliteCmd.Parameters.AddWithValue("$nachname", nachname);
