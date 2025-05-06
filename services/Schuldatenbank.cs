@@ -29,7 +29,7 @@ public class Schuldatenbank : IDisposable
     public static readonly string[] mittelstufe = ["7", "8", "9", "10"];
     public static readonly string[] oberstufe = ["EF", "Q1", "Q2"];
     public static readonly string[] stubostufen = ["8", "9", "10", "EF", "Q1", "Q2"];
-    public static readonly string[] jamfstufen = ["EF", "Q1", "Q2"];
+    public static readonly string[] jamfstufen = ["9", "10", "EF", "Q1", "Q2"];
 
     /// <summary>
     /// erstellt, falls nicht vorhanden, die Datenbankstruktur und öffnet die Verbindung
