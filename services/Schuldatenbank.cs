@@ -32,7 +32,7 @@ public class Schuldatenbank : IDisposable
     public static readonly string[] mittelstufe = ["7", "8", "9", "10"];
     public static readonly string[] oberstufe = ["EF", "Q1", "Q2"];
     public static readonly string[] stubostufen = ["8", "9", "10", "EF", "Q1", "Q2"];
-    public static readonly string[] jamfstufen = ["EF", "Q1", "Q2"];
+    public static readonly string[] jamfstufen = ["9", "10", "EF", "Q1", "Q2"];
 
     /// <summary>
     /// erstellt, falls nicht vorhanden, die Datenbankstruktur und öffnet die Verbindung
@@ -546,7 +546,7 @@ public class Schuldatenbank : IDisposable
     /// </summary>
     /// <param name="lehrkraft"></param>
     /// <returns></returns>
-    public async Task Addlehrkraft(LuL lehrkraft)
+    public async Task Addlehrkraft(Lehrkraft lehrkraft)
     {
         if (GibtEsLehrkraft(lehrkraft.ID)) return;
         var sqliteCmd = _sqliteConn.CreateCommand();
@@ -634,7 +634,7 @@ public class Schuldatenbank : IDisposable
     /// <param name="lehrkraft"></param>
     /// <param name="kurs"></param>
     /// <returns></returns>
-    public async Task AddLtoK(LuL lehrkraft, Kurs kurs)
+    public async Task AddLtoK(Lehrkraft lehrkraft, Kurs kurs)
     {
         if (string.IsNullOrEmpty(kurs.Bezeichnung) || lehrkraft.ID == 0) return;
         await AddLtoK(lehrkraft.ID, kurs.Bezeichnung);
@@ -818,7 +818,7 @@ public class Schuldatenbank : IDisposable
     /// <param name="lehrerliste"></param>
     /// <param name="susliste"></param>
     private async Task<int> DumpDataToCSVs(string folder, ReadOnlyCollection<SuS> susliste,
-        IEnumerable<LuL> lehrerliste)
+        IEnumerable<Lehrkraft> lehrerliste)
     {
         try
         {
@@ -1013,7 +1013,7 @@ public class Schuldatenbank : IDisposable
                     foreach (var sus in susliste.Where(sus => sus.Klasse == line[isk]))
                     {
                         await UpdateSchueler(sus.ID, sus.Vorname, sus.Nachname, sus.Mail, sus.Klasse,
-                            sus.Nutzername, sus.Aixmail, Convert.ToInt32(sus.Zweitaccount), line[imail]);
+                            sus.Nutzername, sus.Aixmail, Convert.ToInt32(sus.Zweitaccount), line[imail], false, true);
                     }
                 }
                 catch (Exception e)
@@ -1748,6 +1748,26 @@ public class Schuldatenbank : IDisposable
         return new ReadOnlyCollection<string>(flist);
     }
 
+    public async Task<List<FaKo>> GetFaKos()
+    {
+        var result = new List<FaKo>();
+        var FaVos = GetFavos().Result.Where(l => l.Favo != "").ToList();
+        var SFaVos = GetFavos().Result.Where(l => l.SFavo != "").ToList();
+        var lulcache = await GetLehrerListe();
+        foreach (var favo in FaVos)
+        {
+            result.AddRange(from fach in favo.Favo.Split(',')
+                where !string.IsNullOrEmpty(fach)
+                let sfavos = SFaVos.Where(l => l.SFavo.Contains(fach)).ToList()
+                let favomitglieder = lulcache.Where(l => l.Fakultas.Split(',').Contains(fach)).ToList()
+                select new FaKo
+                    { Fach = fach, Vorsitz = favo, Stellvertretung = sfavos.First(), Mitglieder = favomitglieder });
+        }
+
+        result.Sort();
+        return result;
+    }
+
     /// <summary>
     /// gibt den Pfad zur Datenbankdatei zurück
     /// </summary>
@@ -1888,14 +1908,14 @@ public class Schuldatenbank : IDisposable
     /// gibt die Informationen ID, Nachname, Vorname, Mail, Kürzel und Fakultas der Lehrkraft zur übergebenen ID zurück
     /// </summary>
     /// <param name="id"></param>
-    private async Task<LuL> GetLehrkraft(int id)
+    private async Task<Lehrkraft> GetLehrkraft(int id)
     {
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
             "SELECT id,nachname,vorname,mail,kuerzel,fakultas,pwtemp,favo,sfavo,aktiv FROM lehrkraft WHERE id = $id;";
         sqliteCmd.Parameters.AddWithValue("$id", id);
         var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
-        LuL lehrkraft = new();
+        Lehrkraft lehrkraft = new();
         while (sqliteDatareader.Read())
         {
             lehrkraft.ID = sqliteDatareader.GetInt32(0);
@@ -1917,14 +1937,14 @@ public class Schuldatenbank : IDisposable
     /// gibt die Informationen ID, Nachname, Vorname, Mail, Kürzel und Fakultas der Lehrkraft zum übergebenen Kürzel zurück
     /// </summary>
     /// <param name="kuerzel"></param>
-    public async Task<LuL> GetLehrkraft(string kuerzel)
+    public async Task<Lehrkraft> GetLehrkraft(string kuerzel)
     {
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
             "SELECT id,nachname,vorname,mail,kuerzel,fakultas,pwtemp,favo, sfavo,aktiv FROM lehrkraft WHERE kuerzel = $kuerzel;";
         sqliteCmd.Parameters.AddWithValue("$kuerzel", kuerzel);
         var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
-        LuL lehrkraft = new();
+        Lehrkraft lehrkraft = new();
         while (sqliteDatareader.Read())
         {
             lehrkraft.ID = sqliteDatareader.GetInt32(0);
@@ -1962,16 +1982,16 @@ public class Schuldatenbank : IDisposable
     /// <summary>
     /// gibt den vollständigen Inhalt der Tabelle lehrer in der Reihenfolge ID, Nachname, Vorname, Mail, Kürzel und Fakultas zurück
     /// </summary>
-    public async Task<ReadOnlyCollection<LuL>> GetLehrerListe()
+    public async Task<ReadOnlyCollection<Lehrkraft>> GetLehrerListe()
     {
-        List<LuL> llist = [];
+        List<Lehrkraft> llist = [];
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
             "SELECT id,nachname,vorname,mail,kuerzel,fakultas,pwtemp,favo,sfavo,aktiv FROM lehrkraft;";
         var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
         while (sqliteDatareader.Read())
         {
-            LuL lehrkraft = new()
+            Lehrkraft lehrkraft = new()
             {
                 ID = sqliteDatareader.GetInt32(0),
                 Nachname = sqliteDatareader.GetString(1),
@@ -1987,7 +2007,7 @@ public class Schuldatenbank : IDisposable
             llist.Add(lehrkraft);
         }
 
-        return new ReadOnlyCollection<LuL>(llist);
+        return new ReadOnlyCollection<Lehrkraft>(llist);
     }
 
     /// <summary>
@@ -2053,9 +2073,9 @@ public class Schuldatenbank : IDisposable
     /// </summary>
     /// <param name="kbez"></param>
     /// <returns>Interger-Liste der LuL des Kurses</returns>
-    public async Task<ReadOnlyCollection<LuL>> GetLuLAusKurs(string kbez)
+    public async Task<ReadOnlyCollection<Lehrkraft>> GetLuLAusKurs(string kbez)
     {
-        List<LuL> lliste = [];
+        List<Lehrkraft> lliste = [];
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText = "SELECT lehrerid FROM unterrichtet WHERE kursbez = $kbez;";
         sqliteCmd.Parameters.AddWithValue("$kbez", kbez);
@@ -2065,7 +2085,7 @@ public class Schuldatenbank : IDisposable
             lliste.Add(await GetLehrkraft(sqliteDatareader.GetInt32(0)));
         }
 
-        return new ReadOnlyCollection<LuL>(lliste);
+        return new ReadOnlyCollection<Lehrkraft>(lliste);
     }
 
     /// <summary>
@@ -2073,9 +2093,9 @@ public class Schuldatenbank : IDisposable
     /// </summary>
     /// <param name="susid"></param>
     /// <returns>Interger-Liste der LuL-IDs</returns>
-    public async Task<ReadOnlyCollection<LuL>> GetLuLvonSuS(int susid)
+    public async Task<ReadOnlyCollection<Lehrkraft>> GetLuLvonSuS(int susid)
     {
-        List<LuL> lliste = [];
+        List<Lehrkraft> lliste = [];
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
             "SELECT unterrichtet.lehrerid FROM unterrichtet JOIN nimmtteil ON nimmtteil.kursbez = unterrichtet.kursbez WHERE schuelerid = $susid;";
@@ -2089,7 +2109,7 @@ public class Schuldatenbank : IDisposable
             }
         }
 
-        return new ReadOnlyCollection<LuL>(lliste);
+        return new ReadOnlyCollection<Lehrkraft>(lliste);
     }
 
     /// <summary>
@@ -2097,9 +2117,9 @@ public class Schuldatenbank : IDisposable
     /// </summary>
     /// <param name="stufe"></param>
     /// <returns>Interger-Liste der LuL-IDs</returns>
-    public async Task<ReadOnlyCollection<LuL>> GetLuLAusStufe(string stufe)
+    public async Task<ReadOnlyCollection<Lehrkraft>> GetLuLAusStufe(string stufe)
     {
-        List<LuL> lliste = [];
+        List<Lehrkraft> lliste = [];
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
             "SELECT DISTINCT unterrichtet.lehrerid FROM unterrichtet WHERE kursbez LIKE $stufe;";
@@ -2113,7 +2133,7 @@ public class Schuldatenbank : IDisposable
             }
         }
 
-        return new ReadOnlyCollection<LuL>(lliste);
+        return new ReadOnlyCollection<Lehrkraft>(lliste);
     }
 
     /// <summary>
@@ -2323,11 +2343,11 @@ public class Schuldatenbank : IDisposable
     /// </summary>
     /// <param name="stufe"></param>
     /// <returns></returns>
-    private async Task<List<LuL>> GetOberstufenleitung(string stufe)
+    private async Task<List<Lehrkraft>> GetOberstufenleitung(string stufe)
     {
         if (string.IsNullOrEmpty(stufe) || !oberstufe.Contains(stufe))
             return [];
-        List<LuL> luls = [];
+        List<Lehrkraft> luls = [];
         switch (stufe)
         {
             case "EF":
@@ -2866,7 +2886,7 @@ public class Schuldatenbank : IDisposable
     /// </summary>
     /// <param name="lehrkraft"></param>
     /// <returns></returns>
-    private async Task RemoveL(LuL lehrkraft)
+    private async Task RemoveL(Lehrkraft lehrkraft)
     {
         await RemoveL(lehrkraft.ID);
     }
@@ -2908,7 +2928,7 @@ public class Schuldatenbank : IDisposable
     /// <param name="lehrkraft"></param>
     /// <param name="kurs"></param>
     /// <returns></returns>
-    public async Task RemoveLfromK(LuL lehrkraft, Kurs kurs)
+    public async Task RemoveLfromK(Lehrkraft lehrkraft, Kurs kurs)
     {
         await RemoveLfromK(lehrkraft.ID, kurs.Bezeichnung);
     }
@@ -3149,6 +3169,7 @@ public class Schuldatenbank : IDisposable
                     tmpsus[j] = tmpsus[j].Trim('"');
                 }
 
+                var susid = Convert.ToInt32(tmpsus[ini]);
                 var settings = GetSettings().Result;
                 var mail = tmpsus[ini] + settings.Mailsuffix;
                 var maillist = (from idm in inm where !tmpsus[idm].Equals("") select tmpsus[idm]).ToList();
@@ -3180,8 +3201,19 @@ public class Schuldatenbank : IDisposable
                 maillist.Remove(mail);
                 var mails = maillist.Aggregate("", (current, maileintrag) => current + (maileintrag + ","));
                 mails = mails.TrimEnd(',');
-                await AddSchuelerIn(Convert.ToInt32(tmpsus[ini]), tmpsus[inv].Replace("'", ""),
-                    tmpsus[inn].Replace("'", ""), mail, klasse, "", "", 0, mails);
+                if (GibtEsSchueler(susid))
+                {
+                    var sus = GetSchueler(susid).Result;
+                    sus.Klasse = klasse;
+                    sus.Mail = mail;
+                    sus.Zweitmail = mails;
+                    UpdateSchueler(sus);
+                }
+                else
+                {
+                    await AddSchuelerIn(susid, tmpsus[inv].Replace("'", ""),
+                        tmpsus[inn].Replace("'", ""), mail, klasse, "", "", 0, mails);
+                }
             }
             catch (Exception ex)
             {
@@ -3256,7 +3288,7 @@ public class Schuldatenbank : IDisposable
     /// setzt für per ID angebenen Lehrperson die Daten neu
     /// </summary>
     /// <param name="l"></param>
-    public async void UpdateLehrkraft(LuL l)
+    public async void UpdateLehrkraft(Lehrkraft l)
     {
         if (string.IsNullOrEmpty(l.Kuerzel) || l.ID <= 0) return;
         await UpdateLehrkraft(l.ID, l.Vorname, l.Nachname, l.Kuerzel, l.Mail, l.Fakultas, l.Pwttemp, l.Favo,
@@ -3275,13 +3307,15 @@ public class Schuldatenbank : IDisposable
     /// <param name="aixmail"></param>
     /// <param name="zweitaccount"></param>
     /// <param name="zweitmail"></param>
+    /// <param name="hasM365"></param>
+    /// <param name="aktiv"></param>
     public async Task UpdateSchueler(int id, string vorname, string nachname, string mail, string klasse,
-        string nutzername, string aixmail, int zweitaccount, string zweitmail)
+        string nutzername, string aixmail, int zweitaccount, string zweitmail, bool hasM365, bool aktiv)
     {
         if (id <= 0) return;
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
-            "UPDATE schueler SET nachname=$nachname, vorname=$vorname, mail=$mail, klasse=$klasse, nutzername=$nutzername, aixmail=$aixmail, zweitaccount = $zweitaccount, zweitmail=$zweitmail WHERE id=$id;";
+            "UPDATE schueler SET nachname=$nachname, vorname=$vorname, mail=$mail, klasse=$klasse, nutzername=$nutzername, aixmail=$aixmail, zweitaccount = $zweitaccount, zweitmail=$zweitmail, m365=$hasM365, aktiv=$aktiv WHERE id=$id;";
         sqliteCmd.Parameters.AddWithValue("$id", id);
         sqliteCmd.Parameters.AddWithValue("$vorname", vorname);
         sqliteCmd.Parameters.AddWithValue("$nachname", nachname);
@@ -3291,13 +3325,15 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$aixmail", aixmail);
         sqliteCmd.Parameters.AddWithValue("$zweitaccount", zweitaccount);
         sqliteCmd.Parameters.AddWithValue("$zweitmail", zweitmail);
+        sqliteCmd.Parameters.AddWithValue("$hasM365", hasM365);
+        sqliteCmd.Parameters.AddWithValue("$aktiv", aktiv);
         sqliteCmd.ExecuteNonQuery();
     }
 
     public async void UpdateSchueler(SuS sus)
     {
         await UpdateSchueler(sus.ID, sus.Vorname, sus.Nachname, sus.Mail, sus.Klasse, sus.Nutzername, sus.Aixmail,
-            sus.Zweitaccount ? 1 : 0, sus.Zweitmail);
+            sus.Zweitaccount ? 1 : 0, sus.Zweitmail, sus.HasM365Account, sus.IstAktiv);
     }
 
     /// <summary>
@@ -3464,7 +3500,7 @@ public class Schuldatenbank : IDisposable
     /// Gibt die Fachvorsitzenden und Stellvertreter zurück
     /// </summary>
     /// <returns>Liste der Fachvorsitzenden und Stellvertreter</returns>
-    public async Task<List<LuL>> GetFavos()
+    public async Task<List<Lehrkraft>> GetFavos()
     {
         return GetLehrerListe().Result.Where(l => !string.IsNullOrEmpty(l.Favo) || !string.IsNullOrEmpty(l.SFavo))
             .ToList();
@@ -3494,7 +3530,7 @@ public class Schuldatenbank : IDisposable
     /// </summary>
     /// <param name="lehrkraft"></param>
     /// <param name="istAktiv"></param>
-    public void SetzeAktivstatusLehrkraft(LuL lehrkraft, bool istAktiv)
+    public void SetzeAktivstatusLehrkraft(Lehrkraft lehrkraft, bool istAktiv)
     {
         SetzeAktivstatusLehrkraft(lehrkraft.ID, istAktiv);
     }

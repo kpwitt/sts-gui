@@ -450,3 +450,5 @@ $RECYCLE.BIN/
 .vscode/*
 /test.txt
 /data/*
+
+*.run.xml

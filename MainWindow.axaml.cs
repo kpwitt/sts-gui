@@ -279,10 +279,7 @@ public partial class MainWindow : Window
             Content = "Zeige Inaktive",
             IsChecked = true,
         };
-        _cbZeigeInaktiv.Click += async (_, _) =>
-        {
-            await CallLeftTimer();
-        };
+        _cbZeigeInaktiv.Click += async (_, _) => { await CallLeftTimer(); };
         leftListButtonContextItems.Add(cbSucheVorname);
         leftListButtonContextItems.Add(cbSucheNachname);
         leftListButtonContextItems.Add(cbSucheMail);
@@ -897,7 +894,7 @@ public partial class MainWindow : Window
         if (string.IsNullOrEmpty(susid) || string.IsNullOrEmpty(susvname) || string.IsNullOrEmpty(susnname) ||
             string.IsNullOrEmpty(susklasse) || string.IsNullOrEmpty(susnutzername) ||
             string.IsNullOrEmpty(suselternadresse) ||
-            susHatZweitaccount == null || string.IsNullOrEmpty(tbSuSKurse.Text) || susIstAktiv == null)
+            susHatZweitaccount == null || tbSuSKurse != null || tbSuSKurse!.Text== null|| susIstAktiv == null)
         {
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
@@ -943,7 +940,7 @@ public partial class MainWindow : Window
             _myschool.SetzeAktivstatusSchueler(sid, cbSuSAktiv.IsChecked != null && cbSuSAktiv.IsChecked.Value);
             if (suszweitadresse != null && susaixmail != null)
                 await _myschool.UpdateSchueler(sid, susvname, susnname, suselternadresse, susklasse, susnutzername,
-                    susaixmail, susHatZweitaccount == false ? 0 : 1, suszweitadresse);
+                    susaixmail, susHatZweitaccount == false ? 0 : 1, suszweitadresse, cbSuSM365.IsChecked!=null&&cbSuSM365.IsChecked.Value,cbSuSAktiv.IsChecked != null && cbSuSAktiv.IsChecked.Value);
             var alteKurse = _myschool.GetKursVonSuS(sid).Result;
             foreach (var kurs in alteKurse.Where(kurs => !suskurse.Contains(kurs.Bezeichnung)))
             {
@@ -1288,7 +1285,8 @@ public partial class MainWindow : Window
 
     private void OnLeftDataChanged(bool hasComboBoxChanged)
     {
-        if (leftListBox == null || rightListBox == null || cboxDataLeft == null || cboxDataRight == null || _cbZeigeInaktiv.IsChecked==null) return;
+        if (leftListBox == null || rightListBox == null || cboxDataLeft == null || cboxDataRight == null ||
+            _cbZeigeInaktiv.IsChecked == null) return;
         if (leftListBox.SelectedItems == null) return;
         SetStatusText();
         if (_rightMutex && !hasComboBoxChanged) return;
@@ -1312,7 +1310,7 @@ public partial class MainWindow : Window
 
                 if (leftListBox.SelectedItems.Count < 1 || leftListBox.SelectedItems == null || hasComboBoxChanged)
                 {
-                    var slist = _myschool.GetSchuelerListe().Result.Where(s=>s.IstAktiv || zeigeInaktive)
+                    var slist = _myschool.GetSchuelerListe().Result.Where(s => s.IstAktiv || zeigeInaktive)
                         .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID)).Distinct().ToList();
                     slist.Sort(Comparer<string>.Default);
                     ResetItemsSource(leftListBox, slist);
@@ -1354,7 +1352,7 @@ public partial class MainWindow : Window
 
                 if (leftListBox.SelectedItems.Count < 1 || leftListBox.SelectedItems == null || hasComboBoxChanged)
                 {
-                    var lullist = _myschool.GetLehrerListe().Result.Where(l=>l.IstAktiv|| zeigeInaktive)
+                    var lullist = _myschool.GetLehrerListe().Result.Where(l => l.IstAktiv || zeigeInaktive)
                         .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).Distinct().ToList();
                     lullist.Sort(Comparer<string>.Default);
                     ResetItemsSource(leftListBox, lullist);
@@ -1660,7 +1658,7 @@ public partial class MainWindow : Window
         cbSuSAktiv.IsChecked = s.IstAktiv;
     }
 
-    private void LoadLuLData(LuL l)
+    private void LoadLuLData(Lehrkraft l)
     {
         if (l.ID is 0 or > 1500) return;
         tbLuLID.Text = l.ID + "";
@@ -2392,7 +2390,7 @@ public partial class MainWindow : Window
         {
             await _myschool.UpdateKurs(kursbez, kursfach, kursklasse, kursstufe, kurssuffix,
                 Convert.ToInt32(istKurs));
-            List<LuL> tList = [];
+            List<Lehrkraft> tList = [];
             foreach (var lehrkraft in lehrkraefte.Split(','))
             {
                 tList.Add(await _myschool.GetLehrkraft(lehrkraft));
@@ -2529,7 +2527,8 @@ public partial class MainWindow : Window
             {
                 case 0:
                     var sliste = new List<SuS>();
-                    var scachelist = _myschool.GetSchuelerListe().Result.Where(s=>s.IstAktiv || zeigeInaktive).ToList();
+                    var scachelist = _myschool.GetSchuelerListe().Result.Where(s => s.IstAktiv || zeigeInaktive)
+                        .ToList();
                     foreach (var eingabe in eingabeliste)
                     {
                         var lowereingabe = eingabe.ToLower();
@@ -2561,8 +2560,8 @@ public partial class MainWindow : Window
                     ResetItemsSource(leftListBox, seliste);
                     break;
                 case 1:
-                    var lliste = new List<LuL>();
-                    var cachlist = _myschool.GetLehrerListe().Result.Where(s=>s.IstAktiv || zeigeInaktive).ToList();
+                    var lliste = new List<Lehrkraft>();
+                    var cachlist = _myschool.GetLehrerListe().Result.Where(s => s.IstAktiv || zeigeInaktive).ToList();
                     foreach (var eingabe in eingabeliste)
                     {
                         var lowereingabe = eingabe.ToLower();
@@ -2632,7 +2631,7 @@ public partial class MainWindow : Window
             var eingabeliste = tbRightSearch.Text.Split(";");
             if (tbLeftSearch?.ContextMenu?.ItemsSource == null) return;
             var searchContextMenu = tbLeftSearch.ContextMenu.ItemsSource.Cast<CheckBox>().ToList();
-            var searchFields = new[] { false, false, false, false, false, false }; //v,n,m,a/k,i,e
+            var searchFields = new[] { false, false, false, false, false, false, false }; //v,n,m,a/k,i,e,ia
             for (var i = 0; i < searchContextMenu.Count; ++i)
             {
                 if (searchContextMenu[i].IsChecked == true)
@@ -2676,7 +2675,7 @@ public partial class MainWindow : Window
                     ResetItemsSource(rightListBox, seliste);
                     break;
                 case 1:
-                    var lliste = new List<LuL>();
+                    var lliste = new List<Lehrkraft>();
                     var lcachelist = _myschool.GetLehrerListe().Result;
                     foreach (var eingabe in eingabeliste)
                     {
@@ -2863,7 +2862,7 @@ public partial class MainWindow : Window
             }
 
             List<SuS> suslist = [];
-            List<LuL> lullist = [];
+            List<Lehrkraft> lullist = [];
             List<Kurs> kurslist = [];
             var whattoexport = "";
             const string destsys = "amij";
@@ -3165,7 +3164,7 @@ public partial class MainWindow : Window
         var lulcache = await _myschool.GetLehrerListe();
         var kurscache = await _myschool.GetKursListe();
         var susliste = new List<SuS>();
-        var lulliste = new List<LuL>();
+        var lulliste = new List<Lehrkraft>();
         switch (cbSonst1.SelectedIndex)
         {
             case 0 or 4:
@@ -3661,8 +3660,8 @@ public partial class MainWindow : Window
             into id
             where id.All(char.IsDigit)
             select Convert.ToInt32(id)).ToList();
-        Parallel.ForEach(_myschool.GetSchuelerIDListe().Result, (id,_)=>
-        //foreach (var id in _myschool.GetSchuelerIDListe().Result)
+        Parallel.ForEach(_myschool.GetSchuelerIDListe().Result, (id, _) =>
+            //foreach (var id in _myschool.GetSchuelerIDListe().Result)
         {
             if (IDListe.Contains(id))
             {
@@ -3868,5 +3867,55 @@ public partial class MainWindow : Window
         await File.WriteAllLinesAsync(InaktiveFilePath, exportMoodleListe, Encoding.UTF8);
 
         await ShowCustomInfoMessage("Speichern erfolgreich.", "Erfolg");
+    }
+
+    private async void MnuExportFako_OnClick(object? sender, RoutedEventArgs e)
+    {
+        await Dispatcher.UIThread.InvokeAsync(ExportFaKo);
+        return;
+
+        async Task ExportFaKo()
+        {
+            var fakos = await _myschool.GetFaKos();
+            List<string> favo_export = [];
+            var favos = _myschool.GetFavos().Result.Distinct().ToList();
+            favos.Sort();
+            var favos_mail = favos.Aggregate("<a href=\"mailto:?bcc=", (current, l) => current + l.Mail + ",");
+            favo_export.Add(favos_mail.TrimEnd(',') + "\">Alle Fachvorsitzenden</a><br><br>\n");
+            foreach (var fako in fakos)
+            {
+                var mailadressen = fako.Mitglieder.Aggregate("", (current, l) => current + l.Mail + ",").TrimEnd(',');
+                var fako_string = "Fachschaft <a href=\"mailto:" + mailadressen + "\">" + fako.Fach +
+                                  "</a><br>";
+                fako_string += "Vorsitz: <a href=\"mailto:" + fako.Vorsitz.Mail.ToLower() + "\">" +
+                               fako.Vorsitz.Mail.ToLower() + "</a><br>Stellvertretung: <a href=\"mailto:" +
+                               fako.Stellvertretung.Mail.ToLower() + "\">" +
+                               fako.Stellvertretung.Mail.ToLower() + "</a><br>Mitglieder: ";
+                fako_string = fako.Mitglieder.Aggregate(fako_string,
+                    (current, lul) =>
+                        current + "<a href=\"mailto:" + lul.Mail.ToLower() + "\">" + lul.Mail.ToLower() + "</a>, ");
+
+                favo_export.Add(fako_string.TrimEnd(' ').TrimEnd(',') + "<br><br>");
+            }
+
+            var extx = new List<FilePickerFileType>
+            {
+                FilePickerFileTypes.All
+            };
+            var file = await ShowSaveFileDialog("FaKos exportieren", extx);
+            if (file is null) return;
+            var InaktiveFilePath = file.Path.LocalPath;
+            File.Delete(InaktiveFilePath);
+            await using (var outfs = File.AppendText(InaktiveFilePath))
+            {
+                await outfs.WriteAsync("<!DOCTYPE html><body>\n");
+                foreach (var line in favo_export)
+                    await outfs.WriteAsync(line);
+                //outfs.Write("<tr><td>" + string.Join("</td><td>", line.Split(',')) + "</td></tr>");
+                await outfs.WriteAsync("\n</body></html>");
+            }
+
+            await ShowCustomInfoMessage("Speichern erfolgreich.", "Erfolg");
+        }
     }
 }
