@@ -28,7 +28,7 @@ public record struct SuS(
     }
 }
 
-public record struct Lehrkraft(
+public record struct Lehrkraft (
     int ID,
     string Vorname,
     string Nachname,
@@ -38,7 +38,13 @@ public record struct Lehrkraft(
     string Pwttemp,
     string Favo,
     string SFavo,
-    bool IstAktiv = true);
+    bool IstAktiv = true): IComparable<Lehrkraft>
+{
+    public int CompareTo(Lehrkraft other)
+    {
+        return string.Compare(Kuerzel, other.Kuerzel, StringComparison.Ordinal);
+    }
+}
 
 public record struct Kurs(
     string Bezeichnung,

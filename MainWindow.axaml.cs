@@ -3877,8 +3877,11 @@ public partial class MainWindow : Window
         async Task ExportFaKo()
         {
             var fakos = await _myschool.GetFaKos();
-
             List<string> favo_export = [];
+            var favos = _myschool.GetFavos().Result.Distinct().ToList();
+            favos.Sort();
+            var favos_mail = favos.Aggregate("<a href=\"mailto:?bcc=", (current, l) => current + l.Mail + ",");
+            favo_export.Add(favos_mail.TrimEnd(',') + "\">Alle Fachvorsitzenden</a><br><br>\n");
             foreach (var fako in fakos)
             {
                 var mailadressen = fako.Mitglieder.Aggregate("", (current, l) => current + l.Mail + ",").TrimEnd(',');
@@ -3905,11 +3908,11 @@ public partial class MainWindow : Window
             File.Delete(InaktiveFilePath);
             await using (var outfs = File.AppendText(InaktiveFilePath))
             {
-                await outfs.WriteAsync("<!DOCTYPE html><body><table>\n");
+                await outfs.WriteAsync("<!DOCTYPE html><body>\n");
                 foreach (var line in favo_export)
                     await outfs.WriteAsync(line);
                 //outfs.Write("<tr><td>" + string.Join("</td><td>", line.Split(',')) + "</td></tr>");
-                await outfs.WriteAsync("\n</table></body></html>");
+                await outfs.WriteAsync("\n</body></html>");
             }
 
             await ShowCustomInfoMessage("Speichern erfolgreich.", "Erfolg");
