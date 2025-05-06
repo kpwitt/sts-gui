@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace SchulDB;
 #pragma warning disable CS1591
@@ -27,7 +28,7 @@ public record struct SuS(
     }
 }
 
-public record struct LuL(
+public record struct Lehrkraft (
     int ID,
     string Vorname,
     string Nachname,
@@ -37,7 +38,13 @@ public record struct LuL(
     string Pwttemp,
     string Favo,
     string SFavo,
-    bool IstAktiv = true);
+    bool IstAktiv = true): IComparable<Lehrkraft>
+{
+    public int CompareTo(Lehrkraft other)
+    {
+        return string.Compare(Kuerzel, other.Kuerzel, StringComparison.Ordinal);
+    }
+}
 
 public record struct Kurs(
     string Bezeichnung,
@@ -71,12 +78,26 @@ public record struct LogEintrag
     public DateTime Eintragsdatum { get; set; }
     public string Nachricht { get; set; }
 
-    public string Datumsstring() {
-        return Eintragsdatum.ToLongDateString() +" "+ Eintragsdatum.ToLongTimeString();
+    public string Datumsstring()
+    {
+        return Eintragsdatum.ToLongDateString() + " " + Eintragsdatum.ToLongTimeString();
     }
 
     public override string ToString()
     {
         return Warnstufe + "\t" + Datumsstring() + "\t" + Nachricht;
+    }
+}
+
+public struct FaKo : IComparable<FaKo>
+{
+    public string Fach { get; set; }
+    public Lehrkraft Vorsitz { get; set; }
+    public Lehrkraft Stellvertretung { get; set; }
+    public List<Lehrkraft> Mitglieder { get; set; }
+
+    public int CompareTo(FaKo andere)
+    {
+        return Fach.CompareTo(andere.Fach);
     }
 }

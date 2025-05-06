@@ -84,6 +84,7 @@
                             <MenuItem Header="Zweispaltig" x:Name="mnuExportLKtoHP2Spalte"
                                       Click="mnuExportLKtoHP2Spalte_OnClick" />
                         </MenuItem>
+                        <MenuItem Header="FaKo-Export" x:Name="mnuExportFako" Click="MnuExportFako_OnClick" />
                     </MenuItem>
                     <MenuItem Header="Theme">
                         <RadioButton x:Name="rbD" Click="Rb_OnClick" GroupName="Theme">Dark</RadioButton>
