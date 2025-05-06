@@ -429,7 +429,6 @@ public class Schuldatenbank : IDisposable
         while (sqliteDatareader.Read())
         {
             var level = sqliteDatareader.GetString(0);
-            var dt = DateTime.Parse(sqliteDatareader.GetString(1));
             var message = sqliteDatareader.GetString(2);
             switch (level)
             {
@@ -445,7 +444,7 @@ public class Schuldatenbank : IDisposable
             }
         }
         sqliteDatareader.Close();
-        sqliteCmd.CommandText = "DROP TABLE IF EXISTS log";
+        sqliteCmd.CommandText = "DROP TABLE IF EXISTS log; VACUUM";
         sqliteDatareader = sqliteCmd.ExecuteReader();
         sqliteDatareader.Close();
     }
@@ -786,7 +785,7 @@ public class Schuldatenbank : IDisposable
 
         if (_sqliteConn.State != ConnectionState.Open) return;
         var sqliteCmd = _sqliteConn.CreateCommand();
-        sqliteCmd.CommandText = "pragma optimize;";
+        sqliteCmd.CommandText = "pragma optimize;VACUUM ";
         sqliteCmd.ExecuteNonQuery();
         _sqliteConn.Close();
     }
@@ -1710,7 +1709,7 @@ public class Schuldatenbank : IDisposable
             let kurse = GetKursVonSuS(susid)
                 .Result.Where(x => jamfstufen.Contains(x.Stufe))
                 .Select(x => x.Bezeichnung)
-                .Where(x => x.StartsWith(sus.Klasse))
+               /* .Where(x => x.StartsWith(sus.Klasse))*/
                 .ToList()
             select string.Join(";", sus.Nutzername, sus.Mail, sus.Vorname, sus.Nachname, string.Join(',', kurse), "",
                 withPasswort ? "Klasse" + sus.Klasse + DateTime.Now.Year + "!" : ""));
@@ -2038,15 +2037,15 @@ public class Schuldatenbank : IDisposable
     /// <returns>String-Liste der Nachrichten </returns>
     public async Task<ReadOnlyCollection<LogEintrag>> GetLog(string stufe)
     {
-        List<LogEintrag> log = [];
-        if (!File.Exists(_logpath)) return log.AsReadOnly();
+        List<LogEintrag> logentries = [];
+        if (!File.Exists(_logpath)) return logentries.AsReadOnly();
         var entries = await File.ReadAllLinesAsync(_logpath);
-        log.AddRange(entries.Select(entry => entry.Split('\t')).Select(logentry => new LogEintrag
+        logentries.AddRange(entries.Select(entry => entry.Split('\t')).Select(logentry => new LogEintrag
         {
             Warnstufe = logentry[0], Eintragsdatum = DateTime.Parse(logentry[1]),
             Nachricht = string.Join("\t", logentry[2..])
         }));
-        return log.Where(eintrag => eintrag.Warnstufe == stufe).ToList().AsReadOnly();
+        return logentries.Where(eintrag => eintrag.Warnstufe == stufe).ToList().AsReadOnly();
     }
 
     /// <summary>
