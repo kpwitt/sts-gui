@@ -98,6 +98,6 @@ public struct FaKo : IComparable<FaKo>
 
     public int CompareTo(FaKo andere)
     {
-        return Fach.CompareTo(andere.Fach);
+        return string.Compare(Fach, andere.Fach, StringComparison.Ordinal);
     }
 }
