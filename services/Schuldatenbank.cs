@@ -2,12 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
+using SyslogLogging;
 
 // ReSharper disable InconsistentNaming
 
@@ -20,9 +20,10 @@ namespace SchulDB;
 /// </summary>
 public class Schuldatenbank : IDisposable
 {
-    private const string version = "0.7";
+    private const string version = "0.71";
     private readonly string _dbpath;
     private string _logpath;
+    private LoggingModule log;
     private readonly SqliteConnection _sqliteConn;
     private SqliteTransaction? _dbtrans;
     private bool _activeTransaction = false;
@@ -42,6 +43,17 @@ public class Schuldatenbank : IDisposable
         _logpath = _dbpath == ":memory:"
             ? Path.Combine(Path.GetTempPath(), Path.ChangeExtension("StS_" + Guid.NewGuid() + "_tmp", "log"))
             : _dbpath.Replace("sqlite", "log");
+        if (_dbpath == ":memory")
+        {
+            log = new LoggingModule();
+        }
+        else
+        {
+            log = new LoggingModule(_logpath);
+            log.Settings.FileLogging = FileLoggingMode.SingleLogFile;
+        }
+
+        log.Settings.UseUtcTime = true;
         var strconnection = "Data Source=" + _dbpath;
         _sqliteConn = new SqliteConnection(strconnection);
         _sqliteConn.Open();
@@ -292,7 +304,7 @@ public class Schuldatenbank : IDisposable
     /// updatet alte DBs von 0.5 auf 0.6
     /// </summary>
     /// <param name="sqliteCmd"></param>
-    private static void upgradeDB(SqliteCommand sqliteCmd)
+    private void upgradeDB(SqliteCommand sqliteCmd)
     {
         //Überprüfung ob Datenbank initialisiert ist
         sqliteCmd.CommandText =
@@ -396,6 +408,45 @@ public class Schuldatenbank : IDisposable
             }
         }
 
+        sqliteDatareader.Close();
+
+        //Ende Update 0.7
+
+        //Begin Update 0.71
+        sqliteCmd.CommandText =
+            $"SELECT COUNT(*) AS log_column_count FROM pragma_table_info('log') WHERE name='id'";
+        sqliteCmd.ExecuteNonQuery();
+        sqliteDatareader = sqliteCmd.ExecuteReader();
+        var log_count = 0;
+        while (sqliteDatareader.Read())
+        {
+            log_count = Convert.ToInt32(sqliteDatareader.GetString("log_column_count"));
+        }
+        sqliteDatareader.Close();
+        if (log_count <= 0) return;
+        sqliteCmd.CommandText = "SELECT stufe,datum, nachricht FROM log;";
+        sqliteDatareader = sqliteCmd.ExecuteReader();
+        while (sqliteDatareader.Read())
+        {
+            var level = sqliteDatareader.GetString(0);
+            var dt = DateTime.Parse(sqliteDatareader.GetString(1));
+            var message = sqliteDatareader.GetString(2);
+            switch (level)
+            {
+                case "Info":
+                    log.Info(message);
+                    break;
+                case "Fehler":
+                    log.Error(message);
+                    break;
+                case "Debug":
+                    log.Debug(message);
+                    break;
+            }
+        }
+        sqliteDatareader.Close();
+        sqliteCmd.CommandText = "DROP TABLE IF EXISTS log";
+        sqliteDatareader = sqliteCmd.ExecuteReader();
         sqliteDatareader.Close();
     }
 
@@ -527,7 +578,18 @@ public class Schuldatenbank : IDisposable
     /// <param name="eintrag"></param>
     public void AddLogMessage(LogEintrag eintrag)
     {
-        File.AppendAllText(_logpath, eintrag + "\n", Encoding.UTF8);
+        switch (eintrag.Warnstufe)
+        {
+            case "Info":
+                log.Info(eintrag.Nachricht);
+                break;
+            case "Fehler":
+                log.Error(eintrag.Nachricht);
+                break;
+            case "Debug":
+                log.Debug(eintrag.Nachricht);
+                break;
+        }
     }
 
     /// <summary>
@@ -1934,30 +1996,19 @@ public class Schuldatenbank : IDisposable
     /// <returns>Log-Entrag-Liste der Nachrichten </returns>
     public async Task<ReadOnlyCollection<LogEintrag>> GetLog()
     {
-        List<LogEintrag> log = [];
-        if (!File.Exists(_logpath)) return log.AsReadOnly();
-        var entries = File.ReadAllLinesAsync(_logpath).Result.Where(x => x.Length > 43).ToList();
-        Debug.WriteLine(entries.Count + ": " + _logpath);
-        log.AddRange(entries.Select(entry => entry.Split('\t')).Select(logentry =>
+        List<LogEintrag> logentries = [];
+        foreach (var line in File.ReadAllLinesAsync(log.Settings.LogFilename).Result)
         {
-            if (logentry.Length > 2)
-            {
-                return new LogEintrag
-                {
-                    Warnstufe = logentry[0], Eintragsdatum = DateTime.Parse(logentry[1]),
-                    Nachricht = string.Join("\t", logentry[2..])
-                };
-            }
-            else
-            {
-                return new LogEintrag
-                {
-                    Warnstufe = "Debug", Eintragsdatum = DateTime.Now,
-                    Nachricht = "Dummy message " + string.Join(',', logentry)
-                };
-            }
-        }));
-        return log.AsReadOnly();
+            var split_line = line.Split(' ');
+            var date = split_line[0];
+            var time = split_line[1];
+            var level = split_line[3];
+            var message = string.Join(" ", split_line[4..]);
+            if (string.IsNullOrEmpty(date) || string.IsNullOrEmpty(time)) continue;
+            logentries.Add(new LogEintrag()
+                { Eintragsdatum = DateTime.Parse(date + " " + time), Warnstufe = level, Nachricht = message });
+        }
+        return logentries.AsReadOnly();
     }
 
     /// <summary>

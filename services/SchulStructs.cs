@@ -77,6 +77,6 @@ public record struct LogEintrag
 
     public override string ToString()
     {
-        return Warnstufe + "\t" + Datumsstring() + "\t" + Nachricht;
+        return Warnstufe + " " + Datumsstring() + " " + Nachricht;
     }
 }
