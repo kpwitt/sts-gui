@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
+using SyslogLogging;
 
 // ReSharper disable InconsistentNaming
 
@@ -19,8 +20,10 @@ namespace SchulDB;
 /// </summary>
 public class Schuldatenbank : IDisposable
 {
-    private const string version = "0.7";
+    private const string version = "0.71";
     private readonly string _dbpath;
+    private string _logpath;
+    private LoggingModule log;
     private readonly SqliteConnection _sqliteConn;
     private SqliteTransaction? _dbtrans;
     private bool _activeTransaction = false;
@@ -37,6 +40,20 @@ public class Schuldatenbank : IDisposable
     public Schuldatenbank(string path)
     {
         _dbpath = path;
+        _logpath = _dbpath == ":memory:"
+            ? Path.Combine(Path.GetTempPath(), Path.ChangeExtension("StS_" + Guid.NewGuid() + "_tmp", "log"))
+            : _dbpath.Replace("sqlite", "log");
+        if (_dbpath == ":memory")
+        {
+            log = new LoggingModule();
+        }
+        else
+        {
+            log = new LoggingModule(_logpath);
+            log.Settings.FileLogging = FileLoggingMode.SingleLogFile;
+        }
+
+        log.Settings.UseUtcTime = true;
         var strconnection = "Data Source=" + _dbpath;
         _sqliteConn = new SqliteConnection(strconnection);
         _sqliteConn.Open();
@@ -140,17 +157,6 @@ public class Schuldatenbank : IDisposable
                                             [kurzfach]   NVARCHAR(16) NOT NULL,
                                             [langfach]  NVARCHAR(64) NOT NULL,
                                             PRIMARY KEY(kurzfach,langfach)
-                                          )
-                                    """;
-            sqliteCmd.ExecuteNonQuery();
-
-            sqliteCmd.CommandText = """
-                                    CREATE TABLE IF NOT EXISTS
-                                            [log] (
-                                            [id]  INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-                                            [stufe]   NVARCHAR(16) NOT NULL,
-                                            [datum]    NVARCHAR(128) NOT NULL,   
-                                            [nachricht]  NVARCHAR(4096) NOT NULL
                                           )
                                     """;
             sqliteCmd.ExecuteNonQuery();
@@ -298,7 +304,7 @@ public class Schuldatenbank : IDisposable
     /// updatet alte DBs von 0.5 auf 0.6
     /// </summary>
     /// <param name="sqliteCmd"></param>
-    private static void upgradeDB(SqliteCommand sqliteCmd)
+    private void upgradeDB(SqliteCommand sqliteCmd)
     {
         //Überprüfung ob Datenbank initialisiert ist
         sqliteCmd.CommandText =
@@ -402,6 +408,45 @@ public class Schuldatenbank : IDisposable
             }
         }
 
+        sqliteDatareader.Close();
+
+        //Ende Update 0.7
+
+        //Begin Update 0.71
+        sqliteCmd.CommandText =
+            $"SELECT COUNT(*) AS log_column_count FROM pragma_table_info('log') WHERE name='id'";
+        sqliteCmd.ExecuteNonQuery();
+        sqliteDatareader = sqliteCmd.ExecuteReader();
+        var log_count = 0;
+        while (sqliteDatareader.Read())
+        {
+            log_count = Convert.ToInt32(sqliteDatareader.GetString("log_column_count"));
+        }
+        sqliteDatareader.Close();
+        if (log_count <= 0) return;
+        sqliteCmd.CommandText = "SELECT stufe,datum, nachricht FROM log;";
+        sqliteDatareader = sqliteCmd.ExecuteReader();
+        while (sqliteDatareader.Read())
+        {
+            var level = sqliteDatareader.GetString(0);
+            var dt = DateTime.Parse(sqliteDatareader.GetString(1));
+            var message = sqliteDatareader.GetString(2);
+            switch (level)
+            {
+                case "Info":
+                    log.Info(message);
+                    break;
+                case "Fehler":
+                    log.Error(message);
+                    break;
+                case "Debug":
+                    log.Debug(message);
+                    break;
+            }
+        }
+        sqliteDatareader.Close();
+        sqliteCmd.CommandText = "DROP TABLE IF EXISTS log";
+        sqliteDatareader = sqliteCmd.ExecuteReader();
         sqliteDatareader.Close();
     }
 
@@ -531,15 +576,20 @@ public class Schuldatenbank : IDisposable
     /// fügt eine Nachricht ins Log hinzu, Stufe entweder Info, Hinweis oder Fehler
     /// </summary>
     /// <param name="eintrag"></param>
-    public async void AddLogMessage(LogEintrag eintrag)
+    public void AddLogMessage(LogEintrag eintrag)
     {
-        var sqliteCmd = _sqliteConn.CreateCommand();
-        sqliteCmd.CommandText =
-            "INSERT OR IGNORE INTO log (stufe, datum, nachricht) VALUES ($stufe, $dnow, $nachricht);";
-        sqliteCmd.Parameters.AddWithValue("$stufe", eintrag.Warnstufe);
-        sqliteCmd.Parameters.AddWithValue("$dnow", eintrag.Datumsstring());
-        sqliteCmd.Parameters.AddWithValue("$nachricht", eintrag.Nachricht);
-        sqliteCmd.ExecuteNonQuery();
+        switch (eintrag.Warnstufe)
+        {
+            case "Info":
+                log.Info(eintrag.Nachricht);
+                break;
+            case "Fehler":
+                log.Error(eintrag.Nachricht);
+                break;
+            case "Debug":
+                log.Debug(eintrag.Nachricht);
+                break;
+        }
     }
 
     /// <summary>
@@ -906,16 +956,14 @@ public class Schuldatenbank : IDisposable
             }
         }
 
-        //log übertragen
-        foreach (var entry in await importfrom.GetLog())
-        {
-            AddLogMessage(entry);
-        }
-
-        await StopTransaction();
-
         //Settings übertragen
         await SetSettings(await importfrom.GetSettings());
+        await StopTransaction();
+
+        //log übertragen
+        var logs = importfrom.GetLog().Result.Select(l => l.ToString());
+        await File.WriteAllLinesAsync(_logpath, logs, Encoding.UTF8);
+
         return 0;
     }
 
@@ -1965,24 +2013,22 @@ public class Schuldatenbank : IDisposable
     /// <summary>
     /// gibt die Log-Meldungen zurück
     /// </summary>
-    /// <returns>String-Liste der Nachrichten </returns>
+    /// <returns>Log-Entrag-Liste der Nachrichten </returns>
     public async Task<ReadOnlyCollection<LogEintrag>> GetLog()
     {
-        List<LogEintrag> log = [];
-        var sqliteCmd = _sqliteConn.CreateCommand();
-        sqliteCmd.CommandText = "SELECT stufe,datum, nachricht FROM log;";
-        var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
-        while (sqliteDatareader.Read())
+        List<LogEintrag> logentries = [];
+        foreach (var line in File.ReadAllLinesAsync(log.Settings.LogFilename).Result)
         {
-            log.Add(new LogEintrag
-            {
-                Warnstufe = sqliteDatareader.GetString(0),
-                Eintragsdatum = DateTime.Parse(sqliteDatareader.GetString(1)),
-                Nachricht = sqliteDatareader.GetString(2),
-            });
+            var split_line = line.Split(' ');
+            var date = split_line[0];
+            var time = split_line[1];
+            var level = split_line[3];
+            var message = string.Join(" ", split_line[4..]);
+            if (string.IsNullOrEmpty(date) || string.IsNullOrEmpty(time)) continue;
+            logentries.Add(new LogEintrag()
+                { Eintragsdatum = DateTime.Parse(date + " " + time), Warnstufe = level, Nachricht = message });
         }
-
-        return log.AsReadOnly();
+        return logentries.AsReadOnly();
     }
 
     /// <summary>
@@ -1990,25 +2036,17 @@ public class Schuldatenbank : IDisposable
     /// </summary>
     /// <param name="stufe">Das Log-Level (Info, Hinweis oder Fehler)</param>
     /// <returns>String-Liste der Nachrichten </returns>
-    public async Task<ReadOnlyCollection<string>> GetLog(string stufe)
+    public async Task<ReadOnlyCollection<LogEintrag>> GetLog(string stufe)
     {
-        List<string> log = [];
-        var sqliteCmd = _sqliteConn.CreateCommand();
-        sqliteCmd.CommandText = "SELECT stufe,datum, nachricht FROM log WHERE stufe = $stufe;";
-        sqliteCmd.Parameters.AddWithValue("$stufe", stufe);
-        var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
-        while (sqliteDatareader.Read())
+        List<LogEintrag> log = [];
+        if (!File.Exists(_logpath)) return log.AsReadOnly();
+        var entries = await File.ReadAllLinesAsync(_logpath);
+        log.AddRange(entries.Select(entry => entry.Split('\t')).Select(logentry => new LogEintrag
         {
-            var returnstr = "";
-            for (var i = 0; i < sqliteDatareader.FieldCount; i++)
-            {
-                returnstr += sqliteDatareader.GetString(i) + "\t";
-            }
-
-            log.Add(returnstr);
-        }
-
-        return new ReadOnlyCollection<string>(log);
+            Warnstufe = logentry[0], Eintragsdatum = DateTime.Parse(logentry[1]),
+            Nachricht = string.Join("\t", logentry[2..])
+        }));
+        return log.Where(eintrag => eintrag.Warnstufe == stufe).ToList().AsReadOnly();
     }
 
     /// <summary>
@@ -2448,7 +2486,7 @@ public class Schuldatenbank : IDisposable
     /// liest die Nutzernamen und AIX-Mailadressen für SuS aus einem Suite-Export ein und updated diese (inkrementell oder gesamt)
     /// </summary>
     /// <param name="idfile"></param>
-    public async Task IdsEinlesen(string idfile)
+    public async Task AIXDatenEinlesen(string idfile)
     {
         var lines = await File.ReadAllLinesAsync(idfile);
         int ina = -1, inid = -1, imail = -1;
@@ -2477,7 +2515,7 @@ public class Schuldatenbank : IDisposable
             try
             {
                 var line = lines[i].Split(';');
-                if (line[inid] == "") continue;
+                if (line[inid] == "" || !line[inid].All(char.IsDigit)) continue;
                 try
                 {
                     var sus = await GetSchueler(Convert.ToInt32(line[inid]));
@@ -2701,10 +2739,10 @@ public class Schuldatenbank : IDisposable
     /// </summary>
     public async Task LoescheLog()
     {
-        var sqliteCmd = _sqliteConn.CreateCommand();
-        sqliteCmd.CommandText =
-            "DELETE FROM log WHERE stufe = 'Info' OR stufe = 'Hinweis' OR stufe = 'Fehler' OR stufe = 'Debug';";
-        sqliteCmd.ExecuteNonQuery();
+        if (File.Exists(_logpath))
+        {
+            File.Delete(_logpath);
+        }
     }
 
     /// <summary>
@@ -2713,10 +2751,7 @@ public class Schuldatenbank : IDisposable
     /// <param name="stufe">"Fehler", "Hinweis", oder "Info"</param>
     public async Task LoescheLog(string stufe)
     {
-        var sqliteCmd = _sqliteConn.CreateCommand();
-        sqliteCmd.CommandText = "DELETE FROM log WHERE stufe = $stufe;";
-        sqliteCmd.Parameters.AddWithValue("$stufe", stufe);
-        sqliteCmd.ExecuteNonQuery();
+        //ToDo: Implementierung
     }
 
     /// <summary>
@@ -3078,7 +3113,7 @@ public class Schuldatenbank : IDisposable
     /// </summary>
     public async Task StopTransaction()
     {
-        if (!_activeTransaction) return;
+        if (_activeTransaction == false) return;
         _activeTransaction = false;
         if (_dbtrans == null) return;
         await _dbtrans.CommitAsync();
@@ -3469,6 +3504,11 @@ public class Schuldatenbank : IDisposable
     {
         return GetLehrerListe().Result.Where(l => !string.IsNullOrEmpty(l.Favo) || !string.IsNullOrEmpty(l.SFavo))
             .ToList();
+    }
+
+    public string GetLogPath()
+    {
+        return _logpath;
     }
 
     /// <summary>

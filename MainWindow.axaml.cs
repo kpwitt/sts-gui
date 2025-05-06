@@ -733,7 +733,7 @@ public partial class MainWindow : Window
 
                 if (aixcsvpath != "")
                 {
-                    await _myschool.IdsEinlesen(aixcsvpath);
+                    await _myschool.AIXDatenEinlesen(aixcsvpath);
                 }
 
                 if (dvfile != "")
@@ -805,7 +805,7 @@ public partial class MainWindow : Window
         var files = await ShowOpenFileDialog("Lade Nutzernamen & Mailadressen", extx);
         if (files == null) return;
         var filePath = files.Path.LocalPath;
-        await _myschool.IdsEinlesen(filePath);
+        await _myschool.AIXDatenEinlesen(filePath);
         SetStatusText();
         await ShowImportSuccessful();
     }
@@ -2342,7 +2342,7 @@ public partial class MainWindow : Window
     private void BtnLogReload_OnClick(object? sender, RoutedEventArgs e)
     {
         if (lbLogLevel.SelectedItems == null) return;
-        var items = _myschool.GetLog().Result;
+        var items = _myschool.GetLog();
         var tlist = new List<string>();
         foreach (ListBoxItem item in lbLogLevel.SelectedItems)
         {
@@ -2352,7 +2352,7 @@ public partial class MainWindow : Window
             }
         }
 
-        var filtered_items = items.Where(x => tlist.Contains(x.Warnstufe));
+        var filtered_items = items.Result.Where(x => tlist.Contains(x.Warnstufe));
         ResetItemsSource(lbLogDisplay, filtered_items.Select(x => x.ToString()));
     }
 
