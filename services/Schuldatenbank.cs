@@ -2038,15 +2038,15 @@ public class Schuldatenbank : IDisposable
     /// <returns>String-Liste der Nachrichten </returns>
     public async Task<ReadOnlyCollection<LogEintrag>> GetLog(string stufe)
     {
-        List<LogEintrag> log = [];
-        if (!File.Exists(_logpath)) return log.AsReadOnly();
+        List<LogEintrag> logentries = [];
+        if (!File.Exists(_logpath)) return logentries.AsReadOnly();
         var entries = await File.ReadAllLinesAsync(_logpath);
-        log.AddRange(entries.Select(entry => entry.Split('\t')).Select(logentry => new LogEintrag
+        logentries.AddRange(entries.Select(entry => entry.Split('\t')).Select(logentry => new LogEintrag
         {
             Warnstufe = logentry[0], Eintragsdatum = DateTime.Parse(logentry[1]),
             Nachricht = string.Join("\t", logentry[2..])
         }));
-        return log.Where(eintrag => eintrag.Warnstufe == stufe).ToList().AsReadOnly();
+        return logentries.Where(eintrag => eintrag.Warnstufe == stufe).ToList().AsReadOnly();
     }
 
     /// <summary>
