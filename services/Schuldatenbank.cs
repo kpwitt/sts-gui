@@ -429,7 +429,6 @@ public class Schuldatenbank : IDisposable
         while (sqliteDatareader.Read())
         {
             var level = sqliteDatareader.GetString(0);
-            var dt = DateTime.Parse(sqliteDatareader.GetString(1));
             var message = sqliteDatareader.GetString(2);
             switch (level)
             {
