@@ -894,7 +894,7 @@ public partial class MainWindow : Window
         if (string.IsNullOrEmpty(susid) || string.IsNullOrEmpty(susvname) || string.IsNullOrEmpty(susnname) ||
             string.IsNullOrEmpty(susklasse) || string.IsNullOrEmpty(susnutzername) ||
             string.IsNullOrEmpty(suselternadresse) ||
-            susHatZweitaccount == null || string.IsNullOrEmpty(tbSuSKurse.Text) || susIstAktiv == null)
+            susHatZweitaccount == null || tbSuSKurse != null || tbSuSKurse!.Text== null|| susIstAktiv == null)
         {
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
