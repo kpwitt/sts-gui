@@ -506,12 +506,6 @@ public partial class MainWindow : Window
             }
 
             var filepath = files.Path.LocalPath;
-            /*if (File.Exists(filepath))
-            {
-                var override_res = await ShowOverwriteDialog();
-                if (override_res != ButtonResult.Yes) return;
-            }*/
-
             var tempDB = new Schuldatenbank(filepath);
             var res = await tempDB.Import(_myschool);
             await Dispatcher.UIThread.InvokeAsync(async () =>
@@ -557,12 +551,6 @@ public partial class MainWindow : Window
             var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
             if (files == null) return;
             var filepath = files.Path.LocalPath;
-            /*if (File.Exists(filepath))
-            {
-                var override_res = await ShowOverwriteDialog();
-                if (override_res != ButtonResult.Yes) return;
-            }*/
-
             var tempDB = new Schuldatenbank(filepath);
             var res = await tempDB.Import(_myschool);
             await Dispatcher.UIThread.InvokeAsync(async () =>
@@ -612,12 +600,6 @@ public partial class MainWindow : Window
             var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
             if (files == null) return;
             var filepath = files.Path.LocalPath;
-            /*if (File.Exists(filepath))
-            {
-                var override_res = await ShowOverwriteDialog();
-                if (override_res != ButtonResult.Yes) return;
-            }*/
-
             var dbPath = _myschool.GetFilePath();
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
@@ -894,7 +876,7 @@ public partial class MainWindow : Window
         if (string.IsNullOrEmpty(susid) || string.IsNullOrEmpty(susvname) || string.IsNullOrEmpty(susnname) ||
             string.IsNullOrEmpty(susklasse) || string.IsNullOrEmpty(susnutzername) ||
             string.IsNullOrEmpty(suselternadresse) ||
-            susHatZweitaccount == null || tbSuSKurse != null || tbSuSKurse!.Text== null|| susIstAktiv == null)
+            susHatZweitaccount == null || tbSuSKurse != null || tbSuSKurse!.Text == null || susIstAktiv == null)
         {
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
@@ -940,7 +922,9 @@ public partial class MainWindow : Window
             _myschool.SetzeAktivstatusSchueler(sid, cbSuSAktiv.IsChecked != null && cbSuSAktiv.IsChecked.Value);
             if (suszweitadresse != null && susaixmail != null)
                 await _myschool.UpdateSchueler(sid, susvname, susnname, suselternadresse, susklasse, susnutzername,
-                    susaixmail, susHatZweitaccount == false ? 0 : 1, suszweitadresse, cbSuSM365.IsChecked!=null&&cbSuSM365.IsChecked.Value,cbSuSAktiv.IsChecked != null && cbSuSAktiv.IsChecked.Value);
+                    susaixmail, susHatZweitaccount == false ? 0 : 1, suszweitadresse,
+                    cbSuSM365.IsChecked != null && cbSuSM365.IsChecked.Value,
+                    cbSuSAktiv.IsChecked != null && cbSuSAktiv.IsChecked.Value);
             var alteKurse = _myschool.GetKursVonSuS(sid).Result;
             foreach (var kurs in alteKurse.Where(kurs => !suskurse.Contains(kurs.Bezeichnung)))
             {
@@ -1474,11 +1458,6 @@ public partial class MainWindow : Window
         if (rightListBox.SelectedItems == null) return;
         SetStatusText();
         if (_rightMutex && !hasComboBoxChanged) return;
-        /*if (hasComboBoxChanged)
-        {
-            ResetItemsSource(leftListBox, new List<string>());
-        }*/
-
         switch (cboxDataRight.SelectedIndex)
         {
             //s=0;l==1;k==2
@@ -1936,6 +1915,9 @@ public partial class MainWindow : Window
 
     private async void BtnFehlerExport_OnClick(object? sender, RoutedEventArgs e)
     {
+        await Dispatcher.UIThread.InvokeAsync(SaveDbFile);
+        return;
+
         async Task SaveDbFile()
         {
             var extx = new List<FilePickerFileType> { StSFileTypes.CSVFile };
@@ -1945,12 +1927,13 @@ public partial class MainWindow : Window
 
             await File.WriteAllLinesAsync(filepath, lbFehlerliste.Items.Cast<string>(), Encoding.UTF8);
         }
-
-        await Dispatcher.UIThread.InvokeAsync(SaveDbFile);
     }
 
     private async void BtnExportStufenkurs_OnClick(object? sender, RoutedEventArgs e)
     {
+        await Dispatcher.UIThread.InvokeAsync(ReadFileTask);
+        return;
+
         async Task ReadFileTask()
         {
             if (string.IsNullOrEmpty(tbExportStufenkurse.Text)) return;
@@ -1985,8 +1968,6 @@ public partial class MainWindow : Window
 
             await CheckSuccesfulExport(res);
         }
-
-        await Dispatcher.UIThread.InvokeAsync(ReadFileTask);
     }
 
     private async Task CheckSuccesfulExport(int res)
@@ -2969,12 +2950,6 @@ public partial class MainWindow : Window
             var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
             if (files == null) return;
             var filepath = files.Path.LocalPath;
-            /*if (File.Exists(filepath))
-            {
-                var override_res = await ShowOverwriteDialog();
-                if (override_res != ButtonResult.Yes) return;
-            }*/
-
             List<string> lulliste = ["Kürzel;Nachname;Fächer;Mailadresse"];
             lulliste.AddRange(_myschool.GetLehrerListe().Result.Select(lehrer =>
                 lehrer.Kuerzel + ";" + lehrer.Nachname + ";" + lehrer.Fakultas + @";\underline{\href{mailto:" +
@@ -3577,12 +3552,6 @@ public partial class MainWindow : Window
             if (files == null) return;
 
             var filepath = files.Path.LocalPath;
-            /*if (File.Exists(filepath))
-            {
-                var override_res = await ShowOverwriteDialog();
-                if (override_res != ButtonResult.Yes) return;
-            }*/
-
             await Dispatcher.UIThread.InvokeAsync(async () =>
             {
                 try
@@ -3772,11 +3741,6 @@ public partial class MainWindow : Window
             if (files == null) return;
 
             var filepath = files.Path.LocalPath;
-            /*if (File.Exists(filepath))
-            {
-                var override_res = await ShowOverwriteDialog();
-                if (override_res != ButtonResult.Yes) return;
-            }*/
 
             await Dispatcher.UIThread.InvokeAsync(async () =>
             {
@@ -3911,7 +3875,6 @@ public partial class MainWindow : Window
                 await outfs.WriteAsync("<!DOCTYPE html><body>\n");
                 foreach (var line in favo_export)
                     await outfs.WriteAsync(line);
-                //outfs.Write("<tr><td>" + string.Join("</td><td>", line.Split(',')) + "</td></tr>");
                 await outfs.WriteAsync("\n</body></html>");
             }
 
