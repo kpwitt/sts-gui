@@ -422,6 +422,7 @@ public class Schuldatenbank : IDisposable
         {
             log_count = Convert.ToInt32(sqliteDatareader.GetString("log_column_count"));
         }
+
         sqliteDatareader.Close();
         if (log_count <= 0) return;
         sqliteCmd.CommandText = "SELECT stufe,datum, nachricht FROM log;";
@@ -443,6 +444,7 @@ public class Schuldatenbank : IDisposable
                     break;
             }
         }
+
         sqliteDatareader.Close();
         sqliteCmd.CommandText = "DROP TABLE IF EXISTS log; VACUUM";
         sqliteDatareader = sqliteCmd.ExecuteReader();
@@ -1709,7 +1711,7 @@ public class Schuldatenbank : IDisposable
             let kurse = GetKursVonSuS(susid)
                 .Result.Where(x => jamfstufen.Contains(x.Stufe))
                 .Select(x => x.Bezeichnung)
-               /* .Where(x => x.StartsWith(sus.Klasse))*/
+                /* .Where(x => x.StartsWith(sus.Klasse))*/
                 .ToList()
             select string.Join(";", sus.Nutzername, sus.Mail, sus.Vorname, sus.Nachname, string.Join(',', kurse), "",
                 withPasswort ? "Klasse" + sus.Klasse + DateTime.Now.Year + "!" : ""));
@@ -2016,17 +2018,16 @@ public class Schuldatenbank : IDisposable
     public async Task<ReadOnlyCollection<LogEintrag>> GetLog()
     {
         List<LogEintrag> logentries = [];
-        foreach (var line in File.ReadAllLinesAsync(log.Settings.LogFilename).Result)
-        {
-            var split_line = line.Split(' ');
-            var date = split_line[0];
-            var time = split_line[1];
-            var level = split_line[3];
-            var message = string.Join(" ", split_line[4..]);
-            if (string.IsNullOrEmpty(date) || string.IsNullOrEmpty(time)) continue;
-            logentries.Add(new LogEintrag()
+        logentries.AddRange(from line in File.ReadAllLinesAsync(log.Settings.LogFilename).Result
+            select line.Split(' ')
+            into split_line
+            let date = split_line[0]
+            let time = split_line[1]
+            let level = split_line[3]
+            let message = string.Join(" ", split_line[4..])
+            where !string.IsNullOrEmpty(date) && !string.IsNullOrEmpty(time)
+            select new LogEintrag
                 { Eintragsdatum = DateTime.Parse(date + " " + time), Warnstufe = level, Nachricht = message });
-        }
         return logentries.AsReadOnly();
     }
 

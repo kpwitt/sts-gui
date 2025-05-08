@@ -28,7 +28,7 @@ public record struct SuS(
     }
 }
 
-public record struct Lehrkraft (
+public record struct Lehrkraft(
     int ID,
     string Vorname,
     string Nachname,
@@ -38,7 +38,7 @@ public record struct Lehrkraft (
     string Pwttemp,
     string Favo,
     string SFavo,
-    bool IstAktiv = true): IComparable<Lehrkraft>
+    bool IstAktiv = true) : IComparable<Lehrkraft>
 {
     public int CompareTo(Lehrkraft other)
     {
@@ -55,7 +55,7 @@ public record struct Kurs(
     bool IstKurs,
     string Art);
 
-public record struct Einstellungen
+public struct Einstellungen
 {
     public string Mailsuffix { get; set; }
     public string Kurssuffix { get; set; }

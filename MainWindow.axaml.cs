@@ -876,7 +876,7 @@ public partial class MainWindow : Window
         if (string.IsNullOrEmpty(susid) || string.IsNullOrEmpty(susvname) || string.IsNullOrEmpty(susnname) ||
             string.IsNullOrEmpty(susklasse) || string.IsNullOrEmpty(susnutzername) ||
             string.IsNullOrEmpty(suselternadresse) ||
-            susHatZweitaccount == null || tbSuSKurse != null || tbSuSKurse!.Text== null|| susIstAktiv == null)
+            susHatZweitaccount == null || tbSuSKurse != null || tbSuSKurse!.Text == null || susIstAktiv == null)
         {
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
@@ -922,7 +922,9 @@ public partial class MainWindow : Window
             _myschool.SetzeAktivstatusSchueler(sid, cbSuSAktiv.IsChecked != null && cbSuSAktiv.IsChecked.Value);
             if (suszweitadresse != null && susaixmail != null)
                 await _myschool.UpdateSchueler(sid, susvname, susnname, suselternadresse, susklasse, susnutzername,
-                    susaixmail, susHatZweitaccount == false ? 0 : 1, suszweitadresse, cbSuSM365.IsChecked!=null&&cbSuSM365.IsChecked.Value,cbSuSAktiv.IsChecked != null && cbSuSAktiv.IsChecked.Value);
+                    susaixmail, susHatZweitaccount == false ? 0 : 1, suszweitadresse,
+                    cbSuSM365.IsChecked != null && cbSuSM365.IsChecked.Value,
+                    cbSuSAktiv.IsChecked != null && cbSuSAktiv.IsChecked.Value);
             var alteKurse = _myschool.GetKursVonSuS(sid).Result;
             foreach (var kurs in alteKurse.Where(kurs => !suskurse.Contains(kurs.Bezeichnung)))
             {
@@ -1913,6 +1915,9 @@ public partial class MainWindow : Window
 
     private async void BtnFehlerExport_OnClick(object? sender, RoutedEventArgs e)
     {
+        await Dispatcher.UIThread.InvokeAsync(SaveDbFile);
+        return;
+
         async Task SaveDbFile()
         {
             var extx = new List<FilePickerFileType> { StSFileTypes.CSVFile };
@@ -1922,12 +1927,13 @@ public partial class MainWindow : Window
 
             await File.WriteAllLinesAsync(filepath, lbFehlerliste.Items.Cast<string>(), Encoding.UTF8);
         }
-
-        await Dispatcher.UIThread.InvokeAsync(SaveDbFile);
     }
 
     private async void BtnExportStufenkurs_OnClick(object? sender, RoutedEventArgs e)
     {
+        await Dispatcher.UIThread.InvokeAsync(ReadFileTask);
+        return;
+
         async Task ReadFileTask()
         {
             if (string.IsNullOrEmpty(tbExportStufenkurse.Text)) return;
@@ -1962,8 +1968,6 @@ public partial class MainWindow : Window
 
             await CheckSuccesfulExport(res);
         }
-
-        await Dispatcher.UIThread.InvokeAsync(ReadFileTask);
     }
 
     private async Task CheckSuccesfulExport(int res)
