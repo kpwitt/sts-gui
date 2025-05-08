@@ -3219,7 +3219,6 @@ public class Schuldatenbank : IDisposable
 #if DEBUG
                 AddLogMessage(new LogEintrag
                     { Eintragsdatum = DateTime.Now, Nachricht = ex.Message, Warnstufe = "Debug" });
-                //Debug.WriteLine("Zeile " + i + ": " + lines[i]);
 #endif
                 AddLogMessage(new LogEintrag
                     { Eintragsdatum = DateTime.Now, Nachricht = "Fehler beim Einlesen der SuS", Warnstufe = "Fehler" });
@@ -3465,14 +3464,12 @@ public class Schuldatenbank : IDisposable
                 {
                     await SetZweitAccount(Convert.ToInt32(line[inid]), 1);
                 }
-                //else throw new Exception("SuS mit der id " + line[inid] + " nicht gefunden.");
             }
             catch (Exception ex)
             {
 #if DEBUG
                 AddLogMessage(new LogEintrag
                     { Eintragsdatum = DateTime.Now, Nachricht = ex.Message, Warnstufe = "Debug" });
-                // Debug.WriteLine("Zeile " + i + ": " + lines[i]);
 #endif
             }
         }

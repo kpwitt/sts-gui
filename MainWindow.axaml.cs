@@ -506,12 +506,6 @@ public partial class MainWindow : Window
             }
 
             var filepath = files.Path.LocalPath;
-            /*if (File.Exists(filepath))
-            {
-                var override_res = await ShowOverwriteDialog();
-                if (override_res != ButtonResult.Yes) return;
-            }*/
-
             var tempDB = new Schuldatenbank(filepath);
             var res = await tempDB.Import(_myschool);
             await Dispatcher.UIThread.InvokeAsync(async () =>
@@ -557,12 +551,6 @@ public partial class MainWindow : Window
             var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
             if (files == null) return;
             var filepath = files.Path.LocalPath;
-            /*if (File.Exists(filepath))
-            {
-                var override_res = await ShowOverwriteDialog();
-                if (override_res != ButtonResult.Yes) return;
-            }*/
-
             var tempDB = new Schuldatenbank(filepath);
             var res = await tempDB.Import(_myschool);
             await Dispatcher.UIThread.InvokeAsync(async () =>
@@ -612,12 +600,6 @@ public partial class MainWindow : Window
             var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
             if (files == null) return;
             var filepath = files.Path.LocalPath;
-            /*if (File.Exists(filepath))
-            {
-                var override_res = await ShowOverwriteDialog();
-                if (override_res != ButtonResult.Yes) return;
-            }*/
-
             var dbPath = _myschool.GetFilePath();
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
@@ -1474,11 +1456,6 @@ public partial class MainWindow : Window
         if (rightListBox.SelectedItems == null) return;
         SetStatusText();
         if (_rightMutex && !hasComboBoxChanged) return;
-        /*if (hasComboBoxChanged)
-        {
-            ResetItemsSource(leftListBox, new List<string>());
-        }*/
-
         switch (cboxDataRight.SelectedIndex)
         {
             //s=0;l==1;k==2
@@ -2969,12 +2946,6 @@ public partial class MainWindow : Window
             var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
             if (files == null) return;
             var filepath = files.Path.LocalPath;
-            /*if (File.Exists(filepath))
-            {
-                var override_res = await ShowOverwriteDialog();
-                if (override_res != ButtonResult.Yes) return;
-            }*/
-
             List<string> lulliste = ["Kürzel;Nachname;Fächer;Mailadresse"];
             lulliste.AddRange(_myschool.GetLehrerListe().Result.Select(lehrer =>
                 lehrer.Kuerzel + ";" + lehrer.Nachname + ";" + lehrer.Fakultas + @";\underline{\href{mailto:" +
@@ -3577,12 +3548,6 @@ public partial class MainWindow : Window
             if (files == null) return;
 
             var filepath = files.Path.LocalPath;
-            /*if (File.Exists(filepath))
-            {
-                var override_res = await ShowOverwriteDialog();
-                if (override_res != ButtonResult.Yes) return;
-            }*/
-
             await Dispatcher.UIThread.InvokeAsync(async () =>
             {
                 try
@@ -3772,11 +3737,6 @@ public partial class MainWindow : Window
             if (files == null) return;
 
             var filepath = files.Path.LocalPath;
-            /*if (File.Exists(filepath))
-            {
-                var override_res = await ShowOverwriteDialog();
-                if (override_res != ButtonResult.Yes) return;
-            }*/
 
             await Dispatcher.UIThread.InvokeAsync(async () =>
             {
@@ -3911,7 +3871,6 @@ public partial class MainWindow : Window
                 await outfs.WriteAsync("<!DOCTYPE html><body>\n");
                 foreach (var line in favo_export)
                     await outfs.WriteAsync(line);
-                //outfs.Write("<tr><td>" + string.Join("</td><td>", line.Split(',')) + "</td></tr>");
                 await outfs.WriteAsync("\n</body></html>");
             }
 
