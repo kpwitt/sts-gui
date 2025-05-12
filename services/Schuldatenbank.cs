@@ -22,17 +22,17 @@ public class Schuldatenbank : IDisposable
 {
     private const string version = "0.71";
     private readonly string _dbpath;
-    private string _logpath;
-    private LoggingModule log;
+    private readonly string _logpath;
+    private readonly LoggingModule log;
     private readonly SqliteConnection _sqliteConn;
     private SqliteTransaction? _dbtrans;
     private bool _activeTransaction = false;
     private bool _disposed = false;
-    public static readonly string[] erprobungsstufe = ["5", "6"];
-    public static readonly string[] mittelstufe = ["7", "8", "9", "10"];
-    public static readonly string[] oberstufe = ["EF", "Q1", "Q2"];
+    private static readonly string[] erprobungsstufe = ["5", "6"];
+    private static readonly string[] mittelstufe = ["7", "8", "9", "10"];
+    private static readonly string[] oberstufe = ["EF", "Q1", "Q2"];
     public static readonly string[] stubostufen = ["8", "9", "10", "EF", "Q1", "Q2"];
-    public static readonly string[] jamfstufen = ["9", "10", "EF", "Q1", "Q2"];
+    private static readonly string[] jamfstufen = ["9", "10", "EF", "Q1", "Q2"];
 
     /// <summary>
     /// erstellt, falls nicht vorhanden, die Datenbankstruktur und öffnet die Verbindung
@@ -43,17 +43,11 @@ public class Schuldatenbank : IDisposable
         _logpath = _dbpath == ":memory:"
             ? Path.Combine(Path.GetTempPath(), Path.ChangeExtension("StS_" + Guid.NewGuid() + "_tmp", "log"))
             : _dbpath.Replace("sqlite", "log");
-        if (_dbpath == ":memory")
-        {
-            log = new LoggingModule();
-        }
-        else
-        {
-            log = new LoggingModule(_logpath);
-            log.Settings.FileLogging = FileLoggingMode.SingleLogFile;
-        }
-
-        log.Settings.UseUtcTime = true;
+        
+        log = new LoggingModule(_logpath);
+        log.Settings.FileLogging = FileLoggingMode.SingleLogFile;
+        log.Settings.EnableConsole = false;
+        log.Settings.UseUtcTime = false;
         var strconnection = "Data Source=" + _dbpath;
         _sqliteConn = new SqliteConnection(strconnection);
         _sqliteConn.Open();
