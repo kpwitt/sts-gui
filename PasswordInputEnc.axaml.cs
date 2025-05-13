@@ -6,11 +6,11 @@ using Avalonia.Media;
 
 namespace StS_GUI_Avalonia;
 
-public partial class PasswordInput : Window
+public partial class PasswordInputEnc : Window
 {
     private string _pwd = "";
 
-    public PasswordInput()
+    public PasswordInputEnc()
     {
         InitializeComponent();
     }
