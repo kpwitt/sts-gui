@@ -630,7 +630,7 @@ public partial class MainWindow : Window
 
         async Task<string?> GetPasswordInput()
         {
-            var pwiWindow = new PasswordInput();
+            var pwiWindow = new PasswordInputEnc();
             var test = await pwiWindow.ShowPwdDialog(this);
             return test;
         }
@@ -656,7 +656,7 @@ public partial class MainWindow : Window
 
         async Task<string?> GetPasswordInput()
         {
-            var pwiWindow = new PasswordInput();
+            var pwiWindow = new PasswordInputDec();
             var test = await pwiWindow.ShowPwdDialog(this);
             return test;
         }

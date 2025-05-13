@@ -46,4 +46,10 @@
       <None Remove="Assets\gfx\visible_on.png"/>
       <AvaloniaResource Include="Assets\gfx\visible_on.png"/>
   </ItemGroup>
+  <ItemGroup>
+    <Compile Update="PasswordInputDec.axaml.cs">
+      <DependentUpon>PasswordInputDec.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
 </Project>
