@@ -1717,7 +1717,6 @@ public partial class MainWindow : Window
                 expandFiles = dialogResult switch
                 {
                     ButtonResult.Yes => false,
-                    ButtonResult.No => true,
                     _ => true
                 };
             }
@@ -2837,7 +2836,6 @@ public partial class MainWindow : Window
                 expandFiles = dialogResult switch
                 {
                     ButtonResult.Yes => false,
-                    ButtonResult.No => true,
                     _ => true
                 };
             }
