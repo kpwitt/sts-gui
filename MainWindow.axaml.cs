@@ -1144,7 +1144,7 @@ public partial class MainWindow : Window
         if (cboxDataLeft == null || cboxDataRight == null) return;
         cboxDataLeft.SelectedIndex = 0;
         cboxDataRight.SelectedIndex = 1;
-        var llist = _myschool.GetSchuelerListe().Result.Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID))
+        var llist = _myschool.GetSchuelerListe().Result.Select(s => s.Nachname + "," + s.Vorname + ";" + s.ID)
             .ToList();
         llist.Sort(Comparer<string>.Default);
         ResetItemsSource(leftListBox, llist);
@@ -1295,7 +1295,7 @@ public partial class MainWindow : Window
                 if (leftListBox.SelectedItems.Count < 1 || leftListBox.SelectedItems == null || hasComboBoxChanged)
                 {
                     var slist = _myschool.GetSchuelerListe().Result.Where(s => s.IstAktiv || zeigeInaktive)
-                        .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID)).Distinct().ToList();
+                        .Select(s => s.Nachname + "," + s.Vorname + ";" + s.ID).Distinct().ToList();
                     slist.Sort(Comparer<string>.Default);
                     ResetItemsSource(leftListBox, slist);
                     ResetItemsSource(rightListBox, []);
@@ -1311,14 +1311,14 @@ public partial class MainWindow : Window
                         case 1:
                         {
                             var rlist = _myschool.GetLuLvonSuS(sus.ID).Result
-                                .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).Distinct().ToList();
+                                .Select(l => l.Kuerzel + ";" + l.Nachname + "," + l.Vorname).Distinct().ToList();
                             rlist.Sort(Comparer<string>.Default);
                             ResetItemsSource(rightListBox, rlist);
                             break;
                         }
                         case 2:
                         {
-                            var rlist = _myschool.GetKursVonSuS(sus.ID).Result.Select(k => (k.Bezeichnung))
+                            var rlist = _myschool.GetKursVonSuS(sus.ID).Result.Select(k => k.Bezeichnung)
                                 .Distinct()
                                 .ToList();
                             ResetItemsSource(rightListBox, rlist);
@@ -1337,7 +1337,7 @@ public partial class MainWindow : Window
                 if (leftListBox.SelectedItems.Count < 1 || leftListBox.SelectedItems == null || hasComboBoxChanged)
                 {
                     var lullist = _myschool.GetLehrerListe().Result.Where(l => l.IstAktiv || zeigeInaktive)
-                        .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).Distinct().ToList();
+                        .Select(l => l.Kuerzel + ";" + l.Nachname + "," + l.Vorname).Distinct().ToList();
                     lullist.Sort(Comparer<string>.Default);
                     ResetItemsSource(leftListBox, lullist);
                     ResetItemsSource(rightListBox, []);
@@ -1353,7 +1353,7 @@ public partial class MainWindow : Window
                         case 0:
                         {
                             var rlist = _myschool.GetSuSVonLuL(lul.ID).Result
-                                .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID)).Distinct().ToList();
+                                .Select(s => s.Nachname + "," + s.Vorname + ";" + s.ID).Distinct().ToList();
                             rlist.Sort(Comparer<string>.Default);
                             ResetItemsSource(rightListBox, rlist);
 
@@ -1361,7 +1361,7 @@ public partial class MainWindow : Window
                         }
                         case 2:
                         {
-                            var rlist = _myschool.GetKursVonLuL(lul.ID).Result.Select(k => (k.Bezeichnung))
+                            var rlist = _myschool.GetKursVonLuL(lul.ID).Result.Select(k => k.Bezeichnung)
                                 .Distinct()
                                 .ToList();
                             rlist.Sort(Comparer<string>.Default);
@@ -1380,7 +1380,7 @@ public partial class MainWindow : Window
 
                 if (leftListBox.SelectedItems.Count < 1 || leftListBox.SelectedItems == null || hasComboBoxChanged)
                 {
-                    var klist = _myschool.GetKursListe().Result.Select(k => (k.Bezeichnung)).Distinct().ToList();
+                    var klist = _myschool.GetKursListe().Result.Select(k => k.Bezeichnung).Distinct().ToList();
                     klist.Sort(Comparer<string>.Default);
                     ResetItemsSource(leftListBox, klist);
                     ResetItemsSource(rightListBox, []);
@@ -1397,7 +1397,7 @@ public partial class MainWindow : Window
                         {
                             if (string.IsNullOrEmpty(kurs.Bezeichnung)) break;
                             var rlist = _myschool.GetSuSAusKurs(kurs.Bezeichnung).Result
-                                .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID)).Distinct().ToList();
+                                .Select(s => s.Nachname + "," + s.Vorname + ";" + s.ID).Distinct().ToList();
                             rlist.Sort(Comparer<string>.Default);
                             ResetItemsSource(rightListBox, rlist);
                             break;
@@ -1406,7 +1406,7 @@ public partial class MainWindow : Window
                         {
                             if (string.IsNullOrEmpty(kurs.Bezeichnung)) break;
                             var rlist = _myschool.GetLuLAusKurs(kurs.Bezeichnung).Result
-                                .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).Distinct().ToList();
+                                .Select(l => l.Kuerzel + ";" + l.Nachname + "," + l.Vorname).Distinct().ToList();
                             rlist.Sort(Comparer<string>.Default);
                             ResetItemsSource(rightListBox, rlist);
                             break;
@@ -1483,7 +1483,7 @@ public partial class MainWindow : Window
 
                         if (!hasComboBoxChanged) return;
                         var rlist = _myschool.GetSuSVonLuL(lul.ID).Result
-                            .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID)).Distinct().ToList();
+                            .Select(s => s.Nachname + "," + s.Vorname + ";" + s.ID).Distinct().ToList();
                         rlist.Sort(Comparer<string>.Default);
                         ResetItemsSource(rightListBox, rlist);
                         break;
@@ -1504,7 +1504,7 @@ public partial class MainWindow : Window
 
                         if (!hasComboBoxChanged) return;
                         var rlist = _myschool.GetSuSAusKurs(kurs.Bezeichnung).Result
-                            .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID)).Distinct().ToList();
+                            .Select(s => s.Nachname + "," + s.Vorname + ";" + s.ID).Distinct().ToList();
                         rlist.Sort(Comparer<string>.Default);
                         ResetItemsSource(rightListBox, rlist);
                         break;
@@ -1534,7 +1534,7 @@ public partial class MainWindow : Window
 
                         if (!hasComboBoxChanged) return;
                         var rlist = _myschool.GetLuLvonSuS(sus.ID).Result
-                            .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).Distinct().ToList();
+                            .Select(l => l.Kuerzel + ";" + l.Nachname + "," + l.Vorname).Distinct().ToList();
                         rlist.Sort(Comparer<string>.Default);
                         ResetItemsSource(rightListBox, rlist);
                         break;
@@ -1556,7 +1556,7 @@ public partial class MainWindow : Window
                         if (!hasComboBoxChanged) return;
                         if (string.IsNullOrEmpty(kurs.Bezeichnung)) break;
                         var rlist = _myschool.GetLuLAusKurs(kurs.Bezeichnung).Result
-                            .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)).Distinct().ToList();
+                            .Select(l => l.Kuerzel + ";" + l.Nachname + "," + l.Vorname).Distinct().ToList();
                         rlist.Sort(Comparer<string>.Default);
                         ResetItemsSource(rightListBox, rlist);
                         break;
@@ -1585,7 +1585,7 @@ public partial class MainWindow : Window
                         }
 
                         if (!hasComboBoxChanged) return;
-                        var rlist = _myschool.GetKursVonSuS(sus.ID).Result.Select(k => (k.Bezeichnung))
+                        var rlist = _myschool.GetKursVonSuS(sus.ID).Result.Select(k => k.Bezeichnung)
                             .Distinct()
                             .ToList();
                         ResetItemsSource(rightListBox, rlist);
@@ -1606,7 +1606,7 @@ public partial class MainWindow : Window
                         }
 
                         if (!hasComboBoxChanged) return;
-                        var rlist = _myschool.GetKursVonLuL(lul.ID).Result.Select(k => (k.Bezeichnung))
+                        var rlist = _myschool.GetKursVonLuL(lul.ID).Result.Select(k => k.Bezeichnung)
                             .Distinct()
                             .ToList();
                         rlist.Sort(Comparer<string>.Default);
@@ -2534,7 +2534,7 @@ public partial class MainWindow : Window
                     }
 
                     var seliste = sliste.Distinct()
-                        .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID))
+                        .Select(s => s.Nachname + "," + s.Vorname + ";" + s.ID)
                         .ToList();
                     seliste.Sort(Comparer<string>.Default);
                     ResetItemsSource(leftListBox, seliste);
@@ -2565,7 +2565,7 @@ public partial class MainWindow : Window
                     }
 
                     var leliste = lliste.Distinct()
-                        .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname))
+                        .Select(l => l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)
                         .ToList();
                     leliste.Sort(Comparer<string>.Default);
                     ResetItemsSource(leftListBox, leliste);
@@ -2649,7 +2649,7 @@ public partial class MainWindow : Window
                     }
 
                     var seliste = sliste.Distinct()
-                        .Select(s => (s.Nachname + "," + s.Vorname + ";" + s.ID))
+                        .Select(s => s.Nachname + "," + s.Vorname + ";" + s.ID)
                         .ToList();
                     seliste.Sort(Comparer<string>.Default);
                     ResetItemsSource(rightListBox, seliste);
@@ -2680,7 +2680,7 @@ public partial class MainWindow : Window
                     }
 
                     var leliste = lliste.Distinct()
-                        .Select(l => (l.Kuerzel + ";" + l.Nachname + "," + l.Vorname))
+                        .Select(l => l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)
                         .ToList();
                     leliste.Sort(Comparer<string>.Default);
                     ResetItemsSource(rightListBox, leliste);
@@ -3365,7 +3365,7 @@ public partial class MainWindow : Window
     {
         if (leftListBox.SelectedItems == null) return;
         var mails = leftListBox.SelectedItems.Cast<string>().Aggregate("",
-            (current, line) => current + (_myschool.GetLehrkraft(line.Split(';')[0]).Result.Mail + ";"));
+            (current, line) => current + _myschool.GetLehrkraft(line.Split(';')[0]).Result.Mail + ";");
         var clipboard = Clipboard;
         if (clipboard == null) return;
         await clipboard.SetTextAsync(mails.TrimEnd(';'));
@@ -3375,7 +3375,7 @@ public partial class MainWindow : Window
     {
         if (leftListBox.SelectedItems == null) return;
         var krzs = leftListBox.SelectedItems.Cast<string>()
-            .Aggregate("", (current, line) => current + (line.Split(';')[0] + ";"));
+            .Aggregate("", (current, line) => current + line.Split(';')[0] + ";");
         var clipboard = Clipboard;
         if (clipboard == null) return;
         await clipboard.SetTextAsync(krzs.TrimEnd(';'));
@@ -3385,7 +3385,7 @@ public partial class MainWindow : Window
     {
         if (lbLogDisplay.SelectedItems == null) return;
         var logentries = lbLogDisplay.SelectedItems.Cast<string>()
-            .Aggregate("", (current, line) => current + (line.Split(';')[0].Trim() + "\n"));
+            .Aggregate("", (current, line) => current + line.Split(';')[0].Trim() + "\n");
         var clipboard = Clipboard;
         if (clipboard == null) return;
         await clipboard.SetTextAsync(logentries);

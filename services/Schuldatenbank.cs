@@ -43,7 +43,7 @@ public class Schuldatenbank : IDisposable
         _logpath = _dbpath == ":memory:"
             ? Path.Combine(Path.GetTempPath(), Path.ChangeExtension("StS_" + Guid.NewGuid() + "_tmp", "log"))
             : _dbpath.Replace("sqlite", "log");
-        
+
         log = new LoggingModule(_logpath);
         log.Settings.FileLogging = FileLoggingMode.SingleLogFile;
         log.Settings.EnableConsole = false;
@@ -1137,7 +1137,7 @@ public class Schuldatenbank : IDisposable
                     var firstChar = maildienst[0];
                     var UpperCaseFirstCharacter = char.ToUpper(firstChar);
                     maildienst = UpperCaseFirstCharacter + maildienst[1..];
-                    var fakult = fakultas.Aggregate("", (current, t) => current + (t + ";"));
+                    var fakult = fakultas.Aggregate("", (current, t) => current + t + ";");
                     switch (fakultas.Length)
                     {
                         case 2:
@@ -3193,7 +3193,7 @@ public class Schuldatenbank : IDisposable
                 }
 
                 maillist.Remove(mail);
-                var mails = maillist.Aggregate("", (current, maileintrag) => current + (maileintrag + ","));
+                var mails = maillist.Aggregate("", (current, maileintrag) => current + maileintrag + ",");
                 mails = mails.TrimEnd(',');
                 if (GibtEsSchueler(susid))
                 {
