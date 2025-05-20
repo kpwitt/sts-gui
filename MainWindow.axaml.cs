@@ -3847,7 +3847,7 @@ public partial class MainWindow : Window
             foreach (var fako in fakos)
             {
                 var mailadressen = fako.Mitglieder.Aggregate("", (current, l) => current + l.Mail + ",").TrimEnd(',');
-                var fako_string = "Fachschaft <a href=\"mailto:" + mailadressen + "\">" + fako.Fach +
+                var fako_string = "Fachschaft <a href=\"mailto:?bcc=" + mailadressen + "\">" + fako.Fach +
                                   "</a><br>";
                 fako_string += "Vorsitz: <a href=\"mailto:" + fako.Vorsitz.Mail.ToLower() + "\">" +
                                fako.Vorsitz.Mail.ToLower() + "</a><br>Stellvertretung: <a href=\"mailto:" +
