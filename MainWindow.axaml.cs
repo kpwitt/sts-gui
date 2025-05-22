@@ -362,13 +362,44 @@ public partial class MainWindow : Window
     {
         await Dispatcher.UIThread.InvokeAsync(() =>
         {
-            InitData();
             MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
                 {
                     ButtonDefinitions = ButtonEnum.Ok,
                     ContentTitle = title,
                     ContentMessage = message,
                     Icon = MsBox.Avalonia.Enums.Icon.Info,
+                    WindowIcon = _msgBoxWindowIcon
+                })
+                .ShowAsPopupAsync(this);
+        });
+    }
+
+    private async Task ShowCustomErrorMessage(string message, string title)
+    {
+        await Dispatcher.UIThread.InvokeAsync(() =>
+        {
+            MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
+                {
+                    ButtonDefinitions = ButtonEnum.Ok,
+                    ContentTitle = title,
+                    ContentMessage = message,
+                    Icon = MsBox.Avalonia.Enums.Icon.Error,
+                    WindowIcon = _msgBoxWindowIcon
+                })
+                .ShowAsPopupAsync(this);
+        });
+    }
+
+    private async Task ShowCustomSuccessMessage(string message, string title)
+    {
+        await Dispatcher.UIThread.InvokeAsync(() =>
+        {
+            MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
+                {
+                    ButtonDefinitions = ButtonEnum.Ok,
+                    ContentTitle = title,
+                    ContentMessage = message,
+                    Icon = MsBox.Avalonia.Enums.Icon.Success,
                     WindowIcon = _msgBoxWindowIcon
                 })
                 .ShowAsPopupAsync(this);
@@ -513,27 +544,11 @@ public partial class MainWindow : Window
                 if (res == 0)
                 {
                     _myschool = tempDB;
-                    var saveDBInPath = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
-                    {
-                        ButtonDefinitions = ButtonEnum.Ok,
-                        ContentTitle = "Erfolg",
-                        ContentMessage = "Datenbank erfolgreich gespeichert",
-                        Icon = MsBox.Avalonia.Enums.Icon.Success,
-                        WindowIcon = _msgBoxWindowIcon
-                    });
-                    await saveDBInPath.ShowAsPopupAsync(this);
+                    await ShowCustomSuccessMessage("Datenbank erfolgreich gespeichert", "Erfolg");
                 }
                 else
                 {
-                    var errorNoSystemDialog = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
-                    {
-                        ButtonDefinitions = ButtonEnum.Ok,
-                        ContentTitle = "Fehler",
-                        ContentMessage = "Schließen fehlgeschlagen",
-                        Icon = MsBox.Avalonia.Enums.Icon.Error,
-                        WindowIcon = _msgBoxWindowIcon
-                    });
-                    await errorNoSystemDialog.ShowAsPopupAsync(this);
+                    await ShowCustomErrorMessage("Schließen fehlgeschlagen", "Fehler");
                 }
             });
         }
@@ -557,28 +572,12 @@ public partial class MainWindow : Window
             {
                 if (res != 0)
                 {
-                    var errorNoSystemDialog = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
-                    {
-                        ButtonDefinitions = ButtonEnum.Ok,
-                        ContentTitle = "Fehler",
-                        ContentMessage = "Speichern unter fehlgeschlagen",
-                        Icon = MsBox.Avalonia.Enums.Icon.Error,
-                        WindowIcon = _msgBoxWindowIcon
-                    });
-                    await errorNoSystemDialog.ShowAsPopupAsync(this);
+                    await ShowCustomErrorMessage("Speichern unter fehlgeschlagen", "Fehler");
                 }
                 else
                 {
                     _myschool = tempDB;
-                    var saveDBInPath = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
-                    {
-                        ButtonDefinitions = ButtonEnum.Ok,
-                        ContentTitle = "Erfolg",
-                        ContentMessage = "Datenbank erfolgreich gespeichert",
-                        Icon = MsBox.Avalonia.Enums.Icon.Success,
-                        WindowIcon = _msgBoxWindowIcon
-                    });
-                    await saveDBInPath.ShowAsPopupAsync(this);
+                    await ShowCustomSuccessMessage("Datenbank erfolgreich gespeichert", "Erfolg");
                 }
             });
         }
@@ -613,19 +612,7 @@ public partial class MainWindow : Window
                 LocalCryptoServive.FileEncrypt(dbPath, filepath, inputResult);
             }
 
-            await Dispatcher.UIThread.InvokeAsync(() =>
-            {
-                MessageBoxManager.GetMessageBoxStandard(
-                    new MessageBoxStandardParams
-                    {
-                        ButtonDefinitions = ButtonEnum.Ok,
-                        ContentTitle = "Information",
-                        ContentMessage =
-                            "Speichern erfolgreich",
-                        Icon = MsBox.Avalonia.Enums.Icon.Info,
-                        WindowIcon = _msgBoxWindowIcon
-                    }).ShowAsPopupAsync(this);
-            });
+            await ShowCustomInfoMessage("Speichern erfolgreich.", "Erfolg");
         }
 
         async Task<string?> GetPasswordInput()
@@ -837,7 +824,7 @@ public partial class MainWindow : Window
             }
             else
             {
-                await ShowErrordialog("Fehler beim Export");
+                await ShowCustomErrorMessage("Fehler beim Export","Fehler");
             }
         }
     }
@@ -878,19 +865,9 @@ public partial class MainWindow : Window
             string.IsNullOrEmpty(suselternadresse) ||
             susHatZweitaccount == null || tbSuSKurse == null || tbSuSKurse!.Text == null || susIstAktiv == null)
         {
-            await Dispatcher.UIThread.InvokeAsync(() =>
-            {
-                MessageBoxManager.GetMessageBoxStandard(
-                    new MessageBoxStandardParams
-                    {
-                        ButtonDefinitions = ButtonEnum.Ok,
-                        ContentTitle = "Fehler",
-                        ContentMessage =
-                            "Nicht alle erforderlichen Informationen angegeben!\nStellen Sie sicher, dass ID, Vorname, Nachname, Klasse\nund eine Elternadresse angegeben sind",
-                        Icon = MsBox.Avalonia.Enums.Icon.Error,
-                        WindowIcon = _msgBoxWindowIcon
-                    }).ShowAsPopupAsync(this);
-            });
+            await ShowCustomErrorMessage(
+                "Nicht alle erforderlichen Informationen angegeben!\nStellen Sie sicher, dass ID, Vorname, Nachname, Klasse\nund eine Elternadresse angegeben sind",
+                "Fehler");
             SetStatusText();
             return;
         }
@@ -899,19 +876,7 @@ public partial class MainWindow : Window
 
         if (!susid.All(char.IsDigit))
         {
-            await Dispatcher.UIThread.InvokeAsync(() =>
-            {
-                MessageBoxManager.GetMessageBoxStandard(
-                    new MessageBoxStandardParams
-                    {
-                        ButtonDefinitions = ButtonEnum.Ok,
-                        ContentTitle = "Fehler",
-                        ContentMessage =
-                            "Die SuS-ID enthält nicht nur Zahlen!",
-                        Icon = MsBox.Avalonia.Enums.Icon.Error,
-                        WindowIcon = _msgBoxWindowIcon
-                    }).ShowAsPopupAsync(this);
-            });
+            await ShowCustomErrorMessage("Die SuS-ID enthält nicht nur Zahlen!", "Fehler");
             return;
         }
 
@@ -1029,19 +994,9 @@ public partial class MainWindow : Window
             string.IsNullOrEmpty(lulkrz) || string.IsNullOrEmpty(lulfakultas) ||
             string.IsNullOrEmpty(lulmail) || lulpwtemp == null || tbLuLKurse.Text == null || lulistAktiv == null)
         {
-            await Dispatcher.UIThread.InvokeAsync(() =>
-            {
-                MessageBoxManager.GetMessageBoxStandard(
-                    new MessageBoxStandardParams
-                    {
-                        ButtonDefinitions = ButtonEnum.Ok,
-                        ContentTitle = "Fehler",
-                        ContentMessage =
-                            "Nicht alle erforderlichen Informationen angegeben!\nStellen Sie sicher, dass ID, Vorname, Nachname, Kürzel\nund Fakultas ausgefüllt sind.",
-                        Icon = MsBox.Avalonia.Enums.Icon.Error,
-                        WindowIcon = _msgBoxWindowIcon
-                    }).ShowAsPopupAsync(this);
-            });
+            await ShowCustomErrorMessage(
+                "Nicht alle erforderlichen Informationen angegeben!\nStellen Sie sicher, dass ID, Vorname, Nachname, Kürzel\nund Fakultas ausgefüllt sind.",
+                "Fehler");
             return;
         }
 
@@ -1672,20 +1627,8 @@ public partial class MainWindow : Window
         if (cbMoodle.IsChecked != null && !cbMoodle.IsChecked.Value && cbAIX.IsChecked != null &&
             !cbAIX.IsChecked.Value && cbAJAMF.IsChecked != null && !cbAJAMF.IsChecked.Value)
         {
-            await Dispatcher.UIThread.InvokeAsync(() =>
-                {
-                    MessageBoxManager.GetMessageBoxStandard(
-                        new MessageBoxStandardParams
-                        {
-                            ButtonDefinitions = ButtonEnum.Ok,
-                            ContentTitle = "Kein Zielsystem ausgewählt",
-                            ContentMessage =
-                                "Bitte wählen Sie entweder Moodle und/oder AIX und/oder JAMF als Zielsystem!",
-                            Icon = MsBox.Avalonia.Enums.Icon.Error,
-                            WindowIcon = _msgBoxWindowIcon
-                        }).ShowAsPopupAsync(this);
-                }
-            );
+            await ShowCustomErrorMessage("Bitte wählen Sie entweder Moodle und/oder AIX und/oder JAMF als Zielsystem!",
+                "Kein Zielsystem ausgewählt");
             return;
         }
 
@@ -1973,33 +1916,11 @@ public partial class MainWindow : Window
     {
         if (res == 1)
         {
-            await Dispatcher.UIThread.InvokeAsync(() =>
-            {
-                MessageBoxManager.GetMessageBoxStandard(
-                    new MessageBoxStandardParams
-                    {
-                        ButtonDefinitions = ButtonEnum.Ok,
-                        ContentTitle = "Export erfolgreich",
-                        ContentMessage = "Der Export war erfolgreich",
-                        Icon = MsBox.Avalonia.Enums.Icon.Info,
-                        WindowIcon = _msgBoxWindowIcon
-                    }).ShowAsPopupAsync(this);
-            });
+            await ShowCustomSuccessMessage("Der Export war erfolgreich", "Erfolg");
         }
         else
         {
-            await Dispatcher.UIThread.InvokeAsync(() =>
-            {
-                MessageBoxManager.GetMessageBoxStandard(
-                    new MessageBoxStandardParams
-                    {
-                        ButtonDefinitions = ButtonEnum.Ok,
-                        ContentTitle = "Export fehlgeschlagen",
-                        ContentMessage = "Export war nicht erfolgreiche. Bitte im Log nachschauen",
-                        Icon = MsBox.Avalonia.Enums.Icon.Error,
-                        WindowIcon = _msgBoxWindowIcon
-                    }).ShowAsPopupAsync(this);
-            });
+            await ShowCustomErrorMessage("Export war nicht erfolgreiche. Bitte im Log nachschauen", "Fehler");
         }
     }
 
@@ -2350,19 +2271,9 @@ public partial class MainWindow : Window
         if (string.IsNullOrEmpty(kursbez) || string.IsNullOrEmpty(lehrkraefte) || string.IsNullOrEmpty(kursfach) ||
             string.IsNullOrEmpty(kursklasse) || string.IsNullOrEmpty(kursstufe))
         {
-            await Dispatcher.UIThread.InvokeAsync(() =>
-            {
-                MessageBoxManager.GetMessageBoxStandard(
-                    new MessageBoxStandardParams
-                    {
-                        ButtonDefinitions = ButtonEnum.Ok,
-                        ContentTitle = "Fehler",
-                        ContentMessage =
-                            "Nicht alle erforderlichen Informationen angegeben!\nStellen Sie sicher, dass Kursbezeichnung, mind. ein Kürzel, das Fach, die Klasse und die Stufe ausgefüllt sind.",
-                        Icon = MsBox.Avalonia.Enums.Icon.Error,
-                        WindowIcon = _msgBoxWindowIcon
-                    }).ShowAsPopupAsync(this);
-            });
+            await ShowCustomErrorMessage(
+                "Nicht alle erforderlichen Informationen angegeben!\nStellen Sie sicher, dass Kursbezeichnung, mind. ein Kürzel, das Fach, die Klasse und die Stufe ausgefüllt sind.",
+                "Fehler");
             return;
         }
 
@@ -3444,18 +3355,7 @@ public partial class MainWindow : Window
             var favos = await _myschool.GetFavos();
             var stringifiedFavos = favos.Select(lehrkraft => "add,student," + lehrkraft.ID + ",EtatK").ToList();
             await File.WriteAllLinesAsync(filepath, stringifiedFavos, Encoding.UTF8);
-            await Dispatcher.UIThread.InvokeAsync(() =>
-            {
-                MessageBoxManager.GetMessageBoxStandard(
-                    new MessageBoxStandardParams
-                    {
-                        ButtonDefinitions = ButtonEnum.Ok,
-                        ContentTitle = "Information",
-                        ContentMessage = "Speichern erfolgreich",
-                        Icon = MsBox.Avalonia.Enums.Icon.Info,
-                        WindowIcon = _msgBoxWindowIcon
-                    }).ShowAsPopupAsync(this);
-            });
+            await ShowCustomInfoMessage("Speichern erfolgreich.", "Erfolg");
         }
     }
 
@@ -3524,18 +3424,7 @@ public partial class MainWindow : Window
         }
 
         await _myschool.StopTransaction();
-        await Dispatcher.UIThread.InvokeAsync(() =>
-        {
-            MessageBoxManager.GetMessageBoxStandard(
-                new MessageBoxStandardParams
-                {
-                    ButtonDefinitions = ButtonEnum.Ok,
-                    ContentTitle = "Information",
-                    ContentMessage = "Speichern erfolgreich",
-                    Icon = MsBox.Avalonia.Enums.Icon.Info,
-                    WindowIcon = _msgBoxWindowIcon
-                }).ShowAsPopupAsync(this);
-        });
+        await ShowCustomInfoMessage("Speichern erfolgreich.", "Erfolg");
     }
 
     private async void BtnSettingsToFile_OnClick(object? sender, RoutedEventArgs e)
@@ -3556,21 +3445,13 @@ public partial class MainWindow : Window
                 {
                     var json_settings = JsonSerializer.Serialize(_myschool.GetSettings().Result);
                     await File.WriteAllTextAsync(filepath, json_settings);
-                    var saveSuccessful = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
-                    {
-                        ButtonDefinitions = ButtonEnum.Ok,
-                        ContentTitle = "Erfolg",
-                        ContentMessage = "Einstellungen erfolgreich gespeichert",
-                        Icon = MsBox.Avalonia.Enums.Icon.Success,
-                        WindowIcon = _msgBoxWindowIcon
-                    });
-                    await saveSuccessful.ShowAsPopupAsync(this);
+                    await ShowCustomSuccessMessage("Einstellungen erfolgreich gespeichert", "Erfolg");
                 }
                 catch (Exception exception)
                 {
                     _myschool.AddLogMessage(new LogEintrag
                         { Eintragsdatum = DateTime.Now, Nachricht = exception.Message, Warnstufe = "Fehler" });
-                    await ShowErrordialog("Speichern der Einstellungen fehlgeschlagen");
+                    await ShowCustomErrorMessage("Speichern der Einstellungen fehlgeschlagen","Fehler");
                 }
             });
         }
@@ -3592,21 +3473,13 @@ public partial class MainWindow : Window
                 var json_settings = JsonSerializer.Deserialize<Einstellungen>(File.ReadAllTextAsync(filepath).Result);
                 await _myschool.SetSettings(json_settings);
                 loadSettingsToGUI(json_settings);
-                var loadSuccessful = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
-                {
-                    ButtonDefinitions = ButtonEnum.Ok,
-                    ContentTitle = "Erfolg",
-                    ContentMessage = "Einstellungen erfolgreich geladen",
-                    Icon = MsBox.Avalonia.Enums.Icon.Success,
-                    WindowIcon = _msgBoxWindowIcon
-                });
-                await loadSuccessful.ShowAsPopupAsync(this);
+                await ShowCustomSuccessMessage("Einstellungen erfolgreich geladen", "Erfolg");
             }
             catch (Exception exception)
             {
                 _myschool.AddLogMessage(new LogEintrag
                     { Eintragsdatum = DateTime.Now, Nachricht = exception.Message, Warnstufe = "Fehler" });
-                await ShowErrordialog("Laden der Einstellungen fehlgeschlagen");
+                await ShowCustomErrorMessage("Laden der Einstellungen fehlgeschlagen","Fehler");
             }
         }
     }
@@ -3661,7 +3534,7 @@ public partial class MainWindow : Window
         var TAFileText = File.ReadAllLinesAsync(TAFilePath).Result.ToList();
         if (TAFileText[0] != "id;accountname")
         {
-            await ShowErrordialog("Fehlerhafte Datei, bitte den Header überprüfen");
+            await ShowCustomErrorMessage("Fehlerhafte Datei, bitte den Header überprüfen","Fehler");
             return;
         }
 
@@ -3671,7 +3544,7 @@ public partial class MainWindow : Window
             var string_id = line.Split(';')[0];
             if (string.IsNullOrEmpty(string_id))
             {
-                await ShowErrordialog("Eine ID fehlt, bitte die angegebenen Daten überprüfen!");
+                await ShowCustomErrorMessage("Eine ID fehlt, bitte die angegebenen Daten überprüfen!","Fehler");
                 continue;
             }
 
@@ -3680,26 +3553,13 @@ public partial class MainWindow : Window
             var sus = await _myschool.GetSchueler(id);
             if (string.IsNullOrEmpty(name))
             {
-                await ShowErrordialog("Fehlerhafte Angaben bei Schüler:in mit der ID: " + sus.ID);
+                await ShowCustomErrorMessage("Fehlerhafte Angaben bei Schüler:in mit der ID: " + sus.ID,"Fehler");
                 continue;
             }
 
             sus.Nutzername = name;
             _myschool.UpdateSchueler(sus);
         }
-    }
-
-    private async Task ShowErrordialog(string message)
-    {
-        var errorDialog = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
-        {
-            ButtonDefinitions = ButtonEnum.Ok,
-            ContentTitle = "Fehler",
-            ContentMessage = message,
-            Icon = MsBox.Avalonia.Enums.Icon.Error,
-            WindowIcon = _msgBoxWindowIcon
-        });
-        await errorDialog.ShowAsPopupAsync(this);
     }
 
     private void BtnLuLShowPWD_OnClick(object? sender, RoutedEventArgs e)
@@ -3780,21 +3640,13 @@ public partial class MainWindow : Window
                                     x.Warnstufe + "\t" + x.Datumsstring() + "\t" +
                                     x.Nachricht.Replace('\t', ' ').Replace("  ", " ").TrimEnd(' ') + "\n"))
                             .Replace("\n;", "\n"));
-                    var saveSuccessful = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
-                    {
-                        ButtonDefinitions = ButtonEnum.Ok,
-                        ContentTitle = "Erfolg",
-                        ContentMessage = "Log erfolgreich gespeichert",
-                        Icon = MsBox.Avalonia.Enums.Icon.Success,
-                        WindowIcon = _msgBoxWindowIcon
-                    });
-                    await saveSuccessful.ShowAsPopupAsync(this);
+                    await ShowCustomSuccessMessage("Log erfolgreich gespeichert", "Erfolg");
                 }
                 catch (Exception exception)
                 {
                     _myschool.AddLogMessage(new LogEintrag
                         { Eintragsdatum = DateTime.Now, Nachricht = exception.Message, Warnstufe = "Fehler" });
-                    await ShowErrordialog("Speichern des Logs fehlgeschlagen");
+                    await ShowCustomErrorMessage("Speichern des Logs fehlgeschlagen","Fehler");
                 }
             });
         }
