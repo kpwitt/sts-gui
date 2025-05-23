@@ -824,7 +824,7 @@ public partial class MainWindow : Window
             }
             else
             {
-                await ShowCustomErrorMessage("Fehler beim Export","Fehler");
+                await ShowCustomErrorMessage("Fehler beim Export", "Fehler");
             }
         }
     }
@@ -3451,7 +3451,7 @@ public partial class MainWindow : Window
                 {
                     _myschool.AddLogMessage(new LogEintrag
                         { Eintragsdatum = DateTime.Now, Nachricht = exception.Message, Warnstufe = "Fehler" });
-                    await ShowCustomErrorMessage("Speichern der Einstellungen fehlgeschlagen","Fehler");
+                    await ShowCustomErrorMessage("Speichern der Einstellungen fehlgeschlagen", "Fehler");
                 }
             });
         }
@@ -3479,7 +3479,7 @@ public partial class MainWindow : Window
             {
                 _myschool.AddLogMessage(new LogEintrag
                     { Eintragsdatum = DateTime.Now, Nachricht = exception.Message, Warnstufe = "Fehler" });
-                await ShowCustomErrorMessage("Laden der Einstellungen fehlgeschlagen","Fehler");
+                await ShowCustomErrorMessage("Laden der Einstellungen fehlgeschlagen", "Fehler");
             }
         }
     }
@@ -3534,7 +3534,7 @@ public partial class MainWindow : Window
         var TAFileText = File.ReadAllLinesAsync(TAFilePath).Result.ToList();
         if (TAFileText[0] != "id;accountname")
         {
-            await ShowCustomErrorMessage("Fehlerhafte Datei, bitte den Header überprüfen","Fehler");
+            await ShowCustomErrorMessage("Fehlerhafte Datei, bitte den Header überprüfen", "Fehler");
             return;
         }
 
@@ -3544,7 +3544,7 @@ public partial class MainWindow : Window
             var string_id = line.Split(';')[0];
             if (string.IsNullOrEmpty(string_id))
             {
-                await ShowCustomErrorMessage("Eine ID fehlt, bitte die angegebenen Daten überprüfen!","Fehler");
+                await ShowCustomErrorMessage("Eine ID fehlt, bitte die angegebenen Daten überprüfen!", "Fehler");
                 continue;
             }
 
@@ -3553,7 +3553,7 @@ public partial class MainWindow : Window
             var sus = await _myschool.GetSchueler(id);
             if (string.IsNullOrEmpty(name))
             {
-                await ShowCustomErrorMessage("Fehlerhafte Angaben bei Schüler:in mit der ID: " + sus.ID,"Fehler");
+                await ShowCustomErrorMessage("Fehlerhafte Angaben bei Schüler:in mit der ID: " + sus.ID, "Fehler");
                 continue;
             }
 
@@ -3646,7 +3646,7 @@ public partial class MainWindow : Window
                 {
                     _myschool.AddLogMessage(new LogEintrag
                         { Eintragsdatum = DateTime.Now, Nachricht = exception.Message, Warnstufe = "Fehler" });
-                    await ShowCustomErrorMessage("Speichern des Logs fehlgeschlagen","Fehler");
+                    await ShowCustomErrorMessage("Speichern des Logs fehlgeschlagen", "Fehler");
                 }
             });
         }
@@ -3695,22 +3695,29 @@ public partial class MainWindow : Window
             var favos = _myschool.GetFavos().Result.Distinct().ToList();
             favos.Sort();
             var favos_mail = favos.Aggregate("<a href=\"mailto:?bcc=", (current, l) => current + l.Mail + ",");
-            favo_export.Add(favos_mail.TrimEnd(',') + "\">Alle Fachvorsitzenden</a><br><br>\n<strong>Hinweis</strong>: Der Klick auf das Fach erstellt eine Mail an alle Lehrkräfte, die das Fach unterrichten<br><br>\n");
-            foreach (var fako in fakos)
-            {
-                var mailadressen = fako.Mitglieder.Aggregate("", (current, l) => current + l.Mail + ",").TrimEnd(',');
-                var fako_string = "Fachschaft <a href=\"mailto:?bcc=" + mailadressen + "\">" + fako.Fach +
-                                  "</a><br>";
-                fako_string += "Vorsitz: <a href=\"mailto:" + fako.Vorsitz.Mail.ToLower() + "\">" +
-                               fako.Vorsitz.Mail.ToLower() + "</a><br>Stellvertretung: <a href=\"mailto:" +
-                               fako.Stellvertretung.Mail.ToLower() + "\">" +
-                               fako.Stellvertretung.Mail.ToLower() + "</a><br>Mitglieder: ";
-                fako_string = fako.Mitglieder.Aggregate(fako_string,
-                    (current, lul) =>
-                        current + "<a href=\"mailto:" + lul.Mail.ToLower() + "\">" + lul.Mail.ToLower() + "</a>, ");
-
-                favo_export.Add(fako_string.TrimEnd(' ').TrimEnd(',') + "<br><br>");
-            }
+            favo_export.Add(favos_mail.TrimEnd(',') +
+                            "\">Alle Fachvorsitzenden</a><br><br>\n<strong>Hinweis</strong>: Der Klick auf das Fach erstellt eine Mail an alle Lehrkräfte, die das Fach unterrichten<br><br>\n");
+            favo_export.AddRange(from fako in fakos
+                let mailadressen = fako.Mitglieder.Aggregate("", (current, l) => current + l.Mail + ",").TrimEnd(',')
+                let fako_string = new StringBuilder().Append("Fachschaft <a href=\"mailto:?bcc=")
+                    .Append(mailadressen)
+                    .Append("\">")
+                    .Append(fako.Fach)
+                    .Append("</a><br>Vorsitz: <a href=\"mailto:")
+                    .Append(fako.Vorsitz.Mail.ToLower())
+                    .Append("\">")
+                    .Append(fako.Vorsitz.Mail.ToLower())
+                    .Append("</a><br>Stellvertretung: <a href=\"mailto:")
+                    .Append(fako.Stellvertretung.Mail.ToLower())
+                    .Append("\">")
+                    .Append(fako.Stellvertretung.Mail.ToLower())
+                    .Append("</a><br>Mitglieder: ")
+                    .ToString()
+                select fako.Mitglieder.Aggregate(fako_string,
+                    (current, lul) => current + "<a href=\"mailto:" + lul.Mail.ToLower() + "\">" + lul.Mail.ToLower() +
+                                      "</a>, ")
+                into fako_string
+                select fako_string.TrimEnd(' ').TrimEnd(',') + "<br><br>");
 
             var extx = new List<FilePickerFileType>
             {
