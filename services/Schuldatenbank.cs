@@ -1707,7 +1707,7 @@ public class Schuldatenbank : IDisposable
                 .Select(x => x.Bezeichnung)
                 /* .Where(x => x.StartsWith(sus.Klasse))*/
                 .ToList()
-            select string.Join(";", sus.Nutzername, sus.Mail, sus.Vorname, sus.Nachname, string.Join(',', kurse), "",
+            select string.Join(";", sus.Nutzername, !string.IsNullOrEmpty(sus.Aixmail)?sus.Aixmail:sus.Mail, sus.Vorname, sus.Nachname, string.Join(',', kurse), "",
                 withPasswort ? "Klasse" + sus.Klasse + DateTime.Now.Year + "!" : ""));
 
         ausgabeJamf.AddRange(from lulid in lulidliste

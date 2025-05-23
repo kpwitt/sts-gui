@@ -1094,7 +1094,7 @@ public partial class MainWindow : Window
         SetStatusText();
     }
 
-    private async void InitData()
+    private void InitData()
     {
         if (cboxDataLeft == null || cboxDataRight == null) return;
         cboxDataLeft.SelectedIndex = 0;
@@ -1104,7 +1104,7 @@ public partial class MainWindow : Window
         llist.Sort(Comparer<string>.Default);
         ResetItemsSource(leftListBox, llist);
         loadSettingsToGUI(_myschool.GetSettings().Result);
-        await loadFavos();
+        _ = loadFavos();
     }
 
     private void loadSettingsToGUI(Einstellungen settings)
@@ -3695,7 +3695,7 @@ public partial class MainWindow : Window
             var favos = _myschool.GetFavos().Result.Distinct().ToList();
             favos.Sort();
             var favos_mail = favos.Aggregate("<a href=\"mailto:?bcc=", (current, l) => current + l.Mail + ",");
-            favo_export.Add(favos_mail.TrimEnd(',') + "\">Alle Fachvorsitzenden</a><br><br>\n");
+            favo_export.Add(favos_mail.TrimEnd(',') + "\">Alle Fachvorsitzenden</a><br><br>\n<strong>Hinweis</strong>: Der Klick auf das Fach erstellt eine Mail an alle Lehrkräfte, die das Fach unterrichten<br><br>\n");
             foreach (var fako in fakos)
             {
                 var mailadressen = fako.Mitglieder.Aggregate("", (current, l) => current + l.Mail + ",").TrimEnd(',');
