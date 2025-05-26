@@ -74,6 +74,8 @@
                                       Click="mnuM365DVEinlesen_OnClick" />
                             <MenuItem Header="_Temporäre Accounts einlesen" x:Name="mnuTempAccountsEinlesen"
                                       Click="MnuTempAccountsEinlesen_OnClick" />
+                            <MenuItem Header="_iPad-Seriennumern einlesen" x:Name="mnuIPadSeriennummernEinlesen"
+                                      Click="MnuIPadSeriennummernEinlesen_OnClick" />
                         </MenuItem>
                         <MenuItem Header="Änderungen _einlesen" x:Name="mnuReadDiffs" IsVisible="False" />
                         <MenuItem Header="Export als Ausgangsdaten" x:Name="mnuExportToCSV"
@@ -146,7 +148,7 @@
                                 <TabItem Header="SuS" Classes="Header"> <!--Daten-SuS-Tab-->
                                     <StackPanel Orientation="Vertical" Margin="5">
                                         <Grid Margin="5" ColumnDefinitions="Auto, Auto"
-                                              RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto">
+                                              RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto,Auto">
                                             <TextBlock Classes="Header" Text="ID:" Grid.Column="0" Grid.Row="1" />
                                             <TextBox x:Name="tbSuSID" Grid.Column="1" Grid.Row="1" />
                                             <TextBlock Classes="Header" Text="Vorname:" Grid.Column="0" Grid.Row="2" />
@@ -168,12 +170,15 @@
                                             <TextBox x:Name="tbSuSNutzername" Grid.Column="1" Grid.Row="8" />
                                             <TextBlock Classes="Header" Text="Kurse:" Grid.Column="0" Grid.Row="9" />
                                             <TextBox x:Name="tbSuSKurse" Grid.Column="1" Grid.Row="9" />
-                                            <CheckBox x:Name="cbSuSM365" Grid.Column="0" Grid.Row="10"
+                                            <TextBlock Classes="Header" Text="Seriennummer:" Grid.Column="0"
+                                                       Grid.Row="10" />
+                                            <TextBox x:Name="tbSuSSeriennummer" Grid.Column="1" Grid.Row="10" />
+                                            <CheckBox x:Name="cbSuSM365" Grid.Column="0" Grid.Row="11"
                                                       Click="CbSuSM365_OnClick">
                                                 M365 zugestimmt:
                                             </CheckBox>
-                                            <CheckBox x:Name="cbSuSZweitaccount" Grid.Column="0" Grid.Row="11">Zweitaccount</CheckBox>
-                                            <CheckBox x:Name="cbSuSAktiv" Grid.Column="0" Grid.Row="12">Aktiv</CheckBox>
+                                            <CheckBox x:Name="cbSuSZweitaccount" Grid.Column="0" Grid.Row="12">Zweitaccount</CheckBox>
+                                            <CheckBox x:Name="cbSuSAktiv" Grid.Column="0" Grid.Row="13">Aktiv</CheckBox>
                                         </Grid>
                                         <Grid Margin="5" ColumnDefinitions="Auto, Auto" RowDefinitions="Auto, Auto">
                                             <Button x:Name="btnSuSAdd" Grid.Column="0" Grid.Row="0"
@@ -197,7 +202,7 @@
                                 </TabItem>
                                 <TabItem Header="LuL" Classes="Header"><!--Daten-LuL-Tab-->
                                     <Grid Margin="5" ColumnDefinitions="Auto,Auto,Auto"
-                                          RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto">
+                                          RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto">
                                         <TextBlock Classes="Header" Text="ID:" Grid.Column="0" Grid.Row="1" />
                                         <TextBox x:Name="tbLuLID" Grid.Column="1" Grid.Row="1" />
                                         <TextBlock Classes="Header" Text="Vorname:" Grid.Column="0" Grid.Row="2" />
@@ -236,16 +241,19 @@
                                         <TextBlock Classes="Header" Text="stellv. Fachvorsitz:" Grid.Column="0"
                                                    Grid.Row="10" />
                                         <TextBox x:Name="tbLuLSFavo" Grid.Column="1" Grid.Row="10" />
-                                        <CheckBox x:Name="cbLuLAktiv" Grid.Column="0" Grid.Row="11">Aktiv</CheckBox>
-                                        <Button x:Name="btnLuLAdd" Grid.Column="0" Grid.Row="12"
+                                        <TextBlock Classes="Header" Text="Seriennummer:" Grid.Column="0"
+                                                   Grid.Row="11" />
+                                        <TextBox x:Name="tbLuLSeriennummer" Grid.Column="1" Grid.Row="11" />
+                                        <CheckBox x:Name="cbLuLAktiv" Grid.Column="0" Grid.Row="12">Aktiv</CheckBox>
+                                        <Button x:Name="btnLuLAdd" Grid.Column="0" Grid.Row="13"
                                                 Click="OnBtnluladdClick">
                                             Hinzufügen/aktualisieren
                                         </Button>
-                                        <Button x:Name="btnLuLDel" Grid.Column="1" Grid.Row="12" Margin="5"
+                                        <Button x:Name="btnLuLDel" Grid.Column="1" Grid.Row="13" Margin="5"
                                                 Click="OnBtnluldelClick">
                                             markierte löschen
                                         </Button>
-                                        <Button x:Name="btnLuLClearTextFields" Grid.Column="0" Grid.Row="13"
+                                        <Button x:Name="btnLuLClearTextFields" Grid.Column="0" Grid.Row="14"
                                                 Click="BtnLuLClearTextFields_OnClick">
                                             Clear
                                         </Button>

@@ -858,6 +858,7 @@ public partial class MainWindow : Window
         var susaixmail = tbSuSAIXMail.Text;
         var suselternadresse = tbSuSElternadresse.Text;
         var suszweitadresse = tbSuSZweitadresse.Text;
+        var seriennummer = string.IsNullOrEmpty(tbSuSSeriennummer.Text) ? "" : tbSuSSeriennummer.Text;
         var susHatZweitaccount = cbSuSZweitaccount.IsChecked;
         var susIstAktiv = cbSuSAktiv.IsChecked;
         if (string.IsNullOrEmpty(susid) || string.IsNullOrEmpty(susvname) || string.IsNullOrEmpty(susnname) ||
@@ -889,7 +890,7 @@ public partial class MainWindow : Window
                 await _myschool.UpdateSchueler(sid, susvname, susnname, suselternadresse, susklasse, susnutzername,
                     susaixmail, susHatZweitaccount == false ? 0 : 1, suszweitadresse,
                     cbSuSM365.IsChecked != null && cbSuSM365.IsChecked.Value,
-                    cbSuSAktiv.IsChecked != null && cbSuSAktiv.IsChecked.Value);
+                    cbSuSAktiv.IsChecked != null && cbSuSAktiv.IsChecked.Value, seriennummer);
             var alteKurse = _myschool.GetKursVonSuS(sid).Result;
             foreach (var kurs in alteKurse.Where(kurs => !suskurse.Contains(kurs.Bezeichnung)))
             {
@@ -908,7 +909,7 @@ public partial class MainWindow : Window
         {
             if (suszweitadresse != null && susaixmail != null)
                 await _myschool.AddSchuelerIn(sid, susvname, susnname, suselternadresse, susklasse, susnutzername,
-                    susaixmail, susHatZweitaccount == false ? 0 : 1, suszweitadresse);
+                    susaixmail, susHatZweitaccount == false ? 0 : 1, suszweitadresse, seriennummer);
             if (suskurse is [""]) return;
             foreach (var kursbez in suskurse)
             {
@@ -990,6 +991,7 @@ public partial class MainWindow : Window
         var lulfavo = tbLuLFavo.Text;
         var lulsfavo = tbLuLSFavo.Text;
         var lulistAktiv = cbLuLAktiv.IsChecked;
+        var seriennummer = string.IsNullOrEmpty(tbLuLSeriennummer.Text) ? "" : tbLuLSeriennummer.Text;
         if (lulid == null || string.IsNullOrEmpty(lulvname) || string.IsNullOrEmpty(lulnname) ||
             string.IsNullOrEmpty(lulkrz) || string.IsNullOrEmpty(lulfakultas) ||
             string.IsNullOrEmpty(lulmail) || lulpwtemp == null || tbLuLKurse.Text == null || lulistAktiv == null)
@@ -1010,7 +1012,7 @@ public partial class MainWindow : Window
             lulsfavo = "";
         }
 
-        var lulkurse = tbLuLKurse.Text.Split(',').ToList();
+        var neue_kurse = tbLuLKurse.Text.Split(',').ToList();
 
         if (lulid == "" || !lulid.All(char.IsDigit))
         {
@@ -1021,33 +1023,38 @@ public partial class MainWindow : Window
         var lid = Convert.ToInt32(lulid);
         if (_myschool.GibtEsLehrkraft(lid))
         {
-            if (_myschool.GetKursVonLuL(lid).Result.Count > 0)
+            var lehrkraft = await _myschool.GetLehrkraft(lid);
+            var alteKurse = _myschool.GetKursVonLuL(lid).Result;
+            var schnittmenge = alteKurse.Where(kurs => !neue_kurse.Contains(kurs.Bezeichnung)).ToList();
+            if (schnittmenge.Count != 0)
             {
                 await ShowCustomInfoMessage(
-                    "Die Lehrkraft hat noch zugeordnete Kurse, bitte stellen Sie sicher, dass es eine passende Vertretung gibt und tragen Sie sie ggf. aus.",
+                    "Folgende Kurse wurden für " + string.Join(" ", lehrkraft.Vorname, lehrkraft.Nachname) +
+                    " entfernt: " + string.Join(", ", schnittmenge.Select(k => k.Bezeichnung)) +
+                    "\nBitte stellen Sie sicher, dass es eine passende Vertretung gibt und tragen Sie sie ggf. aus.\n",
                     "Vorsicht");
             }
 
             await _myschool.UpdateLehrkraft(lid, lulvname, lulnname, lulkrz, lulmail, lulfakultas, lulpwtemp, lulfavo,
-                lulsfavo);
+                lulsfavo, seriennummer);
             _myschool.SetzeAktivstatusLehrkraft(lid, cbLuLAktiv.IsChecked != null && lulistAktiv.Value);
-            var alteKurse = _myschool.GetKursVonLuL(lid).Result;
-            foreach (var kurs in alteKurse.Where(kurs => !lulkurse.Contains(kurs.Bezeichnung)))
+            foreach (var kurs in schnittmenge.Where(kurs => _myschool.GibtEsKurs(kurs.Bezeichnung)))
             {
                 await _myschool.RemoveLfromK(lid, kurs.Bezeichnung);
             }
 
-            if (lulkurse.Count <= 0) return;
-            foreach (var kurs in lulkurse)
+            if (neue_kurse.Count <= 0) return;
+            foreach (var kurs in neue_kurse.Where(kurs => _myschool.GibtEsKurs(kurs)))
             {
                 await _myschool.AddLtoK(lid, kurs);
             }
         }
         else
         {
-            await _myschool.Addlehrkraft(lid, lulvname, lulnname, lulkrz, lulmail, lulfakultas, lulfavo, lulsfavo);
-            if (lulkurse.Count == 0) return;
-            foreach (var kurs in lulkurse)
+            await _myschool.Addlehrkraft(lid, lulvname, lulnname, lulkrz, lulmail, lulfakultas, lulfavo, lulsfavo,
+                seriennummer);
+            if (neue_kurse.Count == 0) return;
+            foreach (var kurs in neue_kurse)
             {
                 await _myschool.AddLtoK(lid, kurs);
             }
@@ -1180,6 +1187,7 @@ public partial class MainWindow : Window
         tbLuLtmpPwd.Text = "";
         tbLuLKurse.Text = "";
         cbLuLAktiv.IsChecked = false;
+        tbLuLSeriennummer.Text = "";
     }
 
     private void ClearSuSTextFields()
@@ -1196,6 +1204,7 @@ public partial class MainWindow : Window
         cbSuSZweitaccount.IsChecked = false;
         cbSuSM365.IsChecked = false;
         cbSuSAktiv.IsChecked = false;
+        tbSuSSeriennummer.Text = "";
     }
 
     private void cboxDataRight_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
@@ -1590,6 +1599,7 @@ public partial class MainWindow : Window
         cbSuSZweitaccount.IsChecked = s.Zweitaccount;
         cbSuSM365.IsChecked = s.HasM365Account;
         cbSuSAktiv.IsChecked = s.IstAktiv;
+        tbSuSSeriennummer.Text = s.Seriennummer;
     }
 
     private void LoadLuLData(Lehrkraft l)
@@ -1607,6 +1617,7 @@ public partial class MainWindow : Window
         tbLuLFavo.Text = l.Favo;
         tbLuLSFavo.Text = l.SFavo;
         cbLuLAktiv.IsChecked = l.IstAktiv;
+        tbLuLSeriennummer.Text = l.Seriennummer;
     }
 
     private void LoadKursData(Kurs k)
@@ -3366,7 +3377,7 @@ public partial class MainWindow : Window
         foreach (var l in favos)
         {
             await _myschool.UpdateLehrkraft(l.ID, l.Vorname, l.Nachname, l.Kuerzel, l.Mail, l.Fakultas, l.Pwttemp,
-                "", "");
+                "", "", l.Seriennummer);
         }
 
         var faecherliste = _myschool.GetLehrerListe().Result.Select(l => l.Fakultas.Split(',')).Distinct().ToList();
@@ -3737,5 +3748,53 @@ public partial class MainWindow : Window
 
             await ShowCustomInfoMessage("Speichern erfolgreich.", "Erfolg");
         }
+    }
+
+    private async void MnuIPadSeriennummernEinlesen_OnClick(object? sender, RoutedEventArgs e)
+    {
+        var extx = new List<FilePickerFileType>
+        {
+            StSFileTypes.CSVFile,
+            FilePickerFileTypes.All
+        };
+        var file = await ShowOpenFileDialog("Seriennummern einlesen", extx);
+        if (file is null) return;
+        var iPSFilePath = file.Path.LocalPath;
+        var iPSFileText = File.ReadAllLinesAsync(iPSFilePath).Result.ToList();
+        if (iPSFileText[0] != "Vorname;Nachname;Klasse;Seriennummer")
+        {
+            await ShowCustomErrorMessage("Fehlerhafte Datei, bitte den Header überprüfen", "Fehler");
+            return;
+        }
+
+        iPSFileText.RemoveAt(0);
+        _myschool.StartTransaction();
+        foreach (var line in iPSFileText)
+        {
+            var split_line = line.Split(';');
+            var vorname = split_line[0];
+            var nachname = split_line[1];
+            var klasse = split_line[2];
+            var seriennummer = split_line[3];
+            if (string.Empty == vorname || string.Empty == nachname || string.Empty == klasse ||
+                string.Empty == seriennummer)
+            {
+                await ShowCustomErrorMessage(
+                    "Fehlerhafte Angaben bei Schüler:in " + vorname + " " + nachname + ":" + klasse, "Fehler");
+                continue;
+            }
+
+            var sus = _myschool.GetSchueler(vorname, nachname).Result.Where(x => x.Klasse == klasse).ToList();
+            if (sus.Count == 0) continue;
+            foreach (var s in sus)
+            {
+                var tmp_sus = s;
+                tmp_sus.Seriennummer = seriennummer;
+                _myschool.UpdateSchueler(tmp_sus);
+            }
+        }
+
+        _myschool.StopTransaction();
+        await ShowCustomSuccessMessage("Import der Seriennummern abgeschlossen", "Erfolg");
     }
 }

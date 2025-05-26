@@ -13,6 +13,7 @@ public record struct SuS(
     string Aixmail,
     string Zweitmail,
     bool Zweitaccount,
+    string Seriennummer,
     bool HasM365Account = false,
     bool IstAktiv = true)
 {
@@ -38,6 +39,7 @@ public record struct Lehrkraft(
     string Pwttemp,
     string Favo,
     string SFavo,
+    string Seriennummer,
     bool IstAktiv = true) : IComparable<Lehrkraft>
 {
     public int CompareTo(Lehrkraft other)
