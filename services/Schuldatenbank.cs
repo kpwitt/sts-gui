@@ -1770,7 +1770,7 @@ public class Schuldatenbank : IDisposable
         ausgabeJamf.AddRange(from susid in susidliste.Where(x => jamfstufen.Contains(GetSchueler(x).Result.GetStufe()))
             let sus = GetSchueler(susid).Result
             let kurse = GetKursVonSuS(susid)
-                .Result.Where(x => jamfstufen.Contains(x.Stufe))
+                .Result.Where(x => jamfstufen.Contains(x.Stufe) && !x.Bezeichnung.EndsWith("KL"))
                 .Select(x => x.Bezeichnung)
                 /* .Where(x => x.StartsWith(sus.Klasse))*/
                 .ToList()
@@ -1781,7 +1781,8 @@ public class Schuldatenbank : IDisposable
         ausgabeJamf.AddRange(from lulid in lulidliste
             let lul = GetLehrkraft(lulid).Result
             let kurse = GetKursVonLuL(lulid)
-                .Result.Where(x => !string.IsNullOrEmpty(x.Fach) && jamfstufen.Contains(x.Stufe))
+                .Result.Where(x =>
+                    !string.IsNullOrEmpty(x.Fach) && jamfstufen.Contains(x.Stufe) && !x.Bezeichnung.EndsWith("KL"))
                 .Select(x => x.Bezeichnung)
             select string.Join(";", lul.Kuerzel, lul.Mail, lul.Vorname, lul.Nachname, lul.Seriennummer,
                 string.Join(',', kurse),
