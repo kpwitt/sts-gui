@@ -858,6 +858,7 @@ public partial class MainWindow : Window
         var susaixmail = tbSuSAIXMail.Text;
         var suselternadresse = tbSuSElternadresse.Text;
         var suszweitadresse = tbSuSZweitadresse.Text;
+        var seriennummer = tbSuSSeriennummer.Text;
         var susHatZweitaccount = cbSuSZweitaccount.IsChecked;
         var susIstAktiv = cbSuSAktiv.IsChecked;
         if (string.IsNullOrEmpty(susid) || string.IsNullOrEmpty(susvname) || string.IsNullOrEmpty(susnname) ||
@@ -889,7 +890,7 @@ public partial class MainWindow : Window
                 await _myschool.UpdateSchueler(sid, susvname, susnname, suselternadresse, susklasse, susnutzername,
                     susaixmail, susHatZweitaccount == false ? 0 : 1, suszweitadresse,
                     cbSuSM365.IsChecked != null && cbSuSM365.IsChecked.Value,
-                    cbSuSAktiv.IsChecked != null && cbSuSAktiv.IsChecked.Value);
+                    cbSuSAktiv.IsChecked != null && cbSuSAktiv.IsChecked.Value, seriennummer);
             var alteKurse = _myschool.GetKursVonSuS(sid).Result;
             foreach (var kurs in alteKurse.Where(kurs => !suskurse.Contains(kurs.Bezeichnung)))
             {
@@ -908,7 +909,7 @@ public partial class MainWindow : Window
         {
             if (suszweitadresse != null && susaixmail != null)
                 await _myschool.AddSchuelerIn(sid, susvname, susnname, suselternadresse, susklasse, susnutzername,
-                    susaixmail, susHatZweitaccount == false ? 0 : 1, suszweitadresse);
+                    susaixmail, susHatZweitaccount == false ? 0 : 1, suszweitadresse, seriennummer);
             if (suskurse is [""]) return;
             foreach (var kursbez in suskurse)
             {
@@ -1590,6 +1591,7 @@ public partial class MainWindow : Window
         cbSuSZweitaccount.IsChecked = s.Zweitaccount;
         cbSuSM365.IsChecked = s.HasM365Account;
         cbSuSAktiv.IsChecked = s.IstAktiv;
+        tbSuSSeriennummer.Text = s.Seriennummer;
     }
 
     private void LoadLuLData(Lehrkraft l)
@@ -3737,5 +3739,53 @@ public partial class MainWindow : Window
 
             await ShowCustomInfoMessage("Speichern erfolgreich.", "Erfolg");
         }
+    }
+
+    private async void MnuIPadSeriennummernEinlesen_OnClick(object? sender, RoutedEventArgs e)
+    {
+        var extx = new List<FilePickerFileType>
+        {
+            StSFileTypes.CSVFile,
+            FilePickerFileTypes.All
+        };
+        var file = await ShowOpenFileDialog("Seriennummern einlesen", extx);
+        if (file is null) return;
+        var iPSFilePath = file.Path.LocalPath;
+        var iPSFileText = File.ReadAllLinesAsync(iPSFilePath).Result.ToList();
+        if (iPSFileText[0] != "Vorname;Nachname;Klasse;Seriennummer")
+        {
+            await ShowCustomErrorMessage("Fehlerhafte Datei, bitte den Header überprüfen", "Fehler");
+            return;
+        }
+
+        iPSFileText.RemoveAt(0);
+        _myschool.StartTransaction();
+        foreach (var line in iPSFileText)
+        {
+            var split_line = line.Split(';');
+            var vorname = split_line[0];
+            var nachname = split_line[1];
+            var klasse = split_line[2];
+            var seriennummer = split_line[3];
+            if (string.Empty == vorname || string.Empty == nachname || string.Empty == klasse ||
+                string.Empty == seriennummer)
+            {
+                await ShowCustomErrorMessage(
+                    "Fehlerhafte Angaben bei Schüler:in " + vorname + " " + nachname + ":" + klasse, "Fehler");
+                continue;
+            }
+
+            var sus = _myschool.GetSchueler(vorname, nachname).Result.Where(x => x.Klasse == klasse).ToList();
+            if (sus.Count == 0) continue;
+            foreach (var s in sus)
+            {
+                var tmp_sus = s;
+                tmp_sus.Seriennummer = seriennummer;
+                _myschool.UpdateSchueler(tmp_sus);
+            }
+        }
+
+        _myschool.StopTransaction();
+        await ShowCustomSuccessMessage("Import der Seriennummern abgeschlossen", "Erfolg");
     }
 }

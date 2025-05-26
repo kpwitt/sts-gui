@@ -13,6 +13,7 @@ public record struct SuS(
     string Aixmail,
     string Zweitmail,
     bool Zweitaccount,
+    string Seriennummer,
     bool HasM365Account = false,
     bool IstAktiv = true)
 {

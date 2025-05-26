@@ -74,6 +74,8 @@
                                       Click="mnuM365DVEinlesen_OnClick" />
                             <MenuItem Header="_Temporäre Accounts einlesen" x:Name="mnuTempAccountsEinlesen"
                                       Click="MnuTempAccountsEinlesen_OnClick" />
+                            <MenuItem Header="_iPad-Seriennumern einlesen" x:Name="mnuIPadSeriennummernEinlesen"
+                                      Click="MnuIPadSeriennummernEinlesen_OnClick" />
                         </MenuItem>
                         <MenuItem Header="Änderungen _einlesen" x:Name="mnuReadDiffs" IsVisible="False" />
                         <MenuItem Header="Export als Ausgangsdaten" x:Name="mnuExportToCSV"
@@ -168,12 +170,15 @@
                                             <TextBox x:Name="tbSuSNutzername" Grid.Column="1" Grid.Row="8" />
                                             <TextBlock Classes="Header" Text="Kurse:" Grid.Column="0" Grid.Row="9" />
                                             <TextBox x:Name="tbSuSKurse" Grid.Column="1" Grid.Row="9" />
-                                            <CheckBox x:Name="cbSuSM365" Grid.Column="0" Grid.Row="10"
+                                            <TextBlock Classes="Header" Text="Seriennummer:" Grid.Column="0"
+                                                       Grid.Row="10" />
+                                            <TextBox x:Name="tbSuSSeriennummer" Grid.Column="1" Grid.Row="10" />
+                                            <CheckBox x:Name="cbSuSM365" Grid.Column="0" Grid.Row="11"
                                                       Click="CbSuSM365_OnClick">
                                                 M365 zugestimmt:
                                             </CheckBox>
-                                            <CheckBox x:Name="cbSuSZweitaccount" Grid.Column="0" Grid.Row="11">Zweitaccount</CheckBox>
-                                            <CheckBox x:Name="cbSuSAktiv" Grid.Column="0" Grid.Row="12">Aktiv</CheckBox>
+                                            <CheckBox x:Name="cbSuSZweitaccount" Grid.Column="0" Grid.Row="12">Zweitaccount</CheckBox>
+                                            <CheckBox x:Name="cbSuSAktiv" Grid.Column="0" Grid.Row="13">Aktiv</CheckBox>
                                         </Grid>
                                         <Grid Margin="5" ColumnDefinitions="Auto, Auto" RowDefinitions="Auto, Auto">
                                             <Button x:Name="btnSuSAdd" Grid.Column="0" Grid.Row="0"
