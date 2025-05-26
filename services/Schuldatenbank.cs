@@ -67,7 +67,8 @@ public class Schuldatenbank : IDisposable
                                             [pwtemp] NVARCHAR(16) NOT NULL,
                                             [favo] NVARCHAR(8) NOT NULL,
                                             [sfavo] NVARCHAR(8) NOT NULL,
-                                            [aktiv] BOOLEAN NOT NULL DEFAULT TRUE
+                                            [aktiv] BOOLEAN NOT NULL DEFAULT TRUE,
+                                            [seriennummer] NVARCHAR(64) NOT NULL DEFAULT ''
                                           )
                                     """;
             sqliteCmd.ExecuteNonQuery();
@@ -483,6 +484,10 @@ public class Schuldatenbank : IDisposable
                 sqliteCmd.ExecuteNonQuery();
                 sqliteDatareader.Close();
                 sqliteCmd.CommandText =
+                    $"ALTER TABLE lehrkraft ADD COLUMN seriennummer NVARCHAR(64) NOT NULL DEFAULT ''";
+                sqliteCmd.ExecuteNonQuery();
+                sqliteDatareader.Close();
+                sqliteCmd.CommandText =
                     $"INSERT OR REPLACE INTO settings(setting, value) VALUES ('version', '0.72')";
                 sqliteCmd.ExecuteNonQuery();
             }
@@ -562,12 +567,13 @@ public class Schuldatenbank : IDisposable
     /// <param name="favo"></param>
     /// <param name="sfavo"></param>
     public async Task Addlehrkraft(int id, string vorname, string nachname, string kuerzel, string mail,
-        string fakultas, string favo, string sfavo)
+        string fakultas, string favo, string sfavo, string seriennummer)
     {
         if (GibtEsLehrkraft(id)) return;
+        seriennummer = string.IsNullOrEmpty(seriennummer) ? "" : seriennummer;
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
-            "INSERT OR IGNORE INTO lehrkraft (id, nachname, vorname, kuerzel, mail, fakultas, pwtemp, favo, sfavo) VALUES ($id, $nachname, $vorname, $kuerzel, $mail, $fakultas, $pwtemp, $favo, $sfavo);";
+            "INSERT OR IGNORE INTO lehrkraft (id, nachname, vorname, kuerzel, mail, fakultas, pwtemp, favo, sfavo, seriennummer) VALUES ($id, $nachname, $vorname, $kuerzel, $mail, $fakultas, $pwtemp, $favo, $sfavo,$seriennummer);";
         sqliteCmd.Parameters.AddWithValue("$id", id);
         sqliteCmd.Parameters.AddWithValue("$vorname", vorname);
         sqliteCmd.Parameters.AddWithValue("$nachname", nachname);
@@ -577,6 +583,7 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$pwtemp", Tooling.GeneratePasswort(8));
         sqliteCmd.Parameters.AddWithValue("$favo", favo);
         sqliteCmd.Parameters.AddWithValue("$sfavo", sfavo);
+        sqliteCmd.Parameters.AddWithValue("$seriennummer", seriennummer);
         sqliteCmd.ExecuteNonQuery();
         AddLogMessage(new LogEintrag
         {
@@ -595,9 +602,10 @@ public class Schuldatenbank : IDisposable
     public async Task Addlehrkraft(Lehrkraft lehrkraft)
     {
         if (GibtEsLehrkraft(lehrkraft.ID)) return;
+        lehrkraft.Seriennummer = string.IsNullOrEmpty(lehrkraft.Seriennummer) ? "" : lehrkraft.Seriennummer;
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
-            "INSERT OR IGNORE INTO lehrkraft (id, nachname, vorname, kuerzel, mail, fakultas, pwtemp, favo, sfavo) VALUES ($id, $nachname, $vorname, $kuerzel, $mail, $fakultas, $pwtemp, $favo, $sfavo);";
+            "INSERT OR IGNORE INTO lehrkraft (id, nachname, vorname, kuerzel, mail, fakultas, pwtemp, favo, sfavo, seriennummer) VALUES ($id, $nachname, $vorname, $kuerzel, $mail, $fakultas, $pwtemp, $favo, $sfavo, $seriennummer);";
         sqliteCmd.Parameters.AddWithValue("$id", lehrkraft.ID);
         sqliteCmd.Parameters.AddWithValue("$vorname", lehrkraft.Vorname);
         sqliteCmd.Parameters.AddWithValue("$nachname", lehrkraft.Nachname);
@@ -608,6 +616,7 @@ public class Schuldatenbank : IDisposable
             lehrkraft.Pwttemp.Length > 7 ? lehrkraft.Pwttemp : Tooling.GeneratePasswort(8));
         sqliteCmd.Parameters.AddWithValue("$favo", lehrkraft.Favo);
         sqliteCmd.Parameters.AddWithValue("$sfavo", lehrkraft.SFavo);
+        sqliteCmd.Parameters.AddWithValue("$seriennummer", lehrkraft.Seriennummer);
         sqliteCmd.ExecuteNonQuery();
         AddLogMessage(new LogEintrag
         {
@@ -1000,7 +1009,8 @@ public class Schuldatenbank : IDisposable
         foreach (var lehrkraft in await importfrom.GetLehrerListe())
         {
             await Addlehrkraft(Convert.ToInt32(lehrkraft.ID), lehrkraft.Vorname, lehrkraft.Nachname,
-                lehrkraft.Kuerzel, lehrkraft.Mail, lehrkraft.Fakultas, lehrkraft.Favo, lehrkraft.SFavo);
+                lehrkraft.Kuerzel, lehrkraft.Mail, lehrkraft.Fakultas, lehrkraft.Favo, lehrkraft.SFavo,
+                lehrkraft.Seriennummer);
             foreach (var kurs in await importfrom.GetKursVonLuL(lehrkraft.ID))
             {
                 await AddLtoK(Convert.ToInt32(lehrkraft.ID), kurs.Bezeichnung);
@@ -1773,7 +1783,8 @@ public class Schuldatenbank : IDisposable
             let kurse = GetKursVonLuL(lulid)
                 .Result.Where(x => !string.IsNullOrEmpty(x.Fach) && jamfstufen.Contains(x.Stufe))
                 .Select(x => x.Bezeichnung)
-            select string.Join(";", lul.Kuerzel, lul.Mail, lul.Vorname, lul.Nachname, ";", string.Join(',', kurse),
+            select string.Join(";", lul.Kuerzel, lul.Mail, lul.Vorname, lul.Nachname, lul.Seriennummer,
+                string.Join(',', kurse),
                 withPasswort ? GetTempPasswort(lulid).Result : ""));
     }
 
@@ -1961,11 +1972,11 @@ public class Schuldatenbank : IDisposable
     /// gibt die Informationen ID, Nachname, Vorname, Mail, Kürzel und Fakultas der Lehrkraft zur übergebenen ID zurück
     /// </summary>
     /// <param name="id"></param>
-    private async Task<Lehrkraft> GetLehrkraft(int id)
+    public async Task<Lehrkraft> GetLehrkraft(int id)
     {
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
-            "SELECT id,nachname,vorname,mail,kuerzel,fakultas,pwtemp,favo,sfavo,aktiv FROM lehrkraft WHERE id = $id;";
+            "SELECT id,nachname,vorname,mail,kuerzel,fakultas,pwtemp,favo,sfavo,aktiv, seriennummer FROM lehrkraft WHERE id = $id;";
         sqliteCmd.Parameters.AddWithValue("$id", id);
         var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
         Lehrkraft lehrkraft = new();
@@ -1981,6 +1992,7 @@ public class Schuldatenbank : IDisposable
             lehrkraft.Favo = sqliteDatareader.GetString(7);
             lehrkraft.SFavo = sqliteDatareader.GetString(8);
             lehrkraft.IstAktiv = sqliteDatareader.GetBoolean(9);
+            lehrkraft.Seriennummer = sqliteDatareader.GetString(10);
         }
 
         return lehrkraft;
@@ -1994,7 +2006,7 @@ public class Schuldatenbank : IDisposable
     {
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
-            "SELECT id,nachname,vorname,mail,kuerzel,fakultas,pwtemp,favo, sfavo,aktiv FROM lehrkraft WHERE kuerzel = $kuerzel;";
+            "SELECT id,nachname,vorname,mail,kuerzel,fakultas,pwtemp,favo, sfavo,aktiv,seriennummer FROM lehrkraft WHERE kuerzel = $kuerzel;";
         sqliteCmd.Parameters.AddWithValue("$kuerzel", kuerzel);
         var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
         Lehrkraft lehrkraft = new();
@@ -2010,6 +2022,7 @@ public class Schuldatenbank : IDisposable
             lehrkraft.Favo = sqliteDatareader.GetString(7);
             lehrkraft.SFavo = sqliteDatareader.GetString(8);
             lehrkraft.IstAktiv = sqliteDatareader.GetBoolean(9);
+            lehrkraft.Seriennummer = sqliteDatareader.GetString(10);
         }
 
         return lehrkraft;
@@ -2040,7 +2053,7 @@ public class Schuldatenbank : IDisposable
         List<Lehrkraft> llist = [];
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
-            "SELECT id,nachname,vorname,mail,kuerzel,fakultas,pwtemp,favo,sfavo,aktiv FROM lehrkraft;";
+            "SELECT id,nachname,vorname,mail,kuerzel,fakultas,pwtemp,favo,sfavo,aktiv,seriennummer FROM lehrkraft;";
         var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
         while (sqliteDatareader.Read())
         {
@@ -2056,6 +2069,7 @@ public class Schuldatenbank : IDisposable
                 Favo = sqliteDatareader.GetString(7),
                 SFavo = sqliteDatareader.GetString(8),
                 IstAktiv = sqliteDatareader.GetBoolean(9),
+                Seriennummer = sqliteDatareader.GetString(10),
             };
             llist.Add(lehrkraft);
         }
@@ -2814,7 +2828,7 @@ public class Schuldatenbank : IDisposable
     /// <param name="lulfile"></param>
     public async Task LulEinlesen(string lulfile)
     {
-        int inv = -1, inn = -1, ini = -1, inkrz = -1, infak = -1, inm = -1;
+        int inv = -1, inn = -1, ini = -1, inkrz = -1, infak = -1, inm = -1, isn = -1;
         var lines = await File.ReadAllLinesAsync(lulfile);
         var header = lines[0].Split(';');
         for (var i = 0; i < header.Length; i++)
@@ -2848,6 +2862,11 @@ public class Schuldatenbank : IDisposable
             {
                 inm = i;
             }
+
+            if (header[i].Contains("serialnumber"))
+            {
+                isn = i;
+            }
         }
 
         await StartTransaction();
@@ -2863,7 +2882,7 @@ public class Schuldatenbank : IDisposable
                 }
 
                 await Addlehrkraft(Convert.ToInt32(tmpkuk[ini]), tmpkuk[inv], tmpkuk[inn],
-                    tmpkuk[inkrz].ToUpper(), tmpkuk[inm], tmpkuk[infak].TrimEnd(';'), "", "");
+                    tmpkuk[inkrz].ToUpper(), tmpkuk[inm], tmpkuk[infak].TrimEnd(';'), "", "", tmpkuk[isn]);
             }
             catch (Exception ex)
             {
@@ -3319,12 +3338,12 @@ public class Schuldatenbank : IDisposable
     /// <param name="favo"></param>
     /// <param name="sfavo"></param>
     public async Task UpdateLehrkraft(int id, string vorname, string nachname, string kuerzel, string mail,
-        string fakultas, string pwtemp, string favo, string sfavo)
+        string fakultas, string pwtemp, string favo, string sfavo, string seriennummer)
     {
         if (string.IsNullOrEmpty(kuerzel) || id <= 0) return;
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
-            "UPDATE lehrkraft SET nachname=$nachname, vorname=$vorname, kuerzel= $kuerzel, mail=$mail, fakultas=$fakultas, pwtemp = $pwtemp, favo = $favo, sfavo=$sfavo WHERE id=$id;";
+            "UPDATE lehrkraft SET nachname=$nachname, vorname=$vorname, kuerzel= $kuerzel, mail=$mail, fakultas=$fakultas, pwtemp = $pwtemp, favo = $favo, sfavo=$sfavo, seriennummer=$seriennummer WHERE id=$id;";
         sqliteCmd.Parameters.AddWithValue("$id", id);
         sqliteCmd.Parameters.AddWithValue("$vorname", vorname);
         sqliteCmd.Parameters.AddWithValue("$nachname", nachname);
@@ -3334,6 +3353,7 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$pwtemp", pwtemp);
         sqliteCmd.Parameters.AddWithValue("$favo", favo);
         sqliteCmd.Parameters.AddWithValue("$sfavo", sfavo);
+        sqliteCmd.Parameters.AddWithValue("$seriennummer", seriennummer);
         sqliteCmd.ExecuteNonQuery();
     }
 
@@ -3345,7 +3365,7 @@ public class Schuldatenbank : IDisposable
     {
         if (string.IsNullOrEmpty(l.Kuerzel) || l.ID <= 0) return;
         await UpdateLehrkraft(l.ID, l.Vorname, l.Nachname, l.Kuerzel, l.Mail, l.Fakultas, l.Pwttemp, l.Favo,
-            l.SFavo);
+            l.SFavo, l.Seriennummer);
     }
 
     /// <summary>

@@ -39,6 +39,7 @@ public record struct Lehrkraft(
     string Pwttemp,
     string Favo,
     string SFavo,
+    string Seriennummer,
     bool IstAktiv = true) : IComparable<Lehrkraft>
 {
     public int CompareTo(Lehrkraft other)

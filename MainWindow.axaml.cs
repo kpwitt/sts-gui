@@ -858,7 +858,7 @@ public partial class MainWindow : Window
         var susaixmail = tbSuSAIXMail.Text;
         var suselternadresse = tbSuSElternadresse.Text;
         var suszweitadresse = tbSuSZweitadresse.Text;
-        var seriennummer = tbSuSSeriennummer.Text;
+        var seriennummer = string.IsNullOrEmpty(tbSuSSeriennummer.Text) ? "" : tbSuSSeriennummer.Text;
         var susHatZweitaccount = cbSuSZweitaccount.IsChecked;
         var susIstAktiv = cbSuSAktiv.IsChecked;
         if (string.IsNullOrEmpty(susid) || string.IsNullOrEmpty(susvname) || string.IsNullOrEmpty(susnname) ||
@@ -991,6 +991,7 @@ public partial class MainWindow : Window
         var lulfavo = tbLuLFavo.Text;
         var lulsfavo = tbLuLSFavo.Text;
         var lulistAktiv = cbLuLAktiv.IsChecked;
+        var seriennummer = string.IsNullOrEmpty(tbLuLSeriennummer.Text) ? "" : tbLuLSeriennummer.Text;
         if (lulid == null || string.IsNullOrEmpty(lulvname) || string.IsNullOrEmpty(lulnname) ||
             string.IsNullOrEmpty(lulkrz) || string.IsNullOrEmpty(lulfakultas) ||
             string.IsNullOrEmpty(lulmail) || lulpwtemp == null || tbLuLKurse.Text == null || lulistAktiv == null)
@@ -1011,7 +1012,7 @@ public partial class MainWindow : Window
             lulsfavo = "";
         }
 
-        var lulkurse = tbLuLKurse.Text.Split(',').ToList();
+        var neue_kurse = tbLuLKurse.Text.Split(',').ToList();
 
         if (lulid == "" || !lulid.All(char.IsDigit))
         {
@@ -1022,33 +1023,38 @@ public partial class MainWindow : Window
         var lid = Convert.ToInt32(lulid);
         if (_myschool.GibtEsLehrkraft(lid))
         {
-            if (_myschool.GetKursVonLuL(lid).Result.Count > 0)
+            var lehrkraft = await _myschool.GetLehrkraft(lid);
+            var alteKurse = _myschool.GetKursVonLuL(lid).Result;
+            var schnittmenge = alteKurse.Where(kurs => !neue_kurse.Contains(kurs.Bezeichnung)).ToList();
+            if (schnittmenge.Count != 0)
             {
                 await ShowCustomInfoMessage(
-                    "Die Lehrkraft hat noch zugeordnete Kurse, bitte stellen Sie sicher, dass es eine passende Vertretung gibt und tragen Sie sie ggf. aus.",
+                    "Folgende Kurse wurden für " + string.Join(" ", lehrkraft.Vorname, lehrkraft.Nachname) +
+                    " entfernt: " + string.Join(", ", schnittmenge.Select(k => k.Bezeichnung)) +
+                    "\nBitte stellen Sie sicher, dass es eine passende Vertretung gibt und tragen Sie sie ggf. aus.\n",
                     "Vorsicht");
             }
 
             await _myschool.UpdateLehrkraft(lid, lulvname, lulnname, lulkrz, lulmail, lulfakultas, lulpwtemp, lulfavo,
-                lulsfavo);
+                lulsfavo, seriennummer);
             _myschool.SetzeAktivstatusLehrkraft(lid, cbLuLAktiv.IsChecked != null && lulistAktiv.Value);
-            var alteKurse = _myschool.GetKursVonLuL(lid).Result;
-            foreach (var kurs in alteKurse.Where(kurs => !lulkurse.Contains(kurs.Bezeichnung)))
+            foreach (var kurs in schnittmenge.Where(kurs => _myschool.GibtEsKurs(kurs.Bezeichnung)))
             {
                 await _myschool.RemoveLfromK(lid, kurs.Bezeichnung);
             }
 
-            if (lulkurse.Count <= 0) return;
-            foreach (var kurs in lulkurse)
+            if (neue_kurse.Count <= 0) return;
+            foreach (var kurs in neue_kurse.Where(kurs => _myschool.GibtEsKurs(kurs)))
             {
                 await _myschool.AddLtoK(lid, kurs);
             }
         }
         else
         {
-            await _myschool.Addlehrkraft(lid, lulvname, lulnname, lulkrz, lulmail, lulfakultas, lulfavo, lulsfavo);
-            if (lulkurse.Count == 0) return;
-            foreach (var kurs in lulkurse)
+            await _myschool.Addlehrkraft(lid, lulvname, lulnname, lulkrz, lulmail, lulfakultas, lulfavo, lulsfavo,
+                seriennummer);
+            if (neue_kurse.Count == 0) return;
+            foreach (var kurs in neue_kurse)
             {
                 await _myschool.AddLtoK(lid, kurs);
             }
@@ -1181,6 +1187,7 @@ public partial class MainWindow : Window
         tbLuLtmpPwd.Text = "";
         tbLuLKurse.Text = "";
         cbLuLAktiv.IsChecked = false;
+        tbLuLSeriennummer.Text = "";
     }
 
     private void ClearSuSTextFields()
@@ -1197,6 +1204,7 @@ public partial class MainWindow : Window
         cbSuSZweitaccount.IsChecked = false;
         cbSuSM365.IsChecked = false;
         cbSuSAktiv.IsChecked = false;
+        tbSuSSeriennummer.Text = "";
     }
 
     private void cboxDataRight_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
@@ -1609,6 +1617,7 @@ public partial class MainWindow : Window
         tbLuLFavo.Text = l.Favo;
         tbLuLSFavo.Text = l.SFavo;
         cbLuLAktiv.IsChecked = l.IstAktiv;
+        tbLuLSeriennummer.Text = l.Seriennummer;
     }
 
     private void LoadKursData(Kurs k)
@@ -3368,7 +3377,7 @@ public partial class MainWindow : Window
         foreach (var l in favos)
         {
             await _myschool.UpdateLehrkraft(l.ID, l.Vorname, l.Nachname, l.Kuerzel, l.Mail, l.Fakultas, l.Pwttemp,
-                "", "");
+                "", "", l.Seriennummer);
         }
 
         var faecherliste = _myschool.GetLehrerListe().Result.Select(l => l.Fakultas.Split(',')).Distinct().ToList();
