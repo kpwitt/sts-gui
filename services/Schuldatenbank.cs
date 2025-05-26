@@ -383,7 +383,7 @@ public class Schuldatenbank : IDisposable
                 sqliteCmd.ExecuteNonQuery();
                 sqliteDatareader.Close();
                 sqliteCmd.CommandText =
-                    $"UPDATE settings SET setting = 0.7";
+                    $"INSERT OR REPLACE INTO settings(setting, value) VALUES ('version', '0.7')";
                 sqliteCmd.ExecuteNonQuery();
             }
             catch (Exception ex)
