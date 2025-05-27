@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -1837,6 +1838,12 @@ public partial class MainWindow : Window
                         ergebnisliste.Add(sus.Nachname + ", " + sus.Vorname + ";Klasse " + sus.Klasse + ";" +
                                           sus.ID + ";ohne gültige Zweitmailadresse");
                     }
+
+                    if (Schuldatenbank.jamfstufen.Contains(sus.GetStufe()) && string.IsNullOrEmpty(sus.Seriennummer))
+                    {
+                        ergebnisliste.Add(sus.Nachname + ", " + sus.Vorname + ";Klasse " + sus.Klasse + ";" +
+                                          sus.ID + ";ohne Seriennummer in JAMF-Stufe "+sus.GetStufe());
+                    }
                 }
 
                 ergebnisliste.AddRange(_myschool.GetM365Blacklist().Result
@@ -1879,6 +1886,7 @@ public partial class MainWindow : Window
             var filepath = files.Path.LocalPath;
 
             await File.WriteAllLinesAsync(filepath, lbFehlerliste.Items.Cast<string>(), Encoding.UTF8);
+            await ShowCustomSuccessMessage("Speichern erfolgreich", "Erfolg");
         }
     }
 
@@ -3768,7 +3776,8 @@ public partial class MainWindow : Window
         }
 
         iPSFileText.RemoveAt(0);
-        _myschool.StartTransaction();
+        await _myschool.StartTransaction();
+        var susliste = await _myschool.GetSchuelerListe();
         foreach (var line in iPSFileText)
         {
             var split_line = line.Split(';');
@@ -3784,17 +3793,18 @@ public partial class MainWindow : Window
                 continue;
             }
 
-            var sus = _myschool.GetSchueler(vorname, nachname).Result/*.Where(x => x.Klasse == klasse)*/.ToList();
+            var sus = susliste.Where(s=>s.Vorname.StartsWith(vorname)&&s.Nachname.StartsWith(nachname)).ToList();
             if (sus.Count == 0) continue;
             foreach (var s in sus)
             {
+                Debug.Print("{0}:{1}",vorname,nachname);
                 var tmp_sus = s;
                 tmp_sus.Seriennummer = seriennummer;
                 _myschool.UpdateSchueler(tmp_sus);
             }
         }
 
-        _myschool.StopTransaction();
+        await _myschool.StopTransaction();
         await ShowCustomSuccessMessage("Import der Seriennummern abgeschlossen", "Erfolg");
     }
 
@@ -3806,9 +3816,10 @@ public partial class MainWindow : Window
         foreach(var line in namen.Split('\n'))
         {
             if(line=="")continue;
-            var vorname = line.Split('\t')[0];
-            var nachname = line.Split('\t')[1];
-            var s = _myschool.GetSchueler(vorname,nachname).Result.ToList();
+            var vorname = line.Split('\t')[0].Trim();
+            var nachname = line.Split('\t')[1].Trim();
+            var s = _myschool.GetSchuelerListe().Result
+                .Where(s => s.Vorname.StartsWith(vorname) && s.Nachname.Equals(nachname)).ToList();
             if (s.Count ==1)
             {
                 ergebnis.Add(string.Join(';',s[0].Vorname,s[0].Nachname,s[0].Klasse));
