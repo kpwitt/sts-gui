@@ -432,35 +432,37 @@ public class Schuldatenbank : IDisposable
         }
 
         sqliteDatareader.Close();
-        if (log_count <= 0) return;
-        sqliteCmd.CommandText = "SELECT stufe,datum, nachricht FROM log;";
-        sqliteDatareader = sqliteCmd.ExecuteReader();
-        while (sqliteDatareader.Read())
+        if (log_count > 1)
         {
-            var level = sqliteDatareader.GetString(0);
-            var message = sqliteDatareader.GetString(2);
-            switch (level)
+            sqliteCmd.CommandText = "SELECT stufe,datum, nachricht FROM log;";
+            sqliteDatareader = sqliteCmd.ExecuteReader();
+            while (sqliteDatareader.Read())
             {
-                case "Info":
-                    log.Info(message);
-                    break;
-                case "Fehler":
-                    log.Error(message);
-                    break;
-                case "Debug":
-                    log.Debug(message);
-                    break;
+                var level = sqliteDatareader.GetString(0);
+                var message = sqliteDatareader.GetString(2);
+                switch (level)
+                {
+                    case "Info":
+                        log.Info(message);
+                        break;
+                    case "Fehler":
+                        log.Error(message);
+                        break;
+                    case "Debug":
+                        log.Debug(message);
+                        break;
+                }
             }
-        }
 
-        sqliteDatareader.Close();
-        sqliteCmd.CommandText = "DROP TABLE IF EXISTS log; VACUUM";
-        sqliteDatareader = sqliteCmd.ExecuteReader();
-        sqliteDatareader.Close();
-        sqliteCmd.CommandText =
-            $"INSERT OR REPLACE INTO settings(setting, value) VALUES ('version', '0.71')";
-        sqliteCmd.ExecuteNonQuery();
-        sqliteDatareader.Close();
+            sqliteDatareader.Close();
+            sqliteCmd.CommandText = "DROP TABLE IF EXISTS log; VACUUM";
+            sqliteDatareader = sqliteCmd.ExecuteReader();
+            sqliteDatareader.Close();
+            sqliteCmd.CommandText =
+                $"INSERT OR REPLACE INTO settings(setting, value) VALUES ('version', '0.71')";
+            sqliteCmd.ExecuteNonQuery();
+            sqliteDatareader.Close();
+        }
         //Ende Update 0.71
 
         //upgrade DB to 0.72
@@ -2243,7 +2245,7 @@ public class Schuldatenbank : IDisposable
     {
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
-            "SELECT id,nachname,vorname,mail,klasse,nutzername,aixmail,zweitaccount,zweitmail, m365, aktiv, seriennummer FROM schueler WHERE vorname = $vorname AND nachname = $nachname;";
+            "SELECT id,nachname,vorname,mail,klasse,nutzername,aixmail,zweitaccount,zweitmail, m365, aktiv, seriennummer FROM schueler WHERE vorname LIKE $vorname AND nachname = $nachname;";
         sqliteCmd.Parameters.AddWithValue("$vorname", vorname);
         sqliteCmd.Parameters.AddWithValue("$nachname", nachname);
         var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();

@@ -3776,7 +3776,7 @@ public partial class MainWindow : Window
             var nachname = split_line[1];
             var klasse = split_line[2];
             var seriennummer = split_line[3];
-            if (string.Empty == vorname || string.Empty == nachname || string.Empty == klasse ||
+            if (string.Empty == vorname || string.Empty == nachname || /*string.Empty == klasse ||*/
                 string.Empty == seriennummer)
             {
                 await ShowCustomErrorMessage(
@@ -3784,7 +3784,7 @@ public partial class MainWindow : Window
                 continue;
             }
 
-            var sus = _myschool.GetSchueler(vorname, nachname).Result.Where(x => x.Klasse == klasse).ToList();
+            var sus = _myschool.GetSchueler(vorname, nachname).Result/*.Where(x => x.Klasse == klasse)*/.ToList();
             if (sus.Count == 0) continue;
             foreach (var s in sus)
             {
@@ -3796,5 +3796,29 @@ public partial class MainWindow : Window
 
         _myschool.StopTransaction();
         await ShowCustomSuccessMessage("Import der Seriennummern abgeschlossen", "Erfolg");
+    }
+
+    private async void Button_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (string.IsNullOrEmpty(tbSuSNamen.Text)) return;
+        var namen = tbSuSNamen.Text;
+        List<string> ergebnis = [];
+        foreach(var line in namen.Split('\n'))
+        {
+            if(line=="")continue;
+            var vorname = line.Split('\t')[0];
+            var nachname = line.Split('\t')[1];
+            var s = _myschool.GetSchueler(vorname,nachname).Result.ToList();
+            if (s.Count ==1)
+            {
+                ergebnis.Add(string.Join(';',s[0].Vorname,s[0].Nachname,s[0].Klasse));
+            }else if (s.Count > 0)
+            {
+                await ShowCustomErrorMessage("Mehrere Schüler mit dem Namen " + vorname + " " + nachname + " gefunden",
+                    "Fehler");
+            }
+        }
+
+        tbSuSNamen.Text = string.Join('\n', ergebnis);
     }
 }
