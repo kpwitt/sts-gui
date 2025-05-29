@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -3797,7 +3796,6 @@ public partial class MainWindow : Window
             if (sus.Count == 0) continue;
             foreach (var s in sus)
             {
-                Debug.Print("{0}:{1}",vorname,nachname);
                 var tmp_sus = s;
                 tmp_sus.Seriennummer = seriennummer;
                 _myschool.UpdateSchueler(tmp_sus);
