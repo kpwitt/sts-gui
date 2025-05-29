@@ -568,6 +568,7 @@ public class Schuldatenbank : IDisposable
     /// <param name="fakultas"></param>
     /// <param name="favo"></param>
     /// <param name="sfavo"></param>
+    /// <param name="seriennummer"></param>
     public async Task Addlehrkraft(int id, string vorname, string nachname, string kuerzel, string mail,
         string fakultas, string favo, string sfavo, string seriennummer)
     {
@@ -709,6 +710,7 @@ public class Schuldatenbank : IDisposable
     /// <param name="aixmail"></param>
     /// <param name="zweitaccount"></param>
     /// <param name="zweitmail"></param>
+    /// <param name="seriennummer"></param>
     public async Task AddSchuelerIn(int id, string vorname, string nachname, string mail, string klasse,
         string nutzername, string aixmail, int zweitaccount, string zweitmail, string seriennummer)
     {
@@ -3341,6 +3343,7 @@ public class Schuldatenbank : IDisposable
     /// <param name="pwtemp"></param>
     /// <param name="favo"></param>
     /// <param name="sfavo"></param>
+    /// <param name="seriennummer"></param>
     public async Task UpdateLehrkraft(int id, string vorname, string nachname, string kuerzel, string mail,
         string fakultas, string pwtemp, string favo, string sfavo, string seriennummer)
     {
@@ -3386,6 +3389,7 @@ public class Schuldatenbank : IDisposable
     /// <param name="zweitmail"></param>
     /// <param name="hasM365"></param>
     /// <param name="aktiv"></param>
+    /// <param name="seriennummer"></param>
     public async Task UpdateSchueler(int id, string vorname, string nachname, string mail, string klasse,
         string nutzername, string aixmail, int zweitaccount, string zweitmail, bool hasM365, bool aktiv,
         string seriennummer)

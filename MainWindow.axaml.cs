@@ -3806,7 +3806,7 @@ public partial class MainWindow : Window
         await ShowCustomSuccessMessage("Import der Seriennummern abgeschlossen", "Erfolg");
     }
 
-    private async void Button_OnClick(object? sender, RoutedEventArgs e)
+    private async void btnSonstigesNamenKlassen(object? sender, RoutedEventArgs e)
     {
         if (string.IsNullOrEmpty(tbSuSNamen.Text)) return;
         var namen = tbSuSNamen.Text;
