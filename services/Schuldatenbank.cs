@@ -2298,7 +2298,7 @@ public class Schuldatenbank : IDisposable
         List<SuS> slist = [];
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
-            "SELECT id,nachname,vorname,mail,klasse,nutzername,aixmail,zweitaccount,zweitmail,m365, aktiv FROM schueler;";
+            "SELECT id,nachname,vorname,mail,klasse,nutzername,aixmail,zweitaccount,zweitmail,m365, aktiv, seriennummer FROM schueler;";
         var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
         while (sqliteDatareader.Read())
         {
@@ -2315,6 +2315,7 @@ public class Schuldatenbank : IDisposable
                 Zweitmail = sqliteDatareader.GetString(8),
                 HasM365Account = Convert.ToBoolean(sqliteDatareader.GetInt32(9)),
                 IstAktiv = sqliteDatareader.GetBoolean(10),
+                Seriennummer = sqliteDatareader.GetString(11),
             };
             slist.Add(schuelerin);
         }
