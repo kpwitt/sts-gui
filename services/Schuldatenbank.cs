@@ -885,22 +885,28 @@ public class Schuldatenbank : IDisposable
     {
         try
         {
-            List<string> lulliste = ["firstname;lastname;idnumber;username;fakultas;email"];
+            List<string> lulliste = ["firstname;lastname;idnumber;username;fakultas;email;seriennummer"];
             lulliste.AddRange(lehrerliste.Select(lehrer =>
                 lehrer.Vorname + ";" + lehrer.Nachname + ";" + lehrer.ID + ";" + lehrer.Kuerzel + ";" +
-                lehrer.Fakultas + ";" + lehrer.Mail));
+                lehrer.Fakultas + ";" + lehrer.Mail + ";" + lehrer.Seriennummer));
 
             List<string> sliste = ["Vorname;Nachname;Interne ID-Nummer;E-Mail;Klasse"];
             List<string> kurse = ["Vorname|Nachname|Fach|Fachlehrer|Kursart|Kurs"];
             List<string> ids = ["Anmeldename;Referenz-Id;E-Mail"];
             List<string> zweitaccounts = ["Interne ID-Nummer"];
             List<string> temp_accounts = ["id;accountname"];
+            List<string> jamf_sus_seriennummern = ["id;seriennummer"];
             await Parallel.ForEachAsync(susliste, async (schueler, cancellationToken) =>
                 //foreach (var schueler in susliste)
             {
                 sliste.Add(schueler.Vorname + ";" + schueler.Nachname + ";" + schueler.ID + ";" + schueler.Mail +
                            ";" + schueler.Klasse);
                 ids.Add(schueler.Nutzername + ";" + schueler.ID + ";" + schueler.Mail);
+                if (!string.IsNullOrEmpty(schueler.Seriennummer))
+                {
+                    jamf_sus_seriennummern.Add(schueler.ID + ";" + schueler.Seriennummer);
+                }
+
                 if (schueler.Zweitaccount)
                 {
                     zweitaccounts.Add(schueler.ID + "");
@@ -934,6 +940,9 @@ public class Schuldatenbank : IDisposable
             await File.WriteAllLinesAsync(folder + "/zweitaccount.csv", zweitaccounts.Distinct().ToList(),
                 Encoding.UTF8);
             await File.WriteAllLinesAsync(folder + "/temp_accounts.csv", temp_accounts.Distinct().ToList(),
+                Encoding.UTF8);
+            await File.WriteAllLinesAsync(folder + "/jamf_sus_seriennummern.csv",
+                jamf_sus_seriennummern.Distinct().ToList(),
                 Encoding.UTF8);
             return 1;
         }
