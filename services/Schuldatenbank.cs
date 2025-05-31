@@ -1397,6 +1397,7 @@ public class Schuldatenbank : IDisposable
     private void ExportEltern(ref List<string> ausgabeMoodleUser, ref List<string> ausgabeMoodleEinschreibungen,
         ReadOnlyCollection<int> susids)
     {
+        var suffix = GetKursSuffix().Result;
         foreach (var s in susids)
         {
             var sus = GetSchueler(s).Result;
@@ -1412,28 +1413,26 @@ public class Schuldatenbank : IDisposable
                         var zweitmail = zweitmails[0].Trim() != sus.Mail.Trim()
                             ? zweitmails[0].Trim()
                             : zweitmails[1].Trim();
-                        ausgabeMoodleUser.Add(zweitmail + ";Klasse" + sus.Klasse +
-                                              DateTime.Now.Year + "!" + ";" + sus.Nutzername + "_E1;" +
-                                              "E_" +
-                                              sus.ID + "1;" + sus.Nachname + "_Eltern;" + sus.Vorname +
-                                              ";eltern");
-                        ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + "1," + sus.Klasse +
-                                                         "KL" +
-                                                         GetKursSuffix().Result);
-                        ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + "1,erprobungsstufe" +
-                                                         GetKursSuffix().Result);
+                        ausgabeMoodleUser.Add(string.Join(";",
+                            "zweitmail",
+                            sus.Klasse,
+                            DateTime.Now.Year.ToString(),
+                            sus.Nutzername + "_E1",
+                            $"E_{sus.ID}1",
+                            sus.Vorname,
+                            sus.Nachname + "_Eltern"));
+                        ausgabeMoodleEinschreibungen.Add(
+                            $"add,eltern,E_{sus.ID}1,{sus.Klasse}KL{suffix}");
+                        ausgabeMoodleEinschreibungen.Add(
+                            $"add,eltern,E_{sus.ID}1,erprobungsstufe{suffix}");
                     }
                     else if (mittelstufe.Contains(schuelerstufe))
                     {
-                        ausgabeMoodleUser.Add(sus.Zweitmail.Split(',')[0] + ";Klasse" + sus.Klasse +
-                                              DateTime.Now.Year + "!" +
-                                              ";" + sus.Nutzername + "_E1;" + "E_" + sus.ID + "1;" +
-                                              sus.Nachname + "_Eltern;" + sus.Vorname + ";eltern");
-                        ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + "1," + sus.Klasse +
-                                                         "KL" +
-                                                         GetKursSuffix().Result);
-                        ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + "1,mittelstufe" +
-                                                         GetKursSuffix().Result);
+                        ausgabeMoodleUser.Add(
+                            $"{sus.Zweitmail.Split(',')[0]};Klasse{sus.Klasse}{DateTime.Now.Year}!;{sus.Nutzername}_E1;E_{sus.ID}1;{sus.Vorname}_{sus.Nachname}_Eltern;eltern");
+                        ausgabeMoodleEinschreibungen.Add(
+                            $"add,eltern,E_{sus.ID}1,{sus.Klasse}KL{suffix}");
+                        ausgabeMoodleEinschreibungen.Add($"add,eltern,E_{sus.ID}1,mittelstufe{suffix}");
                     }
 
                     break;
@@ -1451,23 +1450,17 @@ public class Schuldatenbank : IDisposable
 
             if (erprobungsstufe.Contains(schuelerstufe))
             {
-                ausgabeMoodleUser.Add(susmail + ";Klasse" + sus.Klasse + DateTime.Now.Year + "!" + ";" +
-                                      sus.Nutzername + "_E;" + "E_" + sus.ID + ";" + sus.Nachname +
-                                      "_Eltern;" + sus.Vorname + ";eltern");
-                ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + "," + sus.Klasse + "KL" +
-                                                 GetKursSuffix().Result);
-                ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + ",erprobungsstufe" +
-                                                 GetKursSuffix().Result);
+                ausgabeMoodleUser.Add(
+                    $"{susmail};Klasse{sus.Klasse}{DateTime.Now.Year}!;{sus.Nutzername}_E;E_{sus.ID};{sus.Vorname}_{sus.Nachname}_Eltern;eltern");
+                ausgabeMoodleEinschreibungen.Add($"add,eltern,E_{sus.ID},{sus.Klasse}KL{suffix}");
+                ausgabeMoodleEinschreibungen.Add($"add,eltern,E_{sus.ID},erprobungsstufe{suffix}");
             }
             else if (mittelstufe.Contains(schuelerstufe))
             {
-                ausgabeMoodleUser.Add(susmail + ";Klasse" + sus.Klasse + DateTime.Now.Year + "!" + ";" +
-                                      sus.Nutzername + "_E;" + "E_" + sus.ID + ";" + sus.Nachname +
-                                      "_Eltern;" + sus.Vorname + ";eltern");
-                ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + "," + sus.Klasse + "KL" +
-                                                 GetKursSuffix().Result);
-                ausgabeMoodleEinschreibungen.Add("add,eltern,E_" + sus.ID + ",mittelstufe" +
-                                                 GetKursSuffix().Result);
+                ausgabeMoodleUser.Add(
+                    $"{susmail};Klasse{sus.Klasse}{DateTime.Now.Year}!;{sus.Nutzername}_E;E_{sus.ID};{sus.Vorname}_{sus.Nachname}_Eltern;eltern");
+                ausgabeMoodleEinschreibungen.Add($"add,eltern,E_{sus.ID},{sus.Klasse}KL{suffix}");
+                ausgabeMoodleEinschreibungen.Add($"add,eltern,E_{sus.ID},mittelstufe{suffix}");
             }
         }
     }
@@ -1487,6 +1480,7 @@ public class Schuldatenbank : IDisposable
         ref List<string> ausgabeAIXS, ReadOnlyCollection<int> susidliste,
         string targets, bool withPasswort, string passwort, bool nurMoodleSuffix)
     {
+        var suffix = GetKursSuffix().Result;
         if (targets != "all" && !targets.Contains('m') && !targets.Contains('a')) return;
         var blacklist = GetM365Blacklist().Result;
         foreach (var sus in susidliste)
@@ -1516,24 +1510,24 @@ public class Schuldatenbank : IDisposable
                 if (erprobungsstufe.Contains(schuelerstufe))
                 {
                     ausgabeMoodleEinschreibungen.Add("add,schueler," + s.ID + ",erprobungsstufe" +
-                                                     GetKursSuffix().Result);
+                                                     suffix);
                 }
                 else if (mittelstufe.Contains(schuelerstufe))
                 {
                     ausgabeMoodleEinschreibungen.Add("add,schueler," + s.ID + ",mittelstufe" +
-                                                     GetKursSuffix().Result);
+                                                     suffix);
                 }
                 else
                 {
                     ausgabeMoodleEinschreibungen.Add("add,schueler," + s.ID + ",Stufenkurs" + s.Klasse +
-                                                     GetKursSuffix().Result);
+                                                     suffix);
                 }
             }
 
             kListe = kListe.TrimEnd('|');
             if (nurMoodleSuffix)
             {
-                kListe = kListe.Replace(GetKursSuffix().Result, "");
+                kListe = kListe.Replace(suffix, "");
             }
 
             var susmail = s.Mail.Contains(' ') ? s.Mail.Split(' ')[0] : s.Mail;
@@ -1579,6 +1573,7 @@ public class Schuldatenbank : IDisposable
         ref List<string> ausgabeAIXL, ReadOnlyCollection<int> lulidliste,
         string targets, bool withPasswort, bool nurMoodleSuffix)
     {
+        var suffix = GetKursSuffix().Result;
         foreach (var l in lulidliste)
         {
             var lt = GetLehrkraft(l).Result;
@@ -1626,7 +1621,7 @@ public class Schuldatenbank : IDisposable
 
             if (nurMoodleSuffix && kListe != "")
             {
-                kListe = kListe.Replace(GetKursSuffix().Result, "");
+                kListe = kListe.Replace(suffix, "");
             }
 
             if (withPasswort)
