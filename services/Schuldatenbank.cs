@@ -887,24 +887,25 @@ public class Schuldatenbank : IDisposable
         {
             List<string> lulliste = ["firstname;lastname;idnumber;username;fakultas;email;seriennummer"];
             lulliste.AddRange(lehrerliste.Select(lehrer =>
-                lehrer.Vorname + ";" + lehrer.Nachname + ";" + lehrer.ID + ";" + lehrer.Kuerzel + ";" +
-                lehrer.Fakultas + ";" + lehrer.Mail + ";" + lehrer.Seriennummer));
+                string.Join(";", lehrer.Vorname, lehrer.Nachname, lehrer.ID, lehrer.Kuerzel, lehrer.Fakultas,
+                    lehrer.Mail, lehrer.Seriennummer)));
 
             List<string> sliste = ["Vorname;Nachname;Interne ID-Nummer;E-Mail;Klasse"];
             List<string> kurse = ["Vorname|Nachname|Fach|Fachlehrer|Kursart|Kurs"];
             List<string> ids = ["Anmeldename;Referenz-Id;E-Mail"];
             List<string> zweitaccounts = ["Interne ID-Nummer"];
             List<string> temp_accounts = ["id;accountname"];
-            List<string> jamf_sus_seriennummern = ["id;seriennummer"];
+            List<string> jamf_sus_seriennummern = ["Vorname;Nachname;Klasse;Seriennummer;ID"];
             await Parallel.ForEachAsync(susliste, async (schueler, cancellationToken) =>
                 //foreach (var schueler in susliste)
             {
-                sliste.Add(schueler.Vorname + ";" + schueler.Nachname + ";" + schueler.ID + ";" + schueler.Mail +
-                           ";" + schueler.Klasse);
+                sliste.Add(string.Join(";", schueler.Vorname, schueler.Nachname, schueler.ID, schueler.Mail,
+                    schueler.Klasse));
                 ids.Add(schueler.Nutzername + ";" + schueler.ID + ";" + schueler.Mail);
                 if (!string.IsNullOrEmpty(schueler.Seriennummer))
                 {
-                    jamf_sus_seriennummern.Add(schueler.ID + ";" + schueler.Seriennummer);
+                    jamf_sus_seriennummern.Add(string.Join(";", schueler.Vorname, schueler.Nachname, schueler.Klasse,
+                        schueler.Seriennummer, schueler.ID));
                 }
 
                 if (schueler.Zweitaccount)
@@ -925,10 +926,9 @@ public class Schuldatenbank : IDisposable
                     {
                         var l = await GetLehrkraft(luls[0].ID);
                         var fach = kurs.Fach.IndexOf('-') > 0 ? kurs.Fach[..kurs.Fach.IndexOf('-')] : kurs.Fach;
-                        kurse.Add(schueler.Nachname + "|" + schueler.Vorname + "|" + fach + "|" +
-                                  l.Kuerzel.ToUpper() +
-                                  "|" + (kurs.IstKurs ? "PUK|" : "GKM|") +
-                                  (kurs.IstKurs == false ? "" : kurs.Fach));
+                        kurse.Add(string.Join("|", schueler.Nachname + "|" + schueler.Vorname, fach,
+                            l.Kuerzel.ToUpper(),
+                            (kurs.IstKurs ? "PUK|" : "GKM|") + (kurs.IstKurs == false ? "" : kurs.Fach)));
                     }
                 });
             });
@@ -974,8 +974,9 @@ public class Schuldatenbank : IDisposable
                 {
                     var l = (await GetLuLAusKurs(k))[0];
                     var fach = kurs.Fach.IndexOf('-') > 0 ? kurs.Fach[..kurs.Fach.IndexOf('-')] : kurs.Fach;
-                    kurse.Add(schueler.Nachname + "|" + schueler.Vorname + "|" + fach + "|" + l.Kuerzel.ToUpper() +
-                              "|" + (kurs.IstKurs ? "PUK|" : "GKM|") + (kurs.IstKurs == false ? "" : kurs.Fach));
+                    kurse.Add(string.Join("|", schueler.Nachname + "|" + schueler.Vorname, fach, l.Kuerzel.ToUpper(),
+                        (kurs.IstKurs ? "PUK|" : "GKM|") + (kurs.IstKurs == false ? "" : kurs.Fach)
+                    ));
                 }
             }
 
