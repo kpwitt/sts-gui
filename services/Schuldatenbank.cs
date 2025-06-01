@@ -1411,7 +1411,7 @@ public class Schuldatenbank : IDisposable
                             ? zweitmails[0].Trim()
                             : zweitmails[1].Trim();
                         ausgabeMoodleUser.Add(string.Join(";",
-                            "zweitmail",
+                            zweitmail,
                             sus.Klasse,
                             DateTime.Now.Year.ToString(),
                             $"{sus.Nutzername}_E1",
