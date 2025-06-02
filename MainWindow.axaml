@@ -462,13 +462,13 @@
                                     <ComboBoxItem>Einige Lehrkräfte</ComboBoxItem>
                                     <ComboBoxItem>Alle Schüler:innen und Erziehungsberechtigte</ComboBoxItem>
                                 </ComboBox>
-                                <TextBox x:Name="tbSonst1">-</TextBox>
+                                <TextBox x:Name="tbSonst1" MaxWidth="2500" AcceptsReturn="True" MaxLines="30">-</TextBox>
                                 <TextBlock x:Name="tbSonst11" VerticalAlignment="Center"> aus der </TextBlock>
                                 <ComboBox x:Name="cbSonst2">
                                     <ComboBoxItem>Stufe</ComboBoxItem>
                                     <ComboBoxItem>Klasse</ComboBoxItem>
                                 </ComboBox>
-                                <TextBox x:Name="tbSonst2">-</TextBox>
+                                <TextBox x:Name="tbSonst2" MaxWidth="2500" AcceptsReturn="True" MaxLines="30">-</TextBox>
                                 <TextBlock VerticalAlignment="Center"> in </TextBlock>
                                 <ComboBox x:Name="cbSonst3">
                                     <ComboBoxItem>den Kurs</ComboBoxItem>
