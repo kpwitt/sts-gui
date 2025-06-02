@@ -3052,32 +3052,36 @@ public partial class MainWindow : Window
     private async void BtnModErstellung_OnClick(object? sender, RoutedEventArgs e)
     {
         if (cbSonst1 == null || cbSonst2 == null ||
-            cbSonst3 == null || string.IsNullOrEmpty(tbSonst3.Text) || string.IsNullOrEmpty(tbSonst2.Text)) return;
+            cbSonst3 == null || string.IsNullOrEmpty(tbSonst1.Text) || string.IsNullOrEmpty(tbSonst3.Text) ||
+            string.IsNullOrEmpty(tbSonst2.Text)) return;
         var suscache = await _myschool.GetSchuelerListe();
         var lulcache = await _myschool.GetLehrerListe();
         var kurscache = await _myschool.GetKursListe();
         var susliste = new List<SuS>();
         var lulliste = new List<Lehrkraft>();
+        var splitChar1 = tbSonst1.Text.Contains(';') ? ';' : tbSonst1.Text.Contains('\n') ? '\n' : ',';
+        var splitChar2 = tbSonst2.Text.Contains(';') ? ';' : tbSonst2.Text.Contains('\n') ? '\n' : ',';
+        var splitChar3 = tbSonst3.Text.Contains(';') ? ';' : tbSonst3.Text.Contains('\n') ? '\n' : ',';
         switch (cbSonst1.SelectedIndex)
         {
             case 0 or 4:
                 susliste = cbSonst2.SelectedIndex switch
                 {
-                    0 => suscache.Where(s => tbSonst2.Text.Split(';').Contains(s.GetStufe())).ToList(),
-                    1 => suscache.Where(s => tbSonst2.Text.Split(';').Contains(s.Klasse)).ToList(),
+                    0 => suscache.Where(s => tbSonst2.Text.Split(splitChar2).Contains(s.GetStufe())).ToList(),
+                    1 => suscache.Where(s => tbSonst2.Text.Split(splitChar2).Contains(s.Klasse)).ToList(),
                     _ => susliste
                 };
                 break;
             case 1:
                 if (string.IsNullOrEmpty(tbSonst1.Text)) return;
-                susliste = suscache.Where(s => tbSonst1.Text.Split(';').Contains(s.ID.ToString())).ToList();
+                susliste = suscache.Where(s => tbSonst1.Text.Split(splitChar1).Contains(s.ID.ToString())).ToList();
                 break;
             case 2:
                 lulliste = [.. lulcache];
                 break;
             case 3:
                 if (string.IsNullOrEmpty(tbSonst1.Text)) return;
-                lulliste = lulcache.Where(l => tbSonst1.Text.Split(';').Contains(l.Kuerzel)).ToList();
+                lulliste = lulcache.Where(l => tbSonst1.Text.Split(splitChar1).Contains(l.Kuerzel)).ToList();
                 break;
             default:
                 return;
@@ -3085,7 +3089,7 @@ public partial class MainWindow : Window
 
         if (rbEinschreibenDatenbank.IsChecked == true)
         {
-            var kursliste = kurscache.Where(k => tbSonst3.Text.Split(";").Contains(k.Bezeichnung)).ToList();
+            var kursliste = kurscache.Where(k => tbSonst3.Text.Split(splitChar3).Contains(k.Bezeichnung)).ToList();
             if (kursliste.Count < 1) return;
             switch (cbSonst1.SelectedIndex)
             {
@@ -3809,7 +3813,7 @@ public partial class MainWindow : Window
                 .Where(s => s.Vorname.StartsWith(vorname) && s.Nachname.Equals(nachname)).ToList();
             if (s.Count == 1)
             {
-                ergebnis.Add(string.Join(';', s[0].Vorname, s[0].Nachname, s[0].Klasse));
+                ergebnis.Add(string.Join(';', s[0].Vorname, s[0].Nachname, s[0].Klasse, s[0].ID));
             }
             else if (s.Count > 0)
             {
