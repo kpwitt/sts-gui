@@ -1812,7 +1812,7 @@ public partial class MainWindow : Window
                 var kurscache = _myschool.GetKursListe().Result;
                 ergebnisliste.AddRange(from kurs in kurscache
                     where kurs.Bezeichnung.Length < 3
-                    select $"{kurs.Bezeichnung};Zu kurzer Bezeichnung");
+                    select $"{kurs.Bezeichnung};Zu kurze Bezeichnung (Länge < 3)");
                 ergebnisliste.AddRange(from kurs in kurscache
                     where !whitelist.Contains(kurs.Bezeichnung) && (kurs.Fach.Length == 0 || kurs.Fach.Equals("---"))
                     select $"{kurs.Bezeichnung};Fehlerhaftes Fach");
