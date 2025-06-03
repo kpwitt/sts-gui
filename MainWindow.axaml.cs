@@ -1794,6 +1794,9 @@ public partial class MainWindow : Window
                 ergebnisliste.AddRange(from lul in _myschool.GetLehrerListe().Result
                     where lul.Fakultas.Contains("NV")
                     select $"{lul.Nachname}, {lul.Vorname};{lul.ID};mit fehlerhafter Fakultas");
+                ergebnisliste.AddRange(from lul in _myschool.GetLehrerListe().Result
+                    where string.IsNullOrEmpty(lul.Seriennummer)
+                    select $"{lul.Nachname}, {lul.Vorname};{lul.ID};mit fehlender Seriennummer");
             }
 
             if (cbFehlerKurse.IsChecked != null && cbFehlerKurse.IsChecked.Value)
