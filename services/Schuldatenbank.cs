@@ -434,7 +434,7 @@ public class Schuldatenbank : IDisposable
         sqliteDatareader.Close();
         if (log_count > 1)
         {
-            sqliteCmd.CommandText = "SELECT stufe,datum, nachricht FROM log;";
+            sqliteCmd.CommandText = "SELECT stufe, datum, nachricht FROM log;";
             sqliteDatareader = sqliteCmd.ExecuteReader();
             while (sqliteDatareader.Read())
             {
