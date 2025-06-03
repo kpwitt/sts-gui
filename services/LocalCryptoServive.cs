@@ -59,8 +59,8 @@ public static class LocalCryptoServive
         }
         catch (Exception ex)
         {
-            File.WriteAllText("error.log", "Error: " + ex.Message);
-            Debug.WriteLine("Error: " + ex.Message);
+            File.WriteAllText("error.log", $"Error: {ex.Message}");
+            Debug.WriteLine($"Error: {ex.Message}");
         }
 
         try
@@ -69,8 +69,8 @@ public static class LocalCryptoServive
         }
         catch (Exception ex)
         {
-            File.WriteAllText("error.log", "Error: " + ex.Message);
-            Debug.WriteLine("Error by closing CryptoStream: " + ex.Message);
+            File.WriteAllText("error.log", $"Error: {ex.Message}");
+            Debug.WriteLine($"Error by closing CryptoStream: {ex.Message}");
         }
         finally
         {
@@ -125,8 +125,8 @@ public static class LocalCryptoServive
         }
         catch (Exception ex)
         {
-            File.WriteAllText("error.log", "Error: " + ex.Message);
-            Debug.WriteLine("Error: " + ex.Message);
+            File.WriteAllText("error.log", $"Error: {ex.Message}");
+            Debug.WriteLine($"Error: {ex.Message}");
         }
         finally
         {

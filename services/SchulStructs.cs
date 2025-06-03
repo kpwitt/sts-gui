@@ -82,12 +82,12 @@ public record struct LogEintrag
 
     public string Datumsstring()
     {
-        return Eintragsdatum.ToLongDateString() + " " + Eintragsdatum.ToLongTimeString();
+        return $"{Eintragsdatum.ToLongDateString()} {Eintragsdatum.ToLongTimeString()}";
     }
 
     public override string ToString()
     {
-        return Warnstufe + " " + Datumsstring() + " " + Nachricht;
+        return $"{Warnstufe} {Datumsstring()} {Nachricht}";
     }
 }
 

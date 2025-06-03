@@ -67,7 +67,7 @@ public partial class MainWindow : Window
         if (filepath.EndsWith(".sqlite"))
         {
             _myschool = new Schuldatenbank(filepath);
-            Title = "SchildToSchule - " + _myschool.GetFilePath();
+            Title = $"SchildToSchule - {_myschool.GetFilePath()}";
         }
         else if (filepath.EndsWith(".aes"))
         {
@@ -110,6 +110,11 @@ public partial class MainWindow : Window
             LocalCryptoServive.FileDecrypt(filepath, outputFilePath, password);
             _myschool = new Schuldatenbank(outputFilePath);
         }
+        else
+        {
+            Console.WriteLine("Es ist ein unbekannter Fehler aufgetreten, das Programm wird beendet.");
+            System.Environment.Exit(-3);
+        }
 
         InitData();
     }
@@ -126,13 +131,13 @@ public partial class MainWindow : Window
         var kurzfach = _myschool.GetFachersatz().Result.Select(t => t.Split(';')[0]);
         foreach (var fachk in kurzfach)
         {
-            tbSettingFachkurz.Text += fachk + '\n';
+            tbSettingFachkurz.Text += $"{fachk}\n";
         }
 
         var langfach = _myschool.GetFachersatz().Result.Select(t => t.Split(';')[1]);
         foreach (var fachl in langfach)
         {
-            tbSettingFachlang.Text += fachl + '\n';
+            tbSettingFachlang.Text += $"{fachl}\n";
         }
 
         _leftInputTimer.Elapsed += OnLeftTimedEvent;
@@ -416,7 +421,7 @@ public partial class MainWindow : Window
         if (files == null) return;
         var filepath = files.Path.LocalPath;
         _myschool = new Schuldatenbank(filepath);
-        Title = "SchildToSchule - " + _myschool.GetFilePath();
+        Title = $"SchildToSchule - {_myschool.GetFilePath()}";
         InitData();
         SetStatusText();
     }
@@ -445,11 +450,11 @@ public partial class MainWindow : Window
         {
             var cache = _myschool.GetLehrerListe().Result.Where(l => l.Fakultas.Split(',').Contains(faecher[i]))
                 .ToList()
-                .Select(l => l.Kuerzel + ";" + l.Nachname + "," + l.Vorname).ToList();
+                .Select(l => $"{l.Kuerzel};{l.Nachname},{l.Vorname}").ToList();
             if (cache.Count == 0) continue;
             exportFavoTabGrid.Children.Add(new TextBlock
             {
-                Name = "tbExportFavo" + faecher[i],
+                Name = $"tbExportFavo{faecher[i]}",
                 Text = faecher[i],
                 [Grid.RowProperty] = i,
                 [Grid.ColumnProperty] = 0,
@@ -458,14 +463,14 @@ public partial class MainWindow : Window
             cache.Sort();
             exportFavoTabGrid.Children.Add(new ComboBox()
             {
-                Name = "cbExportFavo" + faecher[i],
+                Name = $"cbExportFavo{faecher[i]}",
                 ItemsSource = cache,
                 [Grid.RowProperty] = i,
                 [Grid.ColumnProperty] = 1,
             });
             exportFavoTabGrid.Children.Add(new ComboBox
             {
-                Name = "cbExportSFavo" + faecher[i],
+                Name = $"cbExportSFavo{faecher[i]}",
                 ItemsSource = cache,
                 [Grid.RowProperty] = i,
                 [Grid.ColumnProperty] = 2,
@@ -478,25 +483,25 @@ public partial class MainWindow : Window
         foreach (var fach in faecher)
         {
             var validfach = exportFavoTabGrid.Children
-                .Where(c => !string.IsNullOrEmpty(c.Name) && c.Name.Equals("cbExportFavo" + fach))
+                .Where(c => !string.IsNullOrEmpty(c.Name) && c.Name.Equals($"cbExportFavo{fach}"))
                 .ToList();
             if (validfach.Count == 0) continue;
             var favocb = (ComboBox)exportFavoTabGrid.Children.Where(c =>
-                    !string.IsNullOrEmpty(c.Name) && c.Name.Equals("cbExportFavo" + fach))
+                    !string.IsNullOrEmpty(c.Name) && c.Name.Equals($"cbExportFavo{fach}"))
                 .ToList()[0];
             var sfavocb = (ComboBox)exportFavoTabGrid.Children.Where(c =>
-                    !string.IsNullOrEmpty(c.Name) && c.Name.Equals("cbExportSFavo" + fach))
+                    !string.IsNullOrEmpty(c.Name) && c.Name.Equals($"cbExportSFavo{fach}"))
                 .ToList()[0];
             var favo = favos.Where(l => l.Favo.Split(',').Contains(fach)).ToList();
             if (favo.Count > 0)
             {
-                favocb.SelectedItem = favo[0].Kuerzel + ";" + favo[0].Nachname + "," + favo[0].Vorname;
+                favocb.SelectedItem = $"{favo[0].Kuerzel};{favo[0].Nachname},{favo[0].Vorname}";
             }
 
             var sfavo = favos.Where(l => l.SFavo.Split(',').Contains(fach)).ToList();
             if (sfavo.Count > 0)
             {
-                sfavocb.SelectedItem = sfavo[0].Kuerzel + ";" + sfavo[0].Nachname + "," + sfavo[0].Vorname;
+                sfavocb.SelectedItem = $"{sfavo[0].Kuerzel};{sfavo[0].Nachname},{sfavo[0].Vorname}";
             }
         }
     }
@@ -557,7 +562,7 @@ public partial class MainWindow : Window
     private async void OnMnuschulespeichernunterClick(object? sender, RoutedEventArgs e)
     {
         await Dispatcher.UIThread.InvokeAsync(SaveDbFileAs);
-        Title = "SchildToSchule - " + _myschool.GetFilePath();
+        Title = $"SchildToSchule - {_myschool.GetFilePath()}";
         return;
 
         async Task SaveDbFileAs()
@@ -637,7 +642,7 @@ public partial class MainWindow : Window
         if (string.IsNullOrEmpty(inputResult)) return;
 
         await Dispatcher.UIThread.InvokeAsync(LoadEncDbFile);
-        Title = "SchildToSchule - " + _myschool.GetFilePath();
+        Title = $"SchildToSchule - {_myschool.GetFilePath()}";
         SetStatusText();
         return;
 
@@ -678,12 +683,12 @@ public partial class MainWindow : Window
             var folder = await ShowOpenFolderDialog("Bitte den Ordner mit den Dateien auswählen");
             if (folder == null) return;
             var folderpath = folder.Path.LocalPath;
-            if (File.Exists(folderpath + "/sus.csv") && File.Exists(folderpath + "/lul.csv") &&
-                File.Exists(folderpath + "/kurse.csv"))
+            if (File.Exists($"{folderpath}/sus.csv") && File.Exists($"{folderpath}/lul.csv") &&
+                File.Exists($"{folderpath}/kurse.csv"))
             {
-                await _myschool.SusEinlesen(folderpath + "/sus.csv");
-                await _myschool.LulEinlesen(folderpath + "/lul.csv");
-                await _myschool.KurseEinlesen(folderpath + "/kurse.csv");
+                await _myschool.SusEinlesen($"{folderpath}/sus.csv");
+                await _myschool.LulEinlesen($"{folderpath}/lul.csv");
+                await _myschool.KurseEinlesen($"{folderpath}/kurse.csv");
                 var aixcsvpath = "";
                 var dvfile = "";
                 var files = new DirectoryInfo(folderpath).GetFiles();
@@ -805,9 +810,9 @@ public partial class MainWindow : Window
             if (folder == null) return;
             var folderpath = folder.Path.LocalPath;
             int res;
-            if (!File.Exists(folderpath + "/sus.csv") && !File.Exists(folderpath + "/lul.csv") &&
-                !File.Exists(folderpath + "/kurse.csv") &&
-                !File.Exists(folderpath + "/temp_accounts.csv"))
+            if (!File.Exists($"{folderpath}/sus.csv") && !File.Exists($"{folderpath}/lul.csv") &&
+                !File.Exists($"{folderpath}/kurse.csv") &&
+                !File.Exists($"{folderpath}/temp_accounts.csv"))
             {
                 res = await _myschool.DumpDataToCSVs(folderpath);
             }
@@ -841,7 +846,7 @@ public partial class MainWindow : Window
                     ButtonDefinitions = ButtonEnum.Ok,
                     ContentTitle = "Über",
                     ContentMessage =
-                        "SchildToSchule" + "\n" + version,
+                        $"SchildToSchule\n{version}",
                     Icon = MsBox.Avalonia.Enums.Icon.Database,
                     WindowIcon = _msgBoxWindowIcon
                 }).ShowAsPopupAsync(this);
@@ -1016,7 +1021,7 @@ public partial class MainWindow : Window
 
         if (lulid == "" || !lulid.All(char.IsDigit))
         {
-            lulid = _myschool.GetLehrerIDListe().Result.Max() + 1 + "";
+            lulid = $"{_myschool.GetLehrerIDListe().Result.Max() + 1}";
             lulpwtemp = Tooling.GeneratePasswort(8);
         }
 
@@ -1029,9 +1034,7 @@ public partial class MainWindow : Window
             if (schnittmenge.Count != 0)
             {
                 await ShowCustomInfoMessage(
-                    "Folgende Kurse wurden für " + string.Join(" ", lehrkraft.Vorname, lehrkraft.Nachname) +
-                    " entfernt: " + string.Join(", ", schnittmenge.Select(k => k.Bezeichnung)) +
-                    "\nBitte stellen Sie sicher, dass es eine passende Vertretung gibt und tragen Sie sie ggf. aus.\n",
+                    $"Folgende Kurse wurden für {string.Join(" ", lehrkraft.Vorname, lehrkraft.Nachname)} entfernt: {string.Join(", ", schnittmenge.Select(k => k.Bezeichnung))}\nBitte stellen Sie sicher, dass es eine passende Vertretung gibt und tragen Sie sie ggf. aus.\n",
                     "Vorsicht");
             }
 
@@ -1106,7 +1109,7 @@ public partial class MainWindow : Window
         if (cboxDataLeft == null || cboxDataRight == null) return;
         cboxDataLeft.SelectedIndex = 0;
         cboxDataRight.SelectedIndex = 1;
-        var llist = _myschool.GetSchuelerListe().Result.Select(s => s.Nachname + "," + s.Vorname + ";" + s.ID)
+        var llist = _myschool.GetSchuelerListe().Result.Select(s => $"{s.Nachname},{s.Vorname};{s.ID}")
             .ToList();
         llist.Sort(Comparer<string>.Default);
         ResetItemsSource(leftListBox, llist);
@@ -1126,13 +1129,13 @@ public partial class MainWindow : Window
         tbSettingFachkurz.Text = "";
         foreach (var fachk in kurzfach)
         {
-            tbSettingFachkurz.Text += fachk + '\n';
+            tbSettingFachkurz.Text += $"{fachk}\n";
         }
 
         tbSettingFachlang.Text = "";
         foreach (var fachl in langfach)
         {
-            tbSettingFachlang.Text += fachl + '\n';
+            tbSettingFachlang.Text += $"{fachl}\n";
         }
 
         tbSettingErprobungsstufenleitung.Text = settings.Erprobungstufenleitung;
@@ -1234,8 +1237,7 @@ public partial class MainWindow : Window
     private void OnLeftDataChanged(bool hasComboBoxChanged)
     {
         if (leftListBox == null || rightListBox == null || cboxDataLeft == null || cboxDataRight == null ||
-            _cbZeigeInaktiv.IsChecked == null) return;
-        if (leftListBox.SelectedItems == null) return;
+            _cbZeigeInaktiv.IsChecked == null || leftListBox.SelectedItems == null) return;
         SetStatusText();
         if (_rightMutex && !hasComboBoxChanged) return;
         if (hasComboBoxChanged)
@@ -1259,7 +1261,7 @@ public partial class MainWindow : Window
                 if (leftListBox.SelectedItems.Count < 1 || leftListBox.SelectedItems == null || hasComboBoxChanged)
                 {
                     var slist = _myschool.GetSchuelerListe().Result.Where(s => s.IstAktiv || zeigeInaktive)
-                        .Select(s => s.Nachname + "," + s.Vorname + ";" + s.ID).Distinct().ToList();
+                        .Select(s => $"{s.Nachname},{s.Vorname};{s.ID}").Distinct().ToList();
                     slist.Sort(Comparer<string>.Default);
                     ResetItemsSource(leftListBox, slist);
                     ResetItemsSource(rightListBox, []);
@@ -1275,7 +1277,7 @@ public partial class MainWindow : Window
                         case 1:
                         {
                             var rlist = _myschool.GetLuLvonSuS(sus.ID).Result
-                                .Select(l => l.Kuerzel + ";" + l.Nachname + "," + l.Vorname).Distinct().ToList();
+                                .Select(l => $"{l.Kuerzel};{l.Nachname},{l.Vorname}").Distinct().ToList();
                             rlist.Sort(Comparer<string>.Default);
                             ResetItemsSource(rightListBox, rlist);
                             break;
@@ -1301,7 +1303,7 @@ public partial class MainWindow : Window
                 if (leftListBox.SelectedItems.Count < 1 || leftListBox.SelectedItems == null || hasComboBoxChanged)
                 {
                     var lullist = _myschool.GetLehrerListe().Result.Where(l => l.IstAktiv || zeigeInaktive)
-                        .Select(l => l.Kuerzel + ";" + l.Nachname + "," + l.Vorname).Distinct().ToList();
+                        .Select(l => $"{l.Kuerzel};{l.Nachname},{l.Vorname}").Distinct().ToList();
                     lullist.Sort(Comparer<string>.Default);
                     ResetItemsSource(leftListBox, lullist);
                     ResetItemsSource(rightListBox, []);
@@ -1317,7 +1319,7 @@ public partial class MainWindow : Window
                         case 0:
                         {
                             var rlist = _myschool.GetSuSVonLuL(lul.ID).Result
-                                .Select(s => s.Nachname + "," + s.Vorname + ";" + s.ID).Distinct().ToList();
+                                .Select(s => $"{s.Nachname},{s.Vorname};{s.ID}").Distinct().ToList();
                             rlist.Sort(Comparer<string>.Default);
                             ResetItemsSource(rightListBox, rlist);
 
@@ -1361,7 +1363,7 @@ public partial class MainWindow : Window
                         {
                             if (string.IsNullOrEmpty(kurs.Bezeichnung)) break;
                             var rlist = _myschool.GetSuSAusKurs(kurs.Bezeichnung).Result
-                                .Select(s => s.Nachname + "," + s.Vorname + ";" + s.ID).Distinct().ToList();
+                                .Select(s => $"{s.Nachname},{s.Vorname};{s.ID}").Distinct().ToList();
                             rlist.Sort(Comparer<string>.Default);
                             ResetItemsSource(rightListBox, rlist);
                             break;
@@ -1370,7 +1372,7 @@ public partial class MainWindow : Window
                         {
                             if (string.IsNullOrEmpty(kurs.Bezeichnung)) break;
                             var rlist = _myschool.GetLuLAusKurs(kurs.Bezeichnung).Result
-                                .Select(l => l.Kuerzel + ";" + l.Nachname + "," + l.Vorname).Distinct().ToList();
+                                .Select(l => $"{l.Kuerzel};{l.Nachname},{l.Vorname}").Distinct().ToList();
                             rlist.Sort(Comparer<string>.Default);
                             ResetItemsSource(rightListBox, rlist);
                             break;
@@ -1389,13 +1391,13 @@ public partial class MainWindow : Window
         switch (cboxDataLeft.SelectedIndex)
         {
             case 0:
-                leftcounter += leftListBox.SelectedItems.Count + " Schüler:Innen";
+                leftcounter += $"{leftListBox.SelectedItems.Count} Schüler:Innen";
                 break;
             case 1:
-                leftcounter += leftListBox.SelectedItems.Count + " Lehrkräfte";
+                leftcounter += $"{leftListBox.SelectedItems.Count} Lehrkräfte";
                 break;
             case 2:
-                leftcounter += leftListBox.SelectedItems.Count + " Kurse";
+                leftcounter += $"{leftListBox.SelectedItems.Count} Kurse";
                 break;
         }
 
@@ -1403,23 +1405,23 @@ public partial class MainWindow : Window
         switch (cboxDataRight.SelectedIndex)
         {
             case 0:
-                rightcounter += rightListBox.SelectedItems.Count + " Schüler:Innen";
+                rightcounter += $"{rightListBox.SelectedItems.Count} Schüler:Innen";
                 break;
             case 1:
-                rightcounter += rightListBox.SelectedItems.Count + " Lehrkräfte";
+                rightcounter += $"{rightListBox.SelectedItems.Count} Lehrkräfte";
                 break;
             case 2:
-                rightcounter += rightListBox.SelectedItems.Count + " Kurse";
+                rightcounter += $"{rightListBox.SelectedItems.Count} Kurse";
                 break;
         }
 
-        tbStatusBar.Text = _myschool.GetStat().Result + leftcounter + rightcounter + " markiert";
+        tbStatusBar.Text = $"{_myschool.GetStat().Result}{leftcounter}{rightcounter} markiert";
     }
 
     private void OnRightDataChanged(bool hasComboBoxChanged)
     {
-        if (leftListBox == null || rightListBox == null || cboxDataLeft == null || cboxDataRight == null) return;
-        if (rightListBox.SelectedItems == null) return;
+        if (leftListBox == null || rightListBox == null || cboxDataLeft == null || cboxDataRight == null ||
+            rightListBox.SelectedItems == null) return;
         SetStatusText();
         if (_rightMutex && !hasComboBoxChanged) return;
         switch (cboxDataRight.SelectedIndex)
@@ -1447,7 +1449,7 @@ public partial class MainWindow : Window
 
                         if (!hasComboBoxChanged) return;
                         var rlist = _myschool.GetSuSVonLuL(lul.ID).Result
-                            .Select(s => s.Nachname + "," + s.Vorname + ";" + s.ID).Distinct().ToList();
+                            .Select(s => $"{s.Nachname},{s.Vorname};{s.ID}").Distinct().ToList();
                         rlist.Sort(Comparer<string>.Default);
                         ResetItemsSource(rightListBox, rlist);
                         break;
@@ -1468,7 +1470,7 @@ public partial class MainWindow : Window
 
                         if (!hasComboBoxChanged) return;
                         var rlist = _myschool.GetSuSAusKurs(kurs.Bezeichnung).Result
-                            .Select(s => s.Nachname + "," + s.Vorname + ";" + s.ID).Distinct().ToList();
+                            .Select(s => $"{s.Nachname},{s.Vorname};{s.ID}").Distinct().ToList();
                         rlist.Sort(Comparer<string>.Default);
                         ResetItemsSource(rightListBox, rlist);
                         break;
@@ -1498,7 +1500,7 @@ public partial class MainWindow : Window
 
                         if (!hasComboBoxChanged) return;
                         var rlist = _myschool.GetLuLvonSuS(sus.ID).Result
-                            .Select(l => l.Kuerzel + ";" + l.Nachname + "," + l.Vorname).Distinct().ToList();
+                            .Select(l => $"{l.Kuerzel};{l.Nachname},{l.Vorname}").Distinct().ToList();
                         rlist.Sort(Comparer<string>.Default);
                         ResetItemsSource(rightListBox, rlist);
                         break;
@@ -1520,7 +1522,7 @@ public partial class MainWindow : Window
                         if (!hasComboBoxChanged) return;
                         if (string.IsNullOrEmpty(kurs.Bezeichnung)) break;
                         var rlist = _myschool.GetLuLAusKurs(kurs.Bezeichnung).Result
-                            .Select(l => l.Kuerzel + ";" + l.Nachname + "," + l.Vorname).Distinct().ToList();
+                            .Select(l => $"{l.Kuerzel};{l.Nachname},{l.Vorname}").Distinct().ToList();
                         rlist.Sort(Comparer<string>.Default);
                         ResetItemsSource(rightListBox, rlist);
                         break;
@@ -1586,7 +1588,7 @@ public partial class MainWindow : Window
     private void LoadSuSData(SuS s)
     {
         if (s.ID is 0 or < 50000) return;
-        tbSuSID.Text = s.ID + "";
+        tbSuSID.Text = $"{s.ID}";
         tbSuSVorname.Text = s.Vorname;
         tbSuSnachname.Text = s.Nachname;
         tbSuSKlasse.Text = s.Klasse;
@@ -1595,7 +1597,7 @@ public partial class MainWindow : Window
         tbSuSElternadresse.Text = s.Mail;
         tbSuSZweitadresse.Text = s.Zweitmail;
         tbSuSKurse.Text = _myschool.GetKursVonSuS(s.ID).Result
-            .Aggregate("", (current, kurs) => current + kurs.Bezeichnung + ",").TrimEnd(',');
+            .Aggregate("", (current, kurs) => $"{current}{kurs.Bezeichnung},").TrimEnd(',');
         cbSuSZweitaccount.IsChecked = s.Zweitaccount;
         cbSuSM365.IsChecked = s.HasM365Account;
         cbSuSAktiv.IsChecked = s.IstAktiv;
@@ -1605,7 +1607,7 @@ public partial class MainWindow : Window
     private void LoadLuLData(Lehrkraft l)
     {
         if (l.ID is 0 or > 1500) return;
-        tbLuLID.Text = l.ID + "";
+        tbLuLID.Text = $"{l.ID}";
         tbLuLVorname.Text = l.Vorname;
         tbLuLNachname.Text = l.Nachname;
         tbLuLKuerzel.Text = l.Kuerzel;
@@ -1613,7 +1615,7 @@ public partial class MainWindow : Window
         tbLuLMail.Text = l.Mail;
         tbLuLtmpPwd.Text = l.Pwttemp;
         tbLuLKurse.Text = _myschool.GetKursVonLuL(l.ID).Result
-            .Aggregate("", (current, kurs) => current + kurs.Bezeichnung + ",").TrimEnd(',');
+            .Aggregate("", (current, kurs) => $"{current}{kurs.Bezeichnung},").TrimEnd(',');
         tbLuLFavo.Text = l.Favo;
         tbLuLSFavo.Text = l.SFavo;
         cbLuLAktiv.IsChecked = l.IstAktiv;
@@ -1625,7 +1627,7 @@ public partial class MainWindow : Window
         if (string.IsNullOrEmpty(k.Bezeichnung)) return;
         tbKursbezeichnung.Text = k.Bezeichnung;
         tbKursLuL.Text = _myschool.GetLuLAusKurs(k.Bezeichnung).Result
-            .Aggregate("", (current, lul) => current + lul.Kuerzel + ",").TrimEnd(',');
+            .Aggregate("", (current, lul) => $"{current}{lul.Kuerzel},").TrimEnd(',');
         tbKursFach.Text = k.Fach;
         tbKursSuffix.Text = k.Suffix;
         tbKursKlasse.Text = k.Klasse;
@@ -1652,10 +1654,10 @@ public partial class MainWindow : Window
             if (folder == null) return;
             var folderpath = folder.Path.LocalPath;
             var expandFiles = false;
-            if (File.Exists(folderpath + "/aix_sus.csv") || File.Exists(folderpath + "/aix_lul.csv") ||
-                File.Exists(folderpath + "/mdl_einschreibungen.csv") ||
-                File.Exists(folderpath + "/mdl_kurse.csv") || File.Exists(folderpath + "/mdl_nutzer.csv") ||
-                File.Exists(folderpath + "jamf_import.csv"))
+            if (File.Exists($"{folderpath}/aix_sus.csv") || File.Exists($"{folderpath}/aix_lul.csv") ||
+                File.Exists($"{folderpath}/mdl_einschreibungen.csv") ||
+                File.Exists($"{folderpath}/mdl_kurse.csv") || File.Exists($"{folderpath}/mdl_nutzer.csv") ||
+                File.Exists($"{folderpath}jamf_import.csv"))
             {
                 var overwriteFilesDialog = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
                 {
@@ -1747,12 +1749,12 @@ public partial class MainWindow : Window
                 {
                     if (_myschool.GetSuSAusKurs(k.Bezeichnung).Result.Count == 0)
                     {
-                        ergebnisliste.Add(k.Bezeichnung + ";ohne SuS");
+                        ergebnisliste.Add($"{k.Bezeichnung};ohne SuS");
                     }
 
                     if (_myschool.GetLuLAusKurs(k.Bezeichnung).Result.Count == 0)
                     {
-                        ergebnisliste.Add(k.Bezeichnung + " ohne LuL");
+                        ergebnisliste.Add($"{k.Bezeichnung} ohne LuL");
                     }
                 }
             }
@@ -1763,7 +1765,7 @@ public partial class MainWindow : Window
                 ergebnisliste.Add("Nachname, Vorname; ID; Fehler");
                 var susOhneKurse = from sus in _myschool.GetSchuelerListe().Result
                     where _myschool.GetKursVonSuS(Convert.ToInt32(sus.ID)).Result.Count == 0
-                    select sus.Nachname + ", " + sus.Vorname + ";" + sus.ID + ";ohne Kurs";
+                    select $"{sus.Nachname}, {sus.Vorname};{sus.ID};ohne Kurs";
                 var ohneKurse = susOhneKurse as string[] ?? susOhneKurse.ToArray();
                 if (ohneKurse.Length != 0)
                 {
@@ -1777,7 +1779,7 @@ public partial class MainWindow : Window
                 ergebnisliste.Add("Nachname, Vorname; ID; Fehler");
                 var lulOhneKurse = from lul in _myschool.GetLehrerListe().Result
                     where _myschool.GetKursVonLuL(Convert.ToInt32(lul.ID)).Result.Count == 0
-                    select lul.Nachname + ", " + lul.Vorname + ";" + lul.ID + ";ohne Kurs";
+                    select $"{lul.Nachname}, {lul.Vorname};{lul.ID};ohne Kurs";
                 var ohneKurse = lulOhneKurse as string[] ?? lulOhneKurse.ToArray();
                 if (ohneKurse.Length != 0)
                 {
@@ -1791,7 +1793,7 @@ public partial class MainWindow : Window
                 ergebnisliste.Add("Nachname, Vorname; ID; Fehler");
                 ergebnisliste.AddRange(from lul in _myschool.GetLehrerListe().Result
                     where lul.Fakultas.Contains("NV")
-                    select lul.Nachname + ", " + lul.Vorname + ";" + lul.ID + ";mit fehlerhafter Fakultas");
+                    select $"{lul.Nachname}, {lul.Vorname};{lul.ID};mit fehlerhafter Fakultas");
             }
 
             if (cbFehlerKurse.IsChecked != null && cbFehlerKurse.IsChecked.Value)
@@ -1807,10 +1809,10 @@ public partial class MainWindow : Window
                 var kurscache = _myschool.GetKursListe().Result;
                 ergebnisliste.AddRange(from kurs in kurscache
                     where kurs.Bezeichnung.Length < 3
-                    select kurs.Bezeichnung + ";Zu kurzer Bezeichnung");
+                    select $"{kurs.Bezeichnung};Zu kurzer Bezeichnung");
                 ergebnisliste.AddRange(from kurs in kurscache
                     where !whitelist.Contains(kurs.Bezeichnung) && (kurs.Fach.Length == 0 || kurs.Fach.Equals("---"))
-                    select kurs.Bezeichnung + ";Fehlerhaftes Fach");
+                    select $"{kurs.Bezeichnung};Fehlerhaftes Fach");
             }
 
             if (cbFehlerSuS.IsChecked != null && cbFehlerSuS.IsChecked.Value)
@@ -1821,28 +1823,33 @@ public partial class MainWindow : Window
                 {
                     if (sus.Nutzername.Equals(""))
                     {
-                        ergebnisliste.Add(sus.Nachname + ", " + sus.Vorname + ";Klasse " + sus.Klasse + ";" +
-                                          sus.ID + ";ohne Nutzernamen");
+                        ergebnisliste.Add(
+                            $"{sus.Nachname}, {sus.Vorname};Klasse {sus.Klasse};{sus.ID};ohne Nutzernamen");
                     }
 
                     var mailsuffixes = _myschool.GetSettings().Result.Mailsuffix;
                     if (string.IsNullOrEmpty(sus.Mail) || sus.Mail == sus.ID + mailsuffixes)
                     {
-                        ergebnisliste.Add(sus.Nachname + ", " + sus.Vorname + ";Klasse " + sus.Klasse + ";" +
-                                          sus.ID + ";ohne gültige Mailadresse");
+                        ergebnisliste.Add(
+                            $"{sus.Nachname}, {sus.Vorname};Klasse {sus.Klasse};{sus.ID};ohne gültige Mailadresse");
                     }
 
                     if (sus.Zweitaccount && (sus.Zweitmail == "" || sus.Zweitmail == sus.Mail))
                     {
-                        ergebnisliste.Add(sus.Nachname + ", " + sus.Vorname + ";Klasse " + sus.Klasse + ";" +
-                                          sus.ID + ";ohne gültige Zweitmailadresse");
+                        ergebnisliste.Add(
+                            $"{sus.Nachname}, {sus.Vorname};Klasse {sus.Klasse};{sus.ID};ohne gültige Zweitmailadresse");
+                    }
+
+                    if (Schuldatenbank.jamfstufen.Contains(sus.GetStufe()) && string.IsNullOrEmpty(sus.Seriennummer))
+                    {
+                        ergebnisliste.Add(
+                            $"{sus.Nachname}, {sus.Vorname};Klasse {sus.Klasse};{sus.ID};ohne Seriennummer in JAMF-Stufe {sus.GetStufe()}");
                     }
                 }
 
                 ergebnisliste.AddRange(_myschool.GetM365Blacklist().Result
                     .Select(susid => _myschool.GetSchueler(susid).Result).Select(sus =>
-                        sus.Nachname + ", " + sus.Vorname + ";Klasse " + sus.Klasse + ";" + sus.ID +
-                        ";ohne DV Zustimmung"));
+                        $"{sus.Nachname}, {sus.Vorname};Klasse {sus.Klasse};{sus.ID};ohne DV Zustimmung"));
             }
 
             if (ergebnisliste.Count == 0)
@@ -1860,7 +1867,7 @@ public partial class MainWindow : Window
 #endif
             _myschool.AddLogMessage(new LogEintrag
             {
-                Eintragsdatum = DateTime.Now, Nachricht = "Fehler bei der Fehlersuche " + ex.Message,
+                Eintragsdatum = DateTime.Now, Nachricht = $"Fehler bei der Fehlersuche {ex.Message}",
                 Warnstufe = "Fehler"
             });
         }
@@ -1879,6 +1886,7 @@ public partial class MainWindow : Window
             var filepath = files.Path.LocalPath;
 
             await File.WriteAllLinesAsync(filepath, lbFehlerliste.Items.Cast<string>(), Encoding.UTF8);
+            await ShowCustomSuccessMessage("Speichern erfolgreich", "Erfolg");
         }
     }
 
@@ -1999,7 +2007,7 @@ public partial class MainWindow : Window
         await _myschool.SetSettings(settings);
         loadSettingsToGUI(settings);
         await _myschool.StartTransaction();
-        if (!_myschool.GibtEsKurs("Erprobungsstufe" + settings.Kurssuffix))
+        if (!_myschool.GibtEsKurs($"Erprobungsstufe{settings.Kurssuffix}"))
         {
             await _myschool.AddKurs("Erprobungsstufe", "", "", "", settings.Kurssuffix, 1);
             foreach (var s in await _myschool.GetSusAusStufe("5"))
@@ -2035,7 +2043,7 @@ public partial class MainWindow : Window
             }
         }
 
-        if (!_myschool.GibtEsKurs("Mittelstufe" + settings.Kurssuffix))
+        if (!_myschool.GibtEsKurs($"Mittelstufe{settings.Kurssuffix}"))
         {
             await _myschool.AddKurs("Mittelstufe", "", "", "", settings.Kurssuffix, 1);
             foreach (var s in await _myschool.GetSusAusStufe("7"))
@@ -2076,7 +2084,7 @@ public partial class MainWindow : Window
             }
         }
 
-        if (!_myschool.GibtEsKurs("Einführungsphase" + settings.Kurssuffix))
+        if (!_myschool.GibtEsKurs($"Einführungsphase{settings.Kurssuffix}"))
         {
             await _myschool.AddKurs("Einführungsphase", "", "EF", "EF", settings.Kurssuffix, 1);
             foreach (var s in await _myschool.GetSusAusStufe("EF"))
@@ -2102,7 +2110,7 @@ public partial class MainWindow : Window
             }
         }
 
-        if (!_myschool.GibtEsKurs("Qualifikationsphase 1" + settings.Kurssuffix))
+        if (!_myschool.GibtEsKurs($"Qualifikationsphase 1{settings.Kurssuffix}"))
         {
             await _myschool.AddKurs("Qualifikationsphase 1", "", "Q1", "Q1", settings.Kurssuffix, 1);
             foreach (var s in await _myschool.GetSusAusStufe("Q1"))
@@ -2128,7 +2136,7 @@ public partial class MainWindow : Window
             }
         }
 
-        if (!_myschool.GibtEsKurs("Qualifikationsphase 2" + settings.Kurssuffix))
+        if (!_myschool.GibtEsKurs($"Qualifikationsphase 2{settings.Kurssuffix}"))
         {
             await _myschool.AddKurs("Qualifikationsphase 2", "", "Q2", "Q2", settings.Kurssuffix, 1);
             foreach (var s in await _myschool.GetSusAusStufe("Q2"))
@@ -2214,16 +2222,16 @@ public partial class MainWindow : Window
             {
                 foreach (var stufe in Schuldatenbank.stubostufen)
                 {
-                    await _myschool.AddKurs("StuBo-" + stufe, "StuBo", stufe, stufe,
+                    await _myschool.AddKurs($"StuBo-{stufe}", "StuBo", stufe, stufe,
                         _myschool.GetSettings().Result.Kurssuffix, 1);
                     foreach (var sus in _myschool.GetSusAusStufe(stufe).Result)
                     {
-                        await _myschool.AddStoK(sus.ID, "StuBo-" + stufe);
+                        await _myschool.AddStoK(sus.ID, $"StuBo-{stufe}");
                     }
 
                     foreach (var krz in stubo_krz)
                     {
-                        await _myschool.AddLtoK(_myschool.GetLehrkraft(krz).Result.ID, "StuBo-" + stufe);
+                        await _myschool.AddLtoK(_myschool.GetLehrkraft(krz).Result.ID, $"StuBo-{stufe}");
                     }
                 }
             }
@@ -2456,7 +2464,7 @@ public partial class MainWindow : Window
                     }
 
                     var seliste = sliste.Distinct()
-                        .Select(s => s.Nachname + "," + s.Vorname + ";" + s.ID)
+                        .Select(s => $"{s.Nachname},{s.Vorname};{s.ID}")
                         .ToList();
                     seliste.Sort(Comparer<string>.Default);
                     ResetItemsSource(leftListBox, seliste);
@@ -2487,7 +2495,7 @@ public partial class MainWindow : Window
                     }
 
                     var leliste = lliste.Distinct()
-                        .Select(l => l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)
+                        .Select(l => $"{l.Kuerzel};{l.Nachname},{l.Vorname}")
                         .ToList();
                     leliste.Sort(Comparer<string>.Default);
                     ResetItemsSource(leftListBox, leliste);
@@ -2571,7 +2579,7 @@ public partial class MainWindow : Window
                     }
 
                     var seliste = sliste.Distinct()
-                        .Select(s => s.Nachname + "," + s.Vorname + ";" + s.ID)
+                        .Select(s => $"{s.Nachname},{s.Vorname};{s.ID}")
                         .ToList();
                     seliste.Sort(Comparer<string>.Default);
                     ResetItemsSource(rightListBox, seliste);
@@ -2602,7 +2610,7 @@ public partial class MainWindow : Window
                     }
 
                     var leliste = lliste.Distinct()
-                        .Select(l => l.Kuerzel + ";" + l.Nachname + "," + l.Vorname)
+                        .Select(l => $"{l.Kuerzel};{l.Nachname},{l.Vorname}")
                         .ToList();
                     leliste.Sort(Comparer<string>.Default);
                     ResetItemsSource(rightListBox, leliste);
@@ -2658,8 +2666,7 @@ public partial class MainWindow : Window
                         .ToList()
                         .Select(sus => _myschool.GetSchueler(Convert.ToInt32(sus.Split(';')[1])).Result)
                         .Select(s =>
-                            s.Vorname + ";" + s.Nachname + ";" + s.Nutzername + ";" + "Klasse" + s.Klasse +
-                            DateTime.Now.Year + "!;" + s.Aixmail + ";" + s.Klasse));
+                            $"{s.Vorname};{s.Nachname};{s.Nutzername};Klasse{s.Klasse}{DateTime.Now.Year}!;{s.Aixmail};{s.Klasse}"));
                     break;
                 case 1:
                     var lul_liste = leftListBox.SelectedItems.Cast<string>()
@@ -2676,21 +2683,19 @@ public partial class MainWindow : Window
                         var firstChar = maildienst[0];
                         var UpperCaseFirstCharacter = char.ToUpper(firstChar);
                         maildienst = UpperCaseFirstCharacter + maildienst[1..];
-                        var fakult = fakultas.Aggregate("", (current, t) => current + t + ";");
+                        var fakult = fakultas.Aggregate("", (current, t) => $"{current}{t};");
                         switch (fakultas.Length)
                         {
                             case 2:
-                                fakult += ";" + lt.Fakultas; //; oder ,
+                                fakult += $";{lt.Fakultas}"; //; oder ,
                                 break;
                             case 3:
                                 fakult += lt.Fakultas;
                                 break;
                         }
 
-                        ausgabe.Add(lt.Kuerzel + ";" + lt.Nachname + ";" + lt.Vorname + ";;;;;" + ";" +
-                                    maildienst + ";;;" + lt.Mail + ";" + fakult + ";;" +
-                                    _myschool.GetTempPasswort(lt.ID).Result + ";1;;;;;" + lt.Nachname + ";" +
-                                    maildienst.ToLower() + ";1");
+                        ausgabe.Add(
+                            $"{lt.Kuerzel};{lt.Nachname};{lt.Vorname};;;;;;{maildienst};;;{lt.Mail};{fakult};;{_myschool.GetTempPasswort(lt.ID).Result};1;;;;;{lt.Nachname};{maildienst.ToLower()};1");
                     }
 
                     break;
@@ -2699,8 +2704,7 @@ public partial class MainWindow : Window
                     foreach (string kursbez in leftListBox.SelectedItems)
                     {
                         ausgabe.AddRange(_myschool.GetSuSAusKurs(kursbez).Result.Distinct().Select(s =>
-                            s.Vorname + ";" + s.Nachname + ";" + s.Nutzername + ";" + "Klasse" + s.Klasse +
-                            DateTime.Now.Year + "!;" + s.Aixmail + ";" + s.Klasse));
+                            $"{s.Vorname};{s.Nachname};{s.Nutzername};Klasse{s.Klasse}{DateTime.Now.Year}!;{s.Aixmail};{s.Klasse}"));
                     }
 
 
@@ -2740,9 +2744,9 @@ public partial class MainWindow : Window
             if (folder == null) return;
             var folderpath = folder.Path.LocalPath;
             var expandFiles = false;
-            if (File.Exists(folderpath + "/aix_sus.csv") || File.Exists(folderpath + "/aix_lul.csv") ||
-                File.Exists(folderpath + "/mdl_einschreibungen.csv") ||
-                File.Exists(folderpath + "/mdl_kurse.csv") || File.Exists(folderpath + "/mdl_nutzer.csv"))
+            if (File.Exists($"{folderpath}/aix_sus.csv") || File.Exists($"{folderpath}/aix_lul.csv") ||
+                File.Exists($"{folderpath}/mdl_einschreibungen.csv") ||
+                File.Exists($"{folderpath}/mdl_kurse.csv") || File.Exists($"{folderpath}/mdl_nutzer.csv"))
             {
                 var overwriteFilesDialog = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
                 {
@@ -2872,8 +2876,8 @@ public partial class MainWindow : Window
             var filepath = files.Path.LocalPath;
             List<string> lulliste = ["Kürzel;Nachname;Fächer;Mailadresse"];
             lulliste.AddRange(_myschool.GetLehrerListe().Result.Select(lehrer =>
-                lehrer.Kuerzel + ";" + lehrer.Nachname + ";" + lehrer.Fakultas + @";\underline{\href{mailto:" +
-                lehrer.Mail.ToLower() + "}{" + lehrer.Mail.ToLower() + "}}").OrderBy(s => s.Split(';')[0]));
+                    $@"{lehrer.Kuerzel};{lehrer.Nachname};{lehrer.Fakultas};\underline{{\href{{mailto:{lehrer.Mail.ToLower()}}}{{{lehrer.Mail.ToLower()}}}}}")
+                .OrderBy(s => s.Split(';')[0]));
             await File.WriteAllLinesAsync(filepath, lulliste, Encoding.UTF8);
         }
     }
@@ -2897,16 +2901,14 @@ public partial class MainWindow : Window
             {
                 var lehrer = llist[i];
                 var res = "";
-                res += lehrer.Kuerzel + ";" + lehrer.Nachname + ";" + lehrer.Fakultas.TrimEnd(',') +
-                       @";\underline{\href{mailto:" +
-                       lehrer.Mail.ToLower() + "}{" + lehrer.Mail.ToLower() + "}}";
+                res +=
+                    $@"{lehrer.Kuerzel};{lehrer.Nachname};{lehrer.Fakultas.TrimEnd(',')};\underline{{\href{{mailto:{lehrer.Mail.ToLower()}}}{{{lehrer.Mail.ToLower()}}}}}";
                 lulliste.Add(res);
                 var index = i + half + 1;
                 if (index >= llist.Count) continue;
                 lehrer = llist[index];
-                lulliste[i] += ";" + lehrer.Kuerzel + ";" + lehrer.Nachname + ";" + lehrer.Fakultas.TrimEnd(',') +
-                               @";\underline{\href{mailto:" +
-                               lehrer.Mail.ToLower() + "}{" + lehrer.Mail.ToLower() + "}}";
+                lulliste[i] +=
+                    $@";{lehrer.Kuerzel};{lehrer.Nachname};{lehrer.Fakultas.TrimEnd(',')};\underline{{\href{{mailto:{lehrer.Mail.ToLower()}}}{{{lehrer.Mail.ToLower()}}}}}";
             }
 
             if (llist.Count % 2 == 1)
@@ -3054,32 +3056,36 @@ public partial class MainWindow : Window
     private async void BtnModErstellung_OnClick(object? sender, RoutedEventArgs e)
     {
         if (cbSonst1 == null || cbSonst2 == null ||
-            cbSonst3 == null || string.IsNullOrEmpty(tbSonst3.Text) || string.IsNullOrEmpty(tbSonst2.Text)) return;
+            cbSonst3 == null || string.IsNullOrEmpty(tbSonst1.Text) || string.IsNullOrEmpty(tbSonst3.Text) ||
+            string.IsNullOrEmpty(tbSonst2.Text)) return;
         var suscache = await _myschool.GetSchuelerListe();
         var lulcache = await _myschool.GetLehrerListe();
         var kurscache = await _myschool.GetKursListe();
         var susliste = new List<SuS>();
         var lulliste = new List<Lehrkraft>();
+        var splitChar1 = tbSonst1.Text.Contains(';') ? ';' : tbSonst1.Text.Contains('\n') ? '\n' : ',';
+        var splitChar2 = tbSonst2.Text.Contains(';') ? ';' : tbSonst2.Text.Contains('\n') ? '\n' : ',';
+        var splitChar3 = tbSonst3.Text.Contains(';') ? ';' : tbSonst3.Text.Contains('\n') ? '\n' : ',';
         switch (cbSonst1.SelectedIndex)
         {
             case 0 or 4:
                 susliste = cbSonst2.SelectedIndex switch
                 {
-                    0 => suscache.Where(s => tbSonst2.Text.Split(';').Contains(s.GetStufe())).ToList(),
-                    1 => suscache.Where(s => tbSonst2.Text.Split(';').Contains(s.Klasse)).ToList(),
+                    0 => suscache.Where(s => tbSonst2.Text.Split(splitChar2).Contains(s.GetStufe())).ToList(),
+                    1 => suscache.Where(s => tbSonst2.Text.Split(splitChar2).Contains(s.Klasse)).ToList(),
                     _ => susliste
                 };
                 break;
             case 1:
                 if (string.IsNullOrEmpty(tbSonst1.Text)) return;
-                susliste = suscache.Where(s => tbSonst1.Text.Split(';').Contains(s.ID.ToString())).ToList();
+                susliste = suscache.Where(s => tbSonst1.Text.Split(splitChar1).Contains(s.ID.ToString())).ToList();
                 break;
             case 2:
                 lulliste = [.. lulcache];
                 break;
             case 3:
                 if (string.IsNullOrEmpty(tbSonst1.Text)) return;
-                lulliste = lulcache.Where(l => tbSonst1.Text.Split(';').Contains(l.Kuerzel)).ToList();
+                lulliste = lulcache.Where(l => tbSonst1.Text.Split(splitChar1).Contains(l.Kuerzel)).ToList();
                 break;
             default:
                 return;
@@ -3087,7 +3093,7 @@ public partial class MainWindow : Window
 
         if (rbEinschreibenDatenbank.IsChecked == true)
         {
-            var kursliste = kurscache.Where(k => tbSonst3.Text.Split(";").Contains(k.Bezeichnung)).ToList();
+            var kursliste = kurscache.Where(k => tbSonst3.Text.Split(splitChar3).Contains(k.Bezeichnung)).ToList();
             if (kursliste.Count < 1) return;
             switch (cbSonst1.SelectedIndex)
             {
@@ -3246,7 +3252,7 @@ public partial class MainWindow : Window
             where id.All(char.IsDigit)
             select Convert.ToInt32(id)).ToList();
         var diff = alteIDListe.Except(neueIDListe);
-        var ids = diff.Aggregate("", (current, id) => current + ';' + id).TrimStart(';');
+        var ids = diff.Aggregate("", (current, id) => $"{current};{id}").TrimStart(';');
         var clipboard = Clipboard;
         if (clipboard == null) return;
         await clipboard.SetTextAsync(ids);
@@ -3256,7 +3262,7 @@ public partial class MainWindow : Window
     {
         if (leftListBox.SelectedItems == null) return;
         var ids = leftListBox.SelectedItems.Cast<string>()
-            .Aggregate("", (current, item) => current + item.Split(';')[1] + ";");
+            .Aggregate("", (current, item) => $"{current}{item.Split(';')[1]};");
         var clipboard = Clipboard;
         if (clipboard == null) return;
         await clipboard.SetTextAsync(ids.TrimEnd(';'));
@@ -3267,7 +3273,7 @@ public partial class MainWindow : Window
         if (leftListBox.SelectedItems == null) return;
         var sus = leftListBox.SelectedItems.Cast<string>().Aggregate("",
             (current, item) =>
-                current + _myschool.GetSchueler(Convert.ToInt32(item.Split(';')[1])).Result.Mail + ";");
+                $"{current}{_myschool.GetSchueler(Convert.ToInt32(item.Split(';')[1])).Result.Mail};");
         var clipboard = Clipboard;
         if (clipboard == null) return;
         await clipboard.SetTextAsync(sus.TrimEnd(';'));
@@ -3277,7 +3283,7 @@ public partial class MainWindow : Window
     {
         if (leftListBox.SelectedItems == null) return;
         var bezliste = leftListBox.SelectedItems.Cast<string>()
-            .Aggregate("", (current, bez) => current + bez + ";");
+            .Aggregate("", (current, bez) => $"{current}{bez};");
         var clipboard = Clipboard;
         if (clipboard == null) return;
         await clipboard.SetTextAsync(bezliste.TrimEnd(';'));
@@ -3287,7 +3293,7 @@ public partial class MainWindow : Window
     {
         if (leftListBox.SelectedItems == null) return;
         var mails = leftListBox.SelectedItems.Cast<string>().Aggregate("",
-            (current, line) => current + _myschool.GetLehrkraft(line.Split(';')[0]).Result.Mail + ";");
+            (current, line) => $"{current}{_myschool.GetLehrkraft(line.Split(';')[0]).Result.Mail};");
         var clipboard = Clipboard;
         if (clipboard == null) return;
         await clipboard.SetTextAsync(mails.TrimEnd(';'));
@@ -3297,7 +3303,7 @@ public partial class MainWindow : Window
     {
         if (leftListBox.SelectedItems == null) return;
         var krzs = leftListBox.SelectedItems.Cast<string>()
-            .Aggregate("", (current, line) => current + line.Split(';')[0] + ";");
+            .Aggregate("", (current, line) => $"{current}{line.Split(';')[0]};");
         var clipboard = Clipboard;
         if (clipboard == null) return;
         await clipboard.SetTextAsync(krzs.TrimEnd(';'));
@@ -3307,7 +3313,7 @@ public partial class MainWindow : Window
     {
         if (lbLogDisplay.SelectedItems == null) return;
         var logentries = lbLogDisplay.SelectedItems.Cast<string>()
-            .Aggregate("", (current, line) => current + line.Split(';')[0].Trim() + "\n");
+            .Aggregate("", (current, line) => $"{current}{line.Split(';')[0].Trim()}\n");
         var clipboard = Clipboard;
         if (clipboard == null) return;
         await clipboard.SetTextAsync(logentries);
@@ -3356,7 +3362,7 @@ public partial class MainWindow : Window
         {
             var files = await ShowOpenFolderDialog("Bitte einen Dateipfad angeben...");
             if (files == null) return;
-            var filepath = files.Path.LocalPath + "/mdl_einschreibungen.csv";
+            var filepath = $"{files.Path.LocalPath}/mdl_einschreibungen.csv";
             if (File.Exists(filepath))
             {
                 var override_res = await ShowOverwriteDialog();
@@ -3364,7 +3370,7 @@ public partial class MainWindow : Window
             }
 
             var favos = await _myschool.GetFavos();
-            var stringifiedFavos = favos.Select(lehrkraft => "add,student," + lehrkraft.ID + ",EtatK").ToList();
+            var stringifiedFavos = favos.Select(lehrkraft => $"add,student,{lehrkraft.ID},EtatK").ToList();
             await File.WriteAllLinesAsync(filepath, stringifiedFavos, Encoding.UTF8);
             await ShowCustomInfoMessage("Speichern erfolgreich.", "Erfolg");
         }
@@ -3392,14 +3398,14 @@ public partial class MainWindow : Window
         foreach (var fach in faecher)
         {
             var validfach = exportFavoTabGrid.Children
-                .Where(c => !string.IsNullOrEmpty(c.Name) && c.Name.Equals("cbExportFavo" + fach))
+                .Where(c => !string.IsNullOrEmpty(c.Name) && c.Name.Equals($"cbExportFavo{fach}"))
                 .ToList();
             if (validfach.Count == 0) continue;
             var favocb = (ComboBox)exportFavoTabGrid.Children.Where(c =>
-                    !string.IsNullOrEmpty(c.Name) && c.Name.Equals("cbExportFavo" + fach))
+                    !string.IsNullOrEmpty(c.Name) && c.Name.Equals($"cbExportFavo{fach}"))
                 .ToList()[0];
             var sfavocb = (ComboBox)exportFavoTabGrid.Children.Where(c =>
-                    !string.IsNullOrEmpty(c.Name) && c.Name.Equals("cbExportSFavo" + fach))
+                    !string.IsNullOrEmpty(c.Name) && c.Name.Equals($"cbExportSFavo{fach}"))
                 .ToList()[0];
             var kuerzel = favocb.SelectedItem?.ToString();
             if (!string.IsNullOrEmpty(kuerzel))
@@ -3407,7 +3413,7 @@ public partial class MainWindow : Window
                 var l = await _myschool.GetLehrkraft(kuerzel.Split(';')[0]);
                 if (l.Favo != "")
                 {
-                    l.Favo += "," + fach;
+                    l.Favo += $",{fach}";
                 }
                 else
                 {
@@ -3423,7 +3429,7 @@ public partial class MainWindow : Window
                 var l = await _myschool.GetLehrkraft(kuerzel.Split(';')[0]);
                 if (l.SFavo != "")
                 {
-                    l.SFavo += "," + fach;
+                    l.SFavo += $",{fach}";
                 }
                 else
                 {
@@ -3564,7 +3570,7 @@ public partial class MainWindow : Window
             var sus = await _myschool.GetSchueler(id);
             if (string.IsNullOrEmpty(name))
             {
-                await ShowCustomErrorMessage("Fehlerhafte Angaben bei Schüler:in mit der ID: " + sus.ID, "Fehler");
+                await ShowCustomErrorMessage($"Fehlerhafte Angaben bei Schüler:in mit der ID: {sus.ID}", "Fehler");
                 continue;
             }
 
@@ -3648,8 +3654,7 @@ public partial class MainWindow : Window
                     await File.WriteAllTextAsync(filepath,
                         string.Join(";",
                                 filtered_items.Select(x =>
-                                    x.Warnstufe + "\t" + x.Datumsstring() + "\t" +
-                                    x.Nachricht.Replace('\t', ' ').Replace("  ", " ").TrimEnd(' ') + "\n"))
+                                    $"{x.Warnstufe}\t{x.Datumsstring()}\t{x.Nachricht.Replace('\t', ' ').Replace("  ", " ").TrimEnd(' ')}\n"))
                             .Replace("\n;", "\n"));
                     await ShowCustomSuccessMessage("Log erfolgreich gespeichert", "Erfolg");
                 }
@@ -3705,11 +3710,11 @@ public partial class MainWindow : Window
             List<string> favo_export = [];
             var favos = _myschool.GetFavos().Result.Distinct().ToList();
             favos.Sort();
-            var favos_mail = favos.Aggregate("<a href=\"mailto:?bcc=", (current, l) => current + l.Mail + ",");
-            favo_export.Add(favos_mail.TrimEnd(',') +
-                            "\">Alle Fachvorsitzenden</a><br><br>\n<strong>Hinweis</strong>: Der Klick auf das Fach erstellt eine Mail an alle Lehrkräfte, die das Fach unterrichten<br><br>\n");
+            var favos_mail = favos.Aggregate("<a href=\"mailto:?bcc=", (current, l) => $"{current}{l.Mail},");
+            favo_export.Add(
+                $"{favos_mail.TrimEnd(',')}\">Alle Fachvorsitzenden</a><br><br>\n<strong>Hinweis</strong>: Der Klick auf das Fach erstellt eine Mail an alle Lehrkräfte, die das Fach unterrichten<br><br>\n");
             favo_export.AddRange(from fako in fakos
-                let mailadressen = fako.Mitglieder.Aggregate("", (current, l) => current + l.Mail + ",").TrimEnd(',')
+                let mailadressen = fako.Mitglieder.Aggregate("", (current, l) => $"{current}{l.Mail},").TrimEnd(',')
                 let fako_string = new StringBuilder().Append("Fachschaft <a href=\"mailto:?bcc=")
                     .Append(mailadressen)
                     .Append("\">")
@@ -3725,10 +3730,9 @@ public partial class MainWindow : Window
                     .Append("</a><br>Mitglieder: ")
                     .ToString()
                 select fako.Mitglieder.Aggregate(fako_string,
-                    (current, lul) => current + "<a href=\"mailto:" + lul.Mail.ToLower() + "\">" + lul.Mail.ToLower() +
-                                      "</a>, ")
+                    (current, lul) => $"{current}<a href=\"mailto:{lul.Mail.ToLower()}\">{lul.Mail.ToLower()}</a>, ")
                 into fako_string
-                select fako_string.TrimEnd(' ').TrimEnd(',') + "<br><br>");
+                select $"{fako_string.TrimEnd(' ').TrimEnd(',')}<br><br>");
 
             var extx = new List<FilePickerFileType>
             {
@@ -3768,7 +3772,8 @@ public partial class MainWindow : Window
         }
 
         iPSFileText.RemoveAt(0);
-        _myschool.StartTransaction();
+        await _myschool.StartTransaction();
+        var susliste = await _myschool.GetSchuelerListe();
         foreach (var line in iPSFileText)
         {
             var split_line = line.Split(';');
@@ -3776,15 +3781,15 @@ public partial class MainWindow : Window
             var nachname = split_line[1];
             var klasse = split_line[2];
             var seriennummer = split_line[3];
-            if (string.Empty == vorname || string.Empty == nachname || string.Empty == klasse ||
+            if (string.Empty == vorname || string.Empty == nachname || /*string.Empty == klasse ||*/
                 string.Empty == seriennummer)
             {
                 await ShowCustomErrorMessage(
-                    "Fehlerhafte Angaben bei Schüler:in " + vorname + " " + nachname + ":" + klasse, "Fehler");
+                    $"Fehlerhafte Angaben bei Schüler:in {vorname} {nachname}:{klasse}", "Fehler");
                 continue;
             }
 
-            var sus = _myschool.GetSchueler(vorname, nachname).Result.Where(x => x.Klasse == klasse).ToList();
+            var sus = susliste.Where(s => s.Vorname.StartsWith(vorname) && s.Nachname.StartsWith(nachname)).ToList();
             if (sus.Count == 0) continue;
             foreach (var s in sus)
             {
@@ -3794,7 +3799,41 @@ public partial class MainWindow : Window
             }
         }
 
-        _myschool.StopTransaction();
+        await _myschool.StopTransaction();
         await ShowCustomSuccessMessage("Import der Seriennummern abgeschlossen", "Erfolg");
+    }
+
+    private async void btnSonstigesNamenKlassen(object? sender, RoutedEventArgs e)
+    {
+        if (string.IsNullOrEmpty(tbSuSNamen.Text)) return;
+        var namen = tbSuSNamen.Text;
+        List<string> ergebnis = [];
+        foreach (var line in namen.Split('\n'))
+        {
+            if (line == "") continue;
+            var spliteingabe = line.Split('\t');
+            if (spliteingabe.Length is < 1 or > 3) continue;
+            var vorname = spliteingabe[0].Trim();
+            var nachname = spliteingabe[1].Trim();
+            var klasse = spliteingabe.Length == 3 ? spliteingabe[2].Trim() : "";
+            var s = klasse == ""
+                ? _myschool.GetSchuelerListe().Result
+                    .Where(s => s.Vorname.StartsWith(vorname) && s.Nachname.Equals(nachname)).ToList()
+                : _myschool.GetSchuelerListe().Result
+                    .Where(s => s.Vorname.StartsWith(vorname) && s.Nachname.Equals(nachname) && s.Klasse.Equals(klasse))
+                    .ToList();
+            switch (s.Count)
+            {
+                case 1:
+                    ergebnis.Add(string.Join(';', s[0].Vorname, s[0].Nachname, s[0].Klasse, s[0].ID));
+                    break;
+                case > 0:
+                    await ShowCustomErrorMessage($"Mehrere Schüler mit dem Namen {vorname} {nachname} gefunden",
+                        "Fehler");
+                    break;
+            }
+        }
+
+        tbSuSNamen.Text = string.Join('\n', ergebnis);
     }
 }
