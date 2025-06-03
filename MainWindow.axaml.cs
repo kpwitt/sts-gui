@@ -110,6 +110,11 @@ public partial class MainWindow : Window
             LocalCryptoServive.FileDecrypt(filepath, outputFilePath, password);
             _myschool = new Schuldatenbank(outputFilePath);
         }
+        else
+        {
+            Console.WriteLine("Es ist ein unbekannter Fehler aufgetreten, das Programm wird beendet.");
+            System.Environment.Exit(-3);
+        }
 
         InitData();
     }
