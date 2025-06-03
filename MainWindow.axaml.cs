@@ -2861,7 +2861,7 @@ public partial class MainWindow : Window
             FilePickerFileTypes.All
         };
         var file = await ShowOpenFileDialog("Lade Elternmailadressen", extx);
-        if (file is null) return;
+        if (file == null) return;
         var filepath = file.Path.LocalPath;
         await _myschool.ElternEinlesen(filepath);
     }
@@ -3216,7 +3216,7 @@ public partial class MainWindow : Window
                 FilePickerFileTypes.All
             };
             var file = await ShowSaveFileDialog("CSV speichern unter...", extx);
-            return file is null ? "" : file.Path.LocalPath;
+            return file == null ? "" : file.Path.LocalPath;
         }
     }
 
@@ -3236,11 +3236,11 @@ public partial class MainWindow : Window
             FilePickerFileTypes.All
         };
         var file = await ShowOpenFileDialog("Einwilligungen alt", extx);
-        if (file is null) return;
+        if (file == null) return;
         var alterStatusFilePath = file.Path.LocalPath;
         var alterstatus = await File.ReadAllLinesAsync(alterStatusFilePath);
         file = await ShowOpenFileDialog("Einwilligungen neu", extx);
-        if (file is null) return;
+        if (file == null) return;
         var neuerStatusFilePath = file.Path.LocalPath;
         var neuerStatus = await File.ReadAllLinesAsync(neuerStatusFilePath);
 
@@ -3327,7 +3327,7 @@ public partial class MainWindow : Window
         var clipboard = Clipboard;
         if (clipboard == null) return;
         var text = await clipboard.GetTextAsync();
-        if (text is null) return;
+        if (text == null) return;
         while (text.Contains('\r') || text.Contains('\n'))
         {
             text = text.Replace("\r", "").Replace("\n", ";");
@@ -3512,7 +3512,7 @@ public partial class MainWindow : Window
             FilePickerFileTypes.All
         };
         var file = await ShowOpenFileDialog("Aktuelle Accounts ohne DV", extx);
-        if (file is null) return;
+        if (file == null) return;
         var DVFilePath = file.Path.LocalPath;
         var DVFileText = await File.ReadAllLinesAsync(DVFilePath);
         var IDListe = (from line in DVFileText
@@ -3549,7 +3549,7 @@ public partial class MainWindow : Window
             FilePickerFileTypes.All
         };
         var file = await ShowOpenFileDialog("Aktuelle Accounts ohne DV", extx);
-        if (file is null) return;
+        if (file == null) return;
         var TAFilePath = file.Path.LocalPath;
         var TAFileText = File.ReadAllLinesAsync(TAFilePath).Result.ToList();
         if (TAFileText[0] != "id;accountname")
@@ -3695,7 +3695,7 @@ public partial class MainWindow : Window
             FilePickerFileTypes.All
         };
         var file = await ShowSaveFileDialog("Deaktivierte Accounts speichern", extx);
-        if (file is null) return;
+        if (file == null) return;
         var InaktiveFilePath = file.Path.LocalPath;
         await File.WriteAllLinesAsync(InaktiveFilePath, exportMoodleListe, Encoding.UTF8);
 
@@ -3742,7 +3742,7 @@ public partial class MainWindow : Window
                 FilePickerFileTypes.All
             };
             var file = await ShowSaveFileDialog("FaKos exportieren", extx);
-            if (file is null) return;
+            if (file == null) return;
             var InaktiveFilePath = file.Path.LocalPath;
             File.Delete(InaktiveFilePath);
             await using (var outfs = File.AppendText(InaktiveFilePath))
@@ -3765,7 +3765,7 @@ public partial class MainWindow : Window
             FilePickerFileTypes.All
         };
         var file = await ShowOpenFileDialog("Seriennummern einlesen", extx);
-        if (file is null) return;
+        if (file == null) return;
         var iPSFilePath = file.Path.LocalPath;
         var iPSFileText = File.ReadAllLinesAsync(iPSFilePath).Result.ToList();
         if (iPSFileText[0] == "Vorname;Nachname;Klasse;Seriennummer")
