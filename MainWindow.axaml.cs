@@ -1237,8 +1237,7 @@ public partial class MainWindow : Window
     private void OnLeftDataChanged(bool hasComboBoxChanged)
     {
         if (leftListBox == null || rightListBox == null || cboxDataLeft == null || cboxDataRight == null ||
-            _cbZeigeInaktiv.IsChecked == null) return;
-        if (leftListBox.SelectedItems == null) return;
+            _cbZeigeInaktiv.IsChecked == null || leftListBox.SelectedItems == null) return;
         SetStatusText();
         if (_rightMutex && !hasComboBoxChanged) return;
         if (hasComboBoxChanged)
@@ -1421,8 +1420,8 @@ public partial class MainWindow : Window
 
     private void OnRightDataChanged(bool hasComboBoxChanged)
     {
-        if (leftListBox == null || rightListBox == null || cboxDataLeft == null || cboxDataRight == null) return;
-        if (rightListBox.SelectedItems == null) return;
+        if (leftListBox == null || rightListBox == null || cboxDataLeft == null || cboxDataRight == null ||
+            rightListBox.SelectedItems == null) return;
         SetStatusText();
         if (_rightMutex && !hasComboBoxChanged) return;
         switch (cboxDataRight.SelectedIndex)
