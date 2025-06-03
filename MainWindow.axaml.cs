@@ -113,7 +113,7 @@ public partial class MainWindow : Window
         else
         {
             Console.WriteLine("Es ist ein unbekannter Fehler aufgetreten, das Programm wird beendet.");
-            System.Environment.Exit(-3);
+            Environment.Exit(-3);
         }
 
         InitData();
