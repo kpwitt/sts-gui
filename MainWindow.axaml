@@ -490,7 +490,6 @@
                             <Button Grid.Row="3" x:Name="btnExportInaktive" Click="BtnExportInaktive_OnClick">Inaktive Accounts exportieren</Button>
                             <TextBox Grid.Row="4" x:Name="tbSuSNamen" MinLines="15" AcceptsReturn="True"></TextBox>
                             <Button Grid.Row="5" Click="btnSonstigesNamenKlassen">Klassen hinzufügen</Button>
-                            
                         </Grid>
                     </TabItem> <!--Sonstiges-Tab-->
                 </TabControl>
