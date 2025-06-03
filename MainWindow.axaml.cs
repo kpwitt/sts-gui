@@ -3811,18 +3811,26 @@ public partial class MainWindow : Window
         foreach (var line in namen.Split('\n'))
         {
             if (line == "") continue;
-            var vorname = line.Split('\t')[0].Trim();
-            var nachname = line.Split('\t')[1].Trim();
-            var s = _myschool.GetSchuelerListe().Result
-                .Where(s => s.Vorname.StartsWith(vorname) && s.Nachname.Equals(nachname)).ToList();
-            if (s.Count == 1)
+            var spliteingabe = line.Split('\t');
+            if (spliteingabe.Length is < 1 or > 3) continue;
+            var vorname = spliteingabe[0].Trim();
+            var nachname = spliteingabe[1].Trim();
+            var klasse = spliteingabe.Length == 3 ? spliteingabe[2].Trim() : "";
+            var s = klasse == ""
+                ? _myschool.GetSchuelerListe().Result
+                    .Where(s => s.Vorname.StartsWith(vorname) && s.Nachname.Equals(nachname)).ToList()
+                : _myschool.GetSchuelerListe().Result
+                    .Where(s => s.Vorname.StartsWith(vorname) && s.Nachname.Equals(nachname) && s.Klasse.Equals(klasse))
+                    .ToList();
+            switch (s.Count)
             {
-                ergebnis.Add(string.Join(';', s[0].Vorname, s[0].Nachname, s[0].Klasse, s[0].ID));
-            }
-            else if (s.Count > 0)
-            {
-                await ShowCustomErrorMessage($"Mehrere Schüler mit dem Namen {vorname} {nachname} gefunden",
-                    "Fehler");
+                case 1:
+                    ergebnis.Add(string.Join(';', s[0].Vorname, s[0].Nachname, s[0].Klasse, s[0].ID));
+                    break;
+                case > 0:
+                    await ShowCustomErrorMessage($"Mehrere Schüler mit dem Namen {vorname} {nachname} gefunden",
+                        "Fehler");
+                    break;
             }
         }
 
