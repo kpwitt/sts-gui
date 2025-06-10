@@ -426,7 +426,7 @@ public partial class MainWindow : Window
         SetStatusText();
     }
 
-    private async Task loadFavos()
+    private async Task LoadFavos()
     {
         var faecherliste = _myschool.GetLehrerListe().Result.Select(l => l.Fakultas.Split(',')).Distinct().ToList();
         if (faecherliste.Count < 1) return;
@@ -662,7 +662,7 @@ public partial class MainWindow : Window
 
             LocalCryptoServive.FileDecrypt(inputFilePath, outputFilePath, inputResult);
             _myschool = new Schuldatenbank(outputFilePath);
-            await loadFavos();
+            await LoadFavos();
             await ShowCustomInfoMessage("Laden erfolgreich", "Information");
         }
     }
@@ -1113,11 +1113,11 @@ public partial class MainWindow : Window
             .ToList();
         llist.Sort(Comparer<string>.Default);
         ResetItemsSource(leftListBox, llist);
-        loadSettingsToGUI(_myschool.GetSettings().Result);
-        _ = loadFavos();
+        LoadSettingsToGUI(_myschool.GetSettings().Result);
+        _ = LoadFavos();
     }
 
-    private void loadSettingsToGUI(Einstellungen settings)
+    private void LoadSettingsToGUI(Einstellungen settings)
     {
         tbSettingMailplatzhalter.Text = settings.Mailsuffix;
         tbSettingKursersetzung.Text = string.IsNullOrEmpty(settings.Fachersetzung)
@@ -1147,7 +1147,7 @@ public partial class MainWindow : Window
         tbSettingStuBos.Text = settings.StuBos;
     }
 
-    private void cboxDataLeft_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
+    private void CboxDataLeft_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
         ClearTextFields();
         _rightMutex = true;
@@ -1210,7 +1210,7 @@ public partial class MainWindow : Window
         tbSuSSeriennummer.Text = "";
     }
 
-    private void cboxDataRight_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
+    private void CboxDataRight_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
         _rightMutex = true;
         if (rightLastComboIndex != cboxDataRight.SelectedIndex)
@@ -1223,13 +1223,13 @@ public partial class MainWindow : Window
         _rightMutex = false;
     }
 
-    private void leftListBox_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
+    private void LeftListBox_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
         ClearTextFields();
         OnLeftDataChanged(false);
     }
 
-    private void rightListBox_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
+    private void RightListBox_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
         OnRightDataChanged(false);
     }
@@ -2008,7 +2008,7 @@ public partial class MainWindow : Window
         };
 
         await _myschool.SetSettings(settings);
-        loadSettingsToGUI(settings);
+        LoadSettingsToGUI(settings);
         await _myschool.StartTransaction();
         if (!_myschool.GibtEsKurs($"Erprobungsstufe{settings.Kurssuffix}"))
         {
@@ -2866,7 +2866,7 @@ public partial class MainWindow : Window
         await _myschool.ElternEinlesen(filepath);
     }
 
-    private async void mnuExportLKtoHP1Spalte_OnClick(object? sender, RoutedEventArgs e)
+    private async void MnuExportLKtoHP1Spalte_OnClick(object? sender, RoutedEventArgs e)
     {
         await Dispatcher.UIThread.InvokeAsync(SaveLKtoHp);
         return;
@@ -2885,7 +2885,7 @@ public partial class MainWindow : Window
         }
     }
 
-    private async void mnuExportLKtoHP2Spalte_OnClick(object? sender, RoutedEventArgs e)
+    private async void MnuExportLKtoHP2Spalte_OnClick(object? sender, RoutedEventArgs e)
     {
         await Dispatcher.UIThread.InvokeAsync(SaveLKtoHp);
         return;
@@ -3492,7 +3492,7 @@ public partial class MainWindow : Window
             {
                 var json_settings = JsonSerializer.Deserialize<Einstellungen>(File.ReadAllTextAsync(filepath).Result);
                 await _myschool.SetSettings(json_settings);
-                loadSettingsToGUI(json_settings);
+                LoadSettingsToGUI(json_settings);
                 await ShowCustomSuccessMessage("Einstellungen erfolgreich geladen", "Erfolg");
             }
             catch (Exception exception)
@@ -3504,7 +3504,7 @@ public partial class MainWindow : Window
         }
     }
 
-    private async void mnuM365DVEinlesen_OnClick(object? sender, RoutedEventArgs e)
+    private async void MnuM365DVEinlesen_OnClick(object? sender, RoutedEventArgs e)
     {
         var extx = new List<FilePickerFileType>
         {
@@ -3801,7 +3801,7 @@ public partial class MainWindow : Window
 
             await _myschool.StopTransaction();
         }
-        else if(iPSFileText[0] == "Kürzel;Seriennummer")
+        else if (iPSFileText[0] == "Kürzel;Seriennummer")
         {
             iPSFileText.RemoveAt(0);
             await _myschool.StartTransaction();
@@ -3811,12 +3811,15 @@ public partial class MainWindow : Window
                 var split_line = line.Split(';');
                 var kuerzel = split_line[0];
                 var seriennummer = split_line[1];
-                if (string.IsNullOrEmpty(kuerzel)||string.IsNullOrEmpty(seriennummer)){
+                if (string.IsNullOrEmpty(kuerzel) || string.IsNullOrEmpty(seriennummer))
+                {
                     await ShowCustomErrorMessage(
                         $"Fehlerhafte Angaben bei {line}", "Fehler");
                     continue;
                 }
-                var lul = lulliste.Where(l=>l.Kuerzel.Equals(kuerzel, StringComparison.CurrentCultureIgnoreCase)).ToList();
+
+                var lul = lulliste.Where(l => l.Kuerzel.Equals(kuerzel, StringComparison.CurrentCultureIgnoreCase))
+                    .ToList();
                 switch (lul.Count)
                 {
                     case 1:
@@ -3824,14 +3827,15 @@ public partial class MainWindow : Window
                         l.Seriennummer = seriennummer;
                         _myschool.UpdateLehrkraft(l);
                         break;
-                    case >1:
+                    case > 1:
                         await ShowCustomErrorMessage($"Mehrere Lehrkräfte mit Kürzel {kuerzel} gefunden", "Fehler");
                         break;
                 }
             }
 
             await _myschool.StopTransaction();
-        }else
+        }
+        else
         {
             {
                 await ShowCustomErrorMessage("Fehlerhafte Datei, bitte den Header überprüfen", "Fehler");
@@ -3842,7 +3846,7 @@ public partial class MainWindow : Window
         await ShowCustomSuccessMessage("Import der Seriennummern abgeschlossen", "Erfolg");
     }
 
-    private async void btnSonstigesNamenKlassen(object? sender, RoutedEventArgs e)
+    private async void BtnSonstigesNamenKlassen(object? sender, RoutedEventArgs e)
     {
         if (string.IsNullOrEmpty(tbSuSNamen.Text)) return;
         var namen = tbSuSNamen.Text;
