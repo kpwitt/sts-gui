@@ -72,6 +72,12 @@ public struct Einstellungen
     public string Oberstufenkoordination { get; set; }
     public string Version { get; set; }
     public string StuBos { get; set; }
+    public string[] Erprobungsstufe { get; set; }
+    public string[] Mittelstufe { get; set; }
+    public string[] Oberstufe { get; set; }
+    public string[] StuboStufen { get; set; }
+    public string[] JAMFStufen { get; set; }
+    
 }
 
 public record struct LogEintrag

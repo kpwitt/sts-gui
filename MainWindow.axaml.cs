@@ -1145,6 +1145,11 @@ public partial class MainWindow : Window
         tbSettingQ2Stufenleitung.Text = settings.Q2Stufenleitung;
         tbSettingOberstufenkoordination.Text = settings.Oberstufenkoordination;
         tbSettingStuBos.Text = settings.StuBos;
+        tbSettingErprobungsstufen.Text = string.Join(',',settings.Erprobungsstufe);
+        tbSettingMittelstufen.Text = string.Join(',',settings.Mittelstufe);
+        tbSettingOberstufe.Text = string.Join(',',settings.Oberstufe);
+        tbSettingStuBoStufen.Text = string.Join(',', settings.StuboStufen);
+        tbSettingJAMFStufen.Text = string.Join(',',settings.JAMFStufen);
     }
 
     private void CboxDataLeft_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
@@ -1843,7 +1848,7 @@ public partial class MainWindow : Window
                             $"{sus.Nachname}, {sus.Vorname};Klasse {sus.Klasse};{sus.ID};ohne gültige Zweitmailadresse");
                     }
 
-                    if (Schuldatenbank.jamfstufen.Contains(sus.GetStufe()) && string.IsNullOrEmpty(sus.Seriennummer))
+                    if (_myschool.Jamfstufen.Contains(sus.GetStufe()) && string.IsNullOrEmpty(sus.Seriennummer))
                     {
                         ergebnisliste.Add(
                             $"{sus.Nachname}, {sus.Vorname};Klasse {sus.Klasse};{sus.ID};ohne Seriennummer in JAMF-Stufe {sus.GetStufe()}");
@@ -2005,6 +2010,11 @@ public partial class MainWindow : Window
             StuBos = string.IsNullOrEmpty(tbSettingStuBos.Text)
                 ? ""
                 : tbSettingStuBos.Text.Replace(';', ',').TrimEnd(','),
+            Erprobungsstufe = string.IsNullOrEmpty(tbSettingErprobungsstufen.Text)?[]:tbSettingErprobungsstufen.Text.Split(','),
+            Mittelstufe = string.IsNullOrEmpty(tbSettingMittelstufen.Text)?[]:tbSettingMittelstufen.Text.Split(','),
+            Oberstufe = string.IsNullOrEmpty(tbSettingOberstufe.Text)?[]:tbSettingOberstufe.Text.Split(','),
+            StuboStufen = string.IsNullOrEmpty(tbSettingStuBoStufen.Text)?[]:tbSettingStuBoStufen.Text.Split(','),
+            JAMFStufen = string.IsNullOrEmpty(tbSettingJAMFStufen.Text)?[]:tbSettingJAMFStufen.Text.Split(','),
         };
 
         await _myschool.SetSettings(settings);
@@ -2223,7 +2233,7 @@ public partial class MainWindow : Window
             }
             else
             {
-                foreach (var stufe in Schuldatenbank.stubostufen)
+                foreach (var stufe in _myschool.Stubostufen)
                 {
                     await _myschool.AddKurs($"StuBo-{stufe}", "StuBo", stufe, stufe,
                         _myschool.GetSettings().Result.Kurssuffix, 1);
