@@ -71,7 +71,7 @@
                             <MenuItem Header="_Elternmailadressen einlesen" x:Name="mnuLoadElternMails"
                                       Click="MnuLoadElternMails_OnClick" />
                             <MenuItem Header="SuS ohne _DV einlesen" x:Name="mnuM365DVEinlesen"
-                                      Click="mnuM365DVEinlesen_OnClick" />
+                                      Click="MnuM365DVEinlesen_OnClick" />
                             <MenuItem Header="_Temporäre Accounts einlesen" x:Name="mnuTempAccountsEinlesen"
                                       Click="MnuTempAccountsEinlesen_OnClick" />
                             <MenuItem Header="_iPad-Seriennumern einlesen" x:Name="mnuIPadSeriennummernEinlesen"
@@ -82,9 +82,9 @@
                                   Click="OnMnuexporttocsvClick" />
                         <MenuItem Header="Lehrkräfte für Homepage">
                             <MenuItem Header="Einspaltig" x:Name="mnuExportLKtoHP1Spalte"
-                                      Click="mnuExportLKtoHP1Spalte_OnClick" />
+                                      Click="MnuExportLKtoHP1Spalte_OnClick" />
                             <MenuItem Header="Zweispaltig" x:Name="mnuExportLKtoHP2Spalte"
-                                      Click="mnuExportLKtoHP2Spalte_OnClick" />
+                                      Click="MnuExportLKtoHP2Spalte_OnClick" />
                         </MenuItem>
                         <MenuItem Header="FaKo-Export" x:Name="mnuExportFako" Click="MnuExportFako_OnClick" />
                     </MenuItem>
@@ -109,7 +109,7 @@
                                         <ComboBox Width="250" VerticalAlignment="Top"
                                                   Grid.Row="0"
                                                   x:Name="cboxDataLeft"
-                                                  SelectionChanged="cboxDataLeft_OnSelectionChanged">
+                                                  SelectionChanged="CboxDataLeft_OnSelectionChanged">
                                             <ComboBoxItem Content="Schüler:in" />
                                             <ComboBoxItem Content="Lehrkräfte" />
                                             <ComboBoxItem Content="Klasse/Kurs" />
@@ -120,14 +120,14 @@
                                                  MaxWidth="500" MaxLines="1" />
                                     </Grid>
                                     <ListBox DockPanel.Dock="Bottom" x:Name="leftListBox" SelectionMode="Multiple"
-                                             SelectionChanged="leftListBox_OnSelectionChanged"
+                                             SelectionChanged="LeftListBox_OnSelectionChanged"
                                              VerticalAlignment="Stretch" />
                                 </DockPanel>
                                 <DockPanel Grid.Row="0" Grid.Column="1" Margin="2" VerticalAlignment="Stretch">
                                     <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto" RowDefinitions="Auto,Auto">
                                         <ComboBox Width="250" VerticalAlignment="Top"
                                                   Grid.Row="0" x:Name="cboxDataRight"
-                                                  SelectionChanged="cboxDataRight_OnSelectionChanged">
+                                                  SelectionChanged="CboxDataRight_OnSelectionChanged">
                                             <ComboBoxItem Content="Schüler:in" />
                                             <ComboBoxItem Content="Lehrkräfte" />
                                             <ComboBoxItem Content="Klasse/Kurs" />
@@ -137,7 +137,7 @@
                                     </Grid>
                                     <ListBox DockPanel.Dock="Bottom" x:Name="rightListBox"
                                              SelectionMode="Multiple"
-                                             SelectionChanged="rightListBox_OnSelectionChanged"
+                                             SelectionChanged="RightListBox_OnSelectionChanged"
                                              VerticalAlignment="Stretch">
                                         <ContextMenu IsVisible="False" />
                                     </ListBox>
@@ -334,7 +334,7 @@
                             <TabItem Header="Daten" Classes="Header">
                                 <StackPanel>
                                     <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
-                                          ColumnDefinitions="Auto,Auto,Auto">
+                                          ColumnDefinitions="Auto,Auto,Auto, Auto">
                                         <StackPanel Grid.Row="0" Grid.Column="0">
                                             <TextBlock Classes="Header" Text="Platzhalterdomain" />
                                             <TextBox x:Name="tbSettingMailplatzhalter" Width="150" />
@@ -378,6 +378,18 @@
                                             <TextBox x:Name="tbSettingOberstufenkoordination" Width="200" />
                                             <TextBlock Classes="Header" Text="StuBos:" />
                                             <TextBox x:Name="tbSettingStuBos" Width="200" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Row="2" Grid.Column="3" Margin="10">
+                                            <TextBlock Classes="Header" Text="Stufen der Erprobungsstufe:" />
+                                            <TextBox x:Name="tbSettingErprobungsstufen" Width="200" />
+                                            <TextBlock Classes="Header" Text="Stufen der Mittelstufe:" />
+                                            <TextBox x:Name="tbSettingMittelstufen" Width="200" />
+                                            <TextBlock Classes="Header" Text="Stufen der Oberstufe:" />
+                                            <TextBox x:Name="tbSettingOberstufe" Width="200" />
+                                            <TextBlock Classes="Header" Text="Stufen für StuBo:" />
+                                            <TextBox x:Name="tbSettingStuBoStufen" Width="200" />
+                                            <TextBlock Classes="Header" Text="Stufen für JAMF:" />
+                                            <TextBox x:Name="tbSettingJAMFStufen" Width="200" />
                                         </StackPanel>
                                     </Grid>
                                     <StackPanel Orientation="Horizontal">
@@ -489,7 +501,7 @@
                             <Button Grid.Row="2" x:Name="btnSonstDVIDs" Click="BtnSonstDVIDs_OnClick">ID's ohne DV kopieren</Button>
                             <Button Grid.Row="3" x:Name="btnExportInaktive" Click="BtnExportInaktive_OnClick">Inaktive Accounts exportieren</Button>
                             <TextBox Grid.Row="4" x:Name="tbSuSNamen" MinLines="15" AcceptsReturn="True"></TextBox>
-                            <Button Grid.Row="5" Click="btnSonstigesNamenKlassen">Klassen hinzufügen</Button>
+                            <Button Grid.Row="5" Click="BtnSonstigesNamenKlassen">Klassen hinzufügen</Button>
                         </Grid>
                     </TabItem> <!--Sonstiges-Tab-->
                 </TabControl>

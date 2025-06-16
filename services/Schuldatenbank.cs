@@ -28,11 +28,23 @@ public class Schuldatenbank : IDisposable
     private SqliteTransaction? _dbtrans;
     private bool _activeTransaction = false;
     private bool _disposed = false;
-    private static readonly string[] erprobungsstufe = ["5", "6"];
-    private static readonly string[] mittelstufe = ["7", "8", "9", "10"];
-    private static readonly string[] oberstufe = ["EF", "Q1", "Q2"];
-    public static readonly string[] stubostufen = ["8", "9", "10", "EF", "Q1", "Q2"];
-    public static readonly string[] jamfstufen = ["9", "10", "EF", "Q1", "Q2"];
+    private string[] erprobungsstufe = ["5", "6"];
+    private string[] mittelstufe = ["7", "8", "9", "10"];
+    private string[] oberstufe = ["EF", "Q1", "Q2"];
+    private string[] stubostufen = ["8", "9", "10", "EF", "Q1", "Q2"];
+    private string[] jamfstufen = ["8", "9", "10", "EF", "Q1", "Q2"];
+
+    public string[] Stubostufen
+    {
+        get => stubostufen;
+        set => stubostufen = value ?? throw new ArgumentNullException(nameof(value));
+    }
+
+    public string[] Jamfstufen
+    {
+        get => jamfstufen;
+        set => jamfstufen = value ?? throw new ArgumentNullException(nameof(value));
+    }
 
     /// <summary>
     /// erstellt, falls nicht vorhanden, die Datenbankstruktur und öffnet die Verbindung
@@ -170,8 +182,8 @@ public class Schuldatenbank : IDisposable
             };
             if (_dbpath != ":memory:") return;
             var calcSuffix = DateTime.Now.Month < 8
-                ? $"{(DateTime.Now.Year - 2001)}{(DateTime.Now.Year - 2000)}"
-                : $"{(DateTime.Now.Year - 2000)}{(DateTime.Now.Year - 1999)}";
+                ? $"{DateTime.Now.Year - 2001}{DateTime.Now.Year - 2000}"
+                : $"{DateTime.Now.Year - 2000}{DateTime.Now.Year - 1999}";
             Einstellungen einstellungen = new()
             {
                 Mailsuffix = "@schule.local",
@@ -185,6 +197,11 @@ public class Schuldatenbank : IDisposable
                 Q1Stufenleitung = "",
                 Q2Stufenleitung = "",
                 Oberstufenkoordination = "",
+                Erprobungsstufe = erprobungsstufe,
+                Mittelstufe = mittelstufe,
+                Oberstufe = oberstufe,
+                StuboStufen = stubostufen,
+                JAMFStufen = jamfstufen,
                 StuBos = "",
                 Version = version
             };
@@ -203,6 +220,17 @@ public class Schuldatenbank : IDisposable
             sqliteCmd.Parameters.AddWithValue("$q1stufenleitung", "q1stufenleitung");
             sqliteCmd.Parameters.AddWithValue("$q2stufenleitung", "q2stufenleitung");
             sqliteCmd.Parameters.AddWithValue("$oberstufenkoordination", "oberstufenkoordination");
+            sqliteCmd.Parameters.AddWithValue("$erprobungstufen", "erprobungsstufe");
+            sqliteCmd.Parameters.AddWithValue("$mittelstufen", "mittelstufe");
+            sqliteCmd.Parameters.AddWithValue("$oberstufen", "oberstufe");
+            sqliteCmd.Parameters.AddWithValue("$stubostufen", "stubostufen");
+            sqliteCmd.Parameters.AddWithValue("$jamfstufen", "jamfsstufe");
+            sqliteCmd.Parameters.AddWithValue("$erprobungsstufeparam", string.Join(',',einstellungen.Erprobungsstufe));
+            sqliteCmd.Parameters.AddWithValue("$mittelstufeparam", string.Join(',',einstellungen.Mittelstufe));
+            sqliteCmd.Parameters.AddWithValue("$oberstufeparam", string.Join(',',einstellungen.Oberstufe));
+            sqliteCmd.Parameters.AddWithValue("$stubostufenparam", string.Join(',',einstellungen.StuboStufen));
+            sqliteCmd.Parameters.AddWithValue("$jamfstufenparam", string.Join(',',einstellungen.JAMFStufen));
+            
             sqliteCmd.Parameters.AddWithValue("$stubos", "stubos");
             sqliteCmd.Parameters.AddWithValue("$version", "version");
 
@@ -243,6 +271,21 @@ public class Schuldatenbank : IDisposable
             sqliteCmd.ExecuteNonQuery();
             sqliteCmd.CommandText =
                 "INSERT OR REPLACE INTO settings (setting,value) VALUES($oberstufenkoordination, $oberstufenkoordinationparam)";
+            sqliteCmd.ExecuteNonQuery();
+            sqliteCmd.CommandText =
+                "INSERT OR REPLACE INTO settings (setting,value) VALUES($erprobungstufen, $erprobungsstufeparam)";
+            sqliteCmd.ExecuteNonQuery();
+            sqliteCmd.CommandText =
+                "INSERT OR REPLACE INTO settings (setting,value) VALUES($mittelstufen, $mittelstufeparam)";
+            sqliteCmd.ExecuteNonQuery();
+            sqliteCmd.CommandText =
+                "INSERT OR REPLACE INTO settings (setting,value) VALUES($oberstufen, $oberstufeparam)";
+            sqliteCmd.ExecuteNonQuery();
+            sqliteCmd.CommandText =
+                "INSERT OR REPLACE INTO settings (setting,value) VALUES($stubostufen, $stubostufenparam)";
+            sqliteCmd.ExecuteNonQuery();
+            sqliteCmd.CommandText =
+                "INSERT OR REPLACE INTO settings (setting,value) VALUES($jamfstufen, $jamfstufenparam)";
             sqliteCmd.ExecuteNonQuery();
             sqliteCmd.CommandText =
                 "INSERT OR REPLACE INTO settings (setting,value) VALUES($stubos, $stubosparam)";
@@ -434,7 +477,7 @@ public class Schuldatenbank : IDisposable
         sqliteDatareader.Close();
         if (log_count > 1)
         {
-            sqliteCmd.CommandText = "SELECT stufe,datum, nachricht FROM log;";
+            sqliteCmd.CommandText = "SELECT stufe, datum, nachricht FROM log;";
             sqliteDatareader = sqliteCmd.ExecuteReader();
             while (sqliteDatareader.Read())
             {
@@ -2324,6 +2367,22 @@ public class Schuldatenbank : IDisposable
                 case "stubos":
                     einstellungenResult.StuBos = value;
                     break;
+                case "erprobungsstufen":
+                    einstellungenResult.Erprobungsstufe = value.Split(',');
+                    break;
+                case "mittelstufen":
+                    einstellungenResult.Mittelstufe = value.Split(',');
+                    break;
+                case "oberstufen":
+                    einstellungenResult.Oberstufe = value.Split(',');
+                    break;
+                case "stubostufen":
+                    einstellungenResult.StuboStufen = value.Split(',');
+                    break;
+                case "jamfstufen":
+                    einstellungenResult.JAMFStufen = value.Split(',');
+                    break;
+                    
             }
         }
 
@@ -3076,7 +3135,16 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$oberstufenkoordination", "oberstufenkoordination");
         sqliteCmd.Parameters.AddWithValue("$stubos", "stubos");
         sqliteCmd.Parameters.AddWithValue("$version", "version");
-
+        sqliteCmd.Parameters.AddWithValue("$erprobungstufen", "erprobungsstufe");
+        sqliteCmd.Parameters.AddWithValue("$mittelstufen", "mittelstufe");
+        sqliteCmd.Parameters.AddWithValue("$oberstufen", "oberstufe");
+        sqliteCmd.Parameters.AddWithValue("$stubostufen", "stubostufen");
+        sqliteCmd.Parameters.AddWithValue("$jamfstufen", "jamfsstufe");
+        sqliteCmd.Parameters.AddWithValue("$erprobungsstufeparam", string.Join(',',einstellungen.Erprobungsstufe));
+        sqliteCmd.Parameters.AddWithValue("$mittelstufeparam", string.Join(',',einstellungen.Mittelstufe));
+        sqliteCmd.Parameters.AddWithValue("$oberstufeparam", string.Join(',',einstellungen.Oberstufe));
+        sqliteCmd.Parameters.AddWithValue("$stubostufenparam", string.Join(',',einstellungen.StuboStufen));
+        sqliteCmd.Parameters.AddWithValue("$jamfstufenparam", string.Join(',',einstellungen.JAMFStufen));
         sqliteCmd.Parameters.AddWithValue("$erprobungstufenleitungparam",
             einstellungen.Erprobungstufenleitung);
         sqliteCmd.Parameters.AddWithValue("$mittelstufenleitungparam",
@@ -3119,6 +3187,21 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.CommandText =
             "INSERT OR REPLACE INTO settings (setting,value) VALUES($oberstufenkoordination, $oberstufenkoordinationparam)";
         sqliteCmd.ExecuteNonQuery();
+        sqliteCmd.CommandText =
+            "INSERT OR REPLACE INTO settings (setting,value) VALUES($erprobungstufen, $erprobungsstufeparam)";
+        sqliteCmd.ExecuteNonQuery();
+        sqliteCmd.CommandText =
+            "INSERT OR REPLACE INTO settings (setting,value) VALUES($mittelstufen, $mittelstufeparam)";
+        sqliteCmd.ExecuteNonQuery();
+        sqliteCmd.CommandText =
+            "INSERT OR REPLACE INTO settings (setting,value) VALUES($oberstufen, $oberstufeparam)";
+        sqliteCmd.ExecuteNonQuery();
+        sqliteCmd.CommandText =
+            "INSERT OR REPLACE INTO settings (setting,value) VALUES($stubostufen, $stubostufenparam)";
+        sqliteCmd.ExecuteNonQuery();
+        sqliteCmd.CommandText =
+            "INSERT OR REPLACE INTO settings (setting,value) VALUES($jamfstufen, $jamfstufenparam)";
+        sqliteCmd.ExecuteNonQuery();
         sqliteCmd.CommandText = "INSERT OR REPLACE INTO settings (setting,value) VALUES($stubos, $stubosparam)";
         sqliteCmd.ExecuteNonQuery();
         sqliteCmd.CommandText =
@@ -3126,6 +3209,11 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.ExecuteNonQuery();
         sqliteCmd.Parameters.Clear();
         await SetKurzLangFach(einstellungen.Kurzfaecher, einstellungen.Langfaecher);
+        erprobungsstufe = einstellungen.Erprobungsstufe;
+        mittelstufe = einstellungen.Mittelstufe;
+        oberstufe = einstellungen.Oberstufe;
+        jamfstufen = einstellungen.JAMFStufen;
+        stubostufen = einstellungen.StuboStufen;
     }
 
     /// <summary>

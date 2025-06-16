@@ -113,7 +113,7 @@ public partial class MainWindow : Window
         else
         {
             Console.WriteLine("Es ist ein unbekannter Fehler aufgetreten, das Programm wird beendet.");
-            System.Environment.Exit(-3);
+            Environment.Exit(-3);
         }
 
         InitData();
@@ -426,7 +426,7 @@ public partial class MainWindow : Window
         SetStatusText();
     }
 
-    private async Task loadFavos()
+    private async Task LoadFavos()
     {
         var faecherliste = _myschool.GetLehrerListe().Result.Select(l => l.Fakultas.Split(',')).Distinct().ToList();
         if (faecherliste.Count < 1) return;
@@ -662,7 +662,7 @@ public partial class MainWindow : Window
 
             LocalCryptoServive.FileDecrypt(inputFilePath, outputFilePath, inputResult);
             _myschool = new Schuldatenbank(outputFilePath);
-            await loadFavos();
+            await LoadFavos();
             await ShowCustomInfoMessage("Laden erfolgreich", "Information");
         }
     }
@@ -1113,11 +1113,11 @@ public partial class MainWindow : Window
             .ToList();
         llist.Sort(Comparer<string>.Default);
         ResetItemsSource(leftListBox, llist);
-        loadSettingsToGUI(_myschool.GetSettings().Result);
-        _ = loadFavos();
+        LoadSettingsToGUI(_myschool.GetSettings().Result);
+        _ = LoadFavos();
     }
 
-    private void loadSettingsToGUI(Einstellungen settings)
+    private void LoadSettingsToGUI(Einstellungen settings)
     {
         tbSettingMailplatzhalter.Text = settings.Mailsuffix;
         tbSettingKursersetzung.Text = string.IsNullOrEmpty(settings.Fachersetzung)
@@ -1145,9 +1145,14 @@ public partial class MainWindow : Window
         tbSettingQ2Stufenleitung.Text = settings.Q2Stufenleitung;
         tbSettingOberstufenkoordination.Text = settings.Oberstufenkoordination;
         tbSettingStuBos.Text = settings.StuBos;
+        tbSettingErprobungsstufen.Text = string.Join(',',settings.Erprobungsstufe);
+        tbSettingMittelstufen.Text = string.Join(',',settings.Mittelstufe);
+        tbSettingOberstufe.Text = string.Join(',',settings.Oberstufe);
+        tbSettingStuBoStufen.Text = string.Join(',', settings.StuboStufen);
+        tbSettingJAMFStufen.Text = string.Join(',',settings.JAMFStufen);
     }
 
-    private void cboxDataLeft_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
+    private void CboxDataLeft_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
         ClearTextFields();
         _rightMutex = true;
@@ -1210,7 +1215,7 @@ public partial class MainWindow : Window
         tbSuSSeriennummer.Text = "";
     }
 
-    private void cboxDataRight_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
+    private void CboxDataRight_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
         _rightMutex = true;
         if (rightLastComboIndex != cboxDataRight.SelectedIndex)
@@ -1223,13 +1228,13 @@ public partial class MainWindow : Window
         _rightMutex = false;
     }
 
-    private void leftListBox_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
+    private void LeftListBox_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
         ClearTextFields();
         OnLeftDataChanged(false);
     }
 
-    private void rightListBox_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
+    private void RightListBox_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
         OnRightDataChanged(false);
     }
@@ -1794,6 +1799,9 @@ public partial class MainWindow : Window
                 ergebnisliste.AddRange(from lul in _myschool.GetLehrerListe().Result
                     where lul.Fakultas.Contains("NV")
                     select $"{lul.Nachname}, {lul.Vorname};{lul.ID};mit fehlerhafter Fakultas");
+                ergebnisliste.AddRange(from lul in _myschool.GetLehrerListe().Result
+                    where string.IsNullOrEmpty(lul.Seriennummer)
+                    select $"{lul.Nachname}, {lul.Vorname};{lul.ID};mit fehlender Seriennummer");
             }
 
             if (cbFehlerKurse.IsChecked != null && cbFehlerKurse.IsChecked.Value)
@@ -1809,7 +1817,7 @@ public partial class MainWindow : Window
                 var kurscache = _myschool.GetKursListe().Result;
                 ergebnisliste.AddRange(from kurs in kurscache
                     where kurs.Bezeichnung.Length < 3
-                    select $"{kurs.Bezeichnung};Zu kurzer Bezeichnung");
+                    select $"{kurs.Bezeichnung};Zu kurze Bezeichnung (Länge < 3)");
                 ergebnisliste.AddRange(from kurs in kurscache
                     where !whitelist.Contains(kurs.Bezeichnung) && (kurs.Fach.Length == 0 || kurs.Fach.Equals("---"))
                     select $"{kurs.Bezeichnung};Fehlerhaftes Fach");
@@ -1840,7 +1848,7 @@ public partial class MainWindow : Window
                             $"{sus.Nachname}, {sus.Vorname};Klasse {sus.Klasse};{sus.ID};ohne gültige Zweitmailadresse");
                     }
 
-                    if (Schuldatenbank.jamfstufen.Contains(sus.GetStufe()) && string.IsNullOrEmpty(sus.Seriennummer))
+                    if (_myschool.Jamfstufen.Contains(sus.GetStufe()) && string.IsNullOrEmpty(sus.Seriennummer))
                     {
                         ergebnisliste.Add(
                             $"{sus.Nachname}, {sus.Vorname};Klasse {sus.Klasse};{sus.ID};ohne Seriennummer in JAMF-Stufe {sus.GetStufe()}");
@@ -2002,10 +2010,15 @@ public partial class MainWindow : Window
             StuBos = string.IsNullOrEmpty(tbSettingStuBos.Text)
                 ? ""
                 : tbSettingStuBos.Text.Replace(';', ',').TrimEnd(','),
+            Erprobungsstufe = string.IsNullOrEmpty(tbSettingErprobungsstufen.Text)?[]:tbSettingErprobungsstufen.Text.Split(','),
+            Mittelstufe = string.IsNullOrEmpty(tbSettingMittelstufen.Text)?[]:tbSettingMittelstufen.Text.Split(','),
+            Oberstufe = string.IsNullOrEmpty(tbSettingOberstufe.Text)?[]:tbSettingOberstufe.Text.Split(','),
+            StuboStufen = string.IsNullOrEmpty(tbSettingStuBoStufen.Text)?[]:tbSettingStuBoStufen.Text.Split(','),
+            JAMFStufen = string.IsNullOrEmpty(tbSettingJAMFStufen.Text)?[]:tbSettingJAMFStufen.Text.Split(','),
         };
 
         await _myschool.SetSettings(settings);
-        loadSettingsToGUI(settings);
+        LoadSettingsToGUI(settings);
         await _myschool.StartTransaction();
         if (!_myschool.GibtEsKurs($"Erprobungsstufe{settings.Kurssuffix}"))
         {
@@ -2220,7 +2233,7 @@ public partial class MainWindow : Window
             }
             else
             {
-                foreach (var stufe in Schuldatenbank.stubostufen)
+                foreach (var stufe in _myschool.Stubostufen)
                 {
                     await _myschool.AddKurs($"StuBo-{stufe}", "StuBo", stufe, stufe,
                         _myschool.GetSettings().Result.Kurssuffix, 1);
@@ -2858,12 +2871,12 @@ public partial class MainWindow : Window
             FilePickerFileTypes.All
         };
         var file = await ShowOpenFileDialog("Lade Elternmailadressen", extx);
-        if (file is null) return;
+        if (file == null) return;
         var filepath = file.Path.LocalPath;
         await _myschool.ElternEinlesen(filepath);
     }
 
-    private async void mnuExportLKtoHP1Spalte_OnClick(object? sender, RoutedEventArgs e)
+    private async void MnuExportLKtoHP1Spalte_OnClick(object? sender, RoutedEventArgs e)
     {
         await Dispatcher.UIThread.InvokeAsync(SaveLKtoHp);
         return;
@@ -2882,7 +2895,7 @@ public partial class MainWindow : Window
         }
     }
 
-    private async void mnuExportLKtoHP2Spalte_OnClick(object? sender, RoutedEventArgs e)
+    private async void MnuExportLKtoHP2Spalte_OnClick(object? sender, RoutedEventArgs e)
     {
         await Dispatcher.UIThread.InvokeAsync(SaveLKtoHp);
         return;
@@ -3213,7 +3226,7 @@ public partial class MainWindow : Window
                 FilePickerFileTypes.All
             };
             var file = await ShowSaveFileDialog("CSV speichern unter...", extx);
-            return file is null ? "" : file.Path.LocalPath;
+            return file == null ? "" : file.Path.LocalPath;
         }
     }
 
@@ -3233,11 +3246,11 @@ public partial class MainWindow : Window
             FilePickerFileTypes.All
         };
         var file = await ShowOpenFileDialog("Einwilligungen alt", extx);
-        if (file is null) return;
+        if (file == null) return;
         var alterStatusFilePath = file.Path.LocalPath;
         var alterstatus = await File.ReadAllLinesAsync(alterStatusFilePath);
         file = await ShowOpenFileDialog("Einwilligungen neu", extx);
-        if (file is null) return;
+        if (file == null) return;
         var neuerStatusFilePath = file.Path.LocalPath;
         var neuerStatus = await File.ReadAllLinesAsync(neuerStatusFilePath);
 
@@ -3324,7 +3337,7 @@ public partial class MainWindow : Window
         var clipboard = Clipboard;
         if (clipboard == null) return;
         var text = await clipboard.GetTextAsync();
-        if (text is null) return;
+        if (text == null) return;
         while (text.Contains('\r') || text.Contains('\n'))
         {
             text = text.Replace("\r", "").Replace("\n", ";");
@@ -3489,7 +3502,7 @@ public partial class MainWindow : Window
             {
                 var json_settings = JsonSerializer.Deserialize<Einstellungen>(File.ReadAllTextAsync(filepath).Result);
                 await _myschool.SetSettings(json_settings);
-                loadSettingsToGUI(json_settings);
+                LoadSettingsToGUI(json_settings);
                 await ShowCustomSuccessMessage("Einstellungen erfolgreich geladen", "Erfolg");
             }
             catch (Exception exception)
@@ -3501,7 +3514,7 @@ public partial class MainWindow : Window
         }
     }
 
-    private async void mnuM365DVEinlesen_OnClick(object? sender, RoutedEventArgs e)
+    private async void MnuM365DVEinlesen_OnClick(object? sender, RoutedEventArgs e)
     {
         var extx = new List<FilePickerFileType>
         {
@@ -3509,7 +3522,7 @@ public partial class MainWindow : Window
             FilePickerFileTypes.All
         };
         var file = await ShowOpenFileDialog("Aktuelle Accounts ohne DV", extx);
-        if (file is null) return;
+        if (file == null) return;
         var DVFilePath = file.Path.LocalPath;
         var DVFileText = await File.ReadAllLinesAsync(DVFilePath);
         var IDListe = (from line in DVFileText
@@ -3546,7 +3559,7 @@ public partial class MainWindow : Window
             FilePickerFileTypes.All
         };
         var file = await ShowOpenFileDialog("Aktuelle Accounts ohne DV", extx);
-        if (file is null) return;
+        if (file == null) return;
         var TAFilePath = file.Path.LocalPath;
         var TAFileText = File.ReadAllLinesAsync(TAFilePath).Result.ToList();
         if (TAFileText[0] != "id;accountname")
@@ -3692,7 +3705,7 @@ public partial class MainWindow : Window
             FilePickerFileTypes.All
         };
         var file = await ShowSaveFileDialog("Deaktivierte Accounts speichern", extx);
-        if (file is null) return;
+        if (file == null) return;
         var InaktiveFilePath = file.Path.LocalPath;
         await File.WriteAllLinesAsync(InaktiveFilePath, exportMoodleListe, Encoding.UTF8);
 
@@ -3739,7 +3752,7 @@ public partial class MainWindow : Window
                 FilePickerFileTypes.All
             };
             var file = await ShowSaveFileDialog("FaKos exportieren", extx);
-            if (file is null) return;
+            if (file == null) return;
             var InaktiveFilePath = file.Path.LocalPath;
             File.Delete(InaktiveFilePath);
             await using (var outfs = File.AppendText(InaktiveFilePath))
@@ -3762,48 +3775,88 @@ public partial class MainWindow : Window
             FilePickerFileTypes.All
         };
         var file = await ShowOpenFileDialog("Seriennummern einlesen", extx);
-        if (file is null) return;
+        if (file == null) return;
         var iPSFilePath = file.Path.LocalPath;
         var iPSFileText = File.ReadAllLinesAsync(iPSFilePath).Result.ToList();
-        if (iPSFileText[0] != "Vorname;Nachname;Klasse;Seriennummer")
+        if (iPSFileText[0] == "Vorname;Nachname;Klasse;Seriennummer")
         {
-            await ShowCustomErrorMessage("Fehlerhafte Datei, bitte den Header überprüfen", "Fehler");
-            return;
-        }
-
-        iPSFileText.RemoveAt(0);
-        await _myschool.StartTransaction();
-        var susliste = await _myschool.GetSchuelerListe();
-        foreach (var line in iPSFileText)
-        {
-            var split_line = line.Split(';');
-            var vorname = split_line[0];
-            var nachname = split_line[1];
-            var klasse = split_line[2];
-            var seriennummer = split_line[3];
-            if (string.Empty == vorname || string.Empty == nachname || /*string.Empty == klasse ||*/
-                string.Empty == seriennummer)
+            iPSFileText.RemoveAt(0);
+            await _myschool.StartTransaction();
+            var susliste = await _myschool.GetSchuelerListe();
+            foreach (var line in iPSFileText)
             {
-                await ShowCustomErrorMessage(
-                    $"Fehlerhafte Angaben bei Schüler:in {vorname} {nachname}:{klasse}", "Fehler");
-                continue;
+                var split_line = line.Split(';');
+                var vorname = split_line[0];
+                var nachname = split_line[1];
+                var klasse = split_line[2];
+                var seriennummer = split_line[3];
+                if (string.Empty == vorname || string.Empty == nachname || /*string.Empty == klasse ||*/
+                    string.Empty == seriennummer)
+                {
+                    await ShowCustomErrorMessage(
+                        $"Fehlerhafte Angaben bei Schüler:in {vorname} {nachname}:{klasse}", "Fehler");
+                    continue;
+                }
+
+                var sus = susliste.Where(s => s.Vorname.StartsWith(vorname) && s.Nachname.StartsWith(nachname))
+                    .ToList();
+                if (sus.Count == 0) continue;
+                foreach (var s in sus)
+                {
+                    var tmp_sus = s;
+                    tmp_sus.Seriennummer = seriennummer;
+                    _myschool.UpdateSchueler(tmp_sus);
+                }
             }
 
-            var sus = susliste.Where(s => s.Vorname.StartsWith(vorname) && s.Nachname.StartsWith(nachname)).ToList();
-            if (sus.Count == 0) continue;
-            foreach (var s in sus)
+            await _myschool.StopTransaction();
+        }
+        else if (iPSFileText[0] == "Kürzel;Seriennummer")
+        {
+            iPSFileText.RemoveAt(0);
+            await _myschool.StartTransaction();
+            var lulliste = await _myschool.GetLehrerListe();
+            foreach (var line in iPSFileText)
             {
-                var tmp_sus = s;
-                tmp_sus.Seriennummer = seriennummer;
-                _myschool.UpdateSchueler(tmp_sus);
+                var split_line = line.Split(';');
+                var kuerzel = split_line[0];
+                var seriennummer = split_line[1];
+                if (string.IsNullOrEmpty(kuerzel) || string.IsNullOrEmpty(seriennummer))
+                {
+                    await ShowCustomErrorMessage(
+                        $"Fehlerhafte Angaben bei {line}", "Fehler");
+                    continue;
+                }
+
+                var lul = lulliste.Where(l => l.Kuerzel.Equals(kuerzel, StringComparison.CurrentCultureIgnoreCase))
+                    .ToList();
+                switch (lul.Count)
+                {
+                    case 1:
+                        var l = await _myschool.GetLehrkraft(kuerzel.ToUpper());
+                        l.Seriennummer = seriennummer;
+                        _myschool.UpdateLehrkraft(l);
+                        break;
+                    case > 1:
+                        await ShowCustomErrorMessage($"Mehrere Lehrkräfte mit Kürzel {kuerzel} gefunden", "Fehler");
+                        break;
+                }
+            }
+
+            await _myschool.StopTransaction();
+        }
+        else
+        {
+            {
+                await ShowCustomErrorMessage("Fehlerhafte Datei, bitte den Header überprüfen", "Fehler");
+                return;
             }
         }
 
-        await _myschool.StopTransaction();
         await ShowCustomSuccessMessage("Import der Seriennummern abgeschlossen", "Erfolg");
     }
 
-    private async void btnSonstigesNamenKlassen(object? sender, RoutedEventArgs e)
+    private async void BtnSonstigesNamenKlassen(object? sender, RoutedEventArgs e)
     {
         if (string.IsNullOrEmpty(tbSuSNamen.Text)) return;
         var namen = tbSuSNamen.Text;
