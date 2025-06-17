@@ -225,12 +225,12 @@ public class Schuldatenbank : IDisposable
             sqliteCmd.Parameters.AddWithValue("$oberstufen", "oberstufe");
             sqliteCmd.Parameters.AddWithValue("$stubostufen", "stubostufen");
             sqliteCmd.Parameters.AddWithValue("$jamfstufen", "jamfsstufe");
-            sqliteCmd.Parameters.AddWithValue("$erprobungsstufeparam", string.Join(',',einstellungen.Erprobungsstufe));
-            sqliteCmd.Parameters.AddWithValue("$mittelstufeparam", string.Join(',',einstellungen.Mittelstufe));
-            sqliteCmd.Parameters.AddWithValue("$oberstufeparam", string.Join(',',einstellungen.Oberstufe));
-            sqliteCmd.Parameters.AddWithValue("$stubostufenparam", string.Join(',',einstellungen.StuboStufen));
-            sqliteCmd.Parameters.AddWithValue("$jamfstufenparam", string.Join(',',einstellungen.JAMFStufen));
-            
+            sqliteCmd.Parameters.AddWithValue("$erprobungsstufeparam", string.Join(',', einstellungen.Erprobungsstufe));
+            sqliteCmd.Parameters.AddWithValue("$mittelstufeparam", string.Join(',', einstellungen.Mittelstufe));
+            sqliteCmd.Parameters.AddWithValue("$oberstufeparam", string.Join(',', einstellungen.Oberstufe));
+            sqliteCmd.Parameters.AddWithValue("$stubostufenparam", string.Join(',', einstellungen.StuboStufen));
+            sqliteCmd.Parameters.AddWithValue("$jamfstufenparam", string.Join(',', einstellungen.JAMFStufen));
+
             sqliteCmd.Parameters.AddWithValue("$stubos", "stubos");
             sqliteCmd.Parameters.AddWithValue("$version", "version");
 
@@ -2382,7 +2382,6 @@ public class Schuldatenbank : IDisposable
                 case "jamfstufen":
                     einstellungenResult.JAMFStufen = value.Split(',');
                     break;
-                    
             }
         }
 
@@ -3140,11 +3139,11 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$oberstufen", "oberstufe");
         sqliteCmd.Parameters.AddWithValue("$stubostufen", "stubostufen");
         sqliteCmd.Parameters.AddWithValue("$jamfstufen", "jamfsstufe");
-        sqliteCmd.Parameters.AddWithValue("$erprobungsstufeparam", string.Join(',',einstellungen.Erprobungsstufe));
-        sqliteCmd.Parameters.AddWithValue("$mittelstufeparam", string.Join(',',einstellungen.Mittelstufe));
-        sqliteCmd.Parameters.AddWithValue("$oberstufeparam", string.Join(',',einstellungen.Oberstufe));
-        sqliteCmd.Parameters.AddWithValue("$stubostufenparam", string.Join(',',einstellungen.StuboStufen));
-        sqliteCmd.Parameters.AddWithValue("$jamfstufenparam", string.Join(',',einstellungen.JAMFStufen));
+        sqliteCmd.Parameters.AddWithValue("$erprobungsstufeparam", string.Join(',', einstellungen.Erprobungsstufe));
+        sqliteCmd.Parameters.AddWithValue("$mittelstufeparam", string.Join(',', einstellungen.Mittelstufe));
+        sqliteCmd.Parameters.AddWithValue("$oberstufeparam", string.Join(',', einstellungen.Oberstufe));
+        sqliteCmd.Parameters.AddWithValue("$stubostufenparam", string.Join(',', einstellungen.StuboStufen));
+        sqliteCmd.Parameters.AddWithValue("$jamfstufenparam", string.Join(',', einstellungen.JAMFStufen));
         sqliteCmd.Parameters.AddWithValue("$erprobungstufenleitungparam",
             einstellungen.Erprobungstufenleitung);
         sqliteCmd.Parameters.AddWithValue("$mittelstufenleitungparam",
@@ -3642,7 +3641,7 @@ public class Schuldatenbank : IDisposable
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText = "UPDATE lehrkraft SET aktiv = $istAktiv WHERE id = $lulid;";
         sqliteCmd.Parameters.AddWithValue("$lulid", lulid);
-        sqliteCmd.Parameters.AddWithValue("istAktiv", istAktiv);
+        sqliteCmd.Parameters.AddWithValue("$istAktiv", istAktiv);
         sqliteCmd.ExecuteNonQuery();
     }
 
@@ -3666,7 +3665,7 @@ public class Schuldatenbank : IDisposable
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText = "UPDATE schueler SET aktiv = $istAktiv WHERE id = $susid;";
         sqliteCmd.Parameters.AddWithValue("$susid", susid);
-        sqliteCmd.Parameters.AddWithValue("istAktiv", istAktiv);
+        sqliteCmd.Parameters.AddWithValue("$istAktiv", istAktiv);
         sqliteCmd.ExecuteNonQuery();
     }
 
