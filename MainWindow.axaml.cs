@@ -643,6 +643,7 @@ public partial class MainWindow : Window
 
         await Dispatcher.UIThread.InvokeAsync(LoadEncDbFile);
         Title = $"SchildToSchule - {_myschool.GetFilePath()}";
+        InitData();
         SetStatusText();
         return;
 
@@ -752,7 +753,6 @@ public partial class MainWindow : Window
         await _myschool.LulEinlesen(filePath);
         await ShowImportSuccessful();
     }
-
 
     private async void OnMnuloadkursefromfileClick(object? sender, RoutedEventArgs e)
     {
@@ -1145,11 +1145,11 @@ public partial class MainWindow : Window
         tbSettingQ2Stufenleitung.Text = settings.Q2Stufenleitung;
         tbSettingOberstufenkoordination.Text = settings.Oberstufenkoordination;
         tbSettingStuBos.Text = settings.StuBos;
-        tbSettingErprobungsstufen.Text = string.Join(',',settings.Erprobungsstufe);
-        tbSettingMittelstufen.Text = string.Join(',',settings.Mittelstufe);
-        tbSettingOberstufe.Text = string.Join(',',settings.Oberstufe);
+        tbSettingErprobungsstufen.Text = string.Join(',', settings.Erprobungsstufe);
+        tbSettingMittelstufen.Text = string.Join(',', settings.Mittelstufe);
+        tbSettingOberstufe.Text = string.Join(',', settings.Oberstufe);
         tbSettingStuBoStufen.Text = string.Join(',', settings.StuboStufen);
-        tbSettingJAMFStufen.Text = string.Join(',',settings.JAMFStufen);
+        tbSettingJAMFStufen.Text = string.Join(',', settings.JAMFStufen);
     }
 
     private void CboxDataLeft_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
@@ -2010,11 +2010,13 @@ public partial class MainWindow : Window
             StuBos = string.IsNullOrEmpty(tbSettingStuBos.Text)
                 ? ""
                 : tbSettingStuBos.Text.Replace(';', ',').TrimEnd(','),
-            Erprobungsstufe = string.IsNullOrEmpty(tbSettingErprobungsstufen.Text)?[]:tbSettingErprobungsstufen.Text.Split(','),
-            Mittelstufe = string.IsNullOrEmpty(tbSettingMittelstufen.Text)?[]:tbSettingMittelstufen.Text.Split(','),
-            Oberstufe = string.IsNullOrEmpty(tbSettingOberstufe.Text)?[]:tbSettingOberstufe.Text.Split(','),
-            StuboStufen = string.IsNullOrEmpty(tbSettingStuBoStufen.Text)?[]:tbSettingStuBoStufen.Text.Split(','),
-            JAMFStufen = string.IsNullOrEmpty(tbSettingJAMFStufen.Text)?[]:tbSettingJAMFStufen.Text.Split(','),
+            Erprobungsstufe = string.IsNullOrEmpty(tbSettingErprobungsstufen.Text)
+                ? []
+                : tbSettingErprobungsstufen.Text.Split(','),
+            Mittelstufe = string.IsNullOrEmpty(tbSettingMittelstufen.Text) ? [] : tbSettingMittelstufen.Text.Split(','),
+            Oberstufe = string.IsNullOrEmpty(tbSettingOberstufe.Text) ? [] : tbSettingOberstufe.Text.Split(','),
+            StuboStufen = string.IsNullOrEmpty(tbSettingStuBoStufen.Text) ? [] : tbSettingStuBoStufen.Text.Split(','),
+            JAMFStufen = string.IsNullOrEmpty(tbSettingJAMFStufen.Text) ? [] : tbSettingJAMFStufen.Text.Split(','),
         };
 
         await _myschool.SetSettings(settings);
@@ -3179,7 +3181,6 @@ public partial class MainWindow : Window
                     await ShowCustomSuccessMessage("Speichern und Einschreiben erfolgreich", "Erfolg");
                     return;
                 }
-                    
             }
         }
         else if (rbEinschreibenDatei.IsChecked == true)
