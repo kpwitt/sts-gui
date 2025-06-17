@@ -3100,6 +3100,10 @@ public partial class MainWindow : Window
                 if (string.IsNullOrEmpty(tbSonst1.Text)) return;
                 lulliste = lulcache.Where(l => tbSonst1.Text.Split(splitChar1).Contains(l.Kuerzel)).ToList();
                 break;
+            case 5:
+                susliste = suscache.Where(s =>
+                    _myschool.Jamfstufen.Contains(s.GetStufe()) && string.IsNullOrEmpty(s.Seriennummer)).ToList();
+                break;
             default:
                 return;
         }
@@ -3159,7 +3163,7 @@ public partial class MainWindow : Window
             {
                 case 0 or 1 when susliste.Count < 1:
                     return;
-                case 0 or 1 or 4:
+                case 0 or 1 or 4 or 5:
                 {
                     foreach (var kurs in tbSonst3.Text.Split(';'))
                     {
@@ -3172,8 +3176,10 @@ public partial class MainWindow : Window
 
                     await _myschool.StopTransaction();
                     await File.WriteAllLinesAsync(filepath, ListToFile);
+                    await ShowCustomSuccessMessage("Speichern und Einschreiben erfolgreich", "Erfolg");
                     return;
                 }
+                    
             }
         }
         else if (rbEinschreibenDatei.IsChecked == true)
@@ -3214,6 +3220,7 @@ public partial class MainWindow : Window
             }
 
             await File.WriteAllLinesAsync(filepath, ListToFile);
+            await ShowCustomSuccessMessage("Speichern erfolgreich", "Erfolg");
         }
 
         return;
@@ -3236,6 +3243,10 @@ public partial class MainWindow : Window
         tbSonst11.IsVisible = cbSonst1.SelectedIndex % 2 == 0;
         cbSonst2.IsVisible = cbSonst1.SelectedIndex % 2 == 0;
         tbSonst2.IsVisible = cbSonst1.SelectedIndex % 2 == 0;
+        if (cbSonst1.SelectedIndex == 5)
+        {
+            tbSonst1.IsVisible = tbSonst11.IsVisible = cbSonst2.IsVisible = tbSonst2.IsVisible = false;
+        }
     }
 
     private async void BtnSonstDVIDs_OnClick(object? sender, RoutedEventArgs e)
