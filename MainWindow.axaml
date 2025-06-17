@@ -473,6 +473,7 @@
                                     <ComboBoxItem>Alle Lehrkräfte</ComboBoxItem>
                                     <ComboBoxItem>Einige Lehrkräfte</ComboBoxItem>
                                     <ComboBoxItem>Alle Schüler:innen und Erziehungsberechtigte</ComboBoxItem>
+                                    <ComboBoxItem>Alle Schüler:innen ohne iPad-Seriennummer</ComboBoxItem>
                                 </ComboBox>
                                 <TextBox x:Name="tbSonst1" MaxWidth="2500" AcceptsReturn="True" MaxLines="30">-</TextBox>
                                 <TextBlock x:Name="tbSonst11" VerticalAlignment="Center"> aus der </TextBlock>
