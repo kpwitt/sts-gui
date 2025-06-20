@@ -205,95 +205,7 @@ public class Schuldatenbank : IDisposable
                 StuBos = "",
                 Version = version
             };
-            sqliteCmd.Parameters.AddWithValue("$mailsuffixparam", einstellungen.Mailsuffix);
-            sqliteCmd.Parameters.AddWithValue("$kurssuffixparam", einstellungen.Kurssuffix);
-            sqliteCmd.Parameters.AddWithValue("$fachersatzparam", einstellungen.Fachersetzung);
-
-            sqliteCmd.Parameters.AddWithValue("$mailsuffix", "mailsuffix");
-            sqliteCmd.Parameters.AddWithValue("$kurssuffix", "kurssuffix");
-            sqliteCmd.Parameters.AddWithValue("$fachersatz", "fachersatz");
-
-            sqliteCmd.Parameters.AddWithValue("$erprobungstufenleitung",
-                "erprobungsstufenleitung");
-            sqliteCmd.Parameters.AddWithValue("$mittelstufenleitung", "mittelstufenleitung");
-            sqliteCmd.Parameters.AddWithValue("$efstufenleitung", "efstufenleitung");
-            sqliteCmd.Parameters.AddWithValue("$q1stufenleitung", "q1stufenleitung");
-            sqliteCmd.Parameters.AddWithValue("$q2stufenleitung", "q2stufenleitung");
-            sqliteCmd.Parameters.AddWithValue("$oberstufenkoordination", "oberstufenkoordination");
-            sqliteCmd.Parameters.AddWithValue("$erprobungstufen", "erprobungsstufe");
-            sqliteCmd.Parameters.AddWithValue("$mittelstufen", "mittelstufe");
-            sqliteCmd.Parameters.AddWithValue("$oberstufen", "oberstufe");
-            sqliteCmd.Parameters.AddWithValue("$stubostufen", "stubostufen");
-            sqliteCmd.Parameters.AddWithValue("$jamfstufen", "jamfsstufe");
-            sqliteCmd.Parameters.AddWithValue("$erprobungsstufeparam", string.Join(',',einstellungen.Erprobungsstufe));
-            sqliteCmd.Parameters.AddWithValue("$mittelstufeparam", string.Join(',',einstellungen.Mittelstufe));
-            sqliteCmd.Parameters.AddWithValue("$oberstufeparam", string.Join(',',einstellungen.Oberstufe));
-            sqliteCmd.Parameters.AddWithValue("$stubostufenparam", string.Join(',',einstellungen.StuboStufen));
-            sqliteCmd.Parameters.AddWithValue("$jamfstufenparam", string.Join(',',einstellungen.JAMFStufen));
-            
-            sqliteCmd.Parameters.AddWithValue("$stubos", "stubos");
-            sqliteCmd.Parameters.AddWithValue("$version", "version");
-
-            sqliteCmd.Parameters.AddWithValue("$erprobungstufenleitungparam",
-                einstellungen.Erprobungstufenleitung);
-            sqliteCmd.Parameters.AddWithValue("$mittelstufenleitungparam",
-                einstellungen.Mittelstufenleitung);
-            sqliteCmd.Parameters.AddWithValue("$efstufenleitungparam", einstellungen.EFStufenleitung);
-            sqliteCmd.Parameters.AddWithValue("$q1stufenleitungparam", einstellungen.Q1Stufenleitung);
-            sqliteCmd.Parameters.AddWithValue("$q2stufenleitungparam", einstellungen.Q2Stufenleitung);
-            sqliteCmd.Parameters.AddWithValue("$oberstufenkoordinationparam",
-                einstellungen.Oberstufenkoordination);
-            sqliteCmd.Parameters.AddWithValue("$stubosparam", einstellungen.StuBos);
-            sqliteCmd.Parameters.AddWithValue("$versionparam", einstellungen.Version);
-            sqliteCmd.CommandText =
-                "INSERT OR REPLACE INTO settings (setting,value) VALUES($mailsuffix, $mailsuffixparam)";
-            sqliteCmd.ExecuteNonQuery();
-            sqliteCmd.CommandText =
-                "INSERT OR REPLACE INTO settings (setting,value) VALUES($kurssuffix, $kurssuffixparam)";
-            sqliteCmd.ExecuteNonQuery();
-            sqliteCmd.CommandText =
-                "INSERT OR REPLACE INTO settings (setting,value) VALUES($fachersatz, $fachersatzparam)";
-            sqliteCmd.ExecuteNonQuery();
-            sqliteCmd.CommandText =
-                "INSERT OR REPLACE INTO settings (setting,value) VALUES($erprobungstufenleitung, $erprobungstufenleitungparam)";
-            sqliteCmd.ExecuteNonQuery();
-            sqliteCmd.CommandText =
-                "INSERT OR REPLACE INTO settings (setting,value) VALUES($mittelstufenleitung, $mittelstufenleitungparam)";
-            sqliteCmd.ExecuteNonQuery();
-            sqliteCmd.CommandText =
-                "INSERT OR REPLACE INTO settings (setting,value) VALUES($efstufenleitung, $efstufenleitungparam)";
-            sqliteCmd.ExecuteNonQuery();
-            sqliteCmd.CommandText =
-                "INSERT OR REPLACE INTO settings (setting,value) VALUES($q1stufenleitung, $q1stufenleitungparam)";
-            sqliteCmd.ExecuteNonQuery();
-            sqliteCmd.CommandText =
-                "INSERT OR REPLACE INTO settings (setting,value) VALUES($q2stufenleitung, $q2stufenleitungparam)";
-            sqliteCmd.ExecuteNonQuery();
-            sqliteCmd.CommandText =
-                "INSERT OR REPLACE INTO settings (setting,value) VALUES($oberstufenkoordination, $oberstufenkoordinationparam)";
-            sqliteCmd.ExecuteNonQuery();
-            sqliteCmd.CommandText =
-                "INSERT OR REPLACE INTO settings (setting,value) VALUES($erprobungstufen, $erprobungsstufeparam)";
-            sqliteCmd.ExecuteNonQuery();
-            sqliteCmd.CommandText =
-                "INSERT OR REPLACE INTO settings (setting,value) VALUES($mittelstufen, $mittelstufeparam)";
-            sqliteCmd.ExecuteNonQuery();
-            sqliteCmd.CommandText =
-                "INSERT OR REPLACE INTO settings (setting,value) VALUES($oberstufen, $oberstufeparam)";
-            sqliteCmd.ExecuteNonQuery();
-            sqliteCmd.CommandText =
-                "INSERT OR REPLACE INTO settings (setting,value) VALUES($stubostufen, $stubostufenparam)";
-            sqliteCmd.ExecuteNonQuery();
-            sqliteCmd.CommandText =
-                "INSERT OR REPLACE INTO settings (setting,value) VALUES($jamfstufen, $jamfstufenparam)";
-            sqliteCmd.ExecuteNonQuery();
-            sqliteCmd.CommandText =
-                "INSERT OR REPLACE INTO settings (setting,value) VALUES($stubos, $stubosparam)";
-            sqliteCmd.ExecuteNonQuery();
-            sqliteCmd.CommandText =
-                "INSERT OR REPLACE INTO settings (setting,value) VALUES($version, $versionparam)";
-            sqliteCmd.ExecuteNonQuery();
-            sqliteCmd.Parameters.Clear();
+            SetSettings(ref sqliteCmd, ref einstellungen);
             if (fachk.Length != fachl.Length) return;
             for (var i = 0; i < fachk.Length; i++)
             {
@@ -313,7 +225,7 @@ public class Schuldatenbank : IDisposable
             throw new ApplicationException($"Kritischer Fehler beim Erstellen der SQL-Datei: {ex.Message}");
         }
     }
-
+    
     ~Schuldatenbank()
     {
         Dispose(true);
@@ -3112,14 +3024,8 @@ public class Schuldatenbank : IDisposable
         }
     }
 
-    /// <summary>
-    /// setzt die Einstellungen der Schule in der Datenbank
-    /// </summary>
-    /// <param name="einstellungen"></param>
-    public async Task SetSettings(Einstellungen einstellungen)
+    private void SetSettings(ref SqliteCommand sqliteCmd, ref Einstellungen einstellungen)
     {
-        var sqliteCmd = _sqliteConn.CreateCommand();
-        // sqliteCmd.CommandText = "INSERT OR IGNORE INTO settings (mailsuffix, kurssuffix, fachersetzung) VALUES ($mailsuffix, $kurssuffix, $fachersatz);";
         sqliteCmd.Parameters.AddWithValue("$mailsuffixparam", einstellungen.Mailsuffix);
         sqliteCmd.Parameters.AddWithValue("$kurssuffixparam", einstellungen.Kurssuffix);
         sqliteCmd.Parameters.AddWithValue("$fachersatzparam", einstellungen.Fachersetzung);
@@ -3128,39 +3034,38 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$kurssuffix", "kurssuffix");
         sqliteCmd.Parameters.AddWithValue("$fachersatz", "fachersatz");
 
-        sqliteCmd.Parameters.AddWithValue("$erprobungstufenleitung", "erprobungsstufenleitung");
+        sqliteCmd.Parameters.AddWithValue("$erprobungstufenleitung",
+            "erprobungsstufenleitung");
         sqliteCmd.Parameters.AddWithValue("$mittelstufenleitung", "mittelstufenleitung");
         sqliteCmd.Parameters.AddWithValue("$efstufenleitung", "efstufenleitung");
         sqliteCmd.Parameters.AddWithValue("$q1stufenleitung", "q1stufenleitung");
         sqliteCmd.Parameters.AddWithValue("$q2stufenleitung", "q2stufenleitung");
         sqliteCmd.Parameters.AddWithValue("$oberstufenkoordination", "oberstufenkoordination");
-        sqliteCmd.Parameters.AddWithValue("$stubos", "stubos");
-        sqliteCmd.Parameters.AddWithValue("$version", "version");
-        sqliteCmd.Parameters.AddWithValue("$erprobungstufen", "erprobungsstufe");
-        sqliteCmd.Parameters.AddWithValue("$mittelstufen", "mittelstufe");
-        sqliteCmd.Parameters.AddWithValue("$oberstufen", "oberstufe");
+        sqliteCmd.Parameters.AddWithValue("$erprobungstufen", "erprobungsstufen");
+        sqliteCmd.Parameters.AddWithValue("$mittelstufen", "mittelstufen");
+        sqliteCmd.Parameters.AddWithValue("$oberstufen", "oberstufen");
         sqliteCmd.Parameters.AddWithValue("$stubostufen", "stubostufen");
-        sqliteCmd.Parameters.AddWithValue("$jamfstufen", "jamfsstufe");
+        sqliteCmd.Parameters.AddWithValue("$jamfstufen", "jamfstufen");
         sqliteCmd.Parameters.AddWithValue("$erprobungsstufeparam", string.Join(',',einstellungen.Erprobungsstufe));
         sqliteCmd.Parameters.AddWithValue("$mittelstufeparam", string.Join(',',einstellungen.Mittelstufe));
         sqliteCmd.Parameters.AddWithValue("$oberstufeparam", string.Join(',',einstellungen.Oberstufe));
         sqliteCmd.Parameters.AddWithValue("$stubostufenparam", string.Join(',',einstellungen.StuboStufen));
         sqliteCmd.Parameters.AddWithValue("$jamfstufenparam", string.Join(',',einstellungen.JAMFStufen));
+            
+        sqliteCmd.Parameters.AddWithValue("$stubos", "stubos");
+        sqliteCmd.Parameters.AddWithValue("$version", "version");
+
         sqliteCmd.Parameters.AddWithValue("$erprobungstufenleitungparam",
             einstellungen.Erprobungstufenleitung);
         sqliteCmd.Parameters.AddWithValue("$mittelstufenleitungparam",
-            string.IsNullOrEmpty(einstellungen.Mittelstufenleitung) ? "" : einstellungen.Mittelstufenleitung);
-        sqliteCmd.Parameters.AddWithValue("$efstufenleitungparam",
-            string.IsNullOrEmpty(einstellungen.EFStufenleitung) ? "" : einstellungen.EFStufenleitung);
-        sqliteCmd.Parameters.AddWithValue("$q1stufenleitungparam",
-            string.IsNullOrEmpty(einstellungen.Q1Stufenleitung) ? "" : einstellungen.Q1Stufenleitung);
-        sqliteCmd.Parameters.AddWithValue("$q2stufenleitungparam",
-            string.IsNullOrEmpty(einstellungen.Q2Stufenleitung) ? "" : einstellungen.Q2Stufenleitung);
+            einstellungen.Mittelstufenleitung);
+        sqliteCmd.Parameters.AddWithValue("$efstufenleitungparam", einstellungen.EFStufenleitung);
+        sqliteCmd.Parameters.AddWithValue("$q1stufenleitungparam", einstellungen.Q1Stufenleitung);
+        sqliteCmd.Parameters.AddWithValue("$q2stufenleitungparam", einstellungen.Q2Stufenleitung);
         sqliteCmd.Parameters.AddWithValue("$oberstufenkoordinationparam",
-            string.IsNullOrEmpty(einstellungen.Oberstufenkoordination) ? "" : einstellungen.Oberstufenkoordination);
-        sqliteCmd.Parameters.AddWithValue("$stubosparam",
-            string.IsNullOrEmpty(einstellungen.StuBos) ? "" : einstellungen.StuBos);
-        sqliteCmd.Parameters.AddWithValue("versionparam", version);
+            einstellungen.Oberstufenkoordination);
+        sqliteCmd.Parameters.AddWithValue("$stubosparam", einstellungen.StuBos);
+        sqliteCmd.Parameters.AddWithValue("$versionparam", version);
         sqliteCmd.CommandText =
             "INSERT OR REPLACE INTO settings (setting,value) VALUES($mailsuffix, $mailsuffixparam)";
         sqliteCmd.ExecuteNonQuery();
@@ -3203,18 +3108,29 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.CommandText =
             "INSERT OR REPLACE INTO settings (setting,value) VALUES($jamfstufen, $jamfstufenparam)";
         sqliteCmd.ExecuteNonQuery();
-        sqliteCmd.CommandText = "INSERT OR REPLACE INTO settings (setting,value) VALUES($stubos, $stubosparam)";
+        sqliteCmd.CommandText =
+            "INSERT OR REPLACE INTO settings (setting,value) VALUES($stubos, $stubosparam)";
         sqliteCmd.ExecuteNonQuery();
         sqliteCmd.CommandText =
             "INSERT OR REPLACE INTO settings (setting,value) VALUES($version, $versionparam)";
         sqliteCmd.ExecuteNonQuery();
         sqliteCmd.Parameters.Clear();
-        await SetKurzLangFach(einstellungen.Kurzfaecher, einstellungen.Langfaecher);
         erprobungsstufe = einstellungen.Erprobungsstufe;
         mittelstufe = einstellungen.Mittelstufe;
         oberstufe = einstellungen.Oberstufe;
         jamfstufen = einstellungen.JAMFStufen;
         stubostufen = einstellungen.StuboStufen;
+        SetKurzLangFach(einstellungen.Kurzfaecher, einstellungen.Langfaecher);
+    }
+    
+    /// <summary>
+    /// setzt die Einstellungen der Schule in der Datenbank
+    /// </summary>
+    /// <param name="einstellungen"></param>
+    public async Task SetSettings(Einstellungen einstellungen)
+    {
+        var sqliteCmd = _sqliteConn.CreateCommand();
+        SetSettings(ref sqliteCmd, ref einstellungen);
     }
 
     /// <summary>
