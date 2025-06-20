@@ -2294,7 +2294,6 @@ public class Schuldatenbank : IDisposable
                 case "jamfstufen":
                     einstellungenResult.JAMFStufen = value.Split(',');
                     break;
-                    
             }
         }
 
@@ -3559,7 +3558,7 @@ public class Schuldatenbank : IDisposable
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText = "UPDATE lehrkraft SET aktiv = $istAktiv WHERE id = $lulid;";
         sqliteCmd.Parameters.AddWithValue("$lulid", lulid);
-        sqliteCmd.Parameters.AddWithValue("istAktiv", istAktiv);
+        sqliteCmd.Parameters.AddWithValue("$istAktiv", istAktiv);
         sqliteCmd.ExecuteNonQuery();
     }
 
@@ -3583,7 +3582,7 @@ public class Schuldatenbank : IDisposable
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText = "UPDATE schueler SET aktiv = $istAktiv WHERE id = $susid;";
         sqliteCmd.Parameters.AddWithValue("$susid", susid);
-        sqliteCmd.Parameters.AddWithValue("istAktiv", istAktiv);
+        sqliteCmd.Parameters.AddWithValue("$istAktiv", istAktiv);
         sqliteCmd.ExecuteNonQuery();
     }
 
