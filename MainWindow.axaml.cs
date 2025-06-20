@@ -3485,7 +3485,11 @@ public partial class MainWindow : Window
             {
                 try
                 {
-                    var json_settings = JsonSerializer.Serialize(_myschool.GetSettings().Result);
+                    var json_options = new JsonSerializerOptions()
+                    {
+                        WriteIndented = true
+                    };
+                    var json_settings = JsonSerializer.Serialize(_myschool.GetSettings().Result, json_options);
                     await File.WriteAllTextAsync(filepath, json_settings);
                     await ShowCustomSuccessMessage("Einstellungen erfolgreich gespeichert", "Erfolg");
                 }
