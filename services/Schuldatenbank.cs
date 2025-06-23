@@ -22,7 +22,7 @@ public class Schuldatenbank : IDisposable
 {
     private const string version = "0.72";
     private readonly string _dbpath;
-    private readonly string _logpath;
+    private string _logpath;
     private readonly LoggingModule log;
     private readonly SqliteConnection _sqliteConn;
     private SqliteTransaction? _dbtrans;
@@ -1998,17 +1998,26 @@ public class Schuldatenbank : IDisposable
     public async Task<ReadOnlyCollection<LogEintrag>> GetLog()
     {
         List<LogEintrag> logentries = [];
-        logentries.AddRange(from line in File.ReadAllLinesAsync(log.Settings.LogFilename).Result
-            select line.Split(' ')
-            into split_line
-            let date = split_line[0]
-            let time = split_line[1]
-            let level = split_line[3]
-            let message = string.Join(" ", split_line[4..])
-            where !string.IsNullOrEmpty(date) && !string.IsNullOrEmpty(time)
-            select new LogEintrag
-                { Eintragsdatum = DateTime.Parse($"{date} {time}"), Warnstufe = level, Nachricht = message });
-        return logentries.AsReadOnly();
+        if (File.Exists(log.Settings.LogFilename))
+        {
+            logentries.AddRange(from line in File.ReadAllLinesAsync(log.Settings.LogFilename).Result
+                select line.Split(' ')
+                into split_line
+                let date = split_line[0]
+                let time = split_line[1]
+                let level = split_line[3]
+                let message = string.Join(" ", split_line[4..])
+                where !string.IsNullOrEmpty(date) && !string.IsNullOrEmpty(time)
+                select new LogEintrag
+                    { Eintragsdatum = DateTime.Parse($"{date} {time}"), Warnstufe = level, Nachricht = message });
+            return logentries.AsReadOnly();
+        }
+
+        _logpath = log.Settings.LogFilename =
+            _dbpath == ":memory:"
+                ? Path.Combine(Path.GetTempPath(), Path.ChangeExtension($"StS_{Guid.NewGuid()}_tmp", "log"))
+                : _dbpath.Replace("sqlite", "log");
+        return new ReadOnlyCollection<LogEintrag>(logentries);
     }
 
     /// <summary>
