@@ -225,7 +225,7 @@ public class Schuldatenbank : IDisposable
             throw new ApplicationException($"Kritischer Fehler beim Erstellen der SQL-Datei: {ex.Message}");
         }
     }
-    
+
     ~Schuldatenbank()
     {
         Dispose(true);
@@ -3045,12 +3045,12 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$oberstufen", "oberstufen");
         sqliteCmd.Parameters.AddWithValue("$stubostufen", "stubostufen");
         sqliteCmd.Parameters.AddWithValue("$jamfstufen", "jamfstufen");
-        sqliteCmd.Parameters.AddWithValue("$erprobungsstufeparam", string.Join(',',einstellungen.Erprobungsstufe));
-        sqliteCmd.Parameters.AddWithValue("$mittelstufeparam", string.Join(',',einstellungen.Mittelstufe));
-        sqliteCmd.Parameters.AddWithValue("$oberstufeparam", string.Join(',',einstellungen.Oberstufe));
-        sqliteCmd.Parameters.AddWithValue("$stubostufenparam", string.Join(',',einstellungen.StuboStufen));
-        sqliteCmd.Parameters.AddWithValue("$jamfstufenparam", string.Join(',',einstellungen.JAMFStufen));
-            
+        sqliteCmd.Parameters.AddWithValue("$erprobungsstufeparam", string.Join(',', einstellungen.Erprobungsstufe));
+        sqliteCmd.Parameters.AddWithValue("$mittelstufeparam", string.Join(',', einstellungen.Mittelstufe));
+        sqliteCmd.Parameters.AddWithValue("$oberstufeparam", string.Join(',', einstellungen.Oberstufe));
+        sqliteCmd.Parameters.AddWithValue("$stubostufenparam", string.Join(',', einstellungen.StuboStufen));
+        sqliteCmd.Parameters.AddWithValue("$jamfstufenparam", string.Join(',', einstellungen.JAMFStufen));
+
         sqliteCmd.Parameters.AddWithValue("$stubos", "stubos");
         sqliteCmd.Parameters.AddWithValue("$version", "version");
 
@@ -3119,9 +3119,9 @@ public class Schuldatenbank : IDisposable
         oberstufe = einstellungen.Oberstufe;
         jamfstufen = einstellungen.JAMFStufen;
         stubostufen = einstellungen.StuboStufen;
-        SetKurzLangFach(einstellungen.Kurzfaecher, einstellungen.Langfaecher);
+        _ = SetKurzLangFach(einstellungen.Kurzfaecher, einstellungen.Langfaecher);
     }
-    
+
     /// <summary>
     /// setzt die Einstellungen der Schule in der Datenbank
     /// </summary>
