@@ -2306,7 +2306,6 @@ public class Schuldatenbank : IDisposable
             }
         }
 
-        einstellungenResult.Version = version;
         List<string> flist = [];
         sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText = "SELECT kurzfach,langfach FROM fachersatz;";
