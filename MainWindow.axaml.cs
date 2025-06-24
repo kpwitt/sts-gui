@@ -1171,6 +1171,9 @@ public partial class MainWindow : Window
         ClearSuSTextFields();
         ClearLuLTextFields();
         ClearKursTextFields();
+        ResetItemsSource(lbLogDisplay, []);
+        ResetItemsSource(lbFehlerliste, []);
+        tbSonst1.Text = tbSonst2.Text = tbSonst3.Text = tbSonst11.Text = tbSuSNamen.Text = "";
     }
 
     private void ClearKursTextFields()
