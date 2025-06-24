@@ -59,6 +59,36 @@ public record struct Kurs(
 
 public struct Einstellungen
 {
+    public Einstellungen()
+    {
+        Mailsuffix = "@schule.local";
+        Kurssuffix = string.Empty;
+        Fachersetzung = string.Empty;
+        Kurzfaecher =
+        [
+            "D", "E", "M", "BI", "CH", "EK", "F7", "GE", "IF", "I0", "KU", "L7", "MU", "PH", "PK", "PS", "SN", "SP"
+        ];
+        Langfaecher =
+        [
+            "Deutsch", "Englisch", "Mathematik", "Biologie", "Chemie", "Erdkunde", "Französisch", "Geschichte",
+            "Informatik", "Italienisch", "Kunst", "Latein", "Musik", "Physik", "Politik", "Psychologie", "Schwimmen",
+            "Sport"
+        ];
+        Erprobungstufenleitung = string.Empty;
+        Mittelstufenleitung = string.Empty;
+        EFStufenleitung = string.Empty;
+        Q1Stufenleitung = string.Empty;
+        Q2Stufenleitung = string.Empty;
+        Oberstufenkoordination = string.Empty;
+        Version = "0.72";
+        StuBos = string.Empty;
+        Erprobungsstufe = ["5", "6"];
+        Mittelstufe = ["7", "8", "9", "10"];
+        Oberstufe = ["EF", "Q1", "Q2"];
+        StuboStufen = ["8", "9", "10", "EF", "Q1", "Q2"];
+        JAMFStufen = ["8", "9", "10", "EF", "Q1", "Q2"];
+    }
+
     public string Mailsuffix { get; set; }
     public string Kurssuffix { get; set; }
     public string Fachersetzung { get; set; }
@@ -71,13 +101,13 @@ public struct Einstellungen
     public string Q2Stufenleitung { get; set; }
     public string Oberstufenkoordination { get; set; }
     public string Version { get; set; }
-    public string StuBos { get; set; }
+    public string StuBos { get; set; } = "";
     public string[] Erprobungsstufe { get; set; }
     public string[] Mittelstufe { get; set; }
     public string[] Oberstufe { get; set; }
+
     public string[] StuboStufen { get; set; }
     public string[] JAMFStufen { get; set; }
-    
 }
 
 public record struct LogEintrag
