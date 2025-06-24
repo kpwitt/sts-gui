@@ -516,7 +516,7 @@ public partial class MainWindow : Window
             ResetItemsSource(rightlist, []);
             Title = "SchildToSchule";
             _myschool = new Schuldatenbank(":memory:");
-            ClearTextFields();
+            ClearDisplayedData();
             InitData();
             SetStatusText();
             exportFavoTabGrid.Children.Clear();
@@ -534,7 +534,7 @@ public partial class MainWindow : Window
             {
                 await Dispatcher.UIThread.InvokeAsync(() =>
                 {
-                    ClearTextFields();
+                    ClearDisplayedData();
                     ResetItemsSource(leftListBox, []);
                     ResetItemsSource(rightListBox, []);
                 });
@@ -1154,7 +1154,7 @@ public partial class MainWindow : Window
 
     private void CboxDataLeft_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
-        ClearTextFields();
+        ClearDisplayedData();
         _rightMutex = true;
         if (leftLastComboIndex != cboxDataLeft.SelectedIndex)
         {
@@ -1166,7 +1166,7 @@ public partial class MainWindow : Window
         _rightMutex = false;
     }
 
-    private void ClearTextFields()
+    private void ClearDisplayedData()
     {
         ClearSuSTextFields();
         ClearLuLTextFields();
@@ -1230,7 +1230,7 @@ public partial class MainWindow : Window
 
     private void LeftListBox_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
-        ClearTextFields();
+        ClearDisplayedData();
         OnLeftDataChanged(false);
     }
 
