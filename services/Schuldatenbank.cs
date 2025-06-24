@@ -2289,19 +2289,19 @@ public class Schuldatenbank : IDisposable
                     einstellungenResult.StuBos = value;
                     break;
                 case "erprobungsstufen":
-                    einstellungenResult.Erprobungsstufe = value.Split(',');
+                    einstellungenResult.Erprobungsstufe = value.Split(',') == null ? [""] : value.Split(',');
                     break;
                 case "mittelstufen":
-                    einstellungenResult.Mittelstufe = value.Split(',');
+                    einstellungenResult.Mittelstufe = value.Split(',') == null ? [""] : value.Split(',');
                     break;
                 case "oberstufen":
-                    einstellungenResult.Oberstufe = value.Split(',');
+                    einstellungenResult.Oberstufe = value.Split(',') == null ? [""] : value.Split(',');
                     break;
                 case "stubostufen":
-                    einstellungenResult.StuboStufen = value.Split(',');
+                    einstellungenResult.StuboStufen = value.Split(',') == null ? [""] : value.Split(',');
                     break;
                 case "jamfstufen":
-                    einstellungenResult.JAMFStufen = value.Split(',');
+                    einstellungenResult.JAMFStufen = value.Split(',') == null ? [""] : value.Split(',');
                     break;
             }
         }
