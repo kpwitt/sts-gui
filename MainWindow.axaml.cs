@@ -3768,7 +3768,8 @@ public partial class MainWindow : Window
                     (current, lul) => $"{current}<a href=\"mailto:{lul.Mail.ToLower()}\">{lul.Mail.ToLower()}</a>, ")
                 into fako_string
                 select $"{fako_string.TrimEnd(' ').TrimEnd(',')}<br><br>");
-
+            var alle_lul = _myschool.GetLehrerListe().Result.Select(l => l.Mail);
+            favo_export.Add("<a href=\"mailto:" + string.Join(',', alle_lul) + "\">Alle Lehrkräfte</a>");
             var extx = new List<FilePickerFileType>
             {
                 FilePickerFileTypes.All
