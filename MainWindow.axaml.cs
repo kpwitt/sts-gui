@@ -2321,7 +2321,7 @@ public partial class MainWindow : Window
             List<Lehrkraft> tList = [];
             foreach (var lehrkraft in lehrkraefte.Split(','))
             {
-                tList.Add(await _myschool.GetLehrkraft(lehrkraft));
+                tList.Add(await _myschool.GetLehrkraft(lehrkraft.Trim()));
             }
 
             var tListAusKurs = await _myschool.GetLuLAusKurs(kursbez);
@@ -2357,7 +2357,7 @@ public partial class MainWindow : Window
         {
             foreach (var stufe in kursstufe.Split(','))
             {
-                foreach (var sus in await _myschool.GetSusAusStufe(stufe))
+                foreach (var sus in await _myschool.GetSusAusStufe(stufe.Trim()))
                 {
                     await _myschool.AddStoK(sus, await _myschool.GetKurs(kursbez));
                 }
@@ -3084,6 +3084,9 @@ public partial class MainWindow : Window
         var splitChar1 = tbSonst1.Text.Contains(';') ? ';' : tbSonst1.Text.Contains('\n') ? '\n' : ',';
         var splitChar2 = tbSonst2.Text.Contains(';') ? ';' : tbSonst2.Text.Contains('\n') ? '\n' : ',';
         var splitChar3 = tbSonst3.Text.Contains(';') ? ';' : tbSonst3.Text.Contains('\n') ? '\n' : ',';
+        tbSonst1.Text = tbSonst1.Text.Replace(" ", "");
+        tbSonst2.Text = tbSonst2.Text.Replace(" ", "");
+        tbSonst3.Text = tbSonst3.Text.Replace(" ", "");
         switch (cbSonst1.SelectedIndex)
         {
             case 0 or 4:
