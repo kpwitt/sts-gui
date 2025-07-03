@@ -299,7 +299,8 @@ public class Schuldatenbank : IDisposable
             catch (Exception ex)
             {
                 sqliteDatareader.Close();
-                Console.WriteLine($"Fehler1: {ex.Message}");
+                AddLogMessage(new LogEintrag
+                    { Warnstufe = "Fehler", Eintragsdatum = new DateTime(), Nachricht = ex.Message });
                 Environment.Exit(-1);
             }
         }
@@ -344,7 +345,8 @@ public class Schuldatenbank : IDisposable
             catch (Exception ex)
             {
                 sqliteDatareader.Close();
-                Console.WriteLine($"Fehler2: {ex.Message}");
+                AddLogMessage(new LogEintrag
+                    { Warnstufe = "Fehler", Eintragsdatum = new DateTime(), Nachricht = ex.Message });
                 Environment.Exit(-1);
             }
         }
@@ -366,7 +368,8 @@ public class Schuldatenbank : IDisposable
             catch (Exception ex)
             {
                 sqliteDatareader.Close();
-                Console.WriteLine($"Fehler3: {ex.Message}");
+                AddLogMessage(new LogEintrag
+                    { Warnstufe = "Fehler", Eintragsdatum = new DateTime(), Nachricht = ex.Message });
                 Environment.Exit(-1);
             }
         }
@@ -451,7 +454,8 @@ public class Schuldatenbank : IDisposable
             catch (Exception ex)
             {
                 sqliteDatareader.Close();
-                Console.WriteLine($"Fehler1: {ex.Message}");
+                AddLogMessage(new LogEintrag
+                    { Warnstufe = "Fehler", Eintragsdatum = new DateTime(), Nachricht = ex.Message });
                 Environment.Exit(-1);
             }
         }
