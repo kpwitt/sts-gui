@@ -299,7 +299,8 @@ public class Schuldatenbank : IDisposable
             catch (Exception ex)
             {
                 sqliteDatareader.Close();
-                Console.WriteLine($"Fehler1: {ex.Message}");
+                AddLogMessage(new LogEintrag
+                    { Warnstufe = "Fehler", Eintragsdatum = new DateTime(), Nachricht = ex.Message });
                 Environment.Exit(-1);
             }
         }
@@ -344,7 +345,8 @@ public class Schuldatenbank : IDisposable
             catch (Exception ex)
             {
                 sqliteDatareader.Close();
-                Console.WriteLine($"Fehler2: {ex.Message}");
+                AddLogMessage(new LogEintrag
+                    { Warnstufe = "Fehler", Eintragsdatum = new DateTime(), Nachricht = ex.Message });
                 Environment.Exit(-1);
             }
         }
@@ -366,7 +368,8 @@ public class Schuldatenbank : IDisposable
             catch (Exception ex)
             {
                 sqliteDatareader.Close();
-                Console.WriteLine($"Fehler3: {ex.Message}");
+                AddLogMessage(new LogEintrag
+                    { Warnstufe = "Fehler", Eintragsdatum = new DateTime(), Nachricht = ex.Message });
                 Environment.Exit(-1);
             }
         }
@@ -451,7 +454,8 @@ public class Schuldatenbank : IDisposable
             catch (Exception ex)
             {
                 sqliteDatareader.Close();
-                Console.WriteLine($"Fehler1: {ex.Message}");
+                AddLogMessage(new LogEintrag
+                    { Warnstufe = "Fehler", Eintragsdatum = new DateTime(), Nachricht = ex.Message });
                 Environment.Exit(-1);
             }
         }
@@ -1697,7 +1701,7 @@ public class Schuldatenbank : IDisposable
                 .Result.Where(x =>
                     !string.IsNullOrEmpty(x.Fach) && jamfstufen.Contains(x.Stufe) && !x.Bezeichnung.EndsWith("KL"))
                 .Select(x => x.Bezeichnung)
-            select string.Join(";", lul.Kuerzel, lul.Mail, lul.Vorname, lul.Nachname, lul.Seriennummer,
+            select string.Join(";", lul.Kuerzel, lul.Mail, lul.Vorname, lul.Nachname, lul.Seriennummer, "",
                 string.Join(',', kurse),
                 withPasswort ? GetTempPasswort(lulid).Result : ""));
     }
