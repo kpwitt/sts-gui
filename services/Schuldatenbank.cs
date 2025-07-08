@@ -1702,7 +1702,7 @@ public class Schuldatenbank : IDisposable
                     !string.IsNullOrEmpty(x.Fach) && jamfstufen.Contains(x.Stufe) && !x.Bezeichnung.EndsWith("KL"))
                 .Select(x => x.Bezeichnung)
             select string.Join(";", lul.Kuerzel, lul.Mail, lul.Vorname, lul.Nachname, lul.Seriennummer, "",
-                string.Join(',', "Lehrer-605", kurse),
+                string.Join(',', "Lehrer-605", string.Join(',',kurse)),
                 withPasswort ? GetTempPasswort(lulid).Result : ""));
     }
 
