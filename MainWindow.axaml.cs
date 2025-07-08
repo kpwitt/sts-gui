@@ -3873,7 +3873,9 @@ public partial class MainWindow : Window
         else
         {
             {
-                await ShowCustomErrorMessage("Fehlerhafte Datei, bitte den Header überprüfen", "Fehler");
+                await ShowCustomErrorMessage(
+                    "Fehlerhafte Datei, bitte den Header überprüfen, für Schüler:innen Vorname;Nachname;Klasse;Seriennummer, für Lehrkräfte Kürzel;Seriennummer verwenden.",
+                    "Fehler");
                 return;
             }
         }
