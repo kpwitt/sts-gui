@@ -1120,7 +1120,7 @@ public class Schuldatenbank : IDisposable
             List<string> ausgabeMoodleUser = [];
             List<string> ausgabeIntern =
             [
-                "kuerzel;nachname;vorname;plz_ort_;adresse;tel_privat;tel_mobil;email_privat;email_dienst;gebdatum_;status_;mail_Adresse;fach1;fach2;fach3;fakult;funktion_;pw_temp;aktiv;gebdatum;plz;ort;titel;nachname;pop3_dienst;pop3_menge"
+                "kuerzel;nachname;vorname;email_dienst;mail_Adresse;fach1;fach2;fach3;fakult;pw_temp;aktiv;nachname;pop3_dienst;pop3_menge"
             ];
             List<string> ausgabeJAMF = [];
             var ohne_kursvorlagen = kursvorlage[0].Equals("") && kursvorlage[1].Equals("");
@@ -1179,6 +1179,9 @@ public class Schuldatenbank : IDisposable
                     var fakult = fakultas.Aggregate("", (current, t) => $"{current}{t};");
                     switch (fakultas.Length)
                     {
+                        case 1:
+                            fakult += ";";
+                            break;
                         case 2:
                             fakult += $";{lt.Fakultas}";
                             break;
@@ -1188,7 +1191,7 @@ public class Schuldatenbank : IDisposable
                     }
 
                     ausgabeIntern.Add(
-                        $"{lt.Kuerzel};{lt.Nachname};{lt.Vorname};;;;;;{maildienst};;;{lt.Mail};{fakult};;{GetTempPasswort(l).Result};1;;;;;{lt.Nachname};{maildienst.ToLower()};1");
+                        $"{lt.Kuerzel};{lt.Nachname};{lt.Vorname};{maildienst};{lt.Mail};{fakult};;{GetTempPasswort(l).Result};1;{lt.Nachname};{maildienst.ToLower()};1");
                 }
             }
 
