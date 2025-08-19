@@ -1702,7 +1702,7 @@ public class Schuldatenbank : IDisposable
                     !string.IsNullOrEmpty(x.Fach) && jamfstufen.Contains(x.Stufe) && !x.Bezeichnung.EndsWith("KL"))
                 .Select(x => x.Bezeichnung)
             select string.Join(";", lul.Kuerzel, lul.Mail, lul.Vorname, lul.Nachname, lul.Seriennummer, "",
-                string.Join(',', "605-Lehrer", string.Join(',',kurse)),
+                string.Join(',', "605-Lehrer", string.Join(',', kurse)),
                 withPasswort ? GetTempPasswort(lulid).Result : ""));
     }
 
@@ -2293,19 +2293,19 @@ public class Schuldatenbank : IDisposable
                     einstellungenResult.StuBos = value;
                     break;
                 case "erprobungsstufen":
-                    einstellungenResult.Erprobungsstufe = value.Split(',') == null ? [""] : value.Split(',');
+                    einstellungenResult.Erprobungsstufe = value.Split(',').Length == 0 ? [""] : value.Split(',');
                     break;
                 case "mittelstufen":
-                    einstellungenResult.Mittelstufe = value.Split(',') == null ? [""] : value.Split(',');
+                    einstellungenResult.Mittelstufe = value.Split(',').Length == 0 ? [""] : value.Split(',');
                     break;
                 case "oberstufen":
-                    einstellungenResult.Oberstufe = value.Split(',') == null ? [""] : value.Split(',');
+                    einstellungenResult.Oberstufe = value.Split(',').Length == 0 ? [""] : value.Split(',');
                     break;
                 case "stubostufen":
-                    einstellungenResult.StuboStufen = value.Split(',') == null ? [""] : value.Split(',');
+                    einstellungenResult.StuboStufen = value.Split(',').Length == 0 ? [""] : value.Split(',');
                     break;
                 case "jamfstufen":
-                    einstellungenResult.JAMFStufen = value.Split(',') == null ? [""] : value.Split(',');
+                    einstellungenResult.JAMFStufen = value.Split(',').Length == 0 ? [""] : value.Split(',');
                     break;
             }
         }
