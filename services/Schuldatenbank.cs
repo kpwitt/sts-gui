@@ -2933,7 +2933,7 @@ public class Schuldatenbank : IDisposable
         AddLogMessage(new LogEintrag
         {
             Eintragsdatum = DateTime.Now,
-            Nachricht = $"Lehrkraft mit der ID {lid} aus Kurs {kbez} gelöscht, Warnstufe = ",
+            Nachricht = $"Lehrkraft mit der ID {lid} aus Kurs {kbez} gelöscht",
             Warnstufe = "Info"
         });
     }
