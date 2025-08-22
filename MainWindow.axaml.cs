@@ -3870,6 +3870,21 @@ public partial class MainWindow : Window
 
             await _myschool.StopTransaction();
         }
+        else if (iPSFileText[0] == "Vorname;Nachname;Klasse;Seriennummer;ID")
+        {
+            iPSFileText.RemoveAt(0);
+            await _myschool.StartTransaction();
+            //var susliste = await _myschool.GetSchuelerListe();
+            foreach (var line in iPSFileText)
+            {
+                var split_line = line.Split(';');
+                var seriennummer = split_line[3];
+                var id = Convert.ToInt32(split_line[4]);
+                var sus = await _myschool.GetSchueler(id);
+                sus.Seriennummer = seriennummer;
+                _myschool.UpdateSchueler(sus);
+            }
+        }
         else
         {
             {
