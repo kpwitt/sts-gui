@@ -315,6 +315,7 @@ public partial class MainWindow : Window
             rightListBox.MaxHeight = leftListBox.MaxHeight;
             lbLogDisplay.MaxHeight = leftListBox.MaxHeight;
             lbLogDisplay.MaxWidth = FrameSize.Value.Width * 0.8;
+            lbLogDisplay.Width = FrameSize.Value.Width * 0.75;
             exportScrollViewerFavo.MaxHeight = leftListBox.MaxHeight;
         };
     }
