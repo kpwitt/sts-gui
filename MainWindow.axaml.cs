@@ -3875,7 +3875,6 @@ public partial class MainWindow : Window
         {
             iPSFileText.RemoveAt(0);
             await _myschool.StartTransaction();
-            //var susliste = await _myschool.GetSchuelerListe();
             foreach (var line in iPSFileText)
             {
                 var split_line = line.Split(';');
@@ -3885,6 +3884,8 @@ public partial class MainWindow : Window
                 sus.Seriennummer = seriennummer;
                 _myschool.UpdateSchueler(sus);
             }
+
+            await _myschool.StartTransaction();
         }
         else
         {
@@ -3892,6 +3893,7 @@ public partial class MainWindow : Window
                 await ShowCustomErrorMessage(
                     "Fehlerhafte Datei, bitte den Header überprüfen, für Schüler:innen Vorname;Nachname;Klasse;Seriennummer, für Lehrkräfte Kürzel;Seriennummer verwenden.",
                     "Fehler");
+                await _myschool.StartTransaction();
                 return;
             }
         }
