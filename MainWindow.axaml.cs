@@ -3960,7 +3960,7 @@ public partial class MainWindow : Window
         var result = await _myschool.ExportToCSV(path, "all", "all", true, "def", false, true, ["",""], new_sus.AsReadOnly(),
             new_lul.AsReadOnly(),
             new List<string>().AsReadOnly());
-        if (result != 0)
+        if (result != 1)
         {
             ShowCustomErrorMessage("Fehler beim Export der Neuzugänge", "Fehler");
         }
