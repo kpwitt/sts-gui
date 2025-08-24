@@ -4010,5 +4010,7 @@ public partial class MainWindow : Window
         }
 
         File.WriteAllLinesAsync(path + "/changes.log", changes);
+
+        await ShowCustomSuccessMessage("Speichern erfolgreich", "Erfolg");
     }
 }
