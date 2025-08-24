@@ -3965,6 +3965,19 @@ public partial class MainWindow : Window
             ShowCustomErrorMessage("Fehler beim Export der Neuzugänge", "Fehler");
         }
 
+        var changes = new List<string>();
+        foreach (var lul in old_lul)
+        {
+            var l = await oldschool.GetLehrkraft(lul);
+            changes.Add($"Lehrkraft {l.Kuerzel} entfernt in neuer DB");
+        }
+
+        foreach (var sus in old_sus)
+        {
+            var s = await oldschool.GetSchueler(sus);
+            changes.Add($"Schüler:in {s.Vorname} {s.Nachname} entfernt in neuer DB");
+        }
+
         var export_lines = new List<string>();
         foreach (var sus in old_sus)
         {
@@ -3995,5 +4008,7 @@ public partial class MainWindow : Window
         {
             await File.WriteAllLinesAsync(path + "/mdl_einschreibungen.csv", export_lines);
         }
+
+        File.WriteAllLinesAsync(path + "/changes.log", changes);
     }
 }
