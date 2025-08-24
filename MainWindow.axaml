@@ -465,7 +465,7 @@
                         </Grid>
                     </TabItem>
                     <TabItem Header="Sonstiges" Classes="Header">
-                        <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" ColumnDefinitions="Auto">
+                        <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto" ColumnDefinitions="Auto">
                             <StackPanel Grid.Row="0" Orientation="Horizontal">
                                 <ComboBox x:Name="cbSonst1" SelectionChanged="CbSonst1_OnSelectionChanged">
                                     <ComboBoxItem>Alle Schüler:innen</ComboBoxItem>
