@@ -2235,6 +2235,11 @@ public partial class MainWindow : Window
                             await _myschool.RemoveLfromK(l.ID, kurs.Bezeichnung);
                         }
                     }
+
+                    foreach (var sus in await _myschool.GetSusAusStufe(kurs.Stufe))
+                    {
+                        _myschool.AddStoK(sus.ID, kurs.Bezeichnung);
+                    }
                 }
             }
             else
@@ -3933,5 +3938,62 @@ public partial class MainWindow : Window
         }
 
         tbSuSNamen.Text = string.Join('\n', ergebnis);
+    }
+
+    private async void BtnSonstNeuzugangAbgang_OnClick(object? sender, RoutedEventArgs e)
+    {
+        var extx = new List<FilePickerFileType>
+        {
+            StSFileTypes.DataBaseFile,
+            FilePickerFileTypes.All
+        };
+        var file = await ShowOpenFileDialog("Alte DB angeben", extx);
+        if (file == null) return;
+        var oldschool = new Schuldatenbank(file.Path.LocalPath);
+        var old_lul = oldschool.GetLehrerIDListe().Result.Except(_myschool.GetLehrerIDListe().Result).ToList();
+        var old_sus = oldschool.GetSchuelerIDListe().Result.Except(_myschool.GetSchuelerIDListe().Result).ToList();
+        var new_lul = _myschool.GetLehrerIDListe().Result.Except(oldschool.GetLehrerIDListe().Result).ToList();
+        var new_sus = _myschool.GetSchuelerIDListe().Result.Except(oldschool.GetSchuelerIDListe().Result).ToList();
+        var folder = await ShowOpenFolderDialog("Speichern unter...");
+        if (folder == null) return;
+        var path = folder.Path.AbsolutePath;
+        var result = await _myschool.ExportToCSV(path, "all", "all", true, "def", false, true, [], new_sus.AsReadOnly(),
+            new_lul.AsReadOnly(),
+            new List<string>().AsReadOnly());
+        if (result != 0)
+        {
+            ShowCustomErrorMessage("Fehler beim Export der Neuzugänge", "Fehler");
+        }
+
+        var export_lines = new List<string>();
+        foreach (var sus in old_sus)
+        {
+            var s = await oldschool.GetSchueler(sus);
+            export_lines.Add($"add,schueler,{s.ID},Abgang");
+        }
+
+        var alte_eltern = _myschool.GetSusAusStufe("EF").Result.ToList();
+        alte_eltern.AddRange(_myschool.GetSusAusStufe("Q1").Result.ToList());
+        alte_eltern.AddRange(_myschool.GetSusAusStufe("Q2").Result);
+        foreach (var sus_eltern in alte_eltern)
+        {
+            export_lines.Add($"add,eltern,E_{sus_eltern.ID},Abgang");
+            export_lines.Add($"add,eltern,E_{sus_eltern.ID}1,Abgang");
+        }
+
+        foreach (var lul in old_lul)
+        {
+            var l = await oldschool.GetLehrkraft(lul);
+            export_lines.Add($"add,lehrer,{l.ID},Abgang");
+        }
+
+        if (File.Exists(path + "/mdl_einschreibungen.csv"))
+        {
+            await File.AppendAllLinesAsync(path + "/mdl_einschreibungen.csv", export_lines);
+        }
+        else
+        {
+            await File.WriteAllLinesAsync(path + "/mdl_einschreibungen.csv", export_lines);
+        }
     }
 }
