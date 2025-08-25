@@ -3957,7 +3957,8 @@ public partial class MainWindow : Window
         var folder = await ShowOpenFolderDialog("Speichern unter...");
         if (folder == null) return;
         var path = folder.Path.AbsolutePath;
-        var result = await _myschool.ExportToCSV(path, "all", "all", true, "def", false, true, ["",""], new_sus.AsReadOnly(),
+        var result = await _myschool.ExportToCSV(path, "all", "all", true, "def", false, true, ["", ""],
+            new_sus.AsReadOnly(),
             new_lul.AsReadOnly(),
             new List<string>().AsReadOnly());
         if (result != 1)
@@ -4009,7 +4010,7 @@ public partial class MainWindow : Window
             await File.WriteAllLinesAsync(path + "/mdl_einschreibungen.csv", export_lines);
         }
 
-        File.WriteAllLinesAsync(path + "/changes.log", changes);
+        await File.WriteAllLinesAsync(path + "/changes.log", changes);
 
         await ShowCustomSuccessMessage("Speichern erfolgreich", "Erfolg");
     }
