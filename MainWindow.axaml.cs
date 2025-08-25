@@ -868,7 +868,7 @@ public partial class MainWindow : Window
         var susHatZweitaccount = cbSuSZweitaccount.IsChecked;
         var susIstAktiv = cbSuSAktiv.IsChecked;
         if (string.IsNullOrEmpty(susid) || string.IsNullOrEmpty(susvname) || string.IsNullOrEmpty(susnname) ||
-            string.IsNullOrEmpty(susklasse) || string.IsNullOrEmpty(susnutzername) ||
+            string.IsNullOrEmpty(susklasse) || susnutzername == null ||
             string.IsNullOrEmpty(suselternadresse) ||
             susHatZweitaccount == null || tbSuSKurse == null || tbSuSKurse!.Text == null || susIstAktiv == null)
         {
