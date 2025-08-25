@@ -854,12 +854,15 @@ public class Schuldatenbank : IDisposable
             List<string> zweitaccounts = ["Interne ID-Nummer"];
             List<string> temp_accounts = ["id;accountname"];
             List<string> jamf_sus_seriennummern = ["Vorname;Nachname;Klasse;Seriennummer;ID"];
+            List<string> aix_usernames = ["Referenz-Id;Anmeldenamen;E-Mail"];
+
             await Parallel.ForEachAsync(susliste, async (schueler, cancellationToken) =>
                 //foreach (var schueler in susliste)
             {
                 sliste.Add(string.Join(";", schueler.Vorname, schueler.Nachname, schueler.ID, schueler.Mail,
                     schueler.Klasse));
                 ids.Add($"{schueler.Nutzername};{schueler.ID};{schueler.Mail}");
+                aix_usernames.Add($"{schueler.ID};{schueler.Nutzername};{schueler.Aixmail}");
                 if (!string.IsNullOrEmpty(schueler.Seriennummer))
                 {
                     jamf_sus_seriennummern.Add(string.Join(";", schueler.Vorname, schueler.Nachname, schueler.Klasse,
@@ -901,6 +904,9 @@ public class Schuldatenbank : IDisposable
                 Encoding.UTF8);
             await File.WriteAllLinesAsync($"{folder}/jamf_sus_seriennummern.csv",
                 jamf_sus_seriennummern.Distinct().ToList(),
+                Encoding.UTF8);
+            await File.WriteAllLinesAsync($"{folder}/aix_nutzernamen.csv",
+                aix_usernames.Distinct().ToList(),
                 Encoding.UTF8);
             return 1;
         }
