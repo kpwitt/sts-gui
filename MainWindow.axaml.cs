@@ -1035,7 +1035,7 @@ public partial class MainWindow : Window
             if (schnittmenge.Count != 0)
             {
                 await ShowCustomInfoMessage(
-                    $"Folgende Kurse wurden für {string.Join(" ", lehrkraft.Vorname, lehrkraft.Nachname)} entfernt: {string.Join(", ", schnittmenge.Select(k => k.Bezeichnung))}\nBitte stellen Sie sicher, dass es eine passende Vertretung gibt und tragen Sie sie ggf. aus.\n",
+                    $"Folgende Kurse wurden für {string.Join(" ", lehrkraft.Vorname, lehrkraft.Nachname)} entfernt: {string.Join(", ", schnittmenge.Select(k => k.Bezeichnung))}\nBitte stellen Sie sicher, dass es eine passende Vertretung gibt und tragen Sie sie ggf. ein.\n",
                     "Vorsicht");
             }
 
@@ -2333,6 +2333,7 @@ public partial class MainWindow : Window
         }
 
         await _myschool.StopTransaction();
+        await ShowCustomSuccessMessage("Einstellungen erfolgreich angewendet!", "Erfolg");
     }
 
     private async void BtnLogDelete_OnClick(object? sender, RoutedEventArgs e)
