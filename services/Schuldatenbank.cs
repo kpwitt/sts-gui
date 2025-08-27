@@ -1126,7 +1126,7 @@ public class Schuldatenbank : IDisposable
             List<string> ausgabeMoodleUser = [];
             List<string> ausgabeIntern =
             [
-                "kuerzel;nachname;vorname;email_dienst;mail_Adresse;fach1;fach2;fach3;fakult;pw_temp;aktiv;nachname;pop3_dienst;pop3_menge"
+                "kuerzel;nachname;mail_Adresse;fach1;fach2;fach3;pw_temp"
             ];
             List<string> ausgabeJAMF = [];
             var ohne_kursvorlagen = kursvorlage[0].Equals("") && kursvorlage[1].Equals("");
@@ -1177,27 +1177,19 @@ public class Schuldatenbank : IDisposable
                 foreach (var l in lulidliste)
                 {
                     var lt = await GetLehrkraft(l);
-                    var fakultas = lt.Fakultas.Split(',');
-                    var maildienst = lt.Mail.Split('@')[0];
-                    var firstChar = maildienst[0];
-                    var UpperCaseFirstCharacter = char.ToUpper(firstChar);
-                    maildienst = UpperCaseFirstCharacter + maildienst[1..];
-                    var fakult = fakultas.Aggregate("", (current, t) => $"{current}{t};");
-                    switch (fakultas.Length)
+                    var fakult = lt.Fakultas.Split(',').Aggregate("", (current, t) => $"{current}{t};");
+                    switch (lt.Fakultas.Split(',').Length)
                     {
                         case 1:
-                            fakult += ";";
+                            fakult += ";;";
                             break;
                         case 2:
-                            fakult += $";{lt.Fakultas}";
-                            break;
-                        case 3:
-                            fakult += lt.Fakultas;
+                            fakult += ";";
                             break;
                     }
 
                     ausgabeIntern.Add(
-                        $"{lt.Kuerzel};{lt.Nachname};{lt.Vorname};{maildienst};{lt.Mail};{fakult};;{GetTempPasswort(l).Result};1;{lt.Nachname};{maildienst.ToLower()};1");
+                        $"{lt.Kuerzel};{lt.Nachname};{lt.Mail};{fakult}{GetTempPasswort(l).Result}");
                 }
             }
 
