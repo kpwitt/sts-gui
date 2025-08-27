@@ -1126,7 +1126,7 @@ public class Schuldatenbank : IDisposable
             List<string> ausgabeMoodleUser = [];
             List<string> ausgabeIntern =
             [
-                "kuerzel;nachname;mail_Adresse;fach1;fach2;fach3;pw_temp"
+                "kuerzel;nachname;mail_Adresse;pw_temp"
             ];
             List<string> ausgabeJAMF = [];
             var ohne_kursvorlagen = kursvorlage[0].Equals("") && kursvorlage[1].Equals("");
@@ -1177,19 +1177,8 @@ public class Schuldatenbank : IDisposable
                 foreach (var l in lulidliste)
                 {
                     var lt = await GetLehrkraft(l);
-                    var fakult = lt.Fakultas.Split(',').Aggregate("", (current, t) => $"{current}{t};");
-                    switch (lt.Fakultas.Split(',').Length)
-                    {
-                        case 1:
-                            fakult += ";;";
-                            break;
-                        case 2:
-                            fakult += ";";
-                            break;
-                    }
-
                     ausgabeIntern.Add(
-                        $"{lt.Kuerzel};{lt.Nachname};{lt.Mail};{fakult}{GetTempPasswort(l).Result}");
+                        $"{lt.Kuerzel};{lt.Nachname};{lt.Mail};{GetTempPasswort(l).Result}");
                 }
             }
 
