@@ -4009,4 +4009,22 @@ public partial class MainWindow : Window
 
         await ShowCustomSuccessMessage("Speichern erfolgreich", "Erfolg");
     }
+
+    private async void BtnSonstSpielwiesen_OnClick(object? sender, RoutedEventArgs e)
+    {
+        var extx = new List<FilePickerFileType>
+        {
+            StSFileTypes.CSVFile,
+            FilePickerFileTypes.All
+        };
+        var file = await ShowSaveFileDialog("CSV-Datei angegeben", extx);
+        if (file == null) return;
+        List<string> spielwiesen = ["shortname;fullname;idnumber;category_idnumber;format;enrolment_0;enrolment_0_role;enrolment_0_password"];
+        for (var i = 1; i <= 15; ++i )
+        {
+            spielwiesen.Add($"SPW{i};Spielwiese {i};SPW{i};spw;tiles;self;editingteacher;SPW{i}");
+        }
+
+        File.WriteAllLinesAsync(file.Path.AbsolutePath, spielwiesen, Encoding.UTF8);
+    }
 }
