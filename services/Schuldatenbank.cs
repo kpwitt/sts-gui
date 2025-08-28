@@ -1375,7 +1375,7 @@ public class Schuldatenbank : IDisposable
                     else if (mittelstufe.Contains(schuelerstufe))
                     {
                         ausgabeMoodleUser.Add(
-                            $"{sus.Zweitmail.Split(',')[0]};Klasse{sus.Klasse}{DateTime.Now.Year}!;{sus.Nutzername}_E1;E_{sus.ID}1;{sus.Vorname}_{sus.Nachname}_Eltern;eltern");
+                            $"{sus.Zweitmail.Split(',')[0]};Klasse{sus.Klasse}{DateTime.Now.Year}!;{sus.Nutzername}_E1;E_{sus.ID}1;{sus.Vorname};{sus.Nachname}_Eltern;eltern");
                         ausgabeMoodleEinschreibungen.Add(
                             $"add,eltern,E_{sus.ID}1,{sus.Klasse}KL{suffix}");
                         ausgabeMoodleEinschreibungen.Add($"add,eltern,E_{sus.ID}1,mittelstufe{suffix}");
@@ -1396,14 +1396,14 @@ public class Schuldatenbank : IDisposable
             if (erprobungsstufe.Contains(schuelerstufe))
             {
                 ausgabeMoodleUser.Add(
-                    $"{susmail};Klasse{sus.Klasse}{DateTime.Now.Year}!;{sus.Nutzername}_E;E_{sus.ID};{sus.Vorname}_{sus.Nachname}_Eltern;eltern");
+                    $"{susmail};Klasse{sus.Klasse}{DateTime.Now.Year}!;{sus.Nutzername}_E;E_{sus.ID};{sus.Vorname};{sus.Nachname}_Eltern;eltern");
                 ausgabeMoodleEinschreibungen.Add($"add,eltern,E_{sus.ID},{sus.Klasse}KL{suffix}");
                 ausgabeMoodleEinschreibungen.Add($"add,eltern,E_{sus.ID},erprobungsstufe{suffix}");
             }
             else if (mittelstufe.Contains(schuelerstufe))
             {
                 ausgabeMoodleUser.Add(
-                    $"{susmail};Klasse{sus.Klasse}{DateTime.Now.Year}!;{sus.Nutzername}_E;E_{sus.ID};{sus.Vorname}_{sus.Nachname}_Eltern;eltern");
+                    $"{susmail};Klasse{sus.Klasse}{DateTime.Now.Year}!;{sus.Nutzername}_E;E_{sus.ID};{sus.Vorname};{sus.Nachname}_Eltern;eltern");
                 ausgabeMoodleEinschreibungen.Add($"add,eltern,E_{sus.ID},{sus.Klasse}KL{suffix}");
                 ausgabeMoodleEinschreibungen.Add($"add,eltern,E_{sus.ID},mittelstufe{suffix}");
             }
