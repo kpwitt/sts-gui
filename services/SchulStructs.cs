@@ -15,6 +15,7 @@ public record struct SuS(
     bool Zweitaccount,
     string Seriennummer,
     bool HasM365Account = false,
+    bool AllowJAMF = false,
     bool IstAktiv = true)
 {
     public string GetStufe()

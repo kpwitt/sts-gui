@@ -98,11 +98,12 @@ public class Schuldatenbank : IDisposable
                                             [klasse]  NVARCHAR(16) NOT NULL,
                                             [nutzername]  NVARCHAR(7) NOT NULL,
                                             [aixmail] NVARCHAR(128) NOT NULL,
-                                            [zweitaccount] INTEGER DEFAULT 0,
-                                            [zweitmail] NVARCHAR(512) DEFAULT '',
-                                            [m365] INTEGER DEFAULT 1,
+                                            [zweitaccount] INTEGER DEFAULT 0 NOT NULL,
+                                            [zweitmail] NVARCHAR(512) DEFAULT '' NOT NULL,
+                                            [m365] INTEGER DEFAULT 1 NOT NULL,
                                             [aktiv] BOOLEAN NOT NULL DEFAULT TRUE,
-                                            [seriennummer] NVARCHAR(64) NOT NULL DEFAULT ''
+                                            [seriennummer] NVARCHAR(64) NOT NULL DEFAULT '',
+                                            [jamf]	INTEGER NOT NULL DEFAULT 0
                                           )
                                     """;
             sqliteCmd.ExecuteNonQuery();
@@ -670,7 +671,7 @@ public class Schuldatenbank : IDisposable
     /// <param name="zweitaccount"></param>
     /// <param name="zweitmail"></param>
     /// <param name="seriennummer"></param>
-    public async Task AddSchuelerIn(int id, string vorname, string nachname, string mail, string klasse,
+    private async Task AddSchuelerIn(int id, string vorname, string nachname, string mail, string klasse,
         string nutzername, string aixmail, int zweitaccount, string zweitmail, string seriennummer)
     {
         if (GibtEsSchueler(id)) return;
@@ -697,6 +698,37 @@ public class Schuldatenbank : IDisposable
         });
     }
 
+    public async Task AddSchuelerIn(int id, string vorname, string nachname, string mail, string klasse,
+        string nutzername, string aixmail, int zweitaccount, string zweitmail, string seriennummer, bool m365,
+        bool jamf, bool aktiv)
+    {
+        if (GibtEsSchueler(id)) return;
+        seriennummer = string.IsNullOrEmpty(seriennummer) ? "" : seriennummer;
+        var sqliteCmd = _sqliteConn.CreateCommand();
+        sqliteCmd.CommandText =
+            "INSERT OR IGNORE INTO schueler (id, vorname, nachname, mail, klasse, nutzername, aixmail, zweitaccount, zweitmail, seriennummer, m365, jamf, aktiv) VALUES ($id, $vorname, $nachname, $mail, $klasse, $nutzername, $aixmail,$zweitaccount, $zweitmail, $seriennummer, $m365, $jamf, $aktiv);";
+        sqliteCmd.Parameters.AddWithValue("$id", id);
+        sqliteCmd.Parameters.AddWithValue("$vorname", vorname);
+        sqliteCmd.Parameters.AddWithValue("$nachname", nachname);
+        sqliteCmd.Parameters.AddWithValue("$mail", mail.ToLower());
+        sqliteCmd.Parameters.AddWithValue("$klasse", klasse);
+        sqliteCmd.Parameters.AddWithValue("$nutzername", nutzername.ToLower());
+        sqliteCmd.Parameters.AddWithValue("$aixmail", aixmail.ToLower());
+        sqliteCmd.Parameters.AddWithValue("$zweitaccount", zweitaccount);
+        sqliteCmd.Parameters.AddWithValue("$zweitmail", zweitmail.ToLower());
+        sqliteCmd.Parameters.AddWithValue("$seriennummer", seriennummer);
+        sqliteCmd.Parameters.AddWithValue("$m365", m365);
+        sqliteCmd.Parameters.AddWithValue("$jamf", jamf);
+        sqliteCmd.Parameters.AddWithValue("$aktiv", aktiv);
+        sqliteCmd.ExecuteNonQuery();
+        AddLogMessage(new LogEintrag
+        {
+            Eintragsdatum = DateTime.Now,
+            Nachricht = $"SchülerIn\t{nachname}\t{vorname}\t{mail}\t angelegt",
+            Warnstufe = "Info"
+        });
+    }
+
     /// <summary>
     /// fügt den Schüler/die Schülerin hinzu
     /// </summary>
@@ -708,7 +740,7 @@ public class Schuldatenbank : IDisposable
         schuelerin.Seriennummer = string.IsNullOrEmpty(schuelerin.Seriennummer) ? "" : schuelerin.Seriennummer;
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
-            "INSERT OR IGNORE INTO schueler (id, vorname, nachname, mail, klasse, nutzername, aixmail, zweitaccount, zweitmail, seriennummer) VALUES ($id, $vorname, $nachname, $mail, $klasse, $nutzername, $aixmail,$zweitaccount, $zweitmail, $seriennummer);";
+            "INSERT OR IGNORE INTO schueler (id, vorname, nachname, mail, klasse, nutzername, aixmail, zweitaccount, zweitmail, seriennummer, m365, jamf, aktiv) VALUES ($id, $vorname, $nachname, $mail, $klasse, $nutzername, $aixmail,$zweitaccount, $zweitmail, $seriennummer, $m365, $jamf, $aktiv);";
         sqliteCmd.Parameters.AddWithValue("$id", schuelerin.ID);
         sqliteCmd.Parameters.AddWithValue("$vorname", schuelerin.Vorname);
         sqliteCmd.Parameters.AddWithValue("$nachname", schuelerin.Nachname);
@@ -719,6 +751,9 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$zweitaccount", schuelerin.Zweitaccount);
         sqliteCmd.Parameters.AddWithValue("$zweitmail", schuelerin.Zweitmail.ToLower());
         sqliteCmd.Parameters.AddWithValue("$seriennummer", schuelerin.Seriennummer);
+        sqliteCmd.Parameters.AddWithValue("$m365", schuelerin.HasM365Account);
+        sqliteCmd.Parameters.AddWithValue("$jamf", schuelerin.AllowJAMF);
+        sqliteCmd.Parameters.AddWithValue("$aktiv", schuelerin.IstAktiv);
         sqliteCmd.ExecuteNonQuery();
         AddLogMessage(new LogEintrag
         {
@@ -855,6 +890,7 @@ public class Schuldatenbank : IDisposable
             List<string> temp_accounts = ["id;accountname"];
             List<string> jamf_sus_seriennummern = ["Vorname;Nachname;Klasse;Seriennummer;ID"];
             List<string> aix_usernames = ["Referenz-Id;Anmeldenamen;E-Mail"];
+            List<string> jamf = ["Vorname;Nachname;Klasse;JAMF (ja/nein/fehlt)"];
 
             await Parallel.ForEachAsync(susliste, async (schueler, cancellationToken) =>
                 //foreach (var schueler in susliste)
@@ -878,6 +914,9 @@ public class Schuldatenbank : IDisposable
                 {
                     temp_accounts.Add($"{schueler.ID};{schueler.Nutzername}");
                 }
+
+                jamf.Add($"{schueler.Vorname};{schueler.Nachname};{schueler.Klasse};" +
+                         (schueler.AllowJAMF ? "ja" : "nein"));
 
                 await Parallel.ForEachAsync(GetKursVonSuS(schueler.ID).Result, cancellationToken, async (kurs, _) =>
                     //foreach (var kurs in await GetKursVonSuS(schueler.ID))
@@ -1053,7 +1092,7 @@ public class Schuldatenbank : IDisposable
                     {
                         await UpdateSchueler(sus.ID, sus.Vorname, sus.Nachname, sus.Mail, sus.Klasse,
                             sus.Nutzername, sus.Aixmail, Convert.ToInt32(sus.Zweitaccount), line[imail], false, true,
-                            sus.Seriennummer);
+                            sus.Seriennummer, sus.AllowJAMF);
                     }
                 }
                 catch (Exception e)
@@ -2127,7 +2166,7 @@ public class Schuldatenbank : IDisposable
     {
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
-            "SELECT id,nachname,vorname,mail,klasse,nutzername,aixmail,zweitaccount,zweitmail, m365, aktiv, seriennummer FROM schueler WHERE id = $id;";
+            "SELECT id,nachname,vorname,mail,klasse,nutzername,aixmail,zweitaccount,zweitmail, m365, aktiv, seriennummer, jamf FROM schueler WHERE id = $id;";
         sqliteCmd.Parameters.AddWithValue("$id", id);
         var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
         SuS schuelerin = new();
@@ -2145,6 +2184,7 @@ public class Schuldatenbank : IDisposable
             schuelerin.HasM365Account = Convert.ToBoolean(sqliteDatareader.GetInt32(9));
             schuelerin.IstAktiv = sqliteDatareader.GetBoolean(10);
             schuelerin.Seriennummer = sqliteDatareader.GetString(11);
+            schuelerin.AllowJAMF = sqliteDatareader.GetBoolean(12);
         }
 
         return schuelerin;
@@ -2159,7 +2199,7 @@ public class Schuldatenbank : IDisposable
     {
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
-            "SELECT id,nachname,vorname,mail,klasse,nutzername,aixmail,zweitaccount,zweitmail, m365, aktiv, seriennummer FROM schueler WHERE vorname LIKE $vorname AND nachname = $nachname;";
+            "SELECT id,nachname,vorname,mail,klasse,nutzername,aixmail,zweitaccount,zweitmail, m365, aktiv, seriennummer, jamf FROM schueler WHERE vorname LIKE $vorname AND nachname = $nachname;";
         sqliteCmd.Parameters.AddWithValue("$vorname", vorname);
         sqliteCmd.Parameters.AddWithValue("$nachname", nachname);
         var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
@@ -2180,6 +2220,7 @@ public class Schuldatenbank : IDisposable
                 HasM365Account = Convert.ToBoolean(sqliteDatareader.GetInt32(9)),
                 IstAktiv = sqliteDatareader.GetBoolean(10),
                 Seriennummer = sqliteDatareader.GetString(11),
+                AllowJAMF = sqliteDatareader.GetBoolean(12),
             };
             susliste.Add(schuelerin);
         }
@@ -3347,15 +3388,16 @@ public class Schuldatenbank : IDisposable
     /// <param name="hasM365"></param>
     /// <param name="aktiv"></param>
     /// <param name="seriennummer"></param>
+    /// <param name="jamf"></param>
     public async Task UpdateSchueler(int id, string vorname, string nachname, string mail, string klasse,
         string nutzername, string aixmail, int zweitaccount, string zweitmail, bool hasM365, bool aktiv,
-        string seriennummer)
+        string seriennummer, bool jamf)
     {
         if (id <= 0) return;
         seriennummer = string.IsNullOrEmpty(seriennummer) ? "" : seriennummer;
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
-            "UPDATE schueler SET nachname=$nachname, vorname=$vorname, mail=$mail, klasse=$klasse, nutzername=$nutzername, aixmail=$aixmail, zweitaccount = $zweitaccount, zweitmail=$zweitmail, m365=$hasM365, aktiv=$aktiv, seriennummer=$seriennummer WHERE id=$id;";
+            "UPDATE schueler SET nachname=$nachname, vorname=$vorname, mail=$mail, klasse=$klasse, nutzername=$nutzername, aixmail=$aixmail, zweitaccount = $zweitaccount, zweitmail=$zweitmail, m365=$hasM365, aktiv=$aktiv, seriennummer=$seriennummer, jamf = $jamf WHERE id=$id;";
         sqliteCmd.Parameters.AddWithValue("$id", id);
         sqliteCmd.Parameters.AddWithValue("$vorname", vorname);
         sqliteCmd.Parameters.AddWithValue("$nachname", nachname);
@@ -3368,13 +3410,14 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$hasM365", hasM365);
         sqliteCmd.Parameters.AddWithValue("$aktiv", aktiv);
         sqliteCmd.Parameters.AddWithValue("$seriennummer", seriennummer);
+        sqliteCmd.Parameters.AddWithValue("$jamf", jamf);
         sqliteCmd.ExecuteNonQuery();
     }
 
     public async void UpdateSchueler(SuS sus)
     {
         await UpdateSchueler(sus.ID, sus.Vorname, sus.Nachname, sus.Mail, sus.Klasse, sus.Nutzername, sus.Aixmail,
-            sus.Zweitaccount ? 1 : 0, sus.Zweitmail, sus.HasM365Account, sus.IstAktiv, sus.Seriennummer);
+            sus.Zweitaccount ? 1 : 0, sus.Zweitmail, sus.HasM365Account, sus.IstAktiv, sus.Seriennummer, sus.AllowJAMF);
     }
 
     /// <summary>
@@ -3579,7 +3622,7 @@ public class Schuldatenbank : IDisposable
     /// </summary>
     /// <param name="susid"></param>
     /// <param name="istAktiv"></param>
-    public void SetzeAktivstatusSchueler(int susid, bool istAktiv)
+    private void SetzeAktivstatusSchueler(int susid, bool istAktiv)
     {
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText = "UPDATE schueler SET aktiv = $istAktiv WHERE id = $susid;";
