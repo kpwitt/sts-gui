@@ -866,11 +866,12 @@ public partial class MainWindow : Window
         var suszweitadresse = tbSuSZweitadresse.Text;
         var seriennummer = string.IsNullOrEmpty(tbSuSSeriennummer.Text) ? "" : tbSuSSeriennummer.Text;
         var susHatZweitaccount = cbSuSZweitaccount.IsChecked;
-        var susIstAktiv = cbSuSAktiv.IsChecked;
+        var susM365 = cbSuSM365.IsChecked != null && cbSuSM365.IsChecked.Value;
+        var susIstAktiv = cbSuSAktiv.IsChecked != null && cbSuSAktiv.IsChecked.Value;
+        var susJAMFAllowed = cbSuSJAMF.IsChecked != null && cbSuSJAMF.IsChecked.Value;
         if (string.IsNullOrEmpty(susid) || string.IsNullOrEmpty(susvname) || string.IsNullOrEmpty(susnname) ||
-            string.IsNullOrEmpty(susklasse) || susnutzername == null ||
-            string.IsNullOrEmpty(suselternadresse) ||
-            susHatZweitaccount == null || tbSuSKurse == null || tbSuSKurse!.Text == null || susIstAktiv == null)
+            string.IsNullOrEmpty(susklasse) || susnutzername == null || string.IsNullOrEmpty(suselternadresse) ||
+            susHatZweitaccount == null || tbSuSKurse == null || tbSuSKurse!.Text == null)
         {
             await ShowCustomErrorMessage(
                 "Nicht alle erforderlichen Informationen angegeben!\nStellen Sie sicher, dass ID, Vorname, Nachname, Klasse\nund eine Elternadresse angegeben sind",
@@ -890,13 +891,10 @@ public partial class MainWindow : Window
         var sid = Convert.ToInt32(susid);
         if (_myschool.GibtEsSchueler(sid))
         {
-            _myschool.SetM365(sid, cbSuSM365.IsChecked != null && cbSuSM365.IsChecked.Value ? 1 : 0);
-            _myschool.SetzeAktivstatusSchueler(sid, cbSuSAktiv.IsChecked != null && cbSuSAktiv.IsChecked.Value);
             if (suszweitadresse != null && susaixmail != null)
                 await _myschool.UpdateSchueler(sid, susvname, susnname, suselternadresse, susklasse, susnutzername,
                     susaixmail, susHatZweitaccount == false ? 0 : 1, suszweitadresse,
-                    cbSuSM365.IsChecked != null && cbSuSM365.IsChecked.Value,
-                    cbSuSAktiv.IsChecked != null && cbSuSAktiv.IsChecked.Value, seriennummer);
+                    susM365, susIstAktiv, seriennummer, susJAMFAllowed);
             var alteKurse = _myschool.GetKursVonSuS(sid).Result;
             foreach (var kurs in alteKurse.Where(kurs => !suskurse.Contains(kurs.Bezeichnung)))
             {
@@ -915,7 +913,8 @@ public partial class MainWindow : Window
         {
             if (suszweitadresse != null && susaixmail != null)
                 await _myschool.AddSchuelerIn(sid, susvname, susnname, suselternadresse, susklasse, susnutzername,
-                    susaixmail, susHatZweitaccount == false ? 0 : 1, suszweitadresse, seriennummer);
+                    susaixmail, susHatZweitaccount == false ? 0 : 1, suszweitadresse, seriennummer, susM365,
+                    susJAMFAllowed, susIstAktiv);
             if (suskurse is [""]) return;
             foreach (var kursbez in suskurse)
             {
@@ -1217,6 +1216,7 @@ public partial class MainWindow : Window
         cbSuSM365.IsChecked = false;
         cbSuSAktiv.IsChecked = false;
         tbSuSSeriennummer.Text = "";
+        cbSuSJAMF.IsChecked = false;
     }
 
     private void CboxDataRight_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
@@ -1611,6 +1611,7 @@ public partial class MainWindow : Window
         cbSuSM365.IsChecked = s.HasM365Account;
         cbSuSAktiv.IsChecked = s.IstAktiv;
         tbSuSSeriennummer.Text = s.Seriennummer;
+        cbSuSJAMF.IsChecked = s.AllowJAMF;
     }
 
     private void LoadLuLData(Lehrkraft l)
@@ -4019,12 +4020,63 @@ public partial class MainWindow : Window
         };
         var file = await ShowSaveFileDialog("CSV-Datei angegeben", extx);
         if (file == null) return;
-        List<string> spielwiesen = ["shortname;fullname;idnumber;category_idnumber;format;enrolment_0;enrolment_0_role;enrolment_0_password"];
-        for (var i = 1; i <= 15; ++i )
+        List<string> spielwiesen =
+            ["shortname;fullname;idnumber;category_idnumber;format;enrolment_0;enrolment_0_role;enrolment_0_password"];
+        for (var i = 1; i <= 15; ++i)
         {
             spielwiesen.Add($"SPW{i};Spielwiese {i};SPW{i};spw;tiles;self;editingteacher;SPW{i}");
         }
 
-        File.WriteAllLinesAsync(file.Path.AbsolutePath, spielwiesen, Encoding.UTF8);
+        await File.WriteAllLinesAsync(file.Path.LocalPath, spielwiesen, Encoding.UTF8);
+    }
+
+    private void CbSuSJAMF_OnClick(object? sender, RoutedEventArgs e)
+    {
+    }
+
+    private async void MnuJAMFEinlesen_OnClick(object? sender, RoutedEventArgs e)
+    {
+        var extx = new List<FilePickerFileType>
+        {
+            StSFileTypes.CSVFile,
+            FilePickerFileTypes.All
+        };
+        var file = await ShowOpenFileDialog("CSV-Datei angegeben", extx);
+        if (file == null) return;
+        var jamf_input = await File.ReadAllLinesAsync(file.Path.LocalPath);
+        if (jamf_input.Length == 0 || jamf_input[0] != "Vorname;Nachname;Klasse;JAMF (ja/nein/fehlt)")
+        {
+            await ShowCustomErrorMessage("Fehler beim einlesen der Datei", "Fehler");
+            return;
+        }
+
+        foreach (var line in jamf_input)
+        {
+            var split_line = line.Split(';');
+            var vorname = split_line[0];
+            var nachname = split_line[1];
+            var klasse = split_line[2];
+            var jamf = split_line[3] == "ja";
+            var sus_list = _myschool.GetSchueler(vorname, nachname).Result.Where(s => s.Klasse == klasse).ToList();
+            switch (sus_list.Count)
+            {
+                case < 1:
+                    continue;
+                case > 1:
+                    await ShowCustomErrorMessage(
+                        $"Es gibt mehrere Schüler:innen mit dem Namen {vorname} {nachname} in der Klasse {klasse}, wird übersprungen! Sie müssen den Eintrag manuell in der Datenbank setzen.",
+                        "Error");
+                    break;
+                default:
+                {
+                    var sus = sus_list[0];
+                    sus.AllowJAMF = jamf;
+                    _myschool.UpdateSchueler(sus);
+                    break;
+                }
+            }
+        }
+
+        await ShowCustomSuccessMessage("Einlesen erfolgreich", "Erfolg");
     }
 }
