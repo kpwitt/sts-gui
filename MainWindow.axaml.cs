@@ -866,11 +866,12 @@ public partial class MainWindow : Window
         var suszweitadresse = tbSuSZweitadresse.Text;
         var seriennummer = string.IsNullOrEmpty(tbSuSSeriennummer.Text) ? "" : tbSuSSeriennummer.Text;
         var susHatZweitaccount = cbSuSZweitaccount.IsChecked;
-        var susIstAktiv = cbSuSAktiv.IsChecked;
+        var susM365 = cbSuSM365.IsChecked != null && cbSuSM365.IsChecked.Value;
+        var susIstAktiv = cbSuSAktiv.IsChecked != null && cbSuSAktiv.IsChecked.Value;
+        var susJAMFAllowed = cbSuSJAMF.IsChecked != null && cbSuSJAMF.IsChecked.Value;
         if (string.IsNullOrEmpty(susid) || string.IsNullOrEmpty(susvname) || string.IsNullOrEmpty(susnname) ||
-            string.IsNullOrEmpty(susklasse) || susnutzername == null ||
-            string.IsNullOrEmpty(suselternadresse) ||
-            susHatZweitaccount == null || tbSuSKurse == null || tbSuSKurse!.Text == null || susIstAktiv == null)
+            string.IsNullOrEmpty(susklasse) || susnutzername == null || string.IsNullOrEmpty(suselternadresse) ||
+            susHatZweitaccount == null || tbSuSKurse == null || tbSuSKurse!.Text == null)
         {
             await ShowCustomErrorMessage(
                 "Nicht alle erforderlichen Informationen angegeben!\nStellen Sie sicher, dass ID, Vorname, Nachname, Klasse\nund eine Elternadresse angegeben sind",
