@@ -928,7 +928,7 @@ public class Schuldatenbank : IDisposable
                         var fach = kurs.Fach.IndexOf('-') > 0 ? kurs.Fach[..kurs.Fach.IndexOf('-')] : kurs.Fach;
                         kurse.Add(string.Join("|", $"{schueler.Nachname}|{schueler.Vorname}", fach,
                             l.Kuerzel.ToUpper(),
-                            (kurs.IstKurs ? "PUK|" : "GKM|") + (kurs.IstKurs == false ? "" : kurs.Fach)));
+                            (kurs.IstKurs ? "PUK|" : "GKM|") + (!kurs.IstKurs ? "" : kurs.Fach)));
                     }
                 });
             });
@@ -947,6 +947,7 @@ public class Schuldatenbank : IDisposable
             await File.WriteAllLinesAsync($"{folder}/aix_nutzernamen.csv",
                 aix_usernames.Distinct().ToList(),
                 Encoding.UTF8);
+            await File.WriteAllLinesAsync($"{folder}/jamf.csv", jamf.Distinct().ToList(), Encoding.UTF8);
             return 1;
         }
         catch (Exception ex)
@@ -1713,17 +1714,17 @@ public class Schuldatenbank : IDisposable
     private void ExportJAMF(ref List<string> ausgabeJamf, ReadOnlyCollection<int> susidliste,
         ReadOnlyCollection<int> lulidliste, bool withPasswort)
     {
-        ausgabeJamf.AddRange(from susid in susidliste.Where(x => jamfstufen.Contains(GetSchueler(x).Result.GetStufe()))
-            let sus = GetSchueler(susid).Result
-            let kurse = GetKursVonSuS(susid)
-                .Result.Where(x => jamfstufen.Contains(x.Stufe) && !x.Bezeichnung.EndsWith("KL"))
-                .Select(x => x.Bezeichnung)
-                /* .Where(x => x.StartsWith(sus.Klasse))*/
-                .ToList()
+        ausgabeJamf.AddRange(from sus_id in susidliste
+            select GetSchueler(sus_id).Result
+            into sus
+            where sus.AllowJAMF
+            where !Jamfstufen.Contains(sus.GetStufe())
+            let kbez_liste =
+                GetKursVonSuS(sus.ID).Result.Where(k => !k.Bezeichnung.EndsWith("KL")).ToList()
+                    .Select(k => k.Bezeichnung).ToList()
             select string.Join(";", sus.Nutzername, !string.IsNullOrEmpty(sus.Aixmail) ? sus.Aixmail : sus.Mail,
-                sus.Vorname, sus.Nachname, sus.Seriennummer, string.Join(',', kurse), "",
+                sus.Vorname, sus.Nachname, sus.Seriennummer, string.Join(',', kbez_liste), "",
                 withPasswort ? $"Klasse{sus.Klasse}{DateTime.Now.Year}!" : ""));
-
         ausgabeJamf.AddRange(from lulid in lulidliste
             let lul = GetLehrkraft(lulid).Result
             let kurse = GetKursVonLuL(lulid)
