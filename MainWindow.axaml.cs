@@ -1944,6 +1944,69 @@ public partial class MainWindow : Window
         }
     }
 
+    private async void BtnExportJAMFStufenkurs_OnClick(object? sender, RoutedEventArgs e)
+    {
+        await Dispatcher.UIThread.InvokeAsync(ReadFileTask);
+        return;
+
+        async Task ReadFileTask()
+        {
+            if (string.IsNullOrEmpty(tbExportStufenkurse.Text)) return;
+            var folder = await ShowOpenFolderDialog("Bitte den Ordner mit den Dateien auswählen");
+            if (folder == null) return;
+            var folderpath = folder.Path.LocalPath;
+            int res;
+            List<string> ausgabeJamf = ["Username;Email;FirstName;LastName;SerialNumber;Groups;TeacherGroups"];
+            if (!tbExportStufenkurse.Text.Contains(';'))
+            {
+                var stufe = tbExportStufenkurse.Text;
+                ausgabeJamf.AddRange(from sus in _myschool.GetSusAusStufe(stufe).Result
+                    where sus.AllowJAMF
+                    where _myschool.Jamfstufen.Contains(sus.GetStufe())
+                    let kbez_liste =
+                        _myschool.GetKursVonSuS(sus.ID).Result.Where(k => !k.Bezeichnung.EndsWith("KL")).ToList()
+                            .Select(k => k.Bezeichnung).ToList()
+                    select string.Join(";", sus.Nutzername, !string.IsNullOrEmpty(sus.Aixmail) ? sus.Aixmail : sus.Mail,
+                        sus.Vorname, sus.Nachname, sus.Seriennummer, string.Join(',', kbez_liste), ""));
+                ausgabeJamf.AddRange(from lul in _myschool.GetLuLAusStufe(stufe).Result
+                    let kurse = _myschool.GetKursVonLuL(lul.ID)
+                        .Result.Where(x =>
+                            !string.IsNullOrEmpty(x.Fach) && stufe == x.Stufe && !x.Bezeichnung.EndsWith("KL"))
+                        .Select(x => x.Bezeichnung)
+                    select string.Join(";", lul.Kuerzel, lul.Mail, lul.Vorname, lul.Nachname, lul.Seriennummer,
+                        "Lehrer-605",
+                        string.Join(',', kurse)));
+            }
+            else
+            {
+                var stufen = tbExportStufenkurse.Text.Split(';');
+                foreach (var stufe in stufen)
+                {
+                    ausgabeJamf.AddRange(from sus in _myschool.GetSusAusStufe(stufe).Result
+                        where sus.AllowJAMF
+                        where _myschool.Jamfstufen.Contains(sus.GetStufe())
+                        let kbez_liste =
+                            _myschool.GetKursVonSuS(sus.ID).Result.Where(k => !k.Bezeichnung.EndsWith("KL")).ToList()
+                                .Select(k => k.Bezeichnung).ToList()
+                        select string.Join(";", sus.Nutzername,
+                            !string.IsNullOrEmpty(sus.Aixmail) ? sus.Aixmail : sus.Mail,
+                            sus.Vorname, sus.Nachname, sus.Seriennummer, string.Join(',', kbez_liste), ""));
+                    ausgabeJamf.AddRange(from lul in _myschool.GetLuLAusStufe(stufe).Result
+                        let kurse = _myschool.GetKursVonLuL(lul.ID)
+                            .Result.Where(x =>
+                                !string.IsNullOrEmpty(x.Fach) && stufe == x.Stufe &&
+                                !x.Bezeichnung.EndsWith("KL"))
+                            .Select(x => x.Bezeichnung)
+                        select string.Join(";", lul.Kuerzel, lul.Mail, lul.Vorname, lul.Nachname, lul.Seriennummer,
+                            "Lehrer-605",
+                            string.Join(',', kurse)));
+                }
+            }
+
+            await File.WriteAllLinesAsync(folderpath + "/jamf_import.csv", ausgabeJamf);
+        }
+    }
+
     private async Task CheckSuccesfulExport(int res)
     {
         if (res == 1)

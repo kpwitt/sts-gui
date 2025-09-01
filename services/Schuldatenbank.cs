@@ -1718,7 +1718,7 @@ public class Schuldatenbank : IDisposable
             select GetSchueler(sus_id).Result
             into sus
             where sus.AllowJAMF
-            where !Jamfstufen.Contains(sus.GetStufe())
+            where Jamfstufen.Contains(sus.GetStufe()) && sus.Seriennummer != ""
             let kbez_liste =
                 GetKursVonSuS(sus.ID).Result.Where(k => !k.Bezeichnung.EndsWith("KL")).ToList()
                     .Select(k => k.Bezeichnung).ToList()
@@ -1727,12 +1727,41 @@ public class Schuldatenbank : IDisposable
                 withPasswort ? $"Klasse{sus.Klasse}{DateTime.Now.Year}!" : ""));
         ausgabeJamf.AddRange(from lulid in lulidliste
             let lul = GetLehrkraft(lulid).Result
+            where lul.Seriennummer != ""
             let kurse = GetKursVonLuL(lulid)
                 .Result.Where(x =>
                     !string.IsNullOrEmpty(x.Fach) && jamfstufen.Contains(x.Stufe) && !x.Bezeichnung.EndsWith("KL"))
                 .Select(x => x.Bezeichnung)
             select string.Join(";", lul.Kuerzel, lul.Mail, lul.Vorname, lul.Nachname, lul.Seriennummer, "Lehrer-605",
                 string.Join(',', kurse),
+                withPasswort ? GetTempPasswort(lulid).Result : ""));
+    }
+
+    /// <summary>
+    /// exportiert die angegebenen Nutzer nach JAMF
+    /// </summary>
+    /// <param name="ausgabeJamf"></param>
+    /// <param name="susidliste"></param>
+    /// <param name="lulidliste"></param>
+    /// <param name="kursliste"></param>
+    /// <param name="withPasswort"></param>
+    /// <exception cref="NotImplementedException"></exception>
+    private void ExportJAMF(ref List<string> ausgabeJamf, ReadOnlyCollection<int> susidliste,
+        ReadOnlyCollection<int> lulidliste, ReadOnlyCollection<string> kursliste, bool withPasswort)
+    {
+        ausgabeJamf.AddRange(from sus_id in susidliste
+            select GetSchueler(sus_id).Result
+            into sus
+            where sus.AllowJAMF
+            where Jamfstufen.Contains(sus.GetStufe()) && sus.Seriennummer != ""
+            select string.Join(";", sus.Nutzername, !string.IsNullOrEmpty(sus.Aixmail) ? sus.Aixmail : sus.Mail,
+                sus.Vorname, sus.Nachname, sus.Seriennummer, string.Join(',', kursliste), "",
+                withPasswort ? $"Klasse{sus.Klasse}{DateTime.Now.Year}!" : ""));
+        ausgabeJamf.AddRange(from lulid in lulidliste
+            let lul = GetLehrkraft(lulid).Result
+            where lul.Seriennummer != ""
+            select string.Join(";", lul.Kuerzel, lul.Mail, lul.Vorname, lul.Nachname, lul.Seriennummer, "Lehrer-605",
+                string.Join(',', kursliste),
                 withPasswort ? GetTempPasswort(lulid).Result : ""));
     }
 
