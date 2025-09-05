@@ -1383,6 +1383,7 @@ public class Schuldatenbank : IDisposable
     private void ExportEltern(ref List<string> ausgabeMoodleUser, ref List<string> ausgabeMoodleEinschreibungen,
         ReadOnlyCollection<int> susids)
     {
+        // header: email;username;idnumber;lastname;firstname;cohort1
         var suffix = GetKursSuffix().Result;
         foreach (var s in susids)
         {
@@ -1405,8 +1406,8 @@ public class Schuldatenbank : IDisposable
                             DateTime.Now.Year.ToString(),
                             $"{sus.Nutzername}_E1",
                             $"E_{sus.ID}1",
-                            sus.Vorname,
-                            $"{sus.Nachname}_Eltern"));
+                            $"{sus.Nachname}_Eltern," +
+                            sus.Vorname));
                         ausgabeMoodleEinschreibungen.Add(
                             $"add,eltern,E_{sus.ID}1,{sus.Klasse}KL{suffix}");
                         ausgabeMoodleEinschreibungen.Add(
@@ -1415,7 +1416,7 @@ public class Schuldatenbank : IDisposable
                     else if (mittelstufe.Contains(schuelerstufe))
                     {
                         ausgabeMoodleUser.Add(
-                            $"{sus.Zweitmail.Split(',')[0]};Klasse{sus.Klasse}{DateTime.Now.Year}!;{sus.Nutzername}_E1;E_{sus.ID}1;{sus.Vorname};{sus.Nachname}_Eltern;eltern");
+                            $"{sus.Zweitmail.Split(',')[0]};Klasse{sus.Klasse}{DateTime.Now.Year}!;{sus.Nutzername}_E1;E_{sus.ID}1;{sus.Nachname}_Eltern;{sus.Vorname};eltern");
                         ausgabeMoodleEinschreibungen.Add(
                             $"add,eltern,E_{sus.ID}1,{sus.Klasse}KL{suffix}");
                         ausgabeMoodleEinschreibungen.Add($"add,eltern,E_{sus.ID}1,mittelstufe{suffix}");
