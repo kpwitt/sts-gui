@@ -4113,13 +4113,13 @@ public partial class MainWindow : Window
             return;
         }
 
-        foreach (var line in jamf_input)
+        foreach (var line in jamf_input[1..])
         {
             var split_line = line.Split(';');
-            var vorname = split_line[0];
-            var nachname = split_line[1];
-            var klasse = split_line[2];
-            var jamf = split_line[3] == "ja";
+            var vorname = split_line[0].Trim();
+            var nachname = split_line[1].Trim();
+            var klasse = split_line[2].Trim();
+            var jamf = split_line[3].Trim() == "ja";
             var sus_list = _myschool.GetSchueler(vorname, nachname).Result.Where(s => s.Klasse == klasse).ToList();
             switch (sus_list.Count)
             {
@@ -4133,6 +4133,8 @@ public partial class MainWindow : Window
                 default:
                 {
                     var sus = sus_list[0];
+                    //ToDo remove soon
+                    if (sus.AllowJAMF) continue;
                     sus.AllowJAMF = jamf;
                     _myschool.UpdateSchueler(sus);
                     break;
