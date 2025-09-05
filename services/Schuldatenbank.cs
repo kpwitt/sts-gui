@@ -1437,14 +1437,14 @@ public class Schuldatenbank : IDisposable
             if (erprobungsstufe.Contains(schuelerstufe))
             {
                 ausgabeMoodleUser.Add(
-                    $"{susmail};Klasse{sus.Klasse}{DateTime.Now.Year}!;{sus.Nutzername}_E;E_{sus.ID};{sus.Vorname};{sus.Nachname}_Eltern;eltern");
+                    $"{susmail};Klasse{sus.Klasse}{DateTime.Now.Year}!;{sus.Nutzername}_E;E_{sus.ID};{sus.Nachname}_Eltern;{sus.Vorname};eltern");
                 ausgabeMoodleEinschreibungen.Add($"add,eltern,E_{sus.ID},{sus.Klasse}KL{suffix}");
                 ausgabeMoodleEinschreibungen.Add($"add,eltern,E_{sus.ID},erprobungsstufe{suffix}");
             }
             else if (mittelstufe.Contains(schuelerstufe))
             {
                 ausgabeMoodleUser.Add(
-                    $"{susmail};Klasse{sus.Klasse}{DateTime.Now.Year}!;{sus.Nutzername}_E;E_{sus.ID};{sus.Vorname};{sus.Nachname}_Eltern;eltern");
+                    $"{susmail};Klasse{sus.Klasse}{DateTime.Now.Year}!;{sus.Nutzername}_E;E_{sus.ID};{sus.Nachname}_Eltern;{sus.Vorname};eltern");
                 ausgabeMoodleEinschreibungen.Add($"add,eltern,E_{sus.ID},{sus.Klasse}KL{suffix}");
                 ausgabeMoodleEinschreibungen.Add($"add,eltern,E_{sus.ID},mittelstufe{suffix}");
             }
