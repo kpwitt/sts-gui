@@ -4095,6 +4095,10 @@ public partial class MainWindow : Window
 
     private void CbSuSJAMF_OnClick(object? sender, RoutedEventArgs e)
     {
+        var susid_string = tbSuSID.Text;
+        if (string.IsNullOrEmpty(susid_string) || !susid_string.All(char.IsDigit)) return;
+        var sus = _myschool.GetSchueler(Convert.ToInt32(susid_string)).Result;
+        _myschool.SetJAMF(sus.ID, cbSuSM365.IsChecked != null && cbSuSM365.IsChecked.Value ? 1 : 0);
     }
 
     private async void MnuJAMFEinlesen_OnClick(object? sender, RoutedEventArgs e)
