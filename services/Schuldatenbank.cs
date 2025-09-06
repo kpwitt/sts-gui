@@ -1168,7 +1168,7 @@ public class Schuldatenbank : IDisposable
             [
                 "kuerzel;nachname;mail_Adresse;pw_temp"
             ];
-            List<string> ausgabeJAMF = [];
+
             var ohne_kursvorlagen = kursvorlage[0].Equals("") && kursvorlage[1].Equals("");
             ausgabeMoodleKurse.Add(ohne_kursvorlagen
                 ? "shortname;fullname;idnumber;category_idnumber;format"
@@ -1180,14 +1180,12 @@ public class Schuldatenbank : IDisposable
                 ausgabeAIXS.Add(
                     "Vorname;Nachname;Klasse;Referenz-ID;Kennwort;Arbeitsgruppen");
                 ausgabeAIXL.Add("Vorname;Nachname;Referenz-ID;Kennwort;Arbeitsgruppen");
-                ausgabeJAMF.Add("Username;Email;FirstName;LastName;SerialNumber;Groups;TeacherGroups;Password");
             }
             else
             {
                 ausgabeMoodleUser.Add("email;username;idnumber;lastname;firstname;cohort1");
                 ausgabeAIXS.Add("Vorname;Nachname;Klasse;Referenz-ID;Arbeitsgruppen");
                 ausgabeAIXL.Add("Vorname;Nachname;Referenz-ID;Arbeitsgruppen");
-                ausgabeJAMF.Add("Username;Email;FirstName;LastName;SerialNumber;Groups;TeacherGroups");
             }
 
             if (whattoexport.Contains('k') && targetSystems.Contains('m'))
@@ -1224,7 +1222,7 @@ public class Schuldatenbank : IDisposable
 
             if (targetSystems.Contains('j'))
             {
-                ExportJAMF(ref ausgabeJAMF, susidliste, lulidliste, withPasswort);
+                ExportJAMF(susidliste, lulidliste, withPasswort, folder, expandfiles);
             }
 
             if (expandfiles)
@@ -1305,18 +1303,6 @@ public class Schuldatenbank : IDisposable
                                 ausgabeIntern.Distinct().ToList(), Encoding.UTF8);
                         }
                     }
-
-                    if (targetSystems.Contains('j'))
-                    {
-                        if (File.Exists($"{folder}jamf_import.csv"))
-                        {
-                            var jamf = (await File.ReadAllLinesAsync($"{folder}jamf_import.csv")).ToList();
-                            jamf.RemoveAt(0);
-                            ausgabeJAMF.AddRange(jamf);
-                            await File.WriteAllLinesAsync($"{folder}jamf_import.csv",
-                                ausgabeJAMF.Distinct().ToList(), Encoding.UTF8);
-                        }
-                    }
                 }
 
                 catch (Exception ex)
@@ -1353,12 +1339,6 @@ public class Schuldatenbank : IDisposable
                     await File.WriteAllLinesAsync($"{folder}/Lehrerdaten_anschreiben.csv",
                         ausgabeIntern.Distinct().ToList(),
                         Encoding.UTF8);
-                }
-
-                if (targetSystems.Contains('j'))
-                {
-                    await File.WriteAllLinesAsync($"{folder}jamf_import.csv",
-                        ausgabeJAMF.Distinct().ToList(), Encoding.UTF8);
                 }
             }
 
@@ -1712,30 +1692,107 @@ public class Schuldatenbank : IDisposable
     /// <param name="lulidliste"></param>
     /// <param name="withPasswort"></param>
     /// <exception cref="NotImplementedException"></exception>
-    private void ExportJAMF(ref List<string> ausgabeJamf, ReadOnlyCollection<int> susidliste,
-        ReadOnlyCollection<int> lulidliste, bool withPasswort)
+    private async void ExportJAMF(ReadOnlyCollection<int> susidliste,
+        ReadOnlyCollection<int> lulidliste, bool withPasswort, string folder, bool expand)
     {
-        ausgabeJamf.AddRange(from sus_id in susidliste
+        var blacklist = new[] { "Qualifikations", "Einführungs", "KL", "StuBo", "Phase", "stufe", "Jahrgang" };
+        var kurs_wl = GetKursBezListe().Result.ToList();
+        foreach (var bl_entry in blacklist)
+        {
+            kurs_wl.RemoveAll(x =>
+                x.StartsWith(bl_entry) || x.EndsWith(bl_entry) || !Jamfstufen.Contains(GetKurs(x).Result.Stufe));
+        }
+
+        List<string> ausgabeSuSJamf =
+        [
+            "Username;Email;FirstName;LastName;SerialNumber;Groups" +
+            (withPasswort ? ";Password" : "")
+        ];
+        List<string> ausgabeLuLJamf =
+        [
+            "Username;Email;FirstName;LastName;SerialNumber;Groups;TeacherGroups" +
+            (withPasswort ? ";Password" : "")
+        ];
+        List<string> ausgabeTeacherGroupsJAMF = ["TeacherGroup;Usernames"];
+        ausgabeSuSJamf.AddRange(from sus_id in susidliste
             select GetSchueler(sus_id).Result
             into sus
             where sus.AllowJAMF
             where Jamfstufen.Contains(sus.GetStufe()) && sus.Seriennummer != ""
-            let kbez_liste =
-                GetKursVonSuS(sus.ID).Result.Where(k => !k.Bezeichnung.EndsWith("KL")).ToList()
-                    .Select(k => k.Bezeichnung).ToList()
+            let kbez_liste = GetKursVonSuS(sus.ID).Result.Where(k => kurs_wl.Contains(k.Bezeichnung)).ToList()
+                .Select(k => k.Bezeichnung).ToList()
             select string.Join(";", sus.Nutzername, !string.IsNullOrEmpty(sus.Aixmail) ? sus.Aixmail : sus.Mail,
-                sus.Vorname, sus.Nachname, sus.Seriennummer, string.Join(',', kbez_liste), "",
+                sus.Vorname, sus.Nachname, sus.Seriennummer, string.Join(',', kbez_liste),
                 withPasswort ? $"Klasse{sus.Klasse}{DateTime.Now.Year}!" : ""));
-        ausgabeJamf.AddRange(from lulid in lulidliste
+        ausgabeLuLJamf.AddRange(from lulid in lulidliste
             let lul = GetLehrkraft(lulid).Result
             where lul.Seriennummer != ""
             let kurse = GetKursVonLuL(lulid)
                 .Result.Where(x =>
-                    !string.IsNullOrEmpty(x.Fach) && jamfstufen.Contains(x.Stufe) && !x.Bezeichnung.EndsWith("KL"))
+                    !string.IsNullOrEmpty(x.Fach) && jamfstufen.Contains(x.Stufe) && kurs_wl.Contains(x.Bezeichnung))
                 .Select(x => x.Bezeichnung)
             select string.Join(";", lul.Kuerzel, lul.Mail, lul.Vorname, lul.Nachname, lul.Seriennummer, "Lehrer-605",
                 string.Join(',', kurse),
                 withPasswort ? GetTempPasswort(lulid).Result : ""));
+        foreach (var stufe in Jamfstufen)
+        {
+            var kurse_in_stufe = GetKursAusStufe(stufe).Result.ToList();
+            kurse_in_stufe.RemoveAll(k => !kurs_wl.Contains(k.Bezeichnung));
+            foreach (var kurs in kurse_in_stufe)
+            {
+                var lul_aus_kurs = await GetLuLAusKurs(kurs.Bezeichnung);
+                ausgabeTeacherGroupsJAMF.Add($"{kurs.Bezeichnung};" +
+                                             string.Join(',', lul_aus_kurs.Select(l => l.Kuerzel)));
+            }
+        }
+
+        if (File.Exists($"{folder}/jamf_jamf_sus.csv") && expand)
+        {
+            var jamf_sus =
+                (await File.ReadAllLinesAsync($"{folder}/jamf_sus.csv")).ToList();
+            jamf_sus.RemoveAt(0);
+            ausgabeSuSJamf.AddRange(jamf_sus);
+            await File.WriteAllLinesAsync($"{folder}/jamf_sus.csv",
+                ausgabeLuLJamf.Distinct().ToList(), Encoding.UTF8);
+        }
+        else
+        {
+            await File.WriteAllLinesAsync($"{folder}/jamf_sus.csv",
+                ausgabeSuSJamf.Distinct().ToList(),
+                Encoding.UTF8);
+        }
+
+        if (File.Exists($"{folder}/jamf_lul.csv") && expand)
+        {
+            var jamf_lul =
+                (await File.ReadAllLinesAsync($"{folder}/jamf_lul.csv")).ToList();
+            jamf_lul.RemoveAt(0);
+            ausgabeLuLJamf.AddRange(jamf_lul);
+            await File.WriteAllLinesAsync($"{folder}/jamf_lul.csv",
+                ausgabeLuLJamf.Distinct().ToList(), Encoding.UTF8);
+        }
+        else
+        {
+            await File.WriteAllLinesAsync($"{folder}/jamf_lul.csv",
+                ausgabeLuLJamf.Distinct().ToList(),
+                Encoding.UTF8);
+        }
+
+        if (File.Exists($"{folder}/jamf_teacher_groups.csv") && expand)
+        {
+            var teacher_groups =
+                (await File.ReadAllLinesAsync($"{folder}/jamf_teacher_groups.csv")).ToList();
+            teacher_groups.RemoveAt(0);
+            ausgabeTeacherGroupsJAMF.AddRange(teacher_groups);
+            await File.WriteAllLinesAsync($"{folder}/jamf_teacher_groups.csv",
+                ausgabeLuLJamf.Distinct().ToList(), Encoding.UTF8);
+        }
+        else
+        {
+            await File.WriteAllLinesAsync($"{folder}/jamf_teacher_groups.csv",
+                ausgabeTeacherGroupsJAMF.Distinct().ToList(),
+                Encoding.UTF8);
+        }
     }
 
     /// <summary>
@@ -3668,5 +3725,14 @@ public class Schuldatenbank : IDisposable
     public void SetzeAktivstatusSchueler(SuS schueler, bool istAktiv)
     {
         SetzeAktivstatusSchueler(schueler.ID, istAktiv);
+    }
+
+    public void SetJAMF(int susid, int i)
+    {
+        var sqliteCmd = _sqliteConn.CreateCommand();
+        sqliteCmd.CommandText = "UPDATE schueler SET jamf = $jamf WHERE id = $susid;";
+        sqliteCmd.Parameters.AddWithValue("$susid", susid);
+        sqliteCmd.Parameters.AddWithValue("$jamf", i);
+        sqliteCmd.ExecuteNonQuery();
     }
 }
