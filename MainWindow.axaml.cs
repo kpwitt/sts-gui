@@ -4137,8 +4137,6 @@ public partial class MainWindow : Window
                 default:
                 {
                     var sus = sus_list[0];
-                    //ToDo remove soon
-                    if (sus.AllowJAMF) continue;
                     sus.AllowJAMF = jamf;
                     _myschool.UpdateSchueler(sus);
                     break;
