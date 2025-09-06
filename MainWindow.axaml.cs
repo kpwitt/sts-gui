@@ -1667,7 +1667,9 @@ public partial class MainWindow : Window
             if (File.Exists($"{folderpath}/aix_sus.csv") || File.Exists($"{folderpath}/aix_lul.csv") ||
                 File.Exists($"{folderpath}/mdl_einschreibungen.csv") ||
                 File.Exists($"{folderpath}/mdl_kurse.csv") || File.Exists($"{folderpath}/mdl_nutzer.csv") ||
-                File.Exists($"{folderpath}jamf_import.csv"))
+                File.Exists($"{folderpath}jamf_sus.csv") ||
+                File.Exists($"{folderpath}jamf_lul.csv") ||
+                File.Exists($"{folderpath}jamf_teacher_groups.csv"))
             {
                 var overwriteFilesDialog = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
                 {
@@ -2906,7 +2908,10 @@ public partial class MainWindow : Window
             var expandFiles = false;
             if (File.Exists($"{folderpath}/aix_sus.csv") || File.Exists($"{folderpath}/aix_lul.csv") ||
                 File.Exists($"{folderpath}/mdl_einschreibungen.csv") ||
-                File.Exists($"{folderpath}/mdl_kurse.csv") || File.Exists($"{folderpath}/mdl_nutzer.csv"))
+                File.Exists($"{folderpath}/mdl_kurse.csv") || File.Exists($"{folderpath}/mdl_nutzer.csv") ||
+                File.Exists($"{folderpath}jamf_sus.csv") ||
+                File.Exists($"{folderpath}jamf_lul.csv") ||
+                File.Exists($"{folderpath}jamf_teacher_groups.csv"))
             {
                 var overwriteFilesDialog = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
                 {
