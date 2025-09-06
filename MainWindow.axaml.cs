@@ -1667,7 +1667,9 @@ public partial class MainWindow : Window
             if (File.Exists($"{folderpath}/aix_sus.csv") || File.Exists($"{folderpath}/aix_lul.csv") ||
                 File.Exists($"{folderpath}/mdl_einschreibungen.csv") ||
                 File.Exists($"{folderpath}/mdl_kurse.csv") || File.Exists($"{folderpath}/mdl_nutzer.csv") ||
-                File.Exists($"{folderpath}jamf_import.csv"))
+                File.Exists($"{folderpath}jamf_sus.csv") ||
+                File.Exists($"{folderpath}jamf_lul.csv") ||
+                File.Exists($"{folderpath}jamf_teacher_groups.csv"))
             {
                 var overwriteFilesDialog = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
                 {
@@ -2906,7 +2908,10 @@ public partial class MainWindow : Window
             var expandFiles = false;
             if (File.Exists($"{folderpath}/aix_sus.csv") || File.Exists($"{folderpath}/aix_lul.csv") ||
                 File.Exists($"{folderpath}/mdl_einschreibungen.csv") ||
-                File.Exists($"{folderpath}/mdl_kurse.csv") || File.Exists($"{folderpath}/mdl_nutzer.csv"))
+                File.Exists($"{folderpath}/mdl_kurse.csv") || File.Exists($"{folderpath}/mdl_nutzer.csv") ||
+                File.Exists($"{folderpath}jamf_sus.csv") ||
+                File.Exists($"{folderpath}jamf_lul.csv") ||
+                File.Exists($"{folderpath}jamf_teacher_groups.csv"))
             {
                 var overwriteFilesDialog = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
                 {
@@ -4095,6 +4100,10 @@ public partial class MainWindow : Window
 
     private void CbSuSJAMF_OnClick(object? sender, RoutedEventArgs e)
     {
+        var susid_string = tbSuSID.Text;
+        if (string.IsNullOrEmpty(susid_string) || !susid_string.All(char.IsDigit)) return;
+        var sus = _myschool.GetSchueler(Convert.ToInt32(susid_string)).Result;
+        _myschool.SetJAMF(sus.ID, cbSuSM365.IsChecked != null && cbSuSM365.IsChecked.Value ? 1 : 0);
     }
 
     private async void MnuJAMFEinlesen_OnClick(object? sender, RoutedEventArgs e)
@@ -4109,7 +4118,7 @@ public partial class MainWindow : Window
         var jamf_input = await File.ReadAllLinesAsync(file.Path.LocalPath);
         if (jamf_input.Length == 0 || jamf_input[0] != "Vorname;Nachname;Klasse;JAMF (ja/nein/fehlt)")
         {
-            await ShowCustomErrorMessage("Fehler beim einlesen der Datei", "Fehler");
+            await ShowCustomErrorMessage("Fehler beim Einlesen der Datei", "Fehler");
             return;
         }
 
@@ -4133,8 +4142,6 @@ public partial class MainWindow : Window
                 default:
                 {
                     var sus = sus_list[0];
-                    //ToDo remove soon
-                    if (sus.AllowJAMF) continue;
                     sus.AllowJAMF = jamf;
                     _myschool.UpdateSchueler(sus);
                     break;
