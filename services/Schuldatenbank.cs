@@ -1736,7 +1736,7 @@ public class Schuldatenbank : IDisposable
                 withPasswort ? GetTempPasswort(lulid).Result : ""));
         foreach (var stufe in Jamfstufen)
         {
-            var kurse_in_stufe = GetKursAusStufe(stufe).Result.ToList();
+            var kurse_in_stufe = GetKurseAusStufe(stufe).Result.ToList();
             kurse_in_stufe.RemoveAll(k => !kurs_wl.Contains(k.Bezeichnung));
             foreach (var kurs in kurse_in_stufe)
             {
@@ -1795,32 +1795,19 @@ public class Schuldatenbank : IDisposable
         }
     }
 
-    /// <summary>
-    /// exportiert die angegebenen Nutzer nach JAMF
-    /// </summary>
-    /// <param name="ausgabeJamf"></param>
-    /// <param name="susidliste"></param>
-    /// <param name="lulidliste"></param>
-    /// <param name="kursliste"></param>
-    /// <param name="withPasswort"></param>
-    /// <exception cref="NotImplementedException"></exception>
-    private void ExportJAMF(ref List<string> ausgabeJamf, ReadOnlyCollection<int> susidliste,
-        ReadOnlyCollection<int> lulidliste, ReadOnlyCollection<string> kursliste, bool withPasswort)
+    private async Task<ReadOnlyCollection<Kurs>> GetKurseAusStufe(string stufe)
     {
-        ausgabeJamf.AddRange(from sus_id in susidliste
-            select GetSchueler(sus_id).Result
-            into sus
-            where sus.AllowJAMF
-            where Jamfstufen.Contains(sus.GetStufe()) && sus.Seriennummer != ""
-            select string.Join(";", sus.Nutzername, !string.IsNullOrEmpty(sus.Aixmail) ? sus.Aixmail : sus.Mail,
-                sus.Vorname, sus.Nachname, sus.Seriennummer, string.Join(',', kursliste), "",
-                withPasswort ? $"Klasse{sus.Klasse}{DateTime.Now.Year}!" : ""));
-        ausgabeJamf.AddRange(from lulid in lulidliste
-            let lul = GetLehrkraft(lulid).Result
-            where lul.Seriennummer != ""
-            select string.Join(";", lul.Kuerzel, lul.Mail, lul.Vorname, lul.Nachname, lul.Seriennummer, "Lehrer-605",
-                string.Join(',', kursliste),
-                withPasswort ? GetTempPasswort(lulid).Result : ""));
+        List<Kurs> klist = [];
+        var sqliteCmd = _sqliteConn.CreateCommand();
+        sqliteCmd.CommandText = "SELECT bez FROM kurse WHERE stufe = $stufe;";
+        sqliteCmd.Parameters.AddWithValue("$stufe", stufe);
+        var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
+        while (sqliteDatareader.Read())
+        {
+            klist.Add(GetKurs(sqliteDatareader.GetString(0)).Result);
+        }
+
+        return new ReadOnlyCollection<Kurs>(klist);
     }
 
     /// <summary>
@@ -2179,10 +2166,10 @@ public class Schuldatenbank : IDisposable
     }
 
     /// <summary>
-    /// gibt die IDs der LuL in des Kurses als Liste zurück
+    /// gibt die LuL im Kurs als Liste zurück
     /// </summary>
     /// <param name="kbez"></param>
-    /// <returns>Interger-Liste der LuL des Kurses</returns>
+    /// <returns>Liste der LuL des Kurses</returns>
     public async Task<ReadOnlyCollection<Lehrkraft>> GetLuLAusKurs(string kbez)
     {
         List<Lehrkraft> lliste = [];
@@ -2202,7 +2189,7 @@ public class Schuldatenbank : IDisposable
     /// gibt die LuL des Schülers/der Schülerin zurück
     /// </summary>
     /// <param name="susid"></param>
-    /// <returns>Interger-Liste der LuL-IDs</returns>
+    /// <returns>Liste der LuL des Schülers/der Schülerin</returns>
     public async Task<ReadOnlyCollection<Lehrkraft>> GetLuLvonSuS(int susid)
     {
         List<Lehrkraft> lliste = [];
