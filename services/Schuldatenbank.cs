@@ -1687,10 +1687,11 @@ public class Schuldatenbank : IDisposable
     /// <summary>
     /// exportiert die angegebenen Nutzer nach JAMF
     /// </summary>
-    /// <param name="ausgabeJamf"></param>
     /// <param name="susidliste"></param>
     /// <param name="lulidliste"></param>
     /// <param name="withPasswort"></param>
+    /// <param name="folder"></param>
+    /// <param name="expand"></param>
     /// <exception cref="NotImplementedException"></exception>
     private async void ExportJAMF(ReadOnlyCollection<int> susidliste,
         ReadOnlyCollection<int> lulidliste, bool withPasswort, string folder, bool expand)
