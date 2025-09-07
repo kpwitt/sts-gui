@@ -1957,7 +1957,6 @@ public partial class MainWindow : Window
             var folder = await ShowOpenFolderDialog("Bitte den Ordner mit den Dateien auswählen");
             if (folder == null) return;
             var folderpath = folder.Path.LocalPath;
-            int res;
             List<string> ausgabeJamf = ["Username;Email;FirstName;LastName;SerialNumber;Groups;TeacherGroups"];
             if (!tbExportStufenkurse.Text.Contains(';'))
             {
