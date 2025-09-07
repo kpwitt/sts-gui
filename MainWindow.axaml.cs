@@ -3872,91 +3872,95 @@ public partial class MainWindow : Window
         if (file == null) return;
         var iPSFilePath = file.Path.LocalPath;
         var iPSFileText = File.ReadAllLinesAsync(iPSFilePath).Result.ToList();
-        if (iPSFileText[0] == "Vorname;Nachname;Klasse;Seriennummer")
+        switch (iPSFileText[0])
         {
-            iPSFileText.RemoveAt(0);
-            await _myschool.StartTransaction();
-            var susliste = await _myschool.GetSchuelerListe();
-            foreach (var line in iPSFileText)
+            case "Vorname;Nachname;Klasse;Seriennummer":
             {
-                var split_line = line.Split(';');
-                var vorname = split_line[0];
-                var nachname = split_line[1];
-                var klasse = split_line[2];
-                var seriennummer = split_line[3];
-                if (string.Empty == vorname || string.Empty == nachname || /*string.Empty == klasse ||*/
-                    string.Empty == seriennummer)
+                iPSFileText.RemoveAt(0);
+                await _myschool.StartTransaction();
+                var susliste = await _myschool.GetSchuelerListe();
+                foreach (var line in iPSFileText)
                 {
-                    await ShowCustomErrorMessage(
-                        $"Fehlerhafte Angaben bei Schüler:in {vorname} {nachname}:{klasse}", "Fehler");
-                    continue;
+                    var split_line = line.Split(';');
+                    var vorname = split_line[0];
+                    var nachname = split_line[1];
+                    var klasse = split_line[2];
+                    var seriennummer = split_line[3];
+                    if (string.Empty == vorname || string.Empty == nachname || /*string.Empty == klasse ||*/
+                        string.Empty == seriennummer)
+                    {
+                        await ShowCustomErrorMessage(
+                            $"Fehlerhafte Angaben bei Schüler:in {vorname} {nachname}:{klasse}", "Fehler");
+                        continue;
+                    }
+
+                    var sus = susliste.Where(s => s.Vorname.StartsWith(vorname) && s.Nachname.StartsWith(nachname))
+                        .ToList();
+                    if (sus.Count == 0) continue;
+                    foreach (var s in sus)
+                    {
+                        var tmp_sus = s;
+                        tmp_sus.Seriennummer = seriennummer;
+                        _myschool.UpdateSchueler(tmp_sus);
+                    }
                 }
 
-                var sus = susliste.Where(s => s.Vorname.StartsWith(vorname) && s.Nachname.StartsWith(nachname))
-                    .ToList();
-                if (sus.Count == 0) continue;
-                foreach (var s in sus)
-                {
-                    var tmp_sus = s;
-                    tmp_sus.Seriennummer = seriennummer;
-                    _myschool.UpdateSchueler(tmp_sus);
-                }
+                await _myschool.StopTransaction();
+                break;
             }
-
-            await _myschool.StopTransaction();
-        }
-        else if (iPSFileText[0] == "Kürzel;Seriennummer")
-        {
-            iPSFileText.RemoveAt(0);
-            await _myschool.StartTransaction();
-            var lulliste = await _myschool.GetLehrerListe();
-            foreach (var line in iPSFileText)
+            case "Kürzel;Seriennummer":
             {
-                var split_line = line.Split(';');
-                var kuerzel = split_line[0];
-                var seriennummer = split_line[1];
-                if (string.IsNullOrEmpty(kuerzel) || string.IsNullOrEmpty(seriennummer))
+                iPSFileText.RemoveAt(0);
+                await _myschool.StartTransaction();
+                var lulliste = await _myschool.GetLehrerListe();
+                foreach (var line in iPSFileText)
                 {
-                    await ShowCustomErrorMessage(
-                        $"Fehlerhafte Angaben bei {line}", "Fehler");
-                    continue;
+                    var split_line = line.Split(';');
+                    var kuerzel = split_line[0];
+                    var seriennummer = split_line[1];
+                    if (string.IsNullOrEmpty(kuerzel) || string.IsNullOrEmpty(seriennummer))
+                    {
+                        await ShowCustomErrorMessage(
+                            $"Fehlerhafte Angaben bei {line}", "Fehler");
+                        continue;
+                    }
+
+                    var lul = lulliste.Where(l => l.Kuerzel.Equals(kuerzel, StringComparison.CurrentCultureIgnoreCase))
+                        .ToList();
+                    switch (lul.Count)
+                    {
+                        case 1:
+                            var l = await _myschool.GetLehrkraft(kuerzel.ToUpper());
+                            l.Seriennummer = seriennummer;
+                            _myschool.UpdateLehrkraft(l);
+                            break;
+                        case > 1:
+                            await ShowCustomErrorMessage($"Mehrere Lehrkräfte mit Kürzel {kuerzel} gefunden", "Fehler");
+                            break;
+                    }
                 }
 
-                var lul = lulliste.Where(l => l.Kuerzel.Equals(kuerzel, StringComparison.CurrentCultureIgnoreCase))
-                    .ToList();
-                switch (lul.Count)
-                {
-                    case 1:
-                        var l = await _myschool.GetLehrkraft(kuerzel.ToUpper());
-                        l.Seriennummer = seriennummer;
-                        _myschool.UpdateLehrkraft(l);
-                        break;
-                    case > 1:
-                        await ShowCustomErrorMessage($"Mehrere Lehrkräfte mit Kürzel {kuerzel} gefunden", "Fehler");
-                        break;
-                }
+                await _myschool.StopTransaction();
+                break;
             }
-
-            await _myschool.StopTransaction();
-        }
-        else if (iPSFileText[0] == "Vorname;Nachname;Klasse;Seriennummer;ID")
-        {
-            iPSFileText.RemoveAt(0);
-            await _myschool.StartTransaction();
-            foreach (var line in iPSFileText)
+            case "Vorname;Nachname;Klasse;Seriennummer;ID":
             {
-                var split_line = line.Split(';');
-                var seriennummer = split_line[3];
-                var id = Convert.ToInt32(split_line[4]);
-                var sus = await _myschool.GetSchueler(id);
-                sus.Seriennummer = seriennummer;
-                _myschool.UpdateSchueler(sus);
-            }
+                iPSFileText.RemoveAt(0);
+                await _myschool.StartTransaction();
+                foreach (var line in iPSFileText)
+                {
+                    var split_line = line.Split(';');
+                    var seriennummer = split_line[3];
+                    var id = Convert.ToInt32(split_line[4]);
+                    var sus = await _myschool.GetSchueler(id);
+                    sus.Seriennummer = seriennummer;
+                    _myschool.UpdateSchueler(sus);
+                }
 
-            await _myschool.StartTransaction();
-        }
-        else
-        {
+                await _myschool.StartTransaction();
+                break;
+            }
+            default:
             {
                 await ShowCustomErrorMessage(
                     "Fehlerhafte Datei, bitte den Header überprüfen, für Schüler:innen Vorname;Nachname;Klasse;Seriennummer, für Lehrkräfte Kürzel;Seriennummer verwenden.",
