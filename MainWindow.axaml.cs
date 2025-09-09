@@ -2904,7 +2904,7 @@ public partial class MainWindow : Window
             var folder = await ShowOpenFolderDialog("Bitte den Ordner zum Speichern angeben");
             if (folder == null) return;
             var folderpath = folder.Path.LocalPath;
-            var expandFiles = false;
+            var expandFiles = -1;
             if (File.Exists($"{folderpath}/aix_sus.csv") || File.Exists($"{folderpath}/aix_lul.csv") ||
                 File.Exists($"{folderpath}/mdl_einschreibungen.csv") ||
                 File.Exists($"{folderpath}/mdl_kurse.csv") || File.Exists($"{folderpath}/mdl_nutzer.csv") ||
@@ -2914,22 +2914,24 @@ public partial class MainWindow : Window
             {
                 var overwriteFilesDialog = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
                 {
-                    ButtonDefinitions = ButtonEnum.YesNo,
+                    ButtonDefinitions = ButtonEnum.YesNoAbort,
                     ContentTitle = "Dateien gefunden",
                     ContentHeader = "Überschreiben?",
                     ContentMessage =
-                        "Im Ordner existieren schon eine/mehrere Exportdateien.\nSollen diese überschrieben werden?",
+                        "Im Ordner existieren schon eine/mehrere Exportdateien.\nSollen diese überschrieben werden?\nJa = überschreiben, Nein = erweitern, Abbrechen = nichts machen",
                     Icon = MsBox.Avalonia.Enums.Icon.Question,
                     WindowIcon = _msgBoxWindowIcon
                 });
                 var dialogResult = await overwriteFilesDialog.ShowAsPopupAsync(this);
                 expandFiles = dialogResult switch
                 {
-                    ButtonResult.Yes => false,
-                    _ => true
+                    ButtonResult.Yes => 1,
+                    ButtonResult.No => 0,
+                    ButtonResult.Abort => -1,
                 };
             }
 
+            if (expandFiles == -1) return;
             List<SuS> suslist = [];
             List<Lehrkraft> lullist = [];
             List<Kurs> kurslist = [];
@@ -3004,7 +3006,7 @@ public partial class MainWindow : Window
                     .First()).IsChecked;
                 var nurMoodleSuffix = cbNurMoodleSuffix.IsChecked is not false;
                 var res = await _myschool.ExportToCSV(folderpath, destsys, whattoexport,
-                    isAnfangsPasswortChecked != null && isAnfangsPasswortChecked.Value, "", expandFiles,
+                    isAnfangsPasswortChecked != null && isAnfangsPasswortChecked.Value, "", expandFiles==0,
                     nurMoodleSuffix, kursvorlagen,
                     new ReadOnlyCollection<int>([..suslist.Select(s => s.ID).Distinct().ToList()]),
                     new ReadOnlyCollection<int>(lullist.Select(l => l.ID).Distinct().ToList()),

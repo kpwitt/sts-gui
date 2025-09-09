@@ -1747,14 +1747,14 @@ public class Schuldatenbank : IDisposable
             }
         }
 
-        if (File.Exists($"{folder}/jamf_jamf_sus.csv") && expand)
+        if (File.Exists($"{folder}/jamf_sus.csv") && expand)
         {
             var jamf_sus =
                 (await File.ReadAllLinesAsync($"{folder}/jamf_sus.csv")).ToList();
             jamf_sus.RemoveAt(0);
             ausgabeSuSJamf.AddRange(jamf_sus);
             await File.WriteAllLinesAsync($"{folder}/jamf_sus.csv",
-                ausgabeLuLJamf.Distinct().ToList(), Encoding.UTF8);
+                ausgabeSuSJamf.Distinct().ToList(), Encoding.UTF8);
         }
         else
         {
@@ -1786,7 +1786,7 @@ public class Schuldatenbank : IDisposable
             teacher_groups.RemoveAt(0);
             ausgabeTeacherGroupsJAMF.AddRange(teacher_groups);
             await File.WriteAllLinesAsync($"{folder}/jamf_teacher_groups.csv",
-                ausgabeLuLJamf.Distinct().ToList(), Encoding.UTF8);
+                ausgabeTeacherGroupsJAMF.Distinct().ToList(), Encoding.UTF8);
         }
         else
         {
