@@ -2928,6 +2928,7 @@ public partial class MainWindow : Window
                     ButtonResult.Yes => 1,
                     ButtonResult.No => 0,
                     ButtonResult.Abort => -1,
+                    _ => 1
                 };
             }
 
