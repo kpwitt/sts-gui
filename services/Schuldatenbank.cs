@@ -2636,8 +2636,7 @@ public class Schuldatenbank : IDisposable
                 if (line[inid] == "" || !line[inid].All(char.IsDigit)) continue;
                 try
                 {
-                    var sus = await GetSchueler(Convert.ToInt32(line[inid]));
-                    var id = Convert.ToInt32(sus.ID);
+                    var id = Convert.ToInt32(line[inid]);
                     UpdateSchuelerNutzername(id, line[ina]);
                     UpdateAIXSuSAdressen(id, line[imail]);
                 }
@@ -2937,6 +2936,7 @@ public class Schuldatenbank : IDisposable
                 AddLogMessage(new LogEintrag
                     { Eintragsdatum = DateTime.Now, Nachricht = ex.Message, Warnstufe = "Debug" });
 #endif
+                await StopTransaction();
             }
         });
         await StopTransaction();
