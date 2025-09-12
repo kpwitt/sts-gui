@@ -2904,7 +2904,7 @@ public partial class MainWindow : Window
             var folder = await ShowOpenFolderDialog("Bitte den Ordner zum Speichern angeben");
             if (folder == null) return;
             var folderpath = folder.Path.LocalPath;
-            var expandFiles = -1;
+            var expandFiles = 1;
             if (File.Exists($"{folderpath}/aix_sus.csv") || File.Exists($"{folderpath}/aix_lul.csv") ||
                 File.Exists($"{folderpath}/mdl_einschreibungen.csv") ||
                 File.Exists($"{folderpath}/mdl_kurse.csv") || File.Exists($"{folderpath}/mdl_nutzer.csv") ||
@@ -2928,6 +2928,7 @@ public partial class MainWindow : Window
                     ButtonResult.Yes => 1,
                     ButtonResult.No => 0,
                     ButtonResult.Abort => -1,
+                    _ => 1
                 };
             }
 
