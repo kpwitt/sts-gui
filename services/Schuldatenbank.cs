@@ -32,7 +32,7 @@ public class Schuldatenbank : IDisposable
     private string[] mittelstufe = ["7", "8", "9", "10"];
     private string[] oberstufe = ["EF", "Q1", "Q2"];
     private string[] stubostufen = ["8", "9", "10", "EF", "Q1", "Q2"];
-    private string[] jamfstufen = ["8", "9", "10", "EF", "Q1", "Q2"];
+    private string[] jamfstufen = ["9", "10", "EF", "Q1", "Q2"];
 
     public string[] Stubostufen
     {
