@@ -423,6 +423,7 @@ public partial class MainWindow : Window
         var filepath = files.Path.LocalPath;
         _myschool = new Schuldatenbank(filepath);
         Title = $"SchildToSchule - {_myschool.GetFilePath()}";
+        LoadSettingsToGUI(_myschool.GetSettings().Result);
         InitData();
         SetStatusText();
     }
