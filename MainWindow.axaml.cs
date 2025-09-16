@@ -1664,7 +1664,7 @@ public partial class MainWindow : Window
             var folder = await ShowOpenFolderDialog("Bitte den Ordner mit den Dateien auswählen");
             if (folder == null) return;
             var folderpath = folder.Path.LocalPath;
-            var expandFiles = false;
+            var expandFiles = 1;
             if (File.Exists($"{folderpath}/aix_sus.csv") || File.Exists($"{folderpath}/aix_lul.csv") ||
                 File.Exists($"{folderpath}/mdl_einschreibungen.csv") ||
                 File.Exists($"{folderpath}/mdl_kurse.csv") || File.Exists($"{folderpath}/mdl_nutzer.csv") ||
@@ -1674,22 +1674,25 @@ public partial class MainWindow : Window
             {
                 var overwriteFilesDialog = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
                 {
-                    ButtonDefinitions = ButtonEnum.YesNo,
+                    ButtonDefinitions = ButtonEnum.YesNoAbort,
                     ContentTitle = "Dateien gefunden",
                     ContentHeader = "Überschreiben?",
                     ContentMessage =
-                        "Im Ordner existieren schon eine/mehrere Exportdateien.\nSollen diese überschrieben werden?",
+                        "Im Ordner existieren schon eine/mehrere Exportdateien.\nSollen diese überschrieben werden?\nJa = überschreiben, Nein = erweitern, Abbrechen = nichts machen",
                     Icon = MsBox.Avalonia.Enums.Icon.Question,
                     WindowIcon = _msgBoxWindowIcon
                 });
                 var dialogResult = await overwriteFilesDialog.ShowAsPopupAsync(this);
                 expandFiles = dialogResult switch
                 {
-                    ButtonResult.Yes => false,
-                    _ => true
+                    ButtonResult.Yes => 1,
+                    ButtonResult.No => 0,
+                    ButtonResult.Abort => -1,
+                    _ => 1
                 };
             }
 
+            if (expandFiles == -1) return;
             var whattoexport = "";
             var destsys = "";
             if (cbSuS.IsChecked != null && cbSuS.IsChecked.Value)
@@ -1739,7 +1742,7 @@ public partial class MainWindow : Window
             }
 
             var res = await _myschool.ExportToCSV(folderpath, destsys, whattoexport,
-                cbExportwithPasswort.IsChecked != null && cbExportwithPasswort.IsChecked.Value, "", expandFiles,
+                cbExportwithPasswort.IsChecked != null && cbExportwithPasswort.IsChecked.Value, "", expandFiles == 1,
                 nurMoodleSuffix, kursvorlagen, new ReadOnlyCollection<int>(_myschool.GetSchuelerIDListe().Result),
                 await _myschool.GetLehrerIDListe(), await _myschool.GetKursBezListe());
             await CheckSuccesfulExport(res);
