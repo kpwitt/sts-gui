@@ -423,6 +423,7 @@ public partial class MainWindow : Window
         var filepath = files.Path.LocalPath;
         _myschool = new Schuldatenbank(filepath);
         Title = $"SchildToSchule - {_myschool.GetFilePath()}";
+        LoadSettingsToGUI(_myschool.GetSettings().Result);
         InitData();
         SetStatusText();
     }
@@ -3007,7 +3008,7 @@ public partial class MainWindow : Window
                     .First()).IsChecked;
                 var nurMoodleSuffix = cbNurMoodleSuffix.IsChecked is not false;
                 var res = await _myschool.ExportToCSV(folderpath, destsys, whattoexport,
-                    isAnfangsPasswortChecked != null && isAnfangsPasswortChecked.Value, "", expandFiles==0,
+                    isAnfangsPasswortChecked != null && isAnfangsPasswortChecked.Value, "", expandFiles == 0,
                     nurMoodleSuffix, kursvorlagen,
                     new ReadOnlyCollection<int>([..suslist.Select(s => s.ID).Distinct().ToList()]),
                     new ReadOnlyCollection<int>(lullist.Select(l => l.ID).Distinct().ToList()),
