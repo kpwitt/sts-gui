@@ -1664,13 +1664,13 @@ public partial class MainWindow : Window
             var folder = await ShowOpenFolderDialog("Bitte den Ordner mit den Dateien auswählen");
             if (folder == null) return;
             var folderpath = folder.Path.LocalPath;
-            var expandFiles = 1;
+            var expandFiles = 0;
             if (File.Exists($"{folderpath}/aix_sus.csv") || File.Exists($"{folderpath}/aix_lul.csv") ||
                 File.Exists($"{folderpath}/mdl_einschreibungen.csv") ||
                 File.Exists($"{folderpath}/mdl_kurse.csv") || File.Exists($"{folderpath}/mdl_nutzer.csv") ||
-                File.Exists($"{folderpath}jamf_sus.csv") ||
-                File.Exists($"{folderpath}jamf_lul.csv") ||
-                File.Exists($"{folderpath}jamf_teacher_groups.csv"))
+                File.Exists($"{folderpath}/jamf_sus.csv") ||
+                File.Exists($"{folderpath}/jamf_lul.csv") ||
+                File.Exists($"{folderpath}/jamf_teacher_groups.csv"))
             {
                 var overwriteFilesDialog = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
                 {
@@ -1742,7 +1742,7 @@ public partial class MainWindow : Window
             }
 
             var res = await _myschool.ExportToCSV(folderpath, destsys, whattoexport,
-                cbExportwithPasswort.IsChecked != null && cbExportwithPasswort.IsChecked.Value, "", expandFiles == 1,
+                cbExportwithPasswort.IsChecked != null && cbExportwithPasswort.IsChecked.Value, "", expandFiles == 0,
                 nurMoodleSuffix, kursvorlagen, new ReadOnlyCollection<int>(_myschool.GetSchuelerIDListe().Result),
                 await _myschool.GetLehrerIDListe(), await _myschool.GetKursBezListe());
             await CheckSuccesfulExport(res);
@@ -2908,13 +2908,13 @@ public partial class MainWindow : Window
             var folder = await ShowOpenFolderDialog("Bitte den Ordner zum Speichern angeben");
             if (folder == null) return;
             var folderpath = folder.Path.LocalPath;
-            var expandFiles = 1;
+            var expandFiles = 0;
             if (File.Exists($"{folderpath}/aix_sus.csv") || File.Exists($"{folderpath}/aix_lul.csv") ||
                 File.Exists($"{folderpath}/mdl_einschreibungen.csv") ||
                 File.Exists($"{folderpath}/mdl_kurse.csv") || File.Exists($"{folderpath}/mdl_nutzer.csv") ||
-                File.Exists($"{folderpath}jamf_sus.csv") ||
-                File.Exists($"{folderpath}jamf_lul.csv") ||
-                File.Exists($"{folderpath}jamf_teacher_groups.csv"))
+                File.Exists($"{folderpath}/jamf_sus.csv") ||
+                File.Exists($"{folderpath}/jamf_lul.csv") ||
+                File.Exists($"{folderpath}/jamf_teacher_groups.csv"))
             {
                 var overwriteFilesDialog = MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
                 {
