@@ -436,7 +436,7 @@ public class Schuldatenbank : IDisposable
         }
 
         sqliteDatareader.Close();
-        if (output == 0)
+        if (output != 0) return;
         {
             try
             {
