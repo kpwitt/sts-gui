@@ -260,7 +260,7 @@ public class Schuldatenbank : IDisposable
     {
         //Überprüfung ob Datenbank initialisiert ist
         sqliteCmd.CommandText =
-            $"SELECT COUNT(*) AS id_col_count FROM pragma_table_info('schueler') WHERE name='id'";
+            "SELECT COUNT(*) AS id_col_count FROM pragma_table_info('schueler') WHERE name='id'";
         sqliteCmd.ExecuteNonQuery();
         var sqliteDatareader = sqliteCmd.ExecuteReader();
         var db_version = 0;
@@ -275,7 +275,7 @@ public class Schuldatenbank : IDisposable
 
         //upgrade DB to 0.6
         sqliteCmd.CommandText =
-            $"SELECT COUNT(*) AS m365_col_count FROM pragma_table_info('schueler') WHERE name='m365'";
+            "SELECT COUNT(*) AS m365_col_count FROM pragma_table_info('schueler') WHERE name='m365'";
         sqliteCmd.ExecuteNonQuery();
         sqliteDatareader = sqliteCmd.ExecuteReader();
         var output = 0;
@@ -290,11 +290,11 @@ public class Schuldatenbank : IDisposable
             try
             {
                 sqliteCmd.CommandText =
-                    $"ALTER TABLE schueler ADD COLUMN m365 INTEGER NOT NULL DEFAULT 1";
+                    "ALTER TABLE schueler ADD COLUMN m365 INTEGER NOT NULL DEFAULT 1";
                 sqliteCmd.ExecuteNonQuery();
                 sqliteDatareader.Close();
                 sqliteCmd.CommandText =
-                    $"INSERT OR REPLACE INTO settings(setting, value) VALUES ('version', '0.6')";
+                    "INSERT OR REPLACE INTO settings(setting, value) VALUES ('version', '0.6')";
                 sqliteCmd.ExecuteNonQuery();
             }
             catch (Exception ex)
@@ -309,7 +309,7 @@ public class Schuldatenbank : IDisposable
 
         //Begin Update 0.7
         sqliteCmd.CommandText =
-            $"SELECT COUNT(*) AS sus_column_count FROM pragma_table_info('schueler') WHERE name='aktiv'";
+            "SELECT COUNT(*) AS sus_column_count FROM pragma_table_info('schueler') WHERE name='aktiv'";
         sqliteCmd.ExecuteNonQuery();
         sqliteDatareader = sqliteCmd.ExecuteReader();
         var sus_column_count = 0;
@@ -320,7 +320,7 @@ public class Schuldatenbank : IDisposable
 
         sqliteDatareader.Close();
         sqliteCmd.CommandText =
-            $"SELECT COUNT(*) AS lul_column_count FROM pragma_table_info('lehrkraft') WHERE name='aktiv'";
+            "SELECT COUNT(*) AS lul_column_count FROM pragma_table_info('lehrkraft') WHERE name='aktiv'";
         sqliteCmd.ExecuteNonQuery();
         sqliteDatareader = sqliteCmd.ExecuteReader();
         var lul_column_count = 0;
@@ -336,11 +336,11 @@ public class Schuldatenbank : IDisposable
             try
             {
                 sqliteCmd.CommandText =
-                    $"ALTER TABLE schueler ADD COLUMN aktiv BOOLEAN NOT NULL DEFAULT TRUE";
+                    "ALTER TABLE schueler ADD COLUMN aktiv BOOLEAN NOT NULL DEFAULT TRUE";
                 sqliteCmd.ExecuteNonQuery();
                 sqliteDatareader.Close();
                 sqliteCmd.CommandText =
-                    $"INSERT OR REPLACE INTO settings(setting, value) VALUES ('version', '0.7')";
+                    "INSERT OR REPLACE INTO settings(setting, value) VALUES ('version', '0.7')";
                 sqliteCmd.ExecuteNonQuery();
             }
             catch (Exception ex)
@@ -359,11 +359,11 @@ public class Schuldatenbank : IDisposable
             try
             {
                 sqliteCmd.CommandText =
-                    $"ALTER TABLE lehrkraft ADD COLUMN aktiv BOOLEAN NOT NULL DEFAULT TRUE";
+                    "ALTER TABLE lehrkraft ADD COLUMN aktiv BOOLEAN NOT NULL DEFAULT TRUE";
                 sqliteCmd.ExecuteNonQuery();
                 sqliteDatareader.Close();
                 sqliteCmd.CommandText =
-                    $"INSERT OR REPLACE INTO settings(setting, value) VALUES ('version', '0.7')";
+                    "INSERT OR REPLACE INTO settings(setting, value) VALUES ('version', '0.7')";
                 sqliteCmd.ExecuteNonQuery();
             }
             catch (Exception ex)
@@ -381,7 +381,7 @@ public class Schuldatenbank : IDisposable
 
         //Begin Update 0.71
         sqliteCmd.CommandText =
-            $"SELECT COUNT(*) AS log_column_count FROM pragma_table_info('log') WHERE name='id'";
+            "SELECT COUNT(*) AS log_column_count FROM pragma_table_info('log') WHERE name='id'";
         sqliteCmd.ExecuteNonQuery();
         sqliteDatareader = sqliteCmd.ExecuteReader();
         var log_count = 0;
@@ -418,7 +418,7 @@ public class Schuldatenbank : IDisposable
             sqliteDatareader = sqliteCmd.ExecuteReader();
             sqliteDatareader.Close();
             sqliteCmd.CommandText =
-                $"INSERT OR REPLACE INTO settings(setting, value) VALUES ('version', '0.71')";
+                "INSERT OR REPLACE INTO settings(setting, value) VALUES ('version', '0.71')";
             sqliteCmd.ExecuteNonQuery();
             sqliteDatareader.Close();
         }
@@ -426,7 +426,7 @@ public class Schuldatenbank : IDisposable
 
         //upgrade DB to 0.72
         sqliteCmd.CommandText =
-            $"SELECT COUNT(*) AS sn_col_count FROM pragma_table_info('schueler') WHERE name='seriennummer'";
+            "SELECT COUNT(*) AS sn_col_count FROM pragma_table_info('schueler') WHERE name='seriennummer'";
         sqliteCmd.ExecuteNonQuery();
         sqliteDatareader = sqliteCmd.ExecuteReader();
         output = 0;
@@ -441,15 +441,15 @@ public class Schuldatenbank : IDisposable
             try
             {
                 sqliteCmd.CommandText =
-                    $"ALTER TABLE schueler ADD COLUMN seriennummer NVARCHAR(64) NOT NULL DEFAULT ''";
+                    "ALTER TABLE schueler ADD COLUMN seriennummer NVARCHAR(64) NOT NULL DEFAULT ''";
                 sqliteCmd.ExecuteNonQuery();
                 sqliteDatareader.Close();
                 sqliteCmd.CommandText =
-                    $"ALTER TABLE lehrkraft ADD COLUMN seriennummer NVARCHAR(64) NOT NULL DEFAULT ''";
+                    "ALTER TABLE lehrkraft ADD COLUMN seriennummer NVARCHAR(64) NOT NULL DEFAULT ''";
                 sqliteCmd.ExecuteNonQuery();
                 sqliteDatareader.Close();
                 sqliteCmd.CommandText =
-                    $"INSERT OR REPLACE INTO settings(setting, value) VALUES ('version', '0.72')";
+                    "INSERT OR REPLACE INTO settings(setting, value) VALUES ('version', '0.72')";
                 sqliteCmd.ExecuteNonQuery();
             }
             catch (Exception ex)
