@@ -4138,7 +4138,7 @@ public partial class MainWindow : Window
             var vorname = split_line[0].Trim();
             var nachname = split_line[1].Trim();
             var klasse = split_line[2].Trim();
-            var jamf = split_line[3].Trim() == "ja";
+            var jamf = split_line[3].Trim().Equals("ja", StringComparison.CurrentCultureIgnoreCase);
             var sus_list = _myschool.GetSchueler(vorname, nachname).Result.Where(s => s.Klasse == klasse).ToList();
             switch (sus_list.Count)
             {
