@@ -4126,7 +4126,7 @@ public partial class MainWindow : Window
         var file = await ShowOpenFileDialog("CSV-Datei angegeben", extx);
         if (file == null) return;
         var jamf_input = await File.ReadAllLinesAsync(file.Path.LocalPath);
-        if (jamf_input.Length == 0 || jamf_input[0] != "Vorname;Nachname;Klasse;JAMF (ja/nein/fehlt)")
+        if (jamf_input.Length == 0 || !jamf_input[0].StartsWith("Vorname;Nachname;Klasse;JAMF (ja/nein/fehlt)"))
         {
             await ShowCustomErrorMessage("Fehler beim Einlesen der Datei", "Fehler");
             return;
@@ -4138,7 +4138,7 @@ public partial class MainWindow : Window
             var vorname = split_line[0].Trim();
             var nachname = split_line[1].Trim();
             var klasse = split_line[2].Trim();
-            var jamf = split_line[3].Trim() == "ja";
+            var jamf = split_line[3].Trim().Equals("ja", StringComparison.CurrentCultureIgnoreCase);
             var sus_list = _myschool.GetSchueler(vorname, nachname).Result.Where(s => s.Klasse == klasse).ToList();
             switch (sus_list.Count)
             {
