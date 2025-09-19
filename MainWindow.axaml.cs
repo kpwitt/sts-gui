@@ -4126,7 +4126,7 @@ public partial class MainWindow : Window
         var file = await ShowOpenFileDialog("CSV-Datei angegeben", extx);
         if (file == null) return;
         var jamf_input = await File.ReadAllLinesAsync(file.Path.LocalPath);
-        if (jamf_input.Length == 0 || jamf_input[0] != "Vorname;Nachname;Klasse;JAMF (ja/nein/fehlt)")
+        if (jamf_input.Length == 0 || !jamf_input[0].StartsWith("Vorname;Nachname;Klasse;JAMF (ja/nein/fehlt)"))
         {
             await ShowCustomErrorMessage("Fehler beim Einlesen der Datei", "Fehler");
             return;
