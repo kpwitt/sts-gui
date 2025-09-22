@@ -2417,6 +2417,12 @@ public class Schuldatenbank : IDisposable
             }
         }
 
+        erprobungsstufe = einstellungenResult.Erprobungsstufe;
+        mittelstufe = einstellungenResult.Mittelstufe;
+        oberstufe = einstellungenResult.Oberstufe;
+        stubostufen = einstellungenResult.StuboStufen;
+        jamfstufen = einstellungenResult.JAMFStufen;
+
         List<string> flist = [];
         sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText = "SELECT kurzfach,langfach FROM fachersatz;";

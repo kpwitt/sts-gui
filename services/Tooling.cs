@@ -13,7 +13,7 @@ public static class Tooling
     public static string GeneratePasswort(int laenge)
     {
         //erlaubt beim Hoster: /-_#*+!§,()=:.$äöüÄÖÜß
-        const string validPasswordChars = "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ1234567890+-.,()!*/_#";
+        const string validPasswordChars = "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ1234567890+-.()!*/_#";
         StringBuilder res = new();
         while (0 < laenge--)
         {
@@ -22,7 +22,7 @@ public static class Tooling
 
         return res.ToString();
     }
-    
+
     /// <summary>
     /// Hilfsmethode, die die Klasse der Stufe zuordnet
     /// </summary>
