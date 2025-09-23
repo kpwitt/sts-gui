@@ -3692,7 +3692,7 @@ public partial class MainWindow : Window
 
     private void BtnLuLShowPWD_OnClick(object? sender, RoutedEventArgs e)
     {
-        if (tbLuLtmpPwd.RevealPassword == false)
+        if (!tbLuLtmpPwd.RevealPassword)
         {
             panel_image_lulpwp_visible.Source =
                 new Bitmap(AssetLoader.Open(new Uri("avares://StS-GUI-Avalonia/Assets/gfx/visible_off.png")));
@@ -3781,8 +3781,8 @@ public partial class MainWindow : Window
 
     private async void BtnExportInaktive_OnClick(object? sender, RoutedEventArgs e)
     {
-        var inaktiveSuS = _myschool.GetSchuelerListe().Result.Where(s => s.IstAktiv == false).ToList();
-        var inaktiveLuL = _myschool.GetLehrerListe().Result.Where(l => l.IstAktiv == false).ToList();
+        var inaktiveSuS = _myschool.GetSchuelerListe().Result.Where(s => !s.IstAktiv).ToList();
+        var inaktiveLuL = _myschool.GetLehrerListe().Result.Where(l => !l.IstAktiv).ToList();
         List<string> exportMoodleListe = ["email;username;idnumber;lastname;firstname;suspended"];
         Parallel.ForEach(inaktiveSuS,
             (s, _) =>
