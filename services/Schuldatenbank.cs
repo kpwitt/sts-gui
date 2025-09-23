@@ -1368,6 +1368,7 @@ public class Schuldatenbank : IDisposable
         foreach (var s in susids)
         {
             var sus = GetSchueler(s).Result;
+            if (!sus.IstAktiv) continue;
             var susmail = sus.Mail.Contains(' ') ? sus.Mail.Split(' ')[0] : sus.Mail;
             var schuelerstufe = Tooling.KlasseToStufe(sus.Klasse);
             switch (sus.Zweitaccount)
@@ -1452,6 +1453,7 @@ public class Schuldatenbank : IDisposable
         foreach (var sus in susidliste)
         {
             var s = GetSchueler(sus).Result;
+            if (!s.IstAktiv) continue;
             var schuelerstufe = Tooling.KlasseToStufe(s.Klasse);
             var kListe = "";
             foreach (var kk in GetKursVonSuS(s.ID).Result)
@@ -1533,6 +1535,7 @@ public class Schuldatenbank : IDisposable
         foreach (var l in lulidliste)
         {
             var lt = GetLehrkraft(l).Result;
+            if (!lt.IstAktiv) continue;
             var kListe = "";
             var fakultas = lt.Fakultas.Split(',');
             var fak = fakultas.Aggregate("", (current, fa) => $"{current}|^Fako {fa}");
@@ -1719,6 +1722,7 @@ public class Schuldatenbank : IDisposable
             select GetSchueler(sus_id).Result
             into sus
             where sus.AllowJAMF
+            where sus.IstAktiv
             where Jamfstufen.Contains(sus.GetStufe()) && sus.Seriennummer != ""
             let kbez_liste = GetKursVonSuS(sus.ID).Result.Where(k => kurs_wl.Contains(k.Bezeichnung)).ToList()
                 .Select(k => k.Bezeichnung).ToList()
@@ -1727,6 +1731,7 @@ public class Schuldatenbank : IDisposable
                 withPasswort ? $"Klasse{sus.Klasse}{DateTime.Now.Year}!" : ""));
         ausgabeLuLJamf.AddRange(from lulid in lulidliste
             let lul = GetLehrkraft(lulid).Result
+            where lul.IstAktiv
             where lul.Seriennummer != ""
             let kurse = GetKursVonLuL(lulid)
                 .Result.Where(x =>
@@ -1739,12 +1744,9 @@ public class Schuldatenbank : IDisposable
         {
             var kurse_in_stufe = GetKurseAusStufe(stufe).Result.ToList();
             kurse_in_stufe.RemoveAll(k => !kurs_wl.Contains(k.Bezeichnung));
-            foreach (var kurs in kurse_in_stufe)
-            {
-                var lul_aus_kurs = await GetLuLAusKurs(kurs.Bezeichnung);
-                ausgabeTeacherGroupsJAMF.Add($"{kurs.Bezeichnung};" +
-                                             string.Join(',', lul_aus_kurs.Select(l => l.Kuerzel)));
-            }
+            ausgabeTeacherGroupsJAMF.AddRange(from kurs in kurse_in_stufe
+                let lul_aus_kurs = GetLuLAusKurs(kurs.Bezeichnung).Result.Where(l => l.IstAktiv)
+                select $"{kurs.Bezeichnung};" + string.Join(',', lul_aus_kurs.Select(l => l.Kuerzel)));
         }
 
         if (File.Exists($"{folder}/jamf_sus.csv") && expand)
