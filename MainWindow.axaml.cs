@@ -3151,7 +3151,7 @@ public partial class MainWindow : Window
     {
         if (cbSonst1 == null || cbSonst2 == null ||
             cbSonst3 == null || tbSonst1.Text == null || string.IsNullOrEmpty(tbSonst3.Text) ||
-            string.IsNullOrEmpty(tbSonst2.Text)) return;
+            tbSonst2.Text == null) return;
         var suscache = await _myschool.GetSchuelerListe();
         var lulcache = await _myschool.GetLehrerListe();
         var kurscache = await _myschool.GetKursListe();
