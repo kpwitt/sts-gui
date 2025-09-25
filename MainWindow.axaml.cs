@@ -3964,7 +3964,7 @@ public partial class MainWindow : Window
                     _myschool.UpdateSchueler(sus);
                 }
 
-                await _myschool.StartTransaction();
+                await _myschool.StopTransaction();
                 break;
             }
             case "Name,Seriennummer":
@@ -3994,7 +3994,7 @@ public partial class MainWindow : Window
                 await ShowCustomErrorMessage(
                     "Fehlerhafte Datei, bitte den Header überprüfen, für Schüler:innen Vorname;Nachname;Klasse;Seriennummer, für Lehrkräfte Kürzel;Seriennummer verwenden.",
                     "Fehler");
-                await _myschool.StartTransaction();
+                await _myschool.StopTransaction();
                 return;
             }
         }
