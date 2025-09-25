@@ -3,7 +3,7 @@ import re
 import csv
 
 # Pfad zum Ordner, den Sie durchsuchen möchten
-ordner_pfad = "Pfad/zu/Ihrem/Ordner"
+path = "Pfad/zu/Ihrem/Ordner"
 
 # Pfad zur Ausgabedatei
 output_datei = "output.csv"
@@ -44,6 +44,27 @@ for dateiname in os.listdir(ordner_pfad):
     
     # Hinzufügen des Ergebnisses zur Liste
     ergebnisse.append([name, seriennummer])
+for ordner_pfad in os.listdir(path):
+    if os.path.isfile(ordner_pfad):
+        continue
+    for dateiname in os.listdir(ordner_pfad):
+        # i) Extrahieren des Teilstrings bis zum ersten Unterstrich
+        name = ordner_pfad.split('_')[0]
+        
+        # Vollständiger Pfad zur Datei
+        datei_pfad = os.path.join(ordner_pfad, dateiname)
+        
+        # ii) Lesen des Dateiinhalts und Extrahieren der Seriennummer
+        try:
+            with open(datei_pfad, 'r', encoding='utf-8') as file:
+                inhalt = file.read()
+                seriennummer = extrahiere_seriennummer(inhalt)
+        except Exception as e:
+            print(f"Fehler beim Lesen der Datei {dateiname}: {str(e)}")
+            seriennummer = "Fehler"
+        
+        # Hinzufügen des Ergebnisses zur Liste
+        ergebnisse.append([name, seriennummer])
 
 # iii) Schreiben der Ergebnisse in die CSV-Datei
 try:
