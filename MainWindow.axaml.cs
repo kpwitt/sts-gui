@@ -3150,7 +3150,7 @@ public partial class MainWindow : Window
     private async void BtnModErstellung_OnClick(object? sender, RoutedEventArgs e)
     {
         if (cbSonst1 == null || cbSonst2 == null ||
-            cbSonst3 == null || tbSonst1.Text == null|| string.IsNullOrEmpty(tbSonst3.Text) ||
+            cbSonst3 == null || tbSonst1.Text == null || string.IsNullOrEmpty(tbSonst3.Text) ||
             string.IsNullOrEmpty(tbSonst2.Text)) return;
         var suscache = await _myschool.GetSchuelerListe();
         var lulcache = await _myschool.GetLehrerListe();
@@ -3964,15 +3964,38 @@ public partial class MainWindow : Window
                     _myschool.UpdateSchueler(sus);
                 }
 
-                await _myschool.StartTransaction();
+                await _myschool.StopTransaction();
                 break;
             }
+            case "Name,Seriennummer":
+                iPSFileText.RemoveAt(0);
+                await _myschool.StartTransaction();
+                foreach (var line in iPSFileText)
+                {
+                    var split_line = line.Split(',');
+                    var seriennummer = split_line[1];
+                    if (seriennummer == "Nicht gefunden") continue;
+                    var name = split_line[0];
+                    var suslist = await _myschool.GetSchueler(name);
+                    if (suslist.Count != 1)
+                    {
+                        await ShowCustomErrorMessage($"{name} ist uneindeutig", "Fehler");
+                        continue;
+                    }
+
+                    var sus = suslist[0];
+                    sus.Seriennummer = seriennummer;
+                    _myschool.UpdateSchueler(sus);
+                }
+
+                await _myschool.StopTransaction();
+                break;
             default:
             {
                 await ShowCustomErrorMessage(
                     "Fehlerhafte Datei, bitte den Header überprüfen, für Schüler:innen Vorname;Nachname;Klasse;Seriennummer, für Lehrkräfte Kürzel;Seriennummer verwenden.",
                     "Fehler");
-                await _myschool.StartTransaction();
+                await _myschool.StopTransaction();
                 return;
             }
         }

@@ -2305,6 +2305,38 @@ public class Schuldatenbank : IDisposable
 
         return susliste;
     }
+    
+    public async Task<List<SuS>> GetSchueler(string name)
+    {
+        var sqliteCmd = _sqliteConn.CreateCommand();
+        sqliteCmd.CommandText =
+            "SELECT id,nachname,vorname,mail,klasse,nutzername,aixmail,zweitaccount,zweitmail, m365, aktiv, seriennummer, jamf FROM schueler WHERE CONCAT(vorname, ' ', nachname)== $name;";
+        sqliteCmd.Parameters.AddWithValue("$name", name);
+        var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
+        var susliste = new List<SuS>();
+        while (sqliteDatareader.Read())
+        {
+            SuS schuelerin = new()
+            {
+                ID = sqliteDatareader.GetInt32(0),
+                Nachname = sqliteDatareader.GetString(1),
+                Vorname = sqliteDatareader.GetString(2),
+                Mail = sqliteDatareader.GetString(3),
+                Klasse = sqliteDatareader.GetString(4),
+                Nutzername = sqliteDatareader.GetString(5),
+                Aixmail = sqliteDatareader.GetString(6),
+                Zweitaccount = Convert.ToBoolean(sqliteDatareader.GetInt32(7)),
+                Zweitmail = sqliteDatareader.GetString(8),
+                HasM365Account = Convert.ToBoolean(sqliteDatareader.GetInt32(9)),
+                IstAktiv = sqliteDatareader.GetBoolean(10),
+                Seriennummer = sqliteDatareader.GetString(11),
+                AllowJAMF = sqliteDatareader.GetBoolean(12),
+            };
+            susliste.Add(schuelerin);
+        }
+
+        return susliste;
+    }
 
     /// <summary>
     /// gibt die IDs aller SchülerInnen zurück
