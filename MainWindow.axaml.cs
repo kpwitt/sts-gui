@@ -3150,7 +3150,7 @@ public partial class MainWindow : Window
     private async void BtnModErstellung_OnClick(object? sender, RoutedEventArgs e)
     {
         if (cbSonst1 == null || cbSonst2 == null ||
-            cbSonst3 == null || tbSonst1.Text == null|| string.IsNullOrEmpty(tbSonst3.Text) ||
+            cbSonst3 == null || tbSonst1.Text == null || string.IsNullOrEmpty(tbSonst3.Text) ||
             string.IsNullOrEmpty(tbSonst2.Text)) return;
         var suscache = await _myschool.GetSchuelerListe();
         var lulcache = await _myschool.GetLehrerListe();
@@ -3974,6 +3974,7 @@ public partial class MainWindow : Window
                 {
                     var split_line = line.Split(',');
                     var seriennummer = split_line[1];
+                    if (seriennummer == "Nicht gefunden") continue;
                     var name = split_line[0];
                     var suslist = await _myschool.GetSchueler(name);
                     if (suslist.Count != 1)
