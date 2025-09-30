@@ -74,7 +74,7 @@
                                       Click="MnuM365DVEinlesen_OnClick" />
                             <MenuItem Header="_Temporäre Accounts einlesen" x:Name="mnuTempAccountsEinlesen"
                                       Click="MnuTempAccountsEinlesen_OnClick" />
-                            <MenuItem Header="_iPad-Seriennumern einlesen" x:Name="mnuIPadSeriennummernEinlesen"
+                            <MenuItem Header="_iPad-Seriennummern einlesen" x:Name="mnuIPadSeriennummernEinlesen"
                                       Click="MnuIPadSeriennummernEinlesen_OnClick" />
                             <MenuItem Header="_JAMF-Einwillungen einlesen" x:Name="mnuJAMFEinlesen"
                                       Click="MnuJAMFEinlesen_OnClick" />
@@ -471,7 +471,7 @@
                             </StackPanel>
                         </Grid>
                     </TabItem>
-                    <TabItem Header="Sonstiges" Classes="Header">
+                    <TabItem Header="Sonstiges" Classes="Header" Margin="5"> <!--Sonstiges-Tab-->
                         <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto" ColumnDefinitions="Auto">
                             <StackPanel Grid.Row="0" Orientation="Horizontal">
                                 <ComboBox x:Name="cbSonst1" SelectionChanged="CbSonst1_OnSelectionChanged">
@@ -512,7 +512,7 @@
                             </Button>
                             <Button Grid.Row="6" x:Name="btnSonstSpielwiesen" Click="BtnSonstSpielwiesen_OnClick">Spielwiesen generien</Button>
                         </Grid>
-                    </TabItem> <!--Sonstiges-Tab-->
+                    </TabItem> 
                 </TabControl>
             </ScrollViewer>
         </Grid>
