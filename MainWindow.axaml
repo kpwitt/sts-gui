@@ -74,7 +74,7 @@
                                       Click="MnuM365DVEinlesen_OnClick" />
                             <MenuItem Header="_Temporäre Accounts einlesen" x:Name="mnuTempAccountsEinlesen"
                                       Click="MnuTempAccountsEinlesen_OnClick" />
-                            <MenuItem Header="_iPad-Seriennumern einlesen" x:Name="mnuIPadSeriennummernEinlesen"
+                            <MenuItem Header="_iPad-Seriennummern einlesen" x:Name="mnuIPadSeriennummernEinlesen"
                                       Click="MnuIPadSeriennummernEinlesen_OnClick" />
                             <MenuItem Header="_JAMF-Einwillungen einlesen" x:Name="mnuJAMFEinlesen"
                                       Click="MnuJAMFEinlesen_OnClick" />
