@@ -870,6 +870,7 @@ public partial class MainWindow : Window
         var susM365 = cbSuSM365.IsChecked != null && cbSuSM365.IsChecked.Value;
         var susIstAktiv = cbSuSAktiv.IsChecked != null && cbSuSAktiv.IsChecked.Value;
         var susJAMFAllowed = cbSuSJAMF.IsChecked != null && cbSuSJAMF.IsChecked.Value;
+        var susBemerkung = tbSuSBemerkung.Text ?? "";
         if (string.IsNullOrEmpty(susid) || string.IsNullOrEmpty(susvname) || string.IsNullOrEmpty(susnname) ||
             string.IsNullOrEmpty(susklasse) || susnutzername == null || string.IsNullOrEmpty(suselternadresse) ||
             susHatZweitaccount == null || tbSuSKurse == null || tbSuSKurse!.Text == null)
@@ -895,7 +896,7 @@ public partial class MainWindow : Window
             if (suszweitadresse != null && susaixmail != null)
                 await _myschool.UpdateSchueler(sid, susvname, susnname, suselternadresse, susklasse, susnutzername,
                     susaixmail, susHatZweitaccount == false ? 0 : 1, suszweitadresse,
-                    susM365, susIstAktiv, seriennummer, susJAMFAllowed);
+                    susM365, susIstAktiv, seriennummer, susJAMFAllowed, susBemerkung);
             var alteKurse = _myschool.GetKursVonSuS(sid).Result;
             foreach (var kurs in alteKurse.Where(kurs => !suskurse.Contains(kurs.Bezeichnung)))
             {
@@ -915,7 +916,7 @@ public partial class MainWindow : Window
             if (suszweitadresse != null && susaixmail != null)
                 await _myschool.AddSchuelerIn(sid, susvname, susnname, suselternadresse, susklasse, susnutzername,
                     susaixmail, susHatZweitaccount == false ? 0 : 1, suszweitadresse, seriennummer, susM365,
-                    susJAMFAllowed, susIstAktiv);
+                    susJAMFAllowed, susIstAktiv, susBemerkung);
             if (suskurse is [""]) return;
             foreach (var kursbez in suskurse)
             {
@@ -997,6 +998,7 @@ public partial class MainWindow : Window
         var lulfavo = tbLuLFavo.Text;
         var lulsfavo = tbLuLSFavo.Text;
         var lulistAktiv = cbLuLAktiv.IsChecked;
+        var lulBemerkung = tbLuLBemerkung.Text ?? "";
         var seriennummer = string.IsNullOrEmpty(tbLuLSeriennummer.Text) ? "" : tbLuLSeriennummer.Text;
         if (lulid == null || string.IsNullOrEmpty(lulvname) || string.IsNullOrEmpty(lulnname) ||
             string.IsNullOrEmpty(lulkrz) || string.IsNullOrEmpty(lulfakultas) ||
@@ -1040,7 +1042,7 @@ public partial class MainWindow : Window
             }
 
             await _myschool.UpdateLehrkraft(lid, lulvname, lulnname, lulkrz, lulmail, lulfakultas, lulpwtemp, lulfavo,
-                lulsfavo, seriennummer);
+                lulsfavo, seriennummer, lulBemerkung);
             _myschool.SetzeAktivstatusLehrkraft(lid, cbLuLAktiv.IsChecked != null && lulistAktiv.Value);
             foreach (var kurs in schnittmenge.Where(kurs => _myschool.GibtEsKurs(kurs.Bezeichnung)))
             {
@@ -1056,7 +1058,7 @@ public partial class MainWindow : Window
         else
         {
             await _myschool.Addlehrkraft(lid, lulvname, lulnname, lulkrz, lulmail, lulfakultas, lulfavo, lulsfavo,
-                seriennummer);
+                seriennummer, lulBemerkung);
             if (neue_kurse.Count == 0) return;
             foreach (var kurs in neue_kurse)
             {
@@ -1186,6 +1188,7 @@ public partial class MainWindow : Window
         tbKursKlasse.Text = "";
         tbKursStufe.Text = "";
         cbKursIstKurs.IsChecked = false;
+        tbKursBemerkung.Text = "";
     }
 
     private void ClearLuLTextFields()
@@ -1200,6 +1203,7 @@ public partial class MainWindow : Window
         tbLuLKurse.Text = "";
         cbLuLAktiv.IsChecked = false;
         tbLuLSeriennummer.Text = "";
+        tbLuLBemerkung.Text = "";
     }
 
     private void ClearSuSTextFields()
@@ -1218,6 +1222,7 @@ public partial class MainWindow : Window
         cbSuSAktiv.IsChecked = false;
         tbSuSSeriennummer.Text = "";
         cbSuSJAMF.IsChecked = false;
+        tbSuSBemerkung.Text = "";
     }
 
     private void CboxDataRight_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
@@ -1613,6 +1618,7 @@ public partial class MainWindow : Window
         cbSuSAktiv.IsChecked = s.IstAktiv;
         tbSuSSeriennummer.Text = s.Seriennummer;
         cbSuSJAMF.IsChecked = s.AllowJAMF;
+        tbSuSBemerkung.Text = s.Bemerkung;
     }
 
     private void LoadLuLData(Lehrkraft l)
@@ -1631,6 +1637,7 @@ public partial class MainWindow : Window
         tbLuLSFavo.Text = l.SFavo;
         cbLuLAktiv.IsChecked = l.IstAktiv;
         tbLuLSeriennummer.Text = l.Seriennummer;
+        tbLuLBemerkung.Text = l.Bemerkung;
     }
 
     private void LoadKursData(Kurs k)
@@ -1644,6 +1651,7 @@ public partial class MainWindow : Window
         tbKursKlasse.Text = k.Klasse;
         tbKursStufe.Text = k.Stufe;
         cbKursIstKurs.IsChecked = k.IstKurs;
+        tbKursBemerkung.Text = k.Bemerkung;
     }
 
     private async void BtnExport_OnClick(object? sender, RoutedEventArgs e)
@@ -2097,7 +2105,7 @@ public partial class MainWindow : Window
         await _myschool.StartTransaction();
         if (!_myschool.GibtEsKurs($"Erprobungsstufe{settings.Kurssuffix}"))
         {
-            await _myschool.AddKurs("Erprobungsstufe", "", "", "", settings.Kurssuffix, 1);
+            await _myschool.AddKurs("Erprobungsstufe", "", "", "", settings.Kurssuffix, 1, "");
             foreach (var s in await _myschool.GetSusAusStufe("5"))
             {
                 await _myschool.AddStoK(s.ID, "Erprobungsstufe");
@@ -2133,7 +2141,7 @@ public partial class MainWindow : Window
 
         if (!_myschool.GibtEsKurs($"Mittelstufe{settings.Kurssuffix}"))
         {
-            await _myschool.AddKurs("Mittelstufe", "", "", "", settings.Kurssuffix, 1);
+            await _myschool.AddKurs("Mittelstufe", "", "", "", settings.Kurssuffix, 1, "");
             foreach (var s in await _myschool.GetSusAusStufe("7"))
             {
                 await _myschool.AddStoK(s.ID, "Mittelstufe");
@@ -2174,7 +2182,7 @@ public partial class MainWindow : Window
 
         if (!_myschool.GibtEsKurs($"Einführungsphase{settings.Kurssuffix}"))
         {
-            await _myschool.AddKurs("Einführungsphase", "", "EF", "EF", settings.Kurssuffix, 1);
+            await _myschool.AddKurs("Einführungsphase", "", "EF", "EF", settings.Kurssuffix, 1, "");
             foreach (var s in await _myschool.GetSusAusStufe("EF"))
             {
                 await _myschool.AddStoK(s.ID, "Einführungsphase");
@@ -2200,7 +2208,7 @@ public partial class MainWindow : Window
 
         if (!_myschool.GibtEsKurs($"Qualifikationsphase 1{settings.Kurssuffix}"))
         {
-            await _myschool.AddKurs("Qualifikationsphase 1", "", "Q1", "Q1", settings.Kurssuffix, 1);
+            await _myschool.AddKurs("Qualifikationsphase 1", "", "Q1", "Q1", settings.Kurssuffix, 1, "");
             foreach (var s in await _myschool.GetSusAusStufe("Q1"))
             {
                 await _myschool.AddStoK(s.ID, "Qualifikationsphase 1");
@@ -2226,7 +2234,7 @@ public partial class MainWindow : Window
 
         if (!_myschool.GibtEsKurs($"Qualifikationsphase 2{settings.Kurssuffix}"))
         {
-            await _myschool.AddKurs("Qualifikationsphase 2", "", "Q2", "Q2", settings.Kurssuffix, 1);
+            await _myschool.AddKurs("Qualifikationsphase 2", "", "Q2", "Q2", settings.Kurssuffix, 1, "");
             foreach (var s in await _myschool.GetSusAusStufe("Q2"))
             {
                 await _myschool.AddStoK(s.ID, "Qualifikationsphase 2");
@@ -2278,7 +2286,7 @@ public partial class MainWindow : Window
         foreach (var kurs in _myschool.GetKursListe().Result)
         {
             await _myschool.UpdateKurs(kurs.Bezeichnung, kurs.Fach, kurs.Klasse, kurs.Stufe, settings.Kurssuffix,
-                kurs.IstKurs ? 1 : 0);
+                kurs.IstKurs ? 1 : 0, kurs.Bemerkung);
         }
 
         if (!string.IsNullOrEmpty(tbSettingStuBos.Text))
@@ -2316,7 +2324,7 @@ public partial class MainWindow : Window
                 foreach (var stufe in _myschool.Stubostufen)
                 {
                     await _myschool.AddKurs($"StuBo-{stufe}", "StuBo", stufe, stufe,
-                        _myschool.GetSettings().Result.Kurssuffix, 1);
+                        _myschool.GetSettings().Result.Kurssuffix, 1, "");
                     foreach (var sus in _myschool.GetSusAusStufe(stufe).Result)
                     {
                         await _myschool.AddStoK(sus.ID, $"StuBo-{stufe}");
@@ -2336,7 +2344,7 @@ public partial class MainWindow : Window
         {
             if (!_myschool.GibtEsKurs(kursBez))
             {
-                await _myschool.AddKurs(kursBez, "-", "EF", "EF", settingsCache.Kurssuffix, 1);
+                await _myschool.AddKurs(kursBez, "-", "EF", "EF", settingsCache.Kurssuffix, 1, "");
             }
 
             foreach (var krz in settingsCache.EFStufenleitung.Split(','))
@@ -2360,7 +2368,7 @@ public partial class MainWindow : Window
         {
             if (!_myschool.GibtEsKurs(kursBez))
             {
-                await _myschool.AddKurs(kursBez, "-", "Q1", "Q1", settingsCache.Kurssuffix, 1);
+                await _myschool.AddKurs(kursBez, "-", "Q1", "Q1", settingsCache.Kurssuffix, 1, "");
             }
 
             foreach (var krz in settingsCache.Q1Stufenleitung.Split(','))
@@ -2383,7 +2391,7 @@ public partial class MainWindow : Window
         if (string.IsNullOrEmpty(settingsCache.Q2Stufenleitung)) return;
         if (!_myschool.GibtEsKurs(kursBez))
         {
-            await _myschool.AddKurs(kursBez, "-", "Q2", "Q2", settingsCache.Kurssuffix, 1);
+            await _myschool.AddKurs(kursBez, "-", "Q2", "Q2", settingsCache.Kurssuffix, 1, "");
         }
 
         foreach (var krz in settingsCache.Q2Stufenleitung.Split(','))
@@ -2452,6 +2460,7 @@ public partial class MainWindow : Window
         var kursklasse = tbKursKlasse.Text;
         var kursstufe = tbKursStufe.Text;
         var istKurs = cbKursIstKurs.IsChecked != null && cbKursIstKurs.IsChecked.Value;
+        var kursBemerkung = tbKursBemerkung.Text ?? "";
         if (string.IsNullOrEmpty(kursbez) || string.IsNullOrEmpty(lehrkraefte) || string.IsNullOrEmpty(kursfach) ||
             string.IsNullOrEmpty(kursklasse) || string.IsNullOrEmpty(kursstufe))
         {
@@ -2464,7 +2473,7 @@ public partial class MainWindow : Window
         if (_myschool.GibtEsKurs(kursbez))
         {
             await _myschool.UpdateKurs(kursbez, kursfach, kursklasse, kursstufe, kurssuffix,
-                Convert.ToInt32(istKurs));
+                Convert.ToInt32(istKurs), kursBemerkung);
             List<Lehrkraft> tList = [];
             foreach (var lehrkraft in lehrkraefte.Split(','))
             {
@@ -2484,7 +2493,8 @@ public partial class MainWindow : Window
         }
         else
         {
-            await _myschool.AddKurs(kursbez, kursfach, kursklasse, kursstufe, kurssuffix, Convert.ToInt32(istKurs));
+            await _myschool.AddKurs(kursbez, kursfach, kursklasse, kursstufe, kurssuffix, Convert.ToInt32(istKurs),
+                kursBemerkung);
         }
 
         foreach (var lehrkraft in lehrkraefte.Split(','))
@@ -3490,7 +3500,7 @@ public partial class MainWindow : Window
         foreach (var l in favos)
         {
             await _myschool.UpdateLehrkraft(l.ID, l.Vorname, l.Nachname, l.Kuerzel, l.Mail, l.Fakultas, l.Pwttemp,
-                "", "", l.Seriennummer);
+                "", "", l.Seriennummer, l.Bemerkung);
         }
 
         var faecherliste = _myschool.GetLehrerListe().Result.Select(l => l.Fakultas.Split(',')).Distinct().ToList();

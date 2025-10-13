@@ -14,6 +14,7 @@ public record struct SuS(
     string Zweitmail,
     bool Zweitaccount,
     string Seriennummer,
+    string Bemerkung,
     bool HasM365Account = false,
     bool AllowJAMF = false,
     bool IstAktiv = true)
@@ -41,7 +42,9 @@ public record struct Lehrkraft(
     string Favo,
     string SFavo,
     string Seriennummer,
-    bool IstAktiv = true) : IComparable<Lehrkraft>
+    string Bemerkung,
+    bool IstAktiv = true
+) : IComparable<Lehrkraft>
 {
     public int CompareTo(Lehrkraft other)
     {
@@ -56,7 +59,8 @@ public record struct Kurs(
     string Stufe,
     string Suffix,
     bool IstKurs,
-    string Art);
+    string Art,
+    string Bemerkung);
 
 public struct Einstellungen
 {
