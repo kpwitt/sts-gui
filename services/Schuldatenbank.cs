@@ -439,8 +439,7 @@ public class Schuldatenbank : IDisposable
         }
 
         sqliteDatareader.Close();
-        if (output != 0) return;
-        {
+        if (output != 1) {
             try
             {
                 sqliteCmd.CommandText =
@@ -477,7 +476,7 @@ public class Schuldatenbank : IDisposable
         }
 
         sqliteDatareader.Close();
-        if (output != 0) return;
+        if (output == 1) return;
         {
             try
             {

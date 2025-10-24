@@ -14,12 +14,12 @@ ergebnisse = []
 # Funktion zum Extrahieren der Seriennummer
 def extrahiere_seriennummer(inner_inhalt):
     # Suche nach Großbuchstaben und Ziffern innerhalb von <span> in <p>
-    match = re.search(r'<p[^>]*>.*?<span[^>]*>([A-Z0-9]+)</span>.*?</p>', inner_inhalt, re.DOTALL)
+    match = re.search(r'<p[^>]*>.*?<span[^>]*>(?:\s*<br>\s*)*([A-Z0-9]+)(?:\s*<br>\s*)*</span>.*?</p>', inner_inhalt, re.DOTALL)
     if match:
         return match.group(1)
     
     # Falls nicht gefunden, suche direkt in <p>
-    match = re.search(r'<p[^>]*>([A-Z0-9]+)</p>', inner_inhalt)
+    match = re.search(r'<p[^>]*>(?:\s*<br>\s*)*([A-Z0-9]+)(?:\s*<br>\s*)*</p>', inner_inhalt)
     if match:
         return match.group(1)
     
