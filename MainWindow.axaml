@@ -259,7 +259,7 @@
                                         <TextBox x:Name="tbLuLBemerkung" Grid.Column="1" Grid.Row="12"
                                                  Watermark="max 512 Zeichen" />
                                         <CheckBox x:Name="cbLuLAktiv" Grid.Column="0" Grid.Row="13">Aktiv</CheckBox>
-                                        <Button x:Name="btnLuLAdd" Grid.Column="0" Grid.Row="143"
+                                        <Button x:Name="btnLuLAdd" Grid.Column="0" Grid.Row="14"
                                                 Click="OnBtnluladdClick">
                                             Hinzufügen/aktualisieren
                                         </Button>
