@@ -246,43 +246,49 @@ public partial class MainWindow : Window
         {
             Name = "cbMnuSucheVorname",
             Content = "Vorname",
-            IsChecked = true,
+            IsChecked = true
         };
         var cbSucheNachname = new CheckBox
         {
             Name = "cbMnuSucheNachname",
             Content = "Nachname",
-            IsChecked = true,
+            IsChecked = true
         };
         var cbSucheMail = new CheckBox
         {
             Name = "cbMnuSucheMailadressen",
             Content = "Mailadressen",
-            IsChecked = false,
+            IsChecked = false
         };
         var cbSucheAnmeldename = new CheckBox
         {
             Name = "cbMnuSucheAnmeldename",
             Content = "Anmeldename/Kürzel",
-            IsChecked = true,
+            IsChecked = true
         };
         var cbSucheID = new CheckBox
         {
             Name = "cbMnuSucheID",
             Content = "ID",
-            IsChecked = true,
+            IsChecked = true
+        };
+        var cbSucheSeriennummer = new CheckBox
+        {
+            Name = "cbMnuSucheSeriennummer",
+            Content = "Seriennummer",
+            IsChecked = true
         };
         var cbSucheExact = new CheckBox
         {
             Name = "cbMnuSucheExact",
             Content = "Exakte Suche",
-            IsChecked = false,
+            IsChecked = false
         };
         _cbZeigeInaktiv = new CheckBox
         {
             Name = "cbMnuZeigeInaktiv",
             Content = "Zeige Inaktive",
-            IsChecked = true,
+            IsChecked = true
         };
         _cbZeigeInaktiv.Click += async (_, _) => { await CallLeftTimer(); };
         leftListButtonContextItems.Add(cbSucheVorname);
@@ -290,6 +296,7 @@ public partial class MainWindow : Window
         leftListButtonContextItems.Add(cbSucheMail);
         leftListButtonContextItems.Add(cbSucheAnmeldename);
         leftListButtonContextItems.Add(cbSucheID);
+        leftListButtonContextItems.Add(cbSucheSeriennummer);
         leftListButtonContextItems.Add(cbSucheExact);
         leftListButtonContextItems.Add(_cbZeigeInaktiv);
         tbLeftSearch.ContextMenu = new ContextMenu
@@ -338,11 +345,11 @@ public partial class MainWindow : Window
     {
         var topLevel = GetTopLevel(this);
         if (topLevel == null) return null;
-        var files = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions()
+        var files = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
         {
             Title = dialogtitle,
             FileTypeFilter = extensions,
-            AllowMultiple = false,
+            AllowMultiple = false
         });
         return files.Count > 0 ? files[0] : null;
     }
@@ -351,10 +358,10 @@ public partial class MainWindow : Window
     {
         var topLevel = GetTopLevel(this);
         if (topLevel == null) return null;
-        var folders = await topLevel.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions()
+        var folders = await topLevel.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
         {
             Title = dialogtitle,
-            AllowMultiple = false,
+            AllowMultiple = false
         });
         return folders.Count > 0 ? folders[0] : null;
     }
@@ -459,23 +466,23 @@ public partial class MainWindow : Window
                 Name = $"tbExportFavo{faecher[i]}",
                 Text = faecher[i],
                 [Grid.RowProperty] = i,
-                [Grid.ColumnProperty] = 0,
+                [Grid.ColumnProperty] = 0
             });
             cache.Add("");
             cache.Sort();
-            exportFavoTabGrid.Children.Add(new ComboBox()
+            exportFavoTabGrid.Children.Add(new ComboBox
             {
                 Name = $"cbExportFavo{faecher[i]}",
                 ItemsSource = cache,
                 [Grid.RowProperty] = i,
-                [Grid.ColumnProperty] = 1,
+                [Grid.ColumnProperty] = 1
             });
             exportFavoTabGrid.Children.Add(new ComboBox
             {
                 Name = $"cbExportSFavo{faecher[i]}",
                 ItemsSource = cache,
                 [Grid.RowProperty] = i,
-                [Grid.ColumnProperty] = 2,
+                [Grid.ColumnProperty] = 2
             });
             // solved via https://github.com/AvaloniaUI/Avalonia/discussions/10144
         }
@@ -897,7 +904,7 @@ public partial class MainWindow : Window
                 await _myschool.UpdateSchueler(sid, susvname, susnname, suselternadresse, susklasse, susnutzername,
                     susaixmail, susHatZweitaccount == false ? 0 : 1, suszweitadresse,
                     susM365, susIstAktiv, seriennummer, susJAMFAllowed, susBemerkung);
-            var alteKurse = _myschool.GetKursVonSuS(sid).Result;
+            var alteKurse = _myschool.GetKurseVonSuS(sid).Result;
             foreach (var kurs in alteKurse.Where(kurs => !suskurse.Contains(kurs.Bezeichnung)))
             {
                 await _myschool.RemoveSfromK(sid, kurs.Bezeichnung);
@@ -1032,7 +1039,7 @@ public partial class MainWindow : Window
         if (_myschool.GibtEsLehrkraft(lid))
         {
             var lehrkraft = await _myschool.GetLehrkraft(lid);
-            var alteKurse = _myschool.GetKursVonLuL(lid).Result;
+            var alteKurse = _myschool.GetKurseVonLuL(lid).Result;
             var schnittmenge = alteKurse.Where(kurs => !neue_kurse.Contains(kurs.Bezeichnung)).ToList();
             if (schnittmenge.Count != 0)
             {
@@ -1299,7 +1306,7 @@ public partial class MainWindow : Window
                         }
                         case 2:
                         {
-                            var rlist = _myschool.GetKursVonSuS(sus.ID).Result.Select(k => k.Bezeichnung)
+                            var rlist = _myschool.GetKurseVonSuS(sus.ID).Result.Select(k => k.Bezeichnung)
                                 .Distinct()
                                 .ToList();
                             ResetItemsSource(rightListBox, rlist);
@@ -1342,7 +1349,7 @@ public partial class MainWindow : Window
                         }
                         case 2:
                         {
-                            var rlist = _myschool.GetKursVonLuL(lul.ID).Result.Select(k => k.Bezeichnung)
+                            var rlist = _myschool.GetKurseVonLuL(lul.ID).Result.Select(k => k.Bezeichnung)
                                 .Distinct()
                                 .ToList();
                             rlist.Sort(Comparer<string>.Default);
@@ -1566,7 +1573,7 @@ public partial class MainWindow : Window
                         }
 
                         if (!hasComboBoxChanged) return;
-                        var rlist = _myschool.GetKursVonSuS(sus.ID).Result.Select(k => k.Bezeichnung)
+                        var rlist = _myschool.GetKurseVonSuS(sus.ID).Result.Select(k => k.Bezeichnung)
                             .Distinct()
                             .ToList();
                         ResetItemsSource(rightListBox, rlist);
@@ -1587,7 +1594,7 @@ public partial class MainWindow : Window
                         }
 
                         if (!hasComboBoxChanged) return;
-                        var rlist = _myschool.GetKursVonLuL(lul.ID).Result.Select(k => k.Bezeichnung)
+                        var rlist = _myschool.GetKurseVonLuL(lul.ID).Result.Select(k => k.Bezeichnung)
                             .Distinct()
                             .ToList();
                         rlist.Sort(Comparer<string>.Default);
@@ -1611,7 +1618,7 @@ public partial class MainWindow : Window
         tbSuSAIXMail.Text = s.Aixmail;
         tbSuSElternadresse.Text = s.Mail;
         tbSuSZweitadresse.Text = s.Zweitmail;
-        tbSuSKurse.Text = _myschool.GetKursVonSuS(s.ID).Result
+        tbSuSKurse.Text = _myschool.GetKurseVonSuS(s.ID).Result
             .Aggregate("", (current, kurs) => $"{current}{kurs.Bezeichnung},").TrimEnd(',');
         cbSuSZweitaccount.IsChecked = s.Zweitaccount;
         cbSuSM365.IsChecked = s.HasM365Account;
@@ -1631,7 +1638,7 @@ public partial class MainWindow : Window
         tbLuLFach.Text = l.Fakultas;
         tbLuLMail.Text = l.Mail;
         tbLuLtmpPwd.Text = l.Pwttemp;
-        tbLuLKurse.Text = _myschool.GetKursVonLuL(l.ID).Result
+        tbLuLKurse.Text = _myschool.GetKurseVonLuL(l.ID).Result
             .Aggregate("", (current, kurs) => $"{current}{kurs.Bezeichnung},").TrimEnd(',');
         tbLuLFavo.Text = l.Favo;
         tbLuLSFavo.Text = l.SFavo;
@@ -1788,7 +1795,7 @@ public partial class MainWindow : Window
                 ergebnisliste.Add("######BEGIN SUS OHNE KURSE######");
                 ergebnisliste.Add("Nachname, Vorname; ID; Fehler");
                 var susOhneKurse = from sus in _myschool.GetSchuelerListe().Result
-                    where _myschool.GetKursVonSuS(Convert.ToInt32(sus.ID)).Result.Count == 0
+                    where _myschool.GetKurseVonSuS(Convert.ToInt32(sus.ID)).Result.Count == 0
                     select $"{sus.Nachname}, {sus.Vorname};{sus.ID};ohne Kurs";
                 var ohneKurse = susOhneKurse as string[] ?? susOhneKurse.ToArray();
                 if (ohneKurse.Length != 0)
@@ -1802,7 +1809,7 @@ public partial class MainWindow : Window
                 ergebnisliste.Add("######BEGIN LUL OHNE KURSE######");
                 ergebnisliste.Add("Nachname, Vorname; ID; Fehler");
                 var lulOhneKurse = from lul in _myschool.GetLehrerListe().Result
-                    where _myschool.GetKursVonLuL(Convert.ToInt32(lul.ID)).Result.Count == 0
+                    where _myschool.GetKurseVonLuL(Convert.ToInt32(lul.ID)).Result.Count == 0
                     select $"{lul.Nachname}, {lul.Vorname};{lul.ID};ohne Kurs";
                 var ohneKurse = lulOhneKurse as string[] ?? lulOhneKurse.ToArray();
                 if (ohneKurse.Length != 0)
@@ -1872,6 +1879,13 @@ public partial class MainWindow : Window
                         ergebnisliste.Add(
                             $"{sus.Nachname}, {sus.Vorname};Klasse {sus.Klasse};{sus.ID};ohne Seriennummer in JAMF-Stufe {sus.GetStufe()}");
                     }
+
+                    ergebnisliste.AddRange(from kurs in _myschool.GetKurseVonSuS(sus.ID).Result
+                        where !(kurs.Bezeichnung.Contains("stufe", StringComparison.CurrentCultureIgnoreCase) ||
+                                kurs.Bezeichnung.Contains("stubo", StringComparison.CurrentCultureIgnoreCase)) &&
+                              kurs.Stufe != sus.GetStufe()
+                        select
+                            $"{sus.Nachname}, {sus.Vorname};Klasse {sus.Klasse};{sus.ID};in Kurs {kurs.Bezeichnung} trotz Klasse {sus.Klasse}");
                 }
 
                 ergebnisliste.AddRange(_myschool.GetM365Blacklist().Result
@@ -1977,12 +1991,12 @@ public partial class MainWindow : Window
                     where sus.AllowJAMF
                     where _myschool.Jamfstufen.Contains(sus.GetStufe())
                     let kbez_liste =
-                        _myschool.GetKursVonSuS(sus.ID).Result.Where(k => !k.Bezeichnung.EndsWith("KL")).ToList()
+                        _myschool.GetKurseVonSuS(sus.ID).Result.Where(k => !k.Bezeichnung.EndsWith("KL")).ToList()
                             .Select(k => k.Bezeichnung).ToList()
                     select string.Join(";", sus.Nutzername, !string.IsNullOrEmpty(sus.Aixmail) ? sus.Aixmail : sus.Mail,
                         sus.Vorname, sus.Nachname, sus.Seriennummer, string.Join(',', kbez_liste), ""));
                 ausgabeJamf.AddRange(from lul in _myschool.GetLuLAusStufe(stufe).Result
-                    let kurse = _myschool.GetKursVonLuL(lul.ID)
+                    let kurse = _myschool.GetKurseVonLuL(lul.ID)
                         .Result.Where(x =>
                             !string.IsNullOrEmpty(x.Fach) && stufe == x.Stufe && !x.Bezeichnung.EndsWith("KL"))
                         .Select(x => x.Bezeichnung)
@@ -1999,13 +2013,13 @@ public partial class MainWindow : Window
                         where sus.AllowJAMF
                         where _myschool.Jamfstufen.Contains(sus.GetStufe())
                         let kbez_liste =
-                            _myschool.GetKursVonSuS(sus.ID).Result.Where(k => !k.Bezeichnung.EndsWith("KL")).ToList()
+                            _myschool.GetKurseVonSuS(sus.ID).Result.Where(k => !k.Bezeichnung.EndsWith("KL")).ToList()
                                 .Select(k => k.Bezeichnung).ToList()
                         select string.Join(";", sus.Nutzername,
                             !string.IsNullOrEmpty(sus.Aixmail) ? sus.Aixmail : sus.Mail,
                             sus.Vorname, sus.Nachname, sus.Seriennummer, string.Join(',', kbez_liste), ""));
                     ausgabeJamf.AddRange(from lul in _myschool.GetLuLAusStufe(stufe).Result
-                        let kurse = _myschool.GetKursVonLuL(lul.ID)
+                        let kurse = _myschool.GetKurseVonLuL(lul.ID)
                             .Result.Where(x =>
                                 !string.IsNullOrEmpty(x.Fach) && stufe == x.Stufe &&
                                 !x.Bezeichnung.EndsWith("KL"))
@@ -2599,7 +2613,7 @@ public partial class MainWindow : Window
             var eingabeliste = tbLeftSearch.Text.Split(";");
             if (tbLeftSearch.ContextMenu?.ItemsSource == null) return;
             var searchContextMenu = tbLeftSearch.ContextMenu.ItemsSource.Cast<CheckBox>().ToList();
-            var searchFields = new[] { false, false, false, false, false, false, false }; //v,n,m,a/k,i,e,ia
+            var searchFields = new[] { false, false, false, false, false, false, false, false }; //v,n,m,a/k,i,s,e,ia
             for (var i = 0; i < searchContextMenu.Count; ++i)
             {
                 if (searchContextMenu[i].IsChecked == true)
@@ -2617,17 +2631,19 @@ public partial class MainWindow : Window
                     foreach (var eingabe in eingabeliste)
                     {
                         var lowereingabe = eingabe.ToLower();
-                        sliste.AddRange(searchFields[5]
+                        sliste.AddRange(searchFields[6]
                             ? scachelist.Where(s =>
-                                searchFields[4] && (s.ID + "").Equals(lowereingabe) ||
+                                searchFields[5] && (s.ID + "").Equals(lowereingabe) ||
                                 searchFields[0] && s.Vorname.ToLower().Equals(lowereingabe) ||
                                 searchFields[1] && s.Nachname.ToLower().Equals(lowereingabe) ||
                                 searchFields[2] &&
                                 (s.Mail.Equals(lowereingabe) || s.Aixmail.Equals(lowereingabe) ||
                                  s.Zweitmail.Equals(lowereingabe)) ||
-                                searchFields[3] && s.Nutzername.Equals(lowereingabe)).ToList()
+                                searchFields[3] && s.Nutzername.Equals(lowereingabe) ||
+                                searchFields[4] &&
+                                s.Seriennummer.Contains(eingabe, StringComparison.CurrentCultureIgnoreCase)).ToList()
                             : scachelist.Where(s =>
-                                searchFields[4] && (s.ID + "").Contains(lowereingabe) ||
+                                searchFields[5] && (s.ID + "").Contains(lowereingabe) ||
                                 searchFields[0] && s.Vorname.Contains(lowereingabe,
                                     StringComparison.CurrentCultureIgnoreCase) ||
                                 searchFields[1] && s.Nachname.Contains(lowereingabe,
@@ -2635,7 +2651,9 @@ public partial class MainWindow : Window
                                 searchFields[2] && (s.Mail.Contains(lowereingabe) ||
                                                     s.Aixmail.Contains(lowereingabe) ||
                                                     s.Zweitmail.Contains(lowereingabe)) ||
-                                searchFields[3] && s.Nutzername.Contains(lowereingabe)).ToList());
+                                searchFields[3] && s.Nutzername.Contains(lowereingabe) ||
+                                searchFields[4] &&
+                                s.Seriennummer.Contains(eingabe, StringComparison.CurrentCultureIgnoreCase)).ToList());
                     }
 
                     var seliste = sliste.Distinct()
@@ -2657,7 +2675,10 @@ public partial class MainWindow : Window
                                 searchFields[1] && l.Nachname.ToLower().Equals(lowereingabe) ||
                                 searchFields[2] && l.Mail.Equals(lowereingabe) ||
                                 searchFields[3] && l.Kuerzel.Equals(lowereingabe) ||
-                                searchFields[4] && (l.ID + "").Equals(lowereingabe)).ToList()
+                                searchFields[5] && (l.ID + "").Equals(lowereingabe)
+                                ||
+                                searchFields[4] &&
+                                l.Seriennummer.Contains(eingabe, StringComparison.CurrentCultureIgnoreCase)).ToList()
                             : cachlist.Where(l =>
                                 l.Kuerzel.Contains(lowereingabe, StringComparison.CurrentCultureIgnoreCase) ||
                                 searchFields[0] && l.Vorname.Contains(lowereingabe,
@@ -2666,7 +2687,9 @@ public partial class MainWindow : Window
                                     StringComparison.CurrentCultureIgnoreCase) ||
                                 searchFields[2] && l.Mail.Contains(lowereingabe) ||
                                 searchFields[3] && l.Kuerzel.Contains(lowereingabe) ||
-                                searchFields[4] && (l.ID + "").Contains(lowereingabe)).ToList());
+                                searchFields[5] && (l.ID + "").Contains(lowereingabe) ||
+                                searchFields[4] &&
+                                l.Seriennummer.Contains(eingabe, StringComparison.CurrentCultureIgnoreCase)).ToList());
                     }
 
                     var leliste = lliste.Distinct()
