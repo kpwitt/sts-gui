@@ -1881,9 +1881,11 @@ public partial class MainWindow : Window
                     }
 
                     ergebnisliste.AddRange(from kurs in _myschool.GetKurseVonSuS(sus.ID).Result
-                        where kurs.Stufe != sus.GetStufe()
+                        where !(kurs.Bezeichnung.Contains("stufe", StringComparison.CurrentCultureIgnoreCase) ||
+                                kurs.Bezeichnung.Contains("stubo", StringComparison.CurrentCultureIgnoreCase)) &&
+                              kurs.Stufe != sus.GetStufe()
                         select
-                            $"{sus.Nachname}, {sus.Vorname};Klasse {sus.Klasse};{sus.ID};in Kurs {kurs.Bezeichnung}");
+                            $"{sus.Nachname}, {sus.Vorname};Klasse {sus.Klasse};{sus.ID};in Kurs {kurs.Bezeichnung} trotz Klasse {sus.Klasse}");
                 }
 
                 ergebnisliste.AddRange(_myschool.GetM365Blacklist().Result
