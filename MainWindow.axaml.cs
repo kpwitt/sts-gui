@@ -272,6 +272,12 @@ public partial class MainWindow : Window
             Content = "ID",
             IsChecked = true
         };
+        var cbSucheSeriennummer = new CheckBox
+        {
+            Name = "cbMnuSucheSeriennummer",
+            Content = "Seriennummer",
+            IsChecked = false
+        };
         var cbSucheExact = new CheckBox
         {
             Name = "cbMnuSucheExact",
@@ -290,6 +296,7 @@ public partial class MainWindow : Window
         leftListButtonContextItems.Add(cbSucheMail);
         leftListButtonContextItems.Add(cbSucheAnmeldename);
         leftListButtonContextItems.Add(cbSucheID);
+        leftListButtonContextItems.Add(cbSucheSeriennummer);
         leftListButtonContextItems.Add(cbSucheExact);
         leftListButtonContextItems.Add(_cbZeigeInaktiv);
         tbLeftSearch.ContextMenu = new ContextMenu
@@ -2599,7 +2606,7 @@ public partial class MainWindow : Window
             var eingabeliste = tbLeftSearch.Text.Split(";");
             if (tbLeftSearch.ContextMenu?.ItemsSource == null) return;
             var searchContextMenu = tbLeftSearch.ContextMenu.ItemsSource.Cast<CheckBox>().ToList();
-            var searchFields = new[] { false, false, false, false, false, false, false }; //v,n,m,a/k,i,e,ia
+            var searchFields = new[] { false, false, false, false, false, false, false, false }; //v,n,m,a/k,i,s,e,ia
             for (var i = 0; i < searchContextMenu.Count; ++i)
             {
                 if (searchContextMenu[i].IsChecked == true)
@@ -2617,17 +2624,19 @@ public partial class MainWindow : Window
                     foreach (var eingabe in eingabeliste)
                     {
                         var lowereingabe = eingabe.ToLower();
-                        sliste.AddRange(searchFields[5]
+                        sliste.AddRange(searchFields[6]
                             ? scachelist.Where(s =>
-                                searchFields[4] && (s.ID + "").Equals(lowereingabe) ||
+                                searchFields[5] && (s.ID + "").Equals(lowereingabe) ||
                                 searchFields[0] && s.Vorname.ToLower().Equals(lowereingabe) ||
                                 searchFields[1] && s.Nachname.ToLower().Equals(lowereingabe) ||
                                 searchFields[2] &&
                                 (s.Mail.Equals(lowereingabe) || s.Aixmail.Equals(lowereingabe) ||
                                  s.Zweitmail.Equals(lowereingabe)) ||
-                                searchFields[3] && s.Nutzername.Equals(lowereingabe)).ToList()
+                                searchFields[3] && s.Nutzername.Equals(lowereingabe) ||
+                                searchFields[4] &&
+                                s.Seriennummer.Contains(eingabe, StringComparison.CurrentCultureIgnoreCase)).ToList()
                             : scachelist.Where(s =>
-                                searchFields[4] && (s.ID + "").Contains(lowereingabe) ||
+                                searchFields[5] && (s.ID + "").Contains(lowereingabe) ||
                                 searchFields[0] && s.Vorname.Contains(lowereingabe,
                                     StringComparison.CurrentCultureIgnoreCase) ||
                                 searchFields[1] && s.Nachname.Contains(lowereingabe,
@@ -2635,7 +2644,9 @@ public partial class MainWindow : Window
                                 searchFields[2] && (s.Mail.Contains(lowereingabe) ||
                                                     s.Aixmail.Contains(lowereingabe) ||
                                                     s.Zweitmail.Contains(lowereingabe)) ||
-                                searchFields[3] && s.Nutzername.Contains(lowereingabe)).ToList());
+                                searchFields[3] && s.Nutzername.Contains(lowereingabe) ||
+                                searchFields[4] &&
+                                s.Seriennummer.Contains(eingabe, StringComparison.CurrentCultureIgnoreCase)).ToList());
                     }
 
                     var seliste = sliste.Distinct()
@@ -2657,7 +2668,10 @@ public partial class MainWindow : Window
                                 searchFields[1] && l.Nachname.ToLower().Equals(lowereingabe) ||
                                 searchFields[2] && l.Mail.Equals(lowereingabe) ||
                                 searchFields[3] && l.Kuerzel.Equals(lowereingabe) ||
-                                searchFields[4] && (l.ID + "").Equals(lowereingabe)).ToList()
+                                searchFields[5] && (l.ID + "").Equals(lowereingabe)
+                                ||
+                                searchFields[4] &&
+                                l.Seriennummer.Contains(eingabe, StringComparison.CurrentCultureIgnoreCase)).ToList()
                             : cachlist.Where(l =>
                                 l.Kuerzel.Contains(lowereingabe, StringComparison.CurrentCultureIgnoreCase) ||
                                 searchFields[0] && l.Vorname.Contains(lowereingabe,
@@ -2666,7 +2680,9 @@ public partial class MainWindow : Window
                                     StringComparison.CurrentCultureIgnoreCase) ||
                                 searchFields[2] && l.Mail.Contains(lowereingabe) ||
                                 searchFields[3] && l.Kuerzel.Contains(lowereingabe) ||
-                                searchFields[4] && (l.ID + "").Contains(lowereingabe)).ToList());
+                                searchFields[5] && (l.ID + "").Contains(lowereingabe) ||
+                                searchFields[4] &&
+                                l.Seriennummer.Contains(eingabe, StringComparison.CurrentCultureIgnoreCase)).ToList());
                     }
 
                     var leliste = lliste.Distinct()
