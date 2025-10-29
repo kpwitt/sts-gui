@@ -1032,7 +1032,7 @@ public partial class MainWindow : Window
         if (_myschool.GibtEsLehrkraft(lid))
         {
             var lehrkraft = await _myschool.GetLehrkraft(lid);
-            var alteKurse = _myschool.GetKursVonLuL(lid).Result;
+            var alteKurse = _myschool.GetKurseVonLuL(lid).Result;
             var schnittmenge = alteKurse.Where(kurs => !neue_kurse.Contains(kurs.Bezeichnung)).ToList();
             if (schnittmenge.Count != 0)
             {
@@ -1342,7 +1342,7 @@ public partial class MainWindow : Window
                         }
                         case 2:
                         {
-                            var rlist = _myschool.GetKursVonLuL(lul.ID).Result.Select(k => k.Bezeichnung)
+                            var rlist = _myschool.GetKurseVonLuL(lul.ID).Result.Select(k => k.Bezeichnung)
                                 .Distinct()
                                 .ToList();
                             rlist.Sort(Comparer<string>.Default);
@@ -1587,7 +1587,7 @@ public partial class MainWindow : Window
                         }
 
                         if (!hasComboBoxChanged) return;
-                        var rlist = _myschool.GetKursVonLuL(lul.ID).Result.Select(k => k.Bezeichnung)
+                        var rlist = _myschool.GetKurseVonLuL(lul.ID).Result.Select(k => k.Bezeichnung)
                             .Distinct()
                             .ToList();
                         rlist.Sort(Comparer<string>.Default);
@@ -1631,7 +1631,7 @@ public partial class MainWindow : Window
         tbLuLFach.Text = l.Fakultas;
         tbLuLMail.Text = l.Mail;
         tbLuLtmpPwd.Text = l.Pwttemp;
-        tbLuLKurse.Text = _myschool.GetKursVonLuL(l.ID).Result
+        tbLuLKurse.Text = _myschool.GetKurseVonLuL(l.ID).Result
             .Aggregate("", (current, kurs) => $"{current}{kurs.Bezeichnung},").TrimEnd(',');
         tbLuLFavo.Text = l.Favo;
         tbLuLSFavo.Text = l.SFavo;
@@ -1802,7 +1802,7 @@ public partial class MainWindow : Window
                 ergebnisliste.Add("######BEGIN LUL OHNE KURSE######");
                 ergebnisliste.Add("Nachname, Vorname; ID; Fehler");
                 var lulOhneKurse = from lul in _myschool.GetLehrerListe().Result
-                    where _myschool.GetKursVonLuL(Convert.ToInt32(lul.ID)).Result.Count == 0
+                    where _myschool.GetKurseVonLuL(Convert.ToInt32(lul.ID)).Result.Count == 0
                     select $"{lul.Nachname}, {lul.Vorname};{lul.ID};ohne Kurs";
                 var ohneKurse = lulOhneKurse as string[] ?? lulOhneKurse.ToArray();
                 if (ohneKurse.Length != 0)
@@ -1982,7 +1982,7 @@ public partial class MainWindow : Window
                     select string.Join(";", sus.Nutzername, !string.IsNullOrEmpty(sus.Aixmail) ? sus.Aixmail : sus.Mail,
                         sus.Vorname, sus.Nachname, sus.Seriennummer, string.Join(',', kbez_liste), ""));
                 ausgabeJamf.AddRange(from lul in _myschool.GetLuLAusStufe(stufe).Result
-                    let kurse = _myschool.GetKursVonLuL(lul.ID)
+                    let kurse = _myschool.GetKurseVonLuL(lul.ID)
                         .Result.Where(x =>
                             !string.IsNullOrEmpty(x.Fach) && stufe == x.Stufe && !x.Bezeichnung.EndsWith("KL"))
                         .Select(x => x.Bezeichnung)
@@ -2005,7 +2005,7 @@ public partial class MainWindow : Window
                             !string.IsNullOrEmpty(sus.Aixmail) ? sus.Aixmail : sus.Mail,
                             sus.Vorname, sus.Nachname, sus.Seriennummer, string.Join(',', kbez_liste), ""));
                     ausgabeJamf.AddRange(from lul in _myschool.GetLuLAusStufe(stufe).Result
-                        let kurse = _myschool.GetKursVonLuL(lul.ID)
+                        let kurse = _myschool.GetKurseVonLuL(lul.ID)
                             .Result.Where(x =>
                                 !string.IsNullOrEmpty(x.Fach) && stufe == x.Stufe &&
                                 !x.Bezeichnung.EndsWith("KL"))

@@ -671,7 +671,7 @@ public class Schuldatenbank : IDisposable
     public async Task AddLtoK(int lid, string kbez)
     {
         if (lid == 0 || string.IsNullOrEmpty(kbez)) return;
-        var kursliste = GetKursVonLuL(lid).Result.Select(k => k.Bezeichnung).ToList();
+        var kursliste = GetKurseVonLuL(lid).Result.Select(k => k.Bezeichnung).ToList();
         if (kursliste.Contains(kbez)) return;
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText = "INSERT OR IGNORE INTO unterrichtet (lehrerid, kursbez) VALUES ($lid, $kbez);";
@@ -682,7 +682,7 @@ public class Schuldatenbank : IDisposable
         var kurs = await GetKurs(kbez);
         if (string.IsNullOrEmpty(kurs.Bezeichnung)) return;
         var klkurs = $"{kurs.Klasse}KL";
-        var kurse = GetKursVonLuL(lid).Result;
+        var kurse = GetKurseVonLuL(lid).Result;
         if (!kurs.IstKurs && !oberstufe.Contains(kurs.Stufe) && kurse.All(k => k.Bezeichnung != klkurs))
         {
             sqliteCmd.CommandText = "INSERT OR IGNORE INTO unterrichtet (lehrerid, kursbez) VALUES ($lid, $kbez);";
@@ -1602,7 +1602,7 @@ public class Schuldatenbank : IDisposable
 
             fak += fak.Replace("^", "");
             fak = fak.TrimStart('|');
-            foreach (var kurs in GetKursVonLuL(lt.ID).Result)
+            foreach (var kurs in GetKurseVonLuL(lt.ID).Result)
             {
                 if (string.IsNullOrEmpty(kurs.Bezeichnung)) continue;
                 if (kurs.Bezeichnung.Contains("Jahrgangsstufenkonferenz"))
@@ -1793,7 +1793,7 @@ public class Schuldatenbank : IDisposable
             let lul = GetLehrkraft(lulid).Result
             where lul.IstAktiv
             where lul.Seriennummer != ""
-            let kurse = GetKursVonLuL(lulid)
+            let kurse = GetKurseVonLuL(lulid)
                 .Result.Where(x =>
                     !string.IsNullOrEmpty(x.Fach) && jamfstufen.Contains(x.Stufe) && kurs_wl.Contains(x.Bezeichnung))
                 .Select(x => x.Bezeichnung)
@@ -2020,7 +2020,7 @@ public class Schuldatenbank : IDisposable
     /// </summary>
     /// <param name="lulid"></param>
     /// <returns>String-Liste der Kursbezeichnungen </returns>
-    public async Task<ReadOnlyCollection<Kurs>> GetKursVonLuL(int lulid)
+    public async Task<ReadOnlyCollection<Kurs>> GetKurseVonLuL(int lulid)
     {
         List<Kurs> kliste = [];
         var sqliteCmd = _sqliteConn.CreateCommand();
