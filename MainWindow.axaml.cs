@@ -246,43 +246,43 @@ public partial class MainWindow : Window
         {
             Name = "cbMnuSucheVorname",
             Content = "Vorname",
-            IsChecked = true,
+            IsChecked = true
         };
         var cbSucheNachname = new CheckBox
         {
             Name = "cbMnuSucheNachname",
             Content = "Nachname",
-            IsChecked = true,
+            IsChecked = true
         };
         var cbSucheMail = new CheckBox
         {
             Name = "cbMnuSucheMailadressen",
             Content = "Mailadressen",
-            IsChecked = false,
+            IsChecked = false
         };
         var cbSucheAnmeldename = new CheckBox
         {
             Name = "cbMnuSucheAnmeldename",
             Content = "Anmeldename/Kürzel",
-            IsChecked = true,
+            IsChecked = true
         };
         var cbSucheID = new CheckBox
         {
             Name = "cbMnuSucheID",
             Content = "ID",
-            IsChecked = true,
+            IsChecked = true
         };
         var cbSucheExact = new CheckBox
         {
             Name = "cbMnuSucheExact",
             Content = "Exakte Suche",
-            IsChecked = false,
+            IsChecked = false
         };
         _cbZeigeInaktiv = new CheckBox
         {
             Name = "cbMnuZeigeInaktiv",
             Content = "Zeige Inaktive",
-            IsChecked = true,
+            IsChecked = true
         };
         _cbZeigeInaktiv.Click += async (_, _) => { await CallLeftTimer(); };
         leftListButtonContextItems.Add(cbSucheVorname);
@@ -342,7 +342,7 @@ public partial class MainWindow : Window
         {
             Title = dialogtitle,
             FileTypeFilter = extensions,
-            AllowMultiple = false,
+            AllowMultiple = false
         });
         return files.Count > 0 ? files[0] : null;
     }
@@ -354,7 +354,7 @@ public partial class MainWindow : Window
         var folders = await topLevel.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions()
         {
             Title = dialogtitle,
-            AllowMultiple = false,
+            AllowMultiple = false
         });
         return folders.Count > 0 ? folders[0] : null;
     }
@@ -459,7 +459,7 @@ public partial class MainWindow : Window
                 Name = $"tbExportFavo{faecher[i]}",
                 Text = faecher[i],
                 [Grid.RowProperty] = i,
-                [Grid.ColumnProperty] = 0,
+                [Grid.ColumnProperty] = 0
             });
             cache.Add("");
             cache.Sort();
@@ -468,14 +468,14 @@ public partial class MainWindow : Window
                 Name = $"cbExportFavo{faecher[i]}",
                 ItemsSource = cache,
                 [Grid.RowProperty] = i,
-                [Grid.ColumnProperty] = 1,
+                [Grid.ColumnProperty] = 1
             });
             exportFavoTabGrid.Children.Add(new ComboBox
             {
                 Name = $"cbExportSFavo{faecher[i]}",
                 ItemsSource = cache,
                 [Grid.RowProperty] = i,
-                [Grid.ColumnProperty] = 2,
+                [Grid.ColumnProperty] = 2
             });
             // solved via https://github.com/AvaloniaUI/Avalonia/discussions/10144
         }
