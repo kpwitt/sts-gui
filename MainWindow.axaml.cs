@@ -1879,6 +1879,11 @@ public partial class MainWindow : Window
                         ergebnisliste.Add(
                             $"{sus.Nachname}, {sus.Vorname};Klasse {sus.Klasse};{sus.ID};ohne Seriennummer in JAMF-Stufe {sus.GetStufe()}");
                     }
+
+                    ergebnisliste.AddRange(from kurs in _myschool.GetKurseVonSuS(sus.ID).Result
+                        where kurs.Stufe != sus.GetStufe()
+                        select
+                            $"{sus.Nachname}, {sus.Vorname};Klasse {sus.Klasse};{sus.ID};in Kurs {kurs.Bezeichnung}");
                 }
 
                 ergebnisliste.AddRange(_myschool.GetM365Blacklist().Result
