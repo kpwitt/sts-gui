@@ -897,7 +897,7 @@ public partial class MainWindow : Window
                 await _myschool.UpdateSchueler(sid, susvname, susnname, suselternadresse, susklasse, susnutzername,
                     susaixmail, susHatZweitaccount == false ? 0 : 1, suszweitadresse,
                     susM365, susIstAktiv, seriennummer, susJAMFAllowed, susBemerkung);
-            var alteKurse = _myschool.GetKursVonSuS(sid).Result;
+            var alteKurse = _myschool.GetKurseVonSuS(sid).Result;
             foreach (var kurs in alteKurse.Where(kurs => !suskurse.Contains(kurs.Bezeichnung)))
             {
                 await _myschool.RemoveSfromK(sid, kurs.Bezeichnung);
@@ -1299,7 +1299,7 @@ public partial class MainWindow : Window
                         }
                         case 2:
                         {
-                            var rlist = _myschool.GetKursVonSuS(sus.ID).Result.Select(k => k.Bezeichnung)
+                            var rlist = _myschool.GetKurseVonSuS(sus.ID).Result.Select(k => k.Bezeichnung)
                                 .Distinct()
                                 .ToList();
                             ResetItemsSource(rightListBox, rlist);
@@ -1566,7 +1566,7 @@ public partial class MainWindow : Window
                         }
 
                         if (!hasComboBoxChanged) return;
-                        var rlist = _myschool.GetKursVonSuS(sus.ID).Result.Select(k => k.Bezeichnung)
+                        var rlist = _myschool.GetKurseVonSuS(sus.ID).Result.Select(k => k.Bezeichnung)
                             .Distinct()
                             .ToList();
                         ResetItemsSource(rightListBox, rlist);
@@ -1611,7 +1611,7 @@ public partial class MainWindow : Window
         tbSuSAIXMail.Text = s.Aixmail;
         tbSuSElternadresse.Text = s.Mail;
         tbSuSZweitadresse.Text = s.Zweitmail;
-        tbSuSKurse.Text = _myschool.GetKursVonSuS(s.ID).Result
+        tbSuSKurse.Text = _myschool.GetKurseVonSuS(s.ID).Result
             .Aggregate("", (current, kurs) => $"{current}{kurs.Bezeichnung},").TrimEnd(',');
         cbSuSZweitaccount.IsChecked = s.Zweitaccount;
         cbSuSM365.IsChecked = s.HasM365Account;
@@ -1788,7 +1788,7 @@ public partial class MainWindow : Window
                 ergebnisliste.Add("######BEGIN SUS OHNE KURSE######");
                 ergebnisliste.Add("Nachname, Vorname; ID; Fehler");
                 var susOhneKurse = from sus in _myschool.GetSchuelerListe().Result
-                    where _myschool.GetKursVonSuS(Convert.ToInt32(sus.ID)).Result.Count == 0
+                    where _myschool.GetKurseVonSuS(Convert.ToInt32(sus.ID)).Result.Count == 0
                     select $"{sus.Nachname}, {sus.Vorname};{sus.ID};ohne Kurs";
                 var ohneKurse = susOhneKurse as string[] ?? susOhneKurse.ToArray();
                 if (ohneKurse.Length != 0)
@@ -1977,7 +1977,7 @@ public partial class MainWindow : Window
                     where sus.AllowJAMF
                     where _myschool.Jamfstufen.Contains(sus.GetStufe())
                     let kbez_liste =
-                        _myschool.GetKursVonSuS(sus.ID).Result.Where(k => !k.Bezeichnung.EndsWith("KL")).ToList()
+                        _myschool.GetKurseVonSuS(sus.ID).Result.Where(k => !k.Bezeichnung.EndsWith("KL")).ToList()
                             .Select(k => k.Bezeichnung).ToList()
                     select string.Join(";", sus.Nutzername, !string.IsNullOrEmpty(sus.Aixmail) ? sus.Aixmail : sus.Mail,
                         sus.Vorname, sus.Nachname, sus.Seriennummer, string.Join(',', kbez_liste), ""));
@@ -1999,7 +1999,7 @@ public partial class MainWindow : Window
                         where sus.AllowJAMF
                         where _myschool.Jamfstufen.Contains(sus.GetStufe())
                         let kbez_liste =
-                            _myschool.GetKursVonSuS(sus.ID).Result.Where(k => !k.Bezeichnung.EndsWith("KL")).ToList()
+                            _myschool.GetKurseVonSuS(sus.ID).Result.Where(k => !k.Bezeichnung.EndsWith("KL")).ToList()
                                 .Select(k => k.Bezeichnung).ToList()
                         select string.Join(";", sus.Nutzername,
                             !string.IsNullOrEmpty(sus.Aixmail) ? sus.Aixmail : sus.Mail,
