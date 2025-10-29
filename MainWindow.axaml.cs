@@ -345,7 +345,7 @@ public partial class MainWindow : Window
     {
         var topLevel = GetTopLevel(this);
         if (topLevel == null) return null;
-        var files = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions()
+        var files = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
         {
             Title = dialogtitle,
             FileTypeFilter = extensions,
@@ -358,7 +358,7 @@ public partial class MainWindow : Window
     {
         var topLevel = GetTopLevel(this);
         if (topLevel == null) return null;
-        var folders = await topLevel.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions()
+        var folders = await topLevel.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
         {
             Title = dialogtitle,
             AllowMultiple = false
@@ -470,7 +470,7 @@ public partial class MainWindow : Window
             });
             cache.Add("");
             cache.Sort();
-            exportFavoTabGrid.Children.Add(new ComboBox()
+            exportFavoTabGrid.Children.Add(new ComboBox
             {
                 Name = $"cbExportFavo{faecher[i]}",
                 ItemsSource = cache,
