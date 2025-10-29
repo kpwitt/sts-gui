@@ -276,7 +276,7 @@ public partial class MainWindow : Window
         {
             Name = "cbMnuSucheSeriennummer",
             Content = "Seriennummer",
-            IsChecked = false
+            IsChecked = true
         };
         var cbSucheExact = new CheckBox
         {
