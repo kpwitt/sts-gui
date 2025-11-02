@@ -33,6 +33,7 @@ public class Schuldatenbank : IDisposable
     private string[] oberstufe = ["EF", "Q1", "Q2"];
     private string[] stubostufen = ["8", "9", "10", "EF", "Q1", "Q2"];
     private string[] jamfstufen = ["9", "10", "EF", "Q1", "Q2"];
+    private List<Changes> ausstehende_aenderungen = [];
 
     public string[] Stubostufen
     {
@@ -3840,5 +3841,66 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$susid", susid);
         sqliteCmd.Parameters.AddWithValue("$jamf", i);
         sqliteCmd.ExecuteNonQuery();
+    }
+
+    public async Task ExecuteChangesAndExport(string exportpath)
+    {
+        var susidliste = new List<int>();
+        var lulidliste = new List<int>();
+        foreach (var change in ausstehende_aenderungen)
+        {
+            switch (change.kind)
+            {
+                case ChangeKind.add:
+                    switch (change.person)
+                    {
+                        case ChangePerson.SuS:
+                            await AddStoK(change.id, change.kurs.Bezeichnung);
+                            susidliste.Add(change.id);
+                            break;
+                        case ChangePerson.LuL:
+                            await AddLtoK(change.id, change.kurs.Bezeichnung);
+                            lulidliste.Add(change.id);
+                            break;
+                        default:
+                            AddLogMessage(new LogEintrag
+                            {
+                                Eintragsdatum = DateTime.Now, Nachricht = "Fehler im default-case add.change.person",
+                                Warnstufe = "Debug"
+                            });
+                            break;
+                    }
+
+                    break;
+                case ChangeKind.del:
+                    switch (change.person)
+                    {
+                        case ChangePerson.SuS:
+                            await RemoveSfromK(change.id, change.kurs.Bezeichnung);
+                            break;
+                        case ChangePerson.LuL:
+                            await RemoveLfromK(change.id, change.kurs.Bezeichnung);
+                            break;
+                        default:
+                            AddLogMessage(new LogEintrag
+                            {
+                                Eintragsdatum = DateTime.Now, Nachricht = "Fehler im default-case del.change.person",
+                                Warnstufe = "Debug"
+                            });
+                            break;
+                    }
+
+                    break;
+                default:
+                    AddLogMessage(new LogEintrag
+                    {
+                        Eintragsdatum = DateTime.Now, Nachricht = "Fehler im default-case change.kind",
+                        Warnstufe = "Debug"
+                    });
+                    break;
+            }
+        }
+
+        ExportJAMF(susidliste.AsReadOnly(), lulidliste.AsReadOnly(), true, exportpath, false);
     }
 }
