@@ -439,7 +439,8 @@ public class Schuldatenbank : IDisposable
         }
 
         sqliteDatareader.Close();
-        if (output != 1) {
+        if (output != 1)
+        {
             try
             {
                 sqliteCmd.CommandText =
@@ -1992,7 +1993,7 @@ public class Schuldatenbank : IDisposable
                 Stufe = sqliteDatareader.GetString(3),
                 Suffix = sqliteDatareader.GetString(4),
                 IstKurs = Convert.ToBoolean(sqliteDatareader.GetInt32(5)),
-                Bemerkung = sqliteDatareader.GetString(6),
+                Bemerkung = sqliteDatareader.GetString(6)
             };
             retKurs.Art = retKurs.IstKurs ? "PUT" : "PUK";
             if (retKurs is { IstKurs: true, Bezeichnung.Length: > 3 })
@@ -2159,7 +2160,7 @@ public class Schuldatenbank : IDisposable
                 SFavo = sqliteDatareader.GetString(8),
                 IstAktiv = sqliteDatareader.GetBoolean(9),
                 Seriennummer = sqliteDatareader.GetString(10),
-                Bemerkung = sqliteDatareader.GetString(11),
+                Bemerkung = sqliteDatareader.GetString(11)
             };
             llist.Add(lehrkraft);
         }
@@ -2365,7 +2366,7 @@ public class Schuldatenbank : IDisposable
                 IstAktiv = sqliteDatareader.GetBoolean(10),
                 Seriennummer = sqliteDatareader.GetString(11),
                 AllowJAMF = sqliteDatareader.GetBoolean(12),
-                Bemerkung = sqliteDatareader.GetString(13),
+                Bemerkung = sqliteDatareader.GetString(13)
             };
             susliste.Add(schuelerin);
         }
@@ -2398,7 +2399,7 @@ public class Schuldatenbank : IDisposable
                 IstAktiv = sqliteDatareader.GetBoolean(10),
                 Seriennummer = sqliteDatareader.GetString(11),
                 AllowJAMF = sqliteDatareader.GetBoolean(12),
-                Bemerkung = sqliteDatareader.GetString(13),
+                Bemerkung = sqliteDatareader.GetString(13)
             };
             susliste.Add(schuelerin);
         }
@@ -2449,7 +2450,7 @@ public class Schuldatenbank : IDisposable
                 HasM365Account = Convert.ToBoolean(sqliteDatareader.GetInt32(9)),
                 IstAktiv = sqliteDatareader.GetBoolean(10),
                 Seriennummer = sqliteDatareader.GetString(11),
-                Bemerkung = sqliteDatareader.GetString(12),
+                Bemerkung = sqliteDatareader.GetString(12)
             };
             slist.Add(schuelerin);
         }
