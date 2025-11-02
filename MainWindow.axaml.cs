@@ -2111,7 +2111,7 @@ public partial class MainWindow : Window
             Mittelstufe = string.IsNullOrEmpty(tbSettingMittelstufen.Text) ? [] : tbSettingMittelstufen.Text.Split(','),
             Oberstufe = string.IsNullOrEmpty(tbSettingOberstufe.Text) ? [] : tbSettingOberstufe.Text.Split(','),
             StuboStufen = string.IsNullOrEmpty(tbSettingStuBoStufen.Text) ? [] : tbSettingStuBoStufen.Text.Split(','),
-            JAMFStufen = string.IsNullOrEmpty(tbSettingJAMFStufen.Text) ? [] : tbSettingJAMFStufen.Text.Split(','),
+            JAMFStufen = string.IsNullOrEmpty(tbSettingJAMFStufen.Text) ? [] : tbSettingJAMFStufen.Text.Split(',')
         };
 
         await _myschool.SetSettings(settings);
