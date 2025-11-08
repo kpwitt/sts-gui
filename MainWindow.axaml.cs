@@ -901,6 +901,10 @@ public partial class MainWindow : Window
         if (_myschool.GibtEsSchueler(sid))
         {
             if (suszweitadresse != null && susaixmail != null)
+                if (!susM365)
+                {
+                    susaixmail = "";
+                }
                 await _myschool.UpdateSchueler(sid, susvname, susnname, suselternadresse, susklasse, susnutzername,
                     susaixmail, susHatZweitaccount == false ? 0 : 1, suszweitadresse,
                     susM365, susIstAktiv, seriennummer, susJAMFAllowed, susBemerkung);
@@ -1852,8 +1856,8 @@ public partial class MainWindow : Window
             if (cbFehlerSuS.IsChecked != null && cbFehlerSuS.IsChecked.Value)
             {
                 ergebnisliste.Add("######BEGIN SUS-FEHLER######");
-                ergebnisliste.Add("Nachname, Vorname; Klasse; ID; Fehler");
-                foreach (var sus in susliste)
+                ergebnisliste.Add("Nachname, Vorname; Klasse; ID; Fehler;add1;add2");
+                foreach (var sus in susliste.Where(s=>s.IstAktiv))
                 {
                     if (sus.Nutzername.Equals(""))
                     {
@@ -1861,6 +1865,12 @@ public partial class MainWindow : Window
                             $"{sus.Nachname}, {sus.Vorname};Klasse {sus.Klasse};{sus.ID};ohne Nutzernamen");
                     }
 
+                    if (!sus.HasM365Account && sus.Aixmail != "")
+                    {
+                        ergebnisliste.Add(
+                            $"{sus.Nachname}, {sus.Vorname};Klasse {sus.Klasse};{sus.ID};ohne M365 Zustimmung, aber mit M365-Adresse");
+                    }
+                    
                     var mailsuffixes = _myschool.GetSettings().Result.Mailsuffix;
                     if (string.IsNullOrEmpty(sus.Mail) || sus.Mail == sus.ID + mailsuffixes)
                     {
@@ -1891,7 +1901,7 @@ public partial class MainWindow : Window
                         var mathelehrkraft = _myschool.GetLuLAusKurs(mathekurs.Bezeichnung).Result
                             .Select(l => l.Kuerzel).ToArray();
                         ergebnisliste.Add(
-                            $"{sus.Nachname}, {sus.Vorname};Klasse {sus.Klasse};{sus.ID};ohne Seriennummer in JAMF-Stufe {sus.GetStufe()} im Kurs {mathekurs.Bezeichnung} bei " +
+                            $"{sus.Nachname}, {sus.Vorname};Klasse {sus.Klasse};{sus.ID};ohne Seriennummer in JAMF-Stufe {sus.GetStufe()} im Kurs;{mathekurs.Bezeichnung};" +
                             string.Join(",", mathelehrkraft));
                     }
 
