@@ -1877,11 +1877,22 @@ public partial class MainWindow : Window
                     if (_myschool.Jamfstufen.Contains(sus.GetStufe()) && string.IsNullOrEmpty(sus.Seriennummer))
                     {
                         var mathekurse = _myschool.GetKurseVonSuS(sus.ID).Result.Where(k => k.Fach == "M").ToArray();
-                        if (mathekurse.Length==0)continue;
-                        var mathekurs = mathekurse.Length==1?mathekurse[0]:mathekurse[1];
-                        var mathelehrkraft = _myschool.GetLuLAusKurs(mathekurs.Bezeichnung).Result.Select(l=>l.Kuerzel).ToArray();
-                            ergebnisliste.Add(
-                            $"{sus.Nachname}, {sus.Vorname};Klasse {sus.Klasse};{sus.ID};ohne Seriennummer in JAMF-Stufe {sus.GetStufe()} im Kurs {mathekurs.Bezeichnung} bei "+ string.Join(",",mathelehrkraft));
+                        if (mathekurse.Length == 0)
+                        {
+                            _myschool.AddLogMessage(new LogEintrag
+                            {
+                                Eintragsdatum = DateTime.Now, Nachricht = $"SuS {sus.Vorname} {sus.Nachname}, {sus.ID} ohne Mathekurs",
+                                Warnstufe = "Hinweis"
+                            });
+                            continue;
+                        }
+
+                        var mathekurs = mathekurse.Length == 1 ? mathekurse[0] : mathekurse[1];
+                        var mathelehrkraft = _myschool.GetLuLAusKurs(mathekurs.Bezeichnung).Result
+                            .Select(l => l.Kuerzel).ToArray();
+                        ergebnisliste.Add(
+                            $"{sus.Nachname}, {sus.Vorname};Klasse {sus.Klasse};{sus.ID};ohne Seriennummer in JAMF-Stufe {sus.GetStufe()} im Kurs {mathekurs.Bezeichnung} bei " +
+                            string.Join(",", mathelehrkraft));
                     }
 
                     ergebnisliste.AddRange(from kurs in _myschool.GetKurseVonSuS(sus.ID).Result
