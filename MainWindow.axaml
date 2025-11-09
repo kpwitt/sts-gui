@@ -442,6 +442,7 @@
                                     <CheckBox x:Name="cbFehlerSuS" Margin="5">SuS Fehler</CheckBox>
                                     <CheckBox x:Name="cbFehlerLuL" Margin="5">LuL Fehler</CheckBox>
                                     <CheckBox x:Name="cbFehlerKurse" Margin="5">unvollständige Kurse</CheckBox>
+                                    <CheckBox x:Name="cbSuSBemerkung" Margin="6">Bermerkungen als Fehler</CheckBox>
                                     <Button x:Name="btnFehlerSuche" Click="BtnFehlerSuche_OnClick">Suche</Button>
                                     <Button x:Name="btnFehlerExport" Click="BtnFehlerExport_OnClick">Export</Button>
                                 </WrapPanel>
