@@ -1866,7 +1866,7 @@ public partial class MainWindow : Window
             if (cbFehlerSuS.IsChecked != null && cbFehlerSuS.IsChecked.Value)
             {
                 ergebnisliste.Add("######BEGIN SUS-FEHLER######");
-                ergebnisliste.Add("Nachname, Vorname; Klasse; ID; Fehler;add1;add2");
+                ergebnisliste.Add("Nachname, Vorname; Klasse; ID; Fehler;Kurs;Lehrkraft");
                 foreach (var sus in susliste.Where(s => s.IstAktiv))
                 {
                     if (sus.Nutzername.Equals(""))
