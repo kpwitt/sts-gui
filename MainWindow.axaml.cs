@@ -44,6 +44,7 @@ public partial class MainWindow : Window
     private MenuItem _mnuItemCopyLuLKrz;
     private MenuItem _mnuItemCopyLuLMails;
     private CheckBox _cbZeigeInaktiv;
+    private CheckBox _cbZeigeNurBemerkungen;
     private readonly ContextMenu _logListContextMenu = new();
     private int leftLastComboIndex = -1;
     private int rightLastComboIndex = -1;
@@ -290,7 +291,14 @@ public partial class MainWindow : Window
             Content = "Zeige Inaktive",
             IsChecked = true
         };
+        _cbZeigeNurBemerkungen = new CheckBox
+        {
+            Name = "cbMnuZeigeBemerkungen",
+            Content = "Zeige nur SuS mit Bemerkungen",
+            IsChecked = false
+        };
         _cbZeigeInaktiv.Click += async (_, _) => { await CallLeftTimer(); };
+        _cbZeigeNurBemerkungen.Click += async (_, _) => { await CallLeftTimer(); };
         leftListButtonContextItems.Add(cbSucheVorname);
         leftListButtonContextItems.Add(cbSucheNachname);
         leftListButtonContextItems.Add(cbSucheMail);
@@ -299,6 +307,7 @@ public partial class MainWindow : Window
         leftListButtonContextItems.Add(cbSucheSeriennummer);
         leftListButtonContextItems.Add(cbSucheExact);
         leftListButtonContextItems.Add(_cbZeigeInaktiv);
+        leftListButtonContextItems.Add(_cbZeigeNurBemerkungen);
         tbLeftSearch.ContextMenu = new ContextMenu
         {
             ItemsSource = leftListButtonContextItems
@@ -1917,6 +1926,16 @@ public partial class MainWindow : Window
                     .Select(susid => _myschool.GetSchueler(susid).Result).Select(sus =>
                         $"{sus.Nachname}, {sus.Vorname};Klasse {sus.Klasse};{sus.ID};ohne DV Zustimmung"));
             }
+            
+            if (cbSuSBemerkung.IsChecked != null && cbSuSBemerkung.IsChecked.Value)
+            {
+                ergebnisliste.Add("######BEGIN Bemerkungen######");
+                ergebnisliste.Add("Nachname, Vorname; Klasse; ID; Fehler");
+                var sus_bemerkungen = susliste.Where(s => s.Bemerkung != "");
+                ergebnisliste.AddRange(from sus in sus_bemerkungen
+                    select
+                        $"{sus.Nachname}, {sus.Vorname};Klasse {sus.Klasse};{sus.ID};mit Bemerkung \"{sus.Bemerkung}\"");
+            }
 
             if (ergebnisliste.Count == 0)
             {
@@ -2632,13 +2651,15 @@ public partial class MainWindow : Window
                     break;
             }
 
-            if (_cbZeigeInaktiv.IsChecked == null) return;
+            if (_cbZeigeInaktiv.IsChecked == null || _cbZeigeNurBemerkungen.IsChecked == null) return;
             var zeigeInaktive = _cbZeigeInaktiv.IsChecked.Value;
+            var zeigeNurBemerkungen = _cbZeigeNurBemerkungen.IsChecked.Value;
             tbLeftSearch.Text = tbLeftSearch.Text.TrimStart(' ').TrimEnd(' ');
             var eingabeliste = tbLeftSearch.Text.Split(";");
             if (tbLeftSearch.ContextMenu?.ItemsSource == null) return;
             var searchContextMenu = tbLeftSearch.ContextMenu.ItemsSource.Cast<CheckBox>().ToList();
-            var searchFields = new[] { false, false, false, false, false, false, false, false }; //v,n,m,a/k,i,s,e,ia
+            var searchFields = new[]
+                { false, false, false, false, false, false, false, false, false }; //v,n,m,a/k,i,s,e,ia,b
             for (var i = 0; i < searchContextMenu.Count; ++i)
             {
                 if (searchContextMenu[i].IsChecked == true)
@@ -2651,8 +2672,14 @@ public partial class MainWindow : Window
             {
                 case 0:
                     var sliste = new List<SuS>();
-                    var scachelist = _myschool.GetSchuelerListe().Result.Where(s => s.IstAktiv || zeigeInaktive)
+                    var scachelist = _myschool.GetSchuelerListe().Result
+                        .Where(s => s.IstAktiv || zeigeInaktive)
                         .ToList();
+                    if (zeigeNurBemerkungen)
+                    {
+                        scachelist = scachelist.Where(s => s.Bemerkung != "").ToList();
+                    }
+
                     foreach (var eingabe in eingabeliste)
                     {
                         var lowereingabe = eingabe.ToLower();
