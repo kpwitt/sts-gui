@@ -1874,6 +1874,12 @@ public partial class MainWindow : Window
                         ergebnisliste.Add(
                             $"{sus.Nachname}, {sus.Vorname};Klasse {sus.Klasse};{sus.ID};ohne Nutzernamen");
                     }
+                    
+                    if (!sus.IstAktiv)
+                    {
+                        ergebnisliste.Add(
+                            $"{sus.Nachname}, {sus.Vorname};Klasse {sus.Klasse};{sus.ID};als inaktiv markiert");
+                    }
 
                     if (!sus.HasM365Account && sus.Aixmail != "")
                     {
