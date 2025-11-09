@@ -914,9 +914,10 @@ public partial class MainWindow : Window
                 {
                     susaixmail = "";
                 }
-                await _myschool.UpdateSchueler(sid, susvname, susnname, suselternadresse, susklasse, susnutzername,
-                    susaixmail, susHatZweitaccount == false ? 0 : 1, suszweitadresse,
-                    susM365, susIstAktiv, seriennummer, susJAMFAllowed, susBemerkung);
+
+            await _myschool.UpdateSchueler(sid, susvname, susnname, suselternadresse, susklasse, susnutzername,
+                susaixmail, susHatZweitaccount == false ? 0 : 1, suszweitadresse,
+                susM365, susIstAktiv, seriennummer, susJAMFAllowed, susBemerkung);
             var alteKurse = _myschool.GetKurseVonSuS(sid).Result;
             foreach (var kurs in alteKurse.Where(kurs => !suskurse.Contains(kurs.Bezeichnung)))
             {
@@ -1866,7 +1867,7 @@ public partial class MainWindow : Window
             {
                 ergebnisliste.Add("######BEGIN SUS-FEHLER######");
                 ergebnisliste.Add("Nachname, Vorname; Klasse; ID; Fehler;add1;add2");
-                foreach (var sus in susliste.Where(s=>s.IstAktiv))
+                foreach (var sus in susliste.Where(s => s.IstAktiv))
                 {
                     if (sus.Nutzername.Equals(""))
                     {
@@ -1879,7 +1880,7 @@ public partial class MainWindow : Window
                         ergebnisliste.Add(
                             $"{sus.Nachname}, {sus.Vorname};Klasse {sus.Klasse};{sus.ID};ohne M365 Zustimmung, aber mit M365-Adresse");
                     }
-                    
+
                     var mailsuffixes = _myschool.GetSettings().Result.Mailsuffix;
                     if (string.IsNullOrEmpty(sus.Mail) || sus.Mail == sus.ID + mailsuffixes)
                     {
@@ -1900,7 +1901,8 @@ public partial class MainWindow : Window
                         {
                             _myschool.AddLogMessage(new LogEintrag
                             {
-                                Eintragsdatum = DateTime.Now, Nachricht = $"SuS {sus.Vorname} {sus.Nachname}, {sus.ID} ohne Mathekurs",
+                                Eintragsdatum = DateTime.Now,
+                                Nachricht = $"SuS {sus.Vorname} {sus.Nachname}, {sus.ID} ohne Mathekurs",
                                 Warnstufe = "Hinweis"
                             });
                             continue;
