@@ -3898,6 +3898,7 @@ public class Schuldatenbank : IDisposable
     {
         var susidliste = new List<int>();
         var lulidliste = new List<int>();
+        List<string> moodle_einschreibungen = [];
         foreach (var change in ausstehende_aenderungen)
         {
             switch (change.kind)
@@ -3908,10 +3909,12 @@ public class Schuldatenbank : IDisposable
                         case ChangePerson.SuS:
                             await AddStoK(change.id, change.kurs.Bezeichnung);
                             susidliste.Add(change.id);
+                            moodle_einschreibungen.Add($"add,student,{change.id},{change.kurs.Bezeichnung}");
                             break;
                         case ChangePerson.LuL:
                             await AddLtoK(change.id, change.kurs.Bezeichnung);
                             lulidliste.Add(change.id);
+                            moodle_einschreibungen.Add($"add,editingteacher,{change.id},{change.kurs.Bezeichnung}");
                             break;
                         default:
                             AddLogMessage(new LogEintrag
@@ -3921,16 +3924,17 @@ public class Schuldatenbank : IDisposable
                             });
                             break;
                     }
-
                     break;
                 case ChangeKind.del:
                     switch (change.person)
                     {
                         case ChangePerson.SuS:
                             await RemoveSfromK(change.id, change.kurs.Bezeichnung);
+                            moodle_einschreibungen.Add($"del,student,{change.id},{change.kurs.Bezeichnung}");
                             break;
                         case ChangePerson.LuL:
                             await RemoveLfromK(change.id, change.kurs.Bezeichnung);
+                            moodle_einschreibungen.Add($"del,editingteacher,{change.id},{change.kurs.Bezeichnung}");
                             break;
                         default:
                             AddLogMessage(new LogEintrag
@@ -3940,7 +3944,6 @@ public class Schuldatenbank : IDisposable
                             });
                             break;
                     }
-
                     break;
                 default:
                     AddLogMessage(new LogEintrag
@@ -3952,6 +3955,7 @@ public class Schuldatenbank : IDisposable
             }
         }
 
+        File.WriteAllLinesAsync(exportpath + "/mdl_einschreibungen.csv", moodle_einschreibungen);
         ExportJAMF(susidliste.AsReadOnly(), lulidliste.AsReadOnly(), true, exportpath, false);
     }
 }
