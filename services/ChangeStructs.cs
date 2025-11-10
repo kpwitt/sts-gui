@@ -1,12 +1,12 @@
 ﻿namespace SchulDB;
 
-public record struct Changes(
-    ChangeKind kind,
-    ChangePerson person,
-    Kurs kurs,
-    int id,
-    bool executed = false
-);
+public record struct Changes{
+    public ChangeKind kind { get; set; }
+    public ChangePerson person { get; set; }
+    public Kurs kurs { get; set; }
+    public int id { get; set; }
+    public bool executed { get; set; }
+    }
 
 public enum ChangeKind
 {
