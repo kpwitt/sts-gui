@@ -44,6 +44,7 @@ public partial class MainWindow : Window
     private MenuItem _mnuItemCopyLuLKrz;
     private MenuItem _mnuItemCopyLuLMails;
     private CheckBox _cbZeigeInaktiv;
+    private CheckBox _cbZeigeNurBemerkungen;
     private readonly ContextMenu _logListContextMenu = new();
     private int leftLastComboIndex = -1;
     private int rightLastComboIndex = -1;
@@ -290,7 +291,14 @@ public partial class MainWindow : Window
             Content = "Zeige Inaktive",
             IsChecked = true
         };
+        _cbZeigeNurBemerkungen = new CheckBox
+        {
+            Name = "cbMnuZeigeBemerkungen",
+            Content = "Zeige nur SuS mit Bemerkungen",
+            IsChecked = false
+        };
         _cbZeigeInaktiv.Click += async (_, _) => { await CallLeftTimer(); };
+        _cbZeigeNurBemerkungen.Click += async (_, _) => { await CallLeftTimer(); };
         leftListButtonContextItems.Add(cbSucheVorname);
         leftListButtonContextItems.Add(cbSucheNachname);
         leftListButtonContextItems.Add(cbSucheMail);
@@ -299,6 +307,7 @@ public partial class MainWindow : Window
         leftListButtonContextItems.Add(cbSucheSeriennummer);
         leftListButtonContextItems.Add(cbSucheExact);
         leftListButtonContextItems.Add(_cbZeigeInaktiv);
+        leftListButtonContextItems.Add(_cbZeigeNurBemerkungen);
         tbLeftSearch.ContextMenu = new ContextMenu
         {
             ItemsSource = leftListButtonContextItems
@@ -901,9 +910,14 @@ public partial class MainWindow : Window
         if (_myschool.GibtEsSchueler(sid))
         {
             if (suszweitadresse != null && susaixmail != null)
-                await _myschool.UpdateSchueler(sid, susvname, susnname, suselternadresse, susklasse, susnutzername,
-                    susaixmail, susHatZweitaccount == false ? 0 : 1, suszweitadresse,
-                    susM365, susIstAktiv, seriennummer, susJAMFAllowed, susBemerkung);
+                if (!susM365)
+                {
+                    susaixmail = "";
+                }
+
+            await _myschool.UpdateSchueler(sid, susvname, susnname, suselternadresse, susklasse, susnutzername,
+                susaixmail, susHatZweitaccount == false ? 0 : 1, suszweitadresse,
+                susM365, susIstAktiv, seriennummer, susJAMFAllowed, susBemerkung);
             var alteKurse = _myschool.GetKurseVonSuS(sid).Result;
             foreach (var kurs in alteKurse.Where(kurs => !suskurse.Contains(kurs.Bezeichnung)))
             {
@@ -1852,13 +1866,25 @@ public partial class MainWindow : Window
             if (cbFehlerSuS.IsChecked != null && cbFehlerSuS.IsChecked.Value)
             {
                 ergebnisliste.Add("######BEGIN SUS-FEHLER######");
-                ergebnisliste.Add("Nachname, Vorname; Klasse; ID; Fehler");
-                foreach (var sus in susliste)
+                ergebnisliste.Add("Nachname, Vorname; Klasse; ID; Fehler;Kurs;Lehrkraft");
+                foreach (var sus in susliste.Where(s => s.IstAktiv))
                 {
                     if (sus.Nutzername.Equals(""))
                     {
                         ergebnisliste.Add(
                             $"{sus.Nachname}, {sus.Vorname};Klasse {sus.Klasse};{sus.ID};ohne Nutzernamen");
+                    }
+                    
+                    if (!sus.IstAktiv)
+                    {
+                        ergebnisliste.Add(
+                            $"{sus.Nachname}, {sus.Vorname};Klasse {sus.Klasse};{sus.ID};als inaktiv markiert");
+                    }
+
+                    if (!sus.HasM365Account && sus.Aixmail != "")
+                    {
+                        ergebnisliste.Add(
+                            $"{sus.Nachname}, {sus.Vorname};Klasse {sus.Klasse};{sus.ID};ohne M365 Zustimmung, aber mit M365-Adresse");
                     }
 
                     var mailsuffixes = _myschool.GetSettings().Result.Mailsuffix;
@@ -1876,8 +1902,24 @@ public partial class MainWindow : Window
 
                     if (_myschool.Jamfstufen.Contains(sus.GetStufe()) && string.IsNullOrEmpty(sus.Seriennummer))
                     {
+                        var mathekurse = _myschool.GetKurseVonSuS(sus.ID).Result.Where(k => k.Fach == "M").ToArray();
+                        if (mathekurse.Length == 0)
+                        {
+                            _myschool.AddLogMessage(new LogEintrag
+                            {
+                                Eintragsdatum = DateTime.Now,
+                                Nachricht = $"SuS {sus.Vorname} {sus.Nachname}, {sus.ID} ohne Mathekurs",
+                                Warnstufe = "Hinweis"
+                            });
+                            continue;
+                        }
+
+                        var mathekurs = mathekurse.Length == 1 ? mathekurse[0] : mathekurse[1];
+                        var mathelehrkraft = _myschool.GetLuLAusKurs(mathekurs.Bezeichnung).Result
+                            .Select(l => l.Kuerzel).ToArray();
                         ergebnisliste.Add(
-                            $"{sus.Nachname}, {sus.Vorname};Klasse {sus.Klasse};{sus.ID};ohne Seriennummer in JAMF-Stufe {sus.GetStufe()}");
+                            $"{sus.Nachname}, {sus.Vorname};Klasse {sus.Klasse};{sus.ID};ohne Seriennummer in JAMF-Stufe {sus.GetStufe()} im Kurs;{mathekurs.Bezeichnung};" +
+                            string.Join(",", mathelehrkraft));
                     }
 
                     ergebnisliste.AddRange(from kurs in _myschool.GetKurseVonSuS(sus.ID).Result
@@ -1891,6 +1933,16 @@ public partial class MainWindow : Window
                 ergebnisliste.AddRange(_myschool.GetM365Blacklist().Result
                     .Select(susid => _myschool.GetSchueler(susid).Result).Select(sus =>
                         $"{sus.Nachname}, {sus.Vorname};Klasse {sus.Klasse};{sus.ID};ohne DV Zustimmung"));
+            }
+            
+            if (cbSuSBemerkung.IsChecked != null && cbSuSBemerkung.IsChecked.Value)
+            {
+                ergebnisliste.Add("######BEGIN Bemerkungen######");
+                ergebnisliste.Add("Nachname, Vorname; Klasse; ID; Fehler");
+                var sus_bemerkungen = susliste.Where(s => s.Bemerkung != "");
+                ergebnisliste.AddRange(from sus in sus_bemerkungen
+                    select
+                        $"{sus.Nachname}, {sus.Vorname};Klasse {sus.Klasse};{sus.ID};mit Bemerkung \"{sus.Bemerkung}\"");
             }
 
             if (ergebnisliste.Count == 0)
@@ -2607,13 +2659,15 @@ public partial class MainWindow : Window
                     break;
             }
 
-            if (_cbZeigeInaktiv.IsChecked == null) return;
+            if (_cbZeigeInaktiv.IsChecked == null || _cbZeigeNurBemerkungen.IsChecked == null) return;
             var zeigeInaktive = _cbZeigeInaktiv.IsChecked.Value;
+            var zeigeNurBemerkungen = _cbZeigeNurBemerkungen.IsChecked.Value;
             tbLeftSearch.Text = tbLeftSearch.Text.TrimStart(' ').TrimEnd(' ');
             var eingabeliste = tbLeftSearch.Text.Split(";");
             if (tbLeftSearch.ContextMenu?.ItemsSource == null) return;
             var searchContextMenu = tbLeftSearch.ContextMenu.ItemsSource.Cast<CheckBox>().ToList();
-            var searchFields = new[] { false, false, false, false, false, false, false, false }; //v,n,m,a/k,i,s,e,ia
+            var searchFields = new[]
+                { false, false, false, false, false, false, false, false, false }; //v,n,m,a/k,i,s,e,ia,b
             for (var i = 0; i < searchContextMenu.Count; ++i)
             {
                 if (searchContextMenu[i].IsChecked == true)
@@ -2626,8 +2680,14 @@ public partial class MainWindow : Window
             {
                 case 0:
                     var sliste = new List<SuS>();
-                    var scachelist = _myschool.GetSchuelerListe().Result.Where(s => s.IstAktiv || zeigeInaktive)
+                    var scachelist = _myschool.GetSchuelerListe().Result
+                        .Where(s => s.IstAktiv || zeigeInaktive)
                         .ToList();
+                    if (zeigeNurBemerkungen)
+                    {
+                        scachelist = scachelist.Where(s => s.Bemerkung != "").ToList();
+                    }
+
                     foreach (var eingabe in eingabeliste)
                     {
                         var lowereingabe = eingabe.ToLower();
