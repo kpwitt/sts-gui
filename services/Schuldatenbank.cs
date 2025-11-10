@@ -2959,6 +2959,30 @@ public class Schuldatenbank : IDisposable
         await StopTransaction();
     }
 
+    private async Task<bool> LuLInKurs(int lulid, string kursbez)
+    {
+        var sqliteCmd = _sqliteConn.CreateCommand();
+        sqliteCmd.CommandText = "SELECT lehrerid, kursbez FROM unterrichtet WHERE kursbez = $kbez AND lehrerid = $lulid";
+        sqliteCmd.Parameters.AddWithValue("$kursbez", kursbez);
+        sqliteCmd.Parameters.AddWithValue("$lulid", lulid);
+        var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
+        var return_id = sqliteDatareader.GetInt32(0);
+        var return_kursbez = sqliteDatareader.GetString(1);
+        return return_id == lulid && return_kursbez == kursbez;
+    }
+
+    private async Task<bool> SuSInKurs(int schuelerid, string kursbez)
+    {
+        var sqliteCmd = _sqliteConn.CreateCommand();
+        sqliteCmd.CommandText = "SELECT schuelerid, kursbez FROM nimmtteil WHERE kursbez = $kbez AND schuelerid = $schuelerid";
+        sqliteCmd.Parameters.AddWithValue("$kursbez", kursbez);
+        sqliteCmd.Parameters.AddWithValue("$schuelerid", schuelerid);
+        var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
+        var return_id = sqliteDatareader.GetInt32(0);
+        var return_kursbez = sqliteDatareader.GetString(1);
+        return return_id == schuelerid && return_kursbez == kursbez;
+    }
+
     /// <summary>
     /// löscht das komplette Log
     /// </summary>
