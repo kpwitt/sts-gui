@@ -4277,4 +4277,40 @@ public partial class MainWindow : Window
 
         await ShowCustomSuccessMessage("Einlesen erfolgreich", "Erfolg");
     }
+
+    private void BtnAenderungenAlleLoeschen_OnClick(object? sender, RoutedEventArgs e)
+    {
+        _myschool.LoescheAlleAenderungen();
+        ResetItemsSource(lbAenderungen, []);
+    }
+    
+    private async void BtnAenderungenAlleAusfueren_OnClick(object? sender, RoutedEventArgs e)
+    {
+        var folder = ShowOpenFolderDialog("Bitte den Ordner zum Speichern angegeben").Result;
+        var path = folder?.TryGetLocalPath();
+        if (path == null) return;
+        await _myschool.AenderungenAusfuerenUndExportieren(path);
+    }
+    
+    private void BtnAenderungenReload_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (lbAenderungen.SelectedItems == null) return;
+        var items = _myschool.GetAenderungen();
+        ResetItemsSource(lbAenderungen, items.Select(x => x.ToString()));
+    }
+
+    private async void BtnAnderungenSchildAbgleich_OnClick(object? sender, RoutedEventArgs e)
+    {
+        var extx = new List<FilePickerFileType>
+        {
+            StSFileTypes.CSVFile,
+            FilePickerFileTypes.All
+        };
+        var files = await ShowOpenFileDialog("Lade Kursdaten", extx);
+        if (files == null) return;
+        var filePath = files.Path.LocalPath;
+        await _myschool.KurseEinlesen(filePath);
+        SetStatusText();
+        await ShowImportSuccessful();
+    }
 }

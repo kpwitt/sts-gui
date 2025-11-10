@@ -452,6 +452,26 @@
                                      VerticalAlignment="Stretch" />
                         </DockPanel>
                     </TabItem>
+                    <TabItem Header ="Änderungen" Classes="Header">
+                        <DockPanel>
+                        <StackPanel DockPanel.Dock="Top">
+                            <WrapPanel Orientation="Horizontal">
+                                <Button x:Name="btnAenderungenAlleLoeschen" Click="BtnAenderungenAlleLoeschen_OnClick">Alle Anderungen Löschen</Button>
+                                <Button x:Name="btnAenderungenAlleAusfueren" Click="BtnAenderungenAlleAusfueren_OnClick">Alle Anderungen Ausführen</Button>
+                                <Button x:Name="btnAenderungenReload" Click="BtnAenderungenReload_OnClick"
+                                        ToolTip.Tip="Lädt das Log neu aus der Datenbank">
+                                    <Panel>
+                                        <Image Source="/Assets/gfx/reload.png" />
+                                    </Panel>
+                                </Button>
+                                <Button x:Name="btnAnderungenSchildAbgleich" Click="BtnAnderungenSchildAbgleich_OnClick">Mit Schild abgleichen</Button>
+                            </WrapPanel>
+                        </StackPanel>
+                            <ListBox DockPanel.Dock="Bottom" x:Name="lbAenderungen" Height="750"
+                            SelectionMode="Multiple"
+                            VerticalAlignment="Stretch" />
+                        </DockPanel>
+                    </TabItem>    
                     <TabItem Header="Log" Classes="Header"> <!--Log-Tab-->
                         <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="Auto">
                             <StackPanel Grid.Row="0" Orientation="Horizontal">
