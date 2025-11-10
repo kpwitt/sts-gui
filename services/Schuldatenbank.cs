@@ -2867,6 +2867,20 @@ public class Schuldatenbank : IDisposable
                                 await AddKurs(klkurs, "KL", klasse, stufe, fachsuffix, 0, "");
                             }
 
+                            if (!await SuSInKurs(Convert.ToInt32(stmp.ID), klkurs))
+                            {
+                                ausstehende_aenderungen.Add(new Changes{
+                                    kind = ChangeKind.add, person = ChangePerson.SuS, kurs = GetKurs(klkurs).Result, id = stmp.ID, executed =
+                                        false
+                                });
+                            }
+                            if (!await LuLInKurs(Convert.ToInt32(stmp.ID), klkurs))
+                            {
+                                ausstehende_aenderungen.Add(new Changes{
+                                    kind = ChangeKind.add, person = ChangePerson.LuL, kurs = GetKurs(klkurs).Result, id = stmp.ID, executed =
+                                        false
+                                });
+                            }
                             await AddStoK(Convert.ToInt32(stmp.ID), klkurs);
                             await AddLtoK(Convert.ToInt32(ltmp.ID), klkurs);
                         }
@@ -2896,7 +2910,20 @@ public class Schuldatenbank : IDisposable
                                 {
                                     await AddKurs(bez, fach, stufe, stufe, fachsuffix, 1, "");
                                 }
-
+                                if (!await SuSInKurs(Convert.ToInt32(stmp.ID), bez))
+                                {
+                                    ausstehende_aenderungen.Add(new Changes{
+                                        kind = ChangeKind.add, person = ChangePerson.SuS, kurs = GetKurs(bez).Result, id = stmp.ID, executed =
+                                            false
+                                    });
+                                }
+                                if (!await LuLInKurs(Convert.ToInt32(stmp.ID), bez))
+                                {
+                                    ausstehende_aenderungen.Add(new Changes{
+                                        kind = ChangeKind.add, person = ChangePerson.LuL, kurs = GetKurs(bez).Result, id = stmp.ID, executed =
+                                            false
+                                    });
+                                }
                                 await AddStoK(Convert.ToInt32(stmp.ID), bez);
                                 await AddLtoK(Convert.ToInt32(ltmp.ID), bez);
                             }
