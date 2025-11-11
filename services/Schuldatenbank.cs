@@ -2874,6 +2874,7 @@ public class Schuldatenbank : IDisposable
                 }
 
                 var stmp = await GetSchueler(tmpkurs[inv].Replace("'", ""), nachname.Replace("'", ""), kursklasse);
+                
                 var ltmp = await GetLehrkraft(krz);
 
                 if (stmp.ID > 50000 && ltmp.ID > 0)
@@ -2884,6 +2885,7 @@ public class Schuldatenbank : IDisposable
                         continue;
                     }
 
+                    var alte_kurse = GetKurseVonSuS(stmp.ID).Result.ToList();
                     var stufe = klasse[..2];
                     if (!oberstufe.Contains(stufe))
                     {
@@ -3012,6 +3014,34 @@ public class Schuldatenbank : IDisposable
                             await AddStoK(Convert.ToInt32(stmp.ID), bez);
                             await AddLtoK(Convert.ToInt32(ltmp.ID), bez);
                         }
+                        //ToDo: auslagern, und pro Schüler-Block ausführen, nicht pro Zeile
+                        var neue_kurse = GetKurseVonSuS(stmp.ID).Result.ToList();
+                        var to_add = neue_kurse.RemoveAll(k => alte_kurse.Contains(k));
+                        var to_del = alte_kurse.RemoveAll(k => GetKurseVonSuS(stmp.ID).Result.ToList().Contains(k));
+                        if (to_add > 0)
+                        {
+                            foreach (var kurs in neue_kurse)
+                            {
+                                ausstehende_aenderungen.Add(new Changes
+                                    { id = stmp.ID, kind = ChangeKind.add, kurs=kurs, person = ChangePerson.SuS });
+                            }
+                        }
+
+                        if (to_del > 0)
+                        {
+                            foreach (var kurs in alte_kurse)
+                            {
+                                ausstehende_aenderungen.Add(new Changes
+                                    { id = stmp.ID, kind = ChangeKind.del, kurs=kurs, person = ChangePerson.SuS });
+                            }
+                        }
+                        AddLogMessage(new LogEintrag
+                        {
+                            Eintragsdatum = DateTime.Now, Nachricht =
+                                $"SuS{stmp.ID}:{stmp.Nachname},{stmp.Vorname} aus {to_del} Kursen gelöscht und zu {to_add} Kursen hinzugefügt",
+                            Warnstufe = "Info"
+                        });
+
                     }
                     else
                     {
