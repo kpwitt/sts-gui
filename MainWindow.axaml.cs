@@ -1874,7 +1874,7 @@ public partial class MainWindow : Window
                         ergebnisliste.Add(
                             $"{sus.Nachname}, {sus.Vorname};Klasse {sus.Klasse};{sus.ID};ohne Nutzernamen");
                     }
-                    
+
                     if (!sus.IstAktiv)
                     {
                         ergebnisliste.Add(
@@ -1934,7 +1934,7 @@ public partial class MainWindow : Window
                     .Select(susid => _myschool.GetSchueler(susid).Result).Select(sus =>
                         $"{sus.Nachname}, {sus.Vorname};Klasse {sus.Klasse};{sus.ID};ohne DV Zustimmung"));
             }
-            
+
             if (cbSuSBemerkung.IsChecked != null && cbSuSBemerkung.IsChecked.Value)
             {
                 ergebnisliste.Add("######BEGIN Bemerkungen######");
@@ -2693,17 +2693,17 @@ public partial class MainWindow : Window
                         var lowereingabe = eingabe.ToLower();
                         sliste.AddRange(searchFields[6]
                             ? scachelist.Where(s =>
-                                searchFields[5] && (s.ID + "").Equals(lowereingabe) ||
+                                searchFields[4] && (s.ID + "").Equals(lowereingabe) ||
                                 searchFields[0] && s.Vorname.ToLower().Equals(lowereingabe) ||
                                 searchFields[1] && s.Nachname.ToLower().Equals(lowereingabe) ||
                                 searchFields[2] &&
                                 (s.Mail.Equals(lowereingabe) || s.Aixmail.Equals(lowereingabe) ||
                                  s.Zweitmail.Equals(lowereingabe)) ||
                                 searchFields[3] && s.Nutzername.Equals(lowereingabe) ||
-                                searchFields[4] &&
+                                searchFields[5] &&
                                 s.Seriennummer.Contains(eingabe, StringComparison.CurrentCultureIgnoreCase)).ToList()
                             : scachelist.Where(s =>
-                                searchFields[5] && (s.ID + "").Contains(lowereingabe) ||
+                                searchFields[4] && (s.ID + "").Contains(lowereingabe) ||
                                 searchFields[0] && s.Vorname.Contains(lowereingabe,
                                     StringComparison.CurrentCultureIgnoreCase) ||
                                 searchFields[1] && s.Nachname.Contains(lowereingabe,
@@ -2712,7 +2712,7 @@ public partial class MainWindow : Window
                                                     s.Aixmail.Contains(lowereingabe) ||
                                                     s.Zweitmail.Contains(lowereingabe)) ||
                                 searchFields[3] && s.Nutzername.Contains(lowereingabe) ||
-                                searchFields[4] &&
+                                searchFields[5] &&
                                 s.Seriennummer.Contains(eingabe, StringComparison.CurrentCultureIgnoreCase)).ToList());
                     }
 
@@ -2728,16 +2728,15 @@ public partial class MainWindow : Window
                     foreach (var eingabe in eingabeliste)
                     {
                         var lowereingabe = eingabe.ToLower();
-                        lliste.AddRange(searchFields[5]
+                        lliste.AddRange(searchFields[6]
                             ? cachlist.Where(l =>
                                 l.Kuerzel.ToLower().Equals(lowereingabe) ||
                                 searchFields[0] && l.Vorname.ToLower().Equals(lowereingabe) ||
                                 searchFields[1] && l.Nachname.ToLower().Equals(lowereingabe) ||
                                 searchFields[2] && l.Mail.Equals(lowereingabe) ||
                                 searchFields[3] && l.Kuerzel.Equals(lowereingabe) ||
-                                searchFields[5] && (l.ID + "").Equals(lowereingabe)
-                                ||
-                                searchFields[4] &&
+                                searchFields[4] && (l.ID + "").Equals(lowereingabe) ||
+                                searchFields[5] &&
                                 l.Seriennummer.Contains(eingabe, StringComparison.CurrentCultureIgnoreCase)).ToList()
                             : cachlist.Where(l =>
                                 l.Kuerzel.Contains(lowereingabe, StringComparison.CurrentCultureIgnoreCase) ||
@@ -2747,8 +2746,8 @@ public partial class MainWindow : Window
                                     StringComparison.CurrentCultureIgnoreCase) ||
                                 searchFields[2] && l.Mail.Contains(lowereingabe) ||
                                 searchFields[3] && l.Kuerzel.Contains(lowereingabe) ||
-                                searchFields[5] && (l.ID + "").Contains(lowereingabe) ||
-                                searchFields[4] &&
+                                searchFields[4] && (l.ID + "").Contains(lowereingabe) ||
+                                searchFields[5] &&
                                 l.Seriennummer.Contains(eingabe, StringComparison.CurrentCultureIgnoreCase)).ToList());
                     }
 
