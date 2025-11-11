@@ -2874,7 +2874,6 @@ public class Schuldatenbank : IDisposable
                 }
 
                 var stmp = await GetSchueler(tmpkurs[inv].Replace("'", ""), nachname.Replace("'", ""), kursklasse);
-                
                 var ltmp = await GetLehrkraft(krz);
 
                 if (stmp.ID > 50000 && ltmp.ID > 0)
@@ -2906,8 +2905,7 @@ public class Schuldatenbank : IDisposable
                             ausstehende_aenderungen.Add(new Changes
                             {
                                 kind = ChangeKind.add, person = ChangePerson.SuS, kurs = GetKurs(klkurs).Result,
-                                id = stmp.ID, executed =
-                                    false
+                                id = stmp.ID, executed = false
                             });
                         }
 
@@ -2916,8 +2914,7 @@ public class Schuldatenbank : IDisposable
                             ausstehende_aenderungen.Add(new Changes
                             {
                                 kind = ChangeKind.add, person = ChangePerson.LuL, kurs = GetKurs(klkurs).Result,
-                                id = stmp.ID, executed =
-                                    false
+                                id = stmp.ID, executed = false
                             });
                         }
 
@@ -2942,6 +2939,7 @@ public class Schuldatenbank : IDisposable
                                 if (fach.Equals(fachersetzung[k].Split(':')[0]))
                                 {
                                     fach = fachersetzung[k].Split(':')[1];
+                                    break;
                                 }
                             }
 
@@ -2956,8 +2954,7 @@ public class Schuldatenbank : IDisposable
                                 ausstehende_aenderungen.Add(new Changes
                                 {
                                     kind = ChangeKind.add, person = ChangePerson.SuS, kurs = GetKurs(bez).Result,
-                                    id = stmp.ID, executed =
-                                        false
+                                    id = stmp.ID, executed = false
                                 });
                             }
 
@@ -2966,8 +2963,7 @@ public class Schuldatenbank : IDisposable
                                 ausstehende_aenderungen.Add(new Changes
                                 {
                                     kind = ChangeKind.add, person = ChangePerson.LuL, kurs = GetKurs(bez).Result,
-                                    id = stmp.ID, executed =
-                                        false
+                                    id = stmp.ID, executed = false
                                 });
                             }
 
@@ -2982,6 +2978,7 @@ public class Schuldatenbank : IDisposable
                                 if (fach.Equals(fachersetzung[k].Split(':')[0]))
                                 {
                                     fach = fachersetzung[k].Split(':')[1];
+                                    break;
                                 }
                             }
 
@@ -2996,8 +2993,7 @@ public class Schuldatenbank : IDisposable
                                 ausstehende_aenderungen.Add(new Changes
                                 {
                                     kind = ChangeKind.add, person = ChangePerson.SuS, kurs = GetKurs(bez).Result,
-                                    id = stmp.ID, executed =
-                                        false
+                                    id = stmp.ID, executed = false
                                 });
                             }
 
@@ -3006,8 +3002,7 @@ public class Schuldatenbank : IDisposable
                                 ausstehende_aenderungen.Add(new Changes
                                 {
                                     kind = ChangeKind.add, person = ChangePerson.LuL, kurs = GetKurs(bez).Result,
-                                    id = stmp.ID, executed =
-                                        false
+                                    id = stmp.ID, executed = false
                                 });
                             }
 
