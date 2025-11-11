@@ -2936,11 +2936,9 @@ public class Schuldatenbank : IDisposable
                             fach = tmpkurs[inf];
                             for (var k = 0; k < fachersetzung.Count - 1; k++)
                             {
-                                if (fach.Equals(fachersetzung[k].Split(':')[0]))
-                                {
-                                    fach = fachersetzung[k].Split(':')[1];
-                                    break;
-                                }
+                                if (!fach.Equals(fachersetzung[k].Split(':')[0])) continue;
+                                fach = fachersetzung[k].Split(':')[1];
+                                break;
                             }
 
                             var bez = $"{stufe}-{tmpkurs[ink]}";
@@ -2975,11 +2973,9 @@ public class Schuldatenbank : IDisposable
                             fach = tmpkurs[inf];
                             for (var k = 0; k < fachersetzung.Count - 1; k++)
                             {
-                                if (fach.Equals(fachersetzung[k].Split(':')[0]))
-                                {
-                                    fach = fachersetzung[k].Split(':')[1];
-                                    break;
-                                }
+                                if (!fach.Equals(fachersetzung[k].Split(':')[0])) continue;
+                                fach = fachersetzung[k].Split(':')[1];
+                                break;
                             }
 
                             var bez = klasse + fach;
