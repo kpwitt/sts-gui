@@ -1237,14 +1237,14 @@ public class Schuldatenbank : IDisposable
 
             if (withPasswort)
             {
-                ausgabeMoodleUser.Add("email;password;username;idnumber;lastname;firstname;cohort1");
+                ausgabeMoodleUser.Add("email;password;username;idnumber;lastname;firstname;cohort1;suspended");
                 ausgabeAIXS.Add(
                     "Vorname;Nachname;Klasse;Referenz-ID;Kennwort;Arbeitsgruppen");
                 ausgabeAIXL.Add("Vorname;Nachname;Referenz-ID;Kennwort;Arbeitsgruppen");
             }
             else
             {
-                ausgabeMoodleUser.Add("email;username;idnumber;lastname;firstname;cohort1");
+                ausgabeMoodleUser.Add("email;username;idnumber;lastname;firstname;cohort1;suspended");
                 ausgabeAIXS.Add("Vorname;Nachname;Klasse;Referenz-ID;Arbeitsgruppen");
                 ausgabeAIXL.Add("Vorname;Nachname;Referenz-ID;Arbeitsgruppen");
             }
@@ -1514,7 +1514,6 @@ public class Schuldatenbank : IDisposable
         foreach (var sus in susidliste)
         {
             var s = GetSchueler(sus).Result;
-            if (!s.IstAktiv) continue;
             var schuelerstufe = Tooling.KlasseToStufe(s.Klasse);
             var kListe = "";
             foreach (var kk in GetKurseVonSuS(s.ID).Result)
@@ -1561,7 +1560,7 @@ public class Schuldatenbank : IDisposable
                     ? passwort
                     : $"Klasse{s.Klasse}{DateTime.Now.Year}!";
                 ausgabeMoodleUser.Add(
-                    $"{susmail};{pwd.Replace(" ", "")};{s.Nutzername};{s.ID};{s.Nachname};{s.Vorname};schueler");
+                    $"{susmail};{pwd.Replace(" ", "")};{s.Nutzername};{s.ID};{s.Nachname};{s.Vorname};schueler;{Convert.ToInt32(!s.IstAktiv)}");
                 if (!blacklist.Contains(s.ID) && targets.Contains('a'))
                 {
                     ausgabeAIXS.Add($"{s.Vorname};{s.Nachname};{s.Klasse};{s.ID};{pwd.Replace(" ", "")};{kListe}");
@@ -1569,7 +1568,7 @@ public class Schuldatenbank : IDisposable
             }
             else
             {
-                ausgabeMoodleUser.Add($"{susmail};{s.Nutzername};{s.ID};{s.Nachname};{s.Vorname};schueler");
+                ausgabeMoodleUser.Add($"{susmail};{s.Nutzername};{s.ID};{s.Nachname};{s.Vorname};schueler;{Convert.ToInt32(!s.IstAktiv)}");
                 if (!blacklist.Contains(s.ID) && targets.Contains('a'))
                 {
                     ausgabeAIXS.Add($"{s.Vorname};{s.Nachname};{s.Klasse};{s.ID};{kListe}");
@@ -1596,7 +1595,6 @@ public class Schuldatenbank : IDisposable
         foreach (var l in lulidliste)
         {
             var lt = GetLehrkraft(l).Result;
-            if (!lt.IstAktiv) continue;
             var kListe = "";
             var fakultas = lt.Fakultas.Split(',');
             var fak = fakultas.Aggregate("", (current, fa) => $"{current}|^Fako {fa}");
@@ -1644,7 +1642,7 @@ public class Schuldatenbank : IDisposable
             if (withPasswort)
             {
                 ausgabeMoodleUser.Add(
-                    $"{lt.Mail};{GetTempPasswort(lt.ID).Result};{lt.Kuerzel};{lt.ID};{lt.Nachname};{lt.Vorname};lehrer");
+                    $"{lt.Mail};{GetTempPasswort(lt.ID).Result};{lt.Kuerzel};{lt.ID};{lt.Nachname};{lt.Vorname};lehrer;{Convert.ToInt32(!lt.IstAktiv)}");
                 if (targets.Contains('a'))
                 {
                     ausgabeAIXL.Add(
@@ -1653,7 +1651,7 @@ public class Schuldatenbank : IDisposable
             }
             else
             {
-                ausgabeMoodleUser.Add($"{lt.Mail};{lt.Kuerzel};{lt.ID};{lt.Nachname};{lt.Vorname};lehrer");
+                ausgabeMoodleUser.Add($"{lt.Mail};{lt.Kuerzel};{lt.ID};{lt.Nachname};{lt.Vorname};lehrer;{Convert.ToInt32(!lt.IstAktiv)}");
                 if (targets.Contains('a'))
                 {
                     ausgabeAIXL.Add($"{lt.Vorname};{lt.Nachname};{lt.ID};*|{kListe}{fak}");
