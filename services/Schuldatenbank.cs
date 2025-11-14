@@ -1522,28 +1522,30 @@ public class Schuldatenbank : IDisposable
                 {
                     break;
                 }
+                if(s.IstAktiv)
+                {
+                    kListe += $"{kk.Bezeichnung}{kk.Suffix}|";
+                    if (kk.Fach.Equals("KL") || kk.Fach.Equals("StuBo"))
+                    {
+                        ausgabeMoodleEinschreibungen.Add($"add,schueler,{s.ID},{kk.Bezeichnung}{kk.Suffix}");
+                    }
+                    else
+                    {
+                        ausgabeMoodleEinschreibungen.Add($"add,student,{s.ID},{kk.Bezeichnung}{kk.Suffix}");
+                    }
 
-                kListe += $"{kk.Bezeichnung}{kk.Suffix}|";
-                if (kk.Fach.Equals("KL") || kk.Fach.Equals("StuBo"))
-                {
-                    ausgabeMoodleEinschreibungen.Add($"add,schueler,{s.ID},{kk.Bezeichnung}{kk.Suffix}");
-                }
-                else
-                {
-                    ausgabeMoodleEinschreibungen.Add($"add,student,{s.ID},{kk.Bezeichnung}{kk.Suffix}");
-                }
-
-                if (erprobungsstufe.Contains(schuelerstufe))
-                {
-                    ausgabeMoodleEinschreibungen.Add($"add,schueler,{s.ID},erprobungsstufe{suffix}");
-                }
-                else if (mittelstufe.Contains(schuelerstufe))
-                {
-                    ausgabeMoodleEinschreibungen.Add($"add,schueler,{s.ID},mittelstufe{suffix}");
-                }
-                else
-                {
-                    ausgabeMoodleEinschreibungen.Add($"add,schueler,{s.ID},Stufenkurs{s.Klasse}{suffix}");
+                    if (erprobungsstufe.Contains(schuelerstufe))
+                    {
+                        ausgabeMoodleEinschreibungen.Add($"add,schueler,{s.ID},erprobungsstufe{suffix}");
+                    }
+                    else if (mittelstufe.Contains(schuelerstufe))
+                    {
+                        ausgabeMoodleEinschreibungen.Add($"add,schueler,{s.ID},mittelstufe{suffix}");
+                    }
+                    else
+                    {
+                        ausgabeMoodleEinschreibungen.Add($"add,schueler,{s.ID},Stufenkurs{s.Klasse}{suffix}");
+                    }
                 }
             }
 
@@ -1561,7 +1563,7 @@ public class Schuldatenbank : IDisposable
                     : $"Klasse{s.Klasse}{DateTime.Now.Year}!";
                 ausgabeMoodleUser.Add(
                     $"{susmail};{pwd.Replace(" ", "")};{s.Nutzername};{s.ID};{s.Nachname};{s.Vorname};schueler;{Convert.ToInt32(!s.IstAktiv)}");
-                if (!blacklist.Contains(s.ID) && targets.Contains('a'))
+                if (!blacklist.Contains(s.ID) && targets.Contains('a')&&s.IstAktiv)
                 {
                     ausgabeAIXS.Add($"{s.Vorname};{s.Nachname};{s.Klasse};{s.ID};{pwd.Replace(" ", "")};{kListe}");
                 }
@@ -1569,7 +1571,7 @@ public class Schuldatenbank : IDisposable
             else
             {
                 ausgabeMoodleUser.Add($"{susmail};{s.Nutzername};{s.ID};{s.Nachname};{s.Vorname};schueler;{Convert.ToInt32(!s.IstAktiv)}");
-                if (!blacklist.Contains(s.ID) && targets.Contains('a'))
+                if (!blacklist.Contains(s.ID) && targets.Contains('a')&&s.IstAktiv)
                 {
                     ausgabeAIXS.Add($"{s.Vorname};{s.Nachname};{s.Klasse};{s.ID};{kListe}");
                 }
@@ -1604,22 +1606,25 @@ public class Schuldatenbank : IDisposable
             foreach (var kurs in GetKurseVonLuL(lt.ID).Result)
             {
                 if (string.IsNullOrEmpty(kurs.Bezeichnung)) continue;
-                if (kurs.Bezeichnung.Contains("Jahrgangsstufenkonferenz"))
+                if(lt.IstAktiv)
                 {
-                    var stufenleitungen = GetOberstufenleitung(kurs.Stufe).Result;
-                    var rolle = stufenleitungen.Contains(lt) ||
-                                GetSettings().Result.Oberstufenkoordination.Contains(lt.Kuerzel)
-                        ? "editingteacher"
-                        : "student";
-                    ausgabeMoodleEinschreibungen.Add($"add,{rolle},{lt.ID},{kurs.Bezeichnung}{kurs.Suffix}");
-                }
-                else if (kurs.IstKurs)
-                {
-                    ausgabeMoodleEinschreibungen.Add($"add,editingteacher,{lt.ID},{kurs.Bezeichnung}{kurs.Suffix}");
-                }
-                else
-                {
-                    ausgabeMoodleEinschreibungen.Add($"add,editingteacher,{lt.ID},{kurs.Bezeichnung}{kurs.Suffix}");
+                    if (kurs.Bezeichnung.Contains("Jahrgangsstufenkonferenz"))
+                    {
+                        var stufenleitungen = GetOberstufenleitung(kurs.Stufe).Result;
+                        var rolle = stufenleitungen.Contains(lt) ||
+                                    GetSettings().Result.Oberstufenkoordination.Contains(lt.Kuerzel)
+                            ? "editingteacher"
+                            : "student";
+                        ausgabeMoodleEinschreibungen.Add($"add,{rolle},{lt.ID},{kurs.Bezeichnung}{kurs.Suffix}");
+                    }
+                    else if (kurs.IstKurs)
+                    {
+                        ausgabeMoodleEinschreibungen.Add($"add,editingteacher,{lt.ID},{kurs.Bezeichnung}{kurs.Suffix}");
+                    }
+                    else
+                    {
+                        ausgabeMoodleEinschreibungen.Add($"add,editingteacher,{lt.ID},{kurs.Bezeichnung}{kurs.Suffix}");
+                    }
                 }
 
                 if (kurs.Bezeichnung.Length > 20) continue;
@@ -1643,7 +1648,7 @@ public class Schuldatenbank : IDisposable
             {
                 ausgabeMoodleUser.Add(
                     $"{lt.Mail};{GetTempPasswort(lt.ID).Result};{lt.Kuerzel};{lt.ID};{lt.Nachname};{lt.Vorname};lehrer;{Convert.ToInt32(!lt.IstAktiv)}");
-                if (targets.Contains('a'))
+                if (targets.Contains('a')&&lt.IstAktiv)
                 {
                     ausgabeAIXL.Add(
                         $"{lt.Vorname};{lt.Nachname};{lt.ID};{GetTempPasswort(lt.ID).Result};*|{kListe}{fak}");
@@ -1652,7 +1657,7 @@ public class Schuldatenbank : IDisposable
             else
             {
                 ausgabeMoodleUser.Add($"{lt.Mail};{lt.Kuerzel};{lt.ID};{lt.Nachname};{lt.Vorname};lehrer;{Convert.ToInt32(!lt.IstAktiv)}");
-                if (targets.Contains('a'))
+                if (targets.Contains('a')&&lt.IstAktiv)
                 {
                     ausgabeAIXL.Add($"{lt.Vorname};{lt.Nachname};{lt.ID};*|{kListe}{fak}");
                 }
