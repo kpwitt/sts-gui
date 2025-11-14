@@ -909,11 +909,11 @@ public partial class MainWindow : Window
         var sid = Convert.ToInt32(susid);
         if (_myschool.GibtEsSchueler(sid))
         {
-            if (suszweitadresse != null && susaixmail != null)
-                if (!susM365)
-                {
-                    susaixmail = "";
-                }
+            if (suszweitadresse == null || susaixmail == null) return;
+            if (!susM365)
+            {
+                susaixmail = "";
+            }
 
             await _myschool.UpdateSchueler(sid, susvname, susnname, suselternadresse, susklasse, susnutzername,
                 susaixmail, susHatZweitaccount == false ? 0 : 1, suszweitadresse,
@@ -4282,7 +4282,7 @@ public partial class MainWindow : Window
         _myschool.LoescheAlleAenderungen();
         ResetItemsSource(lbAenderungen, []);
     }
-    
+
     private async void BtnAenderungenAlleAusfueren_OnClick(object? sender, RoutedEventArgs e)
     {
         var folder = ShowOpenFolderDialog("Bitte den Ordner zum Speichern angegeben").Result;
@@ -4290,7 +4290,7 @@ public partial class MainWindow : Window
         if (path == null) return;
         await _myschool.AenderungenAusfuerenUndExportieren(path);
     }
-    
+
     private void BtnAenderungenReload_OnClick(object? sender, RoutedEventArgs e)
     {
         if (lbAenderungen.SelectedItems == null) return;
