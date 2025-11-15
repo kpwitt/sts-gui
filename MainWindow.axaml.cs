@@ -538,6 +538,7 @@ public partial class MainWindow : Window
             InitData();
             SetStatusText();
             exportFavoTabGrid.Children.Clear();
+            ResetItemsSource(lbAenderungen, []);
             return;
         }
 
@@ -4289,6 +4290,7 @@ public partial class MainWindow : Window
         var path = folder.Path.LocalPath;
         if (path == null) return;
         await _myschool.AenderungenAusfuerenUndExportieren(path);
+        BtnAenderungenReload_OnClick(sender, e);
     }
 
     private void BtnAenderungenReload_OnClick(object? sender, RoutedEventArgs e)
@@ -4311,5 +4313,6 @@ public partial class MainWindow : Window
         await _myschool.KurseEinlesen(filePath);
         SetStatusText();
         await ShowImportSuccessful();
+        BtnAenderungenReload_OnClick(sender, e);
     }
 }
