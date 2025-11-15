@@ -2872,7 +2872,7 @@ public class Schuldatenbank : IDisposable
                 ink = header_index;
             }
         }
-
+        
         await StartTransaction();
         for (var i = 1; i < lines.Length; i++)
             // Parallel.ForEach(lines, async (line, _) =>
