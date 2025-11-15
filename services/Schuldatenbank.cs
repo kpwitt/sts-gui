@@ -1590,15 +1590,16 @@ public class Schuldatenbank : IDisposable
                     : $"Klasse{s.Klasse}{DateTime.Now.Year}!";
                 ausgabeMoodleUser.Add(
                     $"{susmail};{pwd.Replace(" ", "")};{s.Nutzername};{s.ID};{s.Nachname};{s.Vorname};schueler;{Convert.ToInt32(!s.IstAktiv)}");
-                if (!blacklist.Contains(s.ID) && targets.Contains('a')&&s.IstAktiv)
+                if (!blacklist.Contains(s.ID) && targets.Contains('a') && s.IstAktiv)
                 {
                     ausgabeAIXS.Add($"{s.Vorname};{s.Nachname};{s.Klasse};{s.ID};{pwd.Replace(" ", "")};{kListe}");
                 }
             }
             else
             {
-                ausgabeMoodleUser.Add($"{susmail};{s.Nutzername};{s.ID};{s.Nachname};{s.Vorname};schueler;{Convert.ToInt32(!s.IstAktiv)}");
-                if (!blacklist.Contains(s.ID) && targets.Contains('a')&&s.IstAktiv)
+                ausgabeMoodleUser.Add(
+                    $"{susmail};{s.Nutzername};{s.ID};{s.Nachname};{s.Vorname};schueler;{Convert.ToInt32(!s.IstAktiv)}");
+                if (!blacklist.Contains(s.ID) && targets.Contains('a') && s.IstAktiv)
                 {
                     ausgabeAIXS.Add($"{s.Vorname};{s.Nachname};{s.Klasse};{s.ID};{kListe}");
                 }
@@ -1633,7 +1634,7 @@ public class Schuldatenbank : IDisposable
             foreach (var kurs in GetKurseVonLuL(lt.ID).Result)
             {
                 if (string.IsNullOrEmpty(kurs.Bezeichnung)) continue;
-                if(lt.IstAktiv)
+                if (lt.IstAktiv)
                 {
                     if (kurs.Bezeichnung.Contains("Jahrgangsstufenkonferenz"))
                     {
@@ -1675,7 +1676,7 @@ public class Schuldatenbank : IDisposable
             {
                 ausgabeMoodleUser.Add(
                     $"{lt.Mail};{GetTempPasswort(lt.ID).Result};{lt.Kuerzel};{lt.ID};{lt.Nachname};{lt.Vorname};lehrer;{Convert.ToInt32(!lt.IstAktiv)}");
-                if (targets.Contains('a')&&lt.IstAktiv)
+                if (targets.Contains('a') && lt.IstAktiv)
                 {
                     ausgabeAIXL.Add(
                         $"{lt.Vorname};{lt.Nachname};{lt.ID};{GetTempPasswort(lt.ID).Result};*|{kListe}{fak}");
@@ -1683,8 +1684,9 @@ public class Schuldatenbank : IDisposable
             }
             else
             {
-                ausgabeMoodleUser.Add($"{lt.Mail};{lt.Kuerzel};{lt.ID};{lt.Nachname};{lt.Vorname};lehrer;{Convert.ToInt32(!lt.IstAktiv)}");
-                if (targets.Contains('a')&&lt.IstAktiv)
+                ausgabeMoodleUser.Add(
+                    $"{lt.Mail};{lt.Kuerzel};{lt.ID};{lt.Nachname};{lt.Vorname};lehrer;{Convert.ToInt32(!lt.IstAktiv)}");
+                if (targets.Contains('a') && lt.IstAktiv)
                 {
                     ausgabeAIXL.Add($"{lt.Vorname};{lt.Nachname};{lt.ID};*|{kListe}{fak}");
                 }
