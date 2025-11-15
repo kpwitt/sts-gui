@@ -2872,7 +2872,7 @@ public class Schuldatenbank : IDisposable
                 ink = header_index;
             }
         }
-        
+
         await StartTransaction();
         for (var i = 1; i < lines.Length; i++)
             // Parallel.ForEach(lines, async (line, _) =>
@@ -2946,9 +2946,11 @@ public class Schuldatenbank : IDisposable
                             {
                                 await AddKurs(bez, fach, klasse, stufe, fachsuffix, 0, "");
                             }
+
                             nk.Add(bez);
                             await AddSuSAndOrLuLToKursIfNotIn(stmp, ltmp, bez);
                         }
+
                         i++;
                     }
 
@@ -2966,11 +2968,13 @@ public class Schuldatenbank : IDisposable
                         {
                             await AddStoK(stmp.ID, "Erprobungsstufe");
                             nk.Add("Erprobungsstufe");
-                        }else if (mittelstufe.Contains(stufe))
+                        }
+                        else if (mittelstufe.Contains(stufe))
                         {
                             await AddStoK(stmp.ID, "Mittelstufe");
                             nk.Add("Mittelstufe");
-                        }else if (oberstufe.Contains(stufe))
+                        }
+                        else if (oberstufe.Contains(stufe))
                         {
                             var lange_stufe = stufe switch
                             {
@@ -2984,7 +2988,9 @@ public class Schuldatenbank : IDisposable
                             nk.Add(lange_stufe);
                         }
                     }
-                    var aktuelle_kurse = (await GetKursListe()).Where(k=>nk.ToList().Contains(k.Bezeichnung)).ToList();
+
+                    var aktuelle_kurse =
+                        (await GetKursListe()).Where(k => nk.ToList().Contains(k.Bezeichnung)).ToList();
                     var additions = aktuelle_kurse.Where(k => !alte_kurse.Contains(k)).ToList();
                     var deletions = alte_kurse.Where(k => !aktuelle_kurse.Contains(k)).ToList();
                     foreach (var kurs in additions)
@@ -3009,6 +3015,7 @@ public class Schuldatenbank : IDisposable
                             Warnstufe = "Info"
                         });
                     }
+
                     nk.Clear();
                 }
 
@@ -3034,6 +3041,7 @@ public class Schuldatenbank : IDisposable
                 });
                 await StopTransaction();
             }
+
             i--;
         }
 
@@ -4065,6 +4073,7 @@ public class Schuldatenbank : IDisposable
                     break;
             }
         }
+
         await StopTransaction();
         await File.WriteAllLinesAsync(exportpath + "/mdl_einschreibungen.csv", moodle_einschreibungen);
         ExportJAMF(susidliste.AsReadOnly(), lulidliste.AsReadOnly(), true, exportpath, false);
