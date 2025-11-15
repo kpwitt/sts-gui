@@ -33,7 +33,7 @@ public class Schuldatenbank : IDisposable
     private string[] oberstufe = ["EF", "Q1", "Q2"];
     private string[] stubostufen = ["8", "9", "10", "EF", "Q1", "Q2"];
     private string[] jamfstufen = ["9", "10", "EF", "Q1", "Q2"];
-    private HashSet<Changes> ausstehende_aenderungen = [];
+    private readonly HashSet<Changes> ausstehende_aenderungen = [];
 
     public string[] Stubostufen
     {
@@ -689,6 +689,11 @@ public class Schuldatenbank : IDisposable
         });
         if (string.IsNullOrEmpty(kurs.Bezeichnung)) return;
         var klkurs = $"{kurs.Klasse}KL";
+        if (!GibtEsKurs(klkurs))
+        {
+            await AddKurs(klkurs, "KL", kurs.Klasse, kurs.Stufe, kurs.Suffix, 0, "");
+        }
+
         var kurse = GetKurseVonLuL(lid).Result;
         if (!kurs.IstKurs && !oberstufe.Contains(kurs.Stufe) && kurse.All(k => k.Bezeichnung != klkurs))
         {
@@ -1545,30 +1550,29 @@ public class Schuldatenbank : IDisposable
                 {
                     break;
                 }
-                if(s.IstAktiv)
-                {
-                    kListe += $"{kk.Bezeichnung}{kk.Suffix}|";
-                    if (kk.Fach.Equals("KL") || kk.Fach.Equals("StuBo"))
-                    {
-                        ausgabeMoodleEinschreibungen.Add($"add,schueler,{s.ID},{kk.Bezeichnung}{kk.Suffix}");
-                    }
-                    else
-                    {
-                        ausgabeMoodleEinschreibungen.Add($"add,student,{s.ID},{kk.Bezeichnung}{kk.Suffix}");
-                    }
 
-                    if (erprobungsstufe.Contains(schuelerstufe))
-                    {
-                        ausgabeMoodleEinschreibungen.Add($"add,schueler,{s.ID},erprobungsstufe{suffix}");
-                    }
-                    else if (mittelstufe.Contains(schuelerstufe))
-                    {
-                        ausgabeMoodleEinschreibungen.Add($"add,schueler,{s.ID},mittelstufe{suffix}");
-                    }
-                    else
-                    {
-                        ausgabeMoodleEinschreibungen.Add($"add,schueler,{s.ID},Stufenkurs{s.Klasse}{suffix}");
-                    }
+                if (!s.IstAktiv) continue;
+                kListe += $"{kk.Bezeichnung}{kk.Suffix}|";
+                if (kk.Fach.Equals("KL") || kk.Fach.Equals("StuBo"))
+                {
+                    ausgabeMoodleEinschreibungen.Add($"add,schueler,{s.ID},{kk.Bezeichnung}{kk.Suffix}");
+                }
+                else
+                {
+                    ausgabeMoodleEinschreibungen.Add($"add,student,{s.ID},{kk.Bezeichnung}{kk.Suffix}");
+                }
+
+                if (erprobungsstufe.Contains(schuelerstufe))
+                {
+                    ausgabeMoodleEinschreibungen.Add($"add,schueler,{s.ID},erprobungsstufe{suffix}");
+                }
+                else if (mittelstufe.Contains(schuelerstufe))
+                {
+                    ausgabeMoodleEinschreibungen.Add($"add,schueler,{s.ID},mittelstufe{suffix}");
+                }
+                else
+                {
+                    ausgabeMoodleEinschreibungen.Add($"add,schueler,{s.ID},Stufenkurs{s.Klasse}{suffix}");
                 }
             }
 
@@ -1586,15 +1590,16 @@ public class Schuldatenbank : IDisposable
                     : $"Klasse{s.Klasse}{DateTime.Now.Year}!";
                 ausgabeMoodleUser.Add(
                     $"{susmail};{pwd.Replace(" ", "")};{s.Nutzername};{s.ID};{s.Nachname};{s.Vorname};schueler;{Convert.ToInt32(!s.IstAktiv)}");
-                if (!blacklist.Contains(s.ID) && targets.Contains('a')&&s.IstAktiv)
+                if (!blacklist.Contains(s.ID) && targets.Contains('a') && s.IstAktiv)
                 {
                     ausgabeAIXS.Add($"{s.Vorname};{s.Nachname};{s.Klasse};{s.ID};{pwd.Replace(" ", "")};{kListe}");
                 }
             }
             else
             {
-                ausgabeMoodleUser.Add($"{susmail};{s.Nutzername};{s.ID};{s.Nachname};{s.Vorname};schueler;{Convert.ToInt32(!s.IstAktiv)}");
-                if (!blacklist.Contains(s.ID) && targets.Contains('a')&&s.IstAktiv)
+                ausgabeMoodleUser.Add(
+                    $"{susmail};{s.Nutzername};{s.ID};{s.Nachname};{s.Vorname};schueler;{Convert.ToInt32(!s.IstAktiv)}");
+                if (!blacklist.Contains(s.ID) && targets.Contains('a') && s.IstAktiv)
                 {
                     ausgabeAIXS.Add($"{s.Vorname};{s.Nachname};{s.Klasse};{s.ID};{kListe}");
                 }
@@ -1629,7 +1634,7 @@ public class Schuldatenbank : IDisposable
             foreach (var kurs in GetKurseVonLuL(lt.ID).Result)
             {
                 if (string.IsNullOrEmpty(kurs.Bezeichnung)) continue;
-                if(lt.IstAktiv)
+                if (lt.IstAktiv)
                 {
                     if (kurs.Bezeichnung.Contains("Jahrgangsstufenkonferenz"))
                     {
@@ -1671,7 +1676,7 @@ public class Schuldatenbank : IDisposable
             {
                 ausgabeMoodleUser.Add(
                     $"{lt.Mail};{GetTempPasswort(lt.ID).Result};{lt.Kuerzel};{lt.ID};{lt.Nachname};{lt.Vorname};lehrer;{Convert.ToInt32(!lt.IstAktiv)}");
-                if (targets.Contains('a')&&lt.IstAktiv)
+                if (targets.Contains('a') && lt.IstAktiv)
                 {
                     ausgabeAIXL.Add(
                         $"{lt.Vorname};{lt.Nachname};{lt.ID};{GetTempPasswort(lt.ID).Result};*|{kListe}{fak}");
@@ -1679,8 +1684,9 @@ public class Schuldatenbank : IDisposable
             }
             else
             {
-                ausgabeMoodleUser.Add($"{lt.Mail};{lt.Kuerzel};{lt.ID};{lt.Nachname};{lt.Vorname};lehrer;{Convert.ToInt32(!lt.IstAktiv)}");
-                if (targets.Contains('a')&&lt.IstAktiv)
+                ausgabeMoodleUser.Add(
+                    $"{lt.Mail};{lt.Kuerzel};{lt.ID};{lt.Nachname};{lt.Vorname};lehrer;{Convert.ToInt32(!lt.IstAktiv)}");
+                if (targets.Contains('a') && lt.IstAktiv)
                 {
                     ausgabeAIXL.Add($"{lt.Vorname};{lt.Nachname};{lt.ID};*|{kListe}{fak}");
                 }
