@@ -4246,7 +4246,7 @@ public partial class MainWindow : Window
             StSFileTypes.CSVFile,
             FilePickerFileTypes.All
         };
-        var file = await ShowSaveFileDialog("CSV-Datei angegeben", extx);
+        var file = await ShowSaveFileDialog("CSV-Datei zum Speichern der Spielwiesen angegeben", extx);
         if (file == null) return;
         List<string> spielwiesen =
             ["shortname;fullname;idnumber;category_idnumber;format;enrolment_0;enrolment_0_role;enrolment_0_password"];
@@ -4273,7 +4273,7 @@ public partial class MainWindow : Window
             StSFileTypes.CSVFile,
             FilePickerFileTypes.All
         };
-        var file = await ShowOpenFileDialog("CSV-Datei angegeben", extx);
+        var file = await ShowOpenFileDialog("CSV-Datei mit JAMF-Einwilligungen angegeben", extx);
         if (file == null) return;
         var jamf_input = await File.ReadAllLinesAsync(file.Path.LocalPath);
         if (jamf_input.Length == 0 || !jamf_input[0].StartsWith("Vorname;Nachname;Klasse;JAMF (ja/nein/fehlt)"))
