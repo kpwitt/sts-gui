@@ -4285,8 +4285,8 @@ public partial class MainWindow : Window
 
     private async void BtnAenderungenAlleAusfueren_OnClick(object? sender, RoutedEventArgs e)
     {
-        var folder = ShowOpenFolderDialog("Bitte den Ordner zum Speichern angegeben").Result;
-        var path = folder?.TryGetLocalPath();
+        var folder = await ShowOpenFolderDialog("Bitte den Ordner zum Speichern angegeben");
+        var path = folder.Path.LocalPath;
         if (path == null) return;
         await _myschool.AenderungenAusfuerenUndExportieren(path);
     }
