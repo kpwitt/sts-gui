@@ -538,6 +538,7 @@ public partial class MainWindow : Window
             InitData();
             SetStatusText();
             exportFavoTabGrid.Children.Clear();
+            ResetItemsSource(lbAenderungen, []);
             return;
         }
 
@@ -909,11 +910,11 @@ public partial class MainWindow : Window
         var sid = Convert.ToInt32(susid);
         if (_myschool.GibtEsSchueler(sid))
         {
-            if (suszweitadresse != null && susaixmail != null)
-                if (!susM365)
-                {
-                    susaixmail = "";
-                }
+            if (suszweitadresse == null || susaixmail == null) return;
+            if (!susM365)
+            {
+                susaixmail = "";
+            }
 
             await _myschool.UpdateSchueler(sid, susvname, susnname, suselternadresse, susklasse, susnutzername,
                 susaixmail, susHatZweitaccount == false ? 0 : 1, suszweitadresse,
@@ -4275,5 +4276,34 @@ public partial class MainWindow : Window
         }
 
         await ShowCustomSuccessMessage("Einlesen erfolgreich", "Erfolg");
+    }
+
+    private void BtnAenderungenAlleLoeschen_OnClick(object? sender, RoutedEventArgs e)
+    {
+        _myschool.LoescheAlleAenderungen();
+        ResetItemsSource(lbAenderungen, []);
+    }
+
+    private async void BtnAenderungenAlleAusfueren_OnClick(object? sender, RoutedEventArgs e)
+    {
+        var folder = await ShowOpenFolderDialog("Bitte den Ordner zum Speichern angegeben");
+        if (folder == null) return;
+        var path = folder.Path.LocalPath;
+        if (path == "") return;
+        await _myschool.AenderungenAusfuerenUndExportieren(path);
+        BtnAenderungenReload_OnClick(sender, e);
+    }
+
+    private void BtnAenderungenReload_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (lbAenderungen.SelectedItems == null) return;
+        var items = _myschool.GetAenderungen();
+        ResetItemsSource(lbAenderungen, items.Select(x => x.ToString()));
+    }
+
+    private async void BtnAnderungenSchildAbgleich_OnClick(object? sender, RoutedEventArgs e)
+    {
+        OnMnuloadkursefromfileClick(sender, e);
+        BtnAenderungenReload_OnClick(sender, e);
     }
 }
