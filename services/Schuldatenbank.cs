@@ -1550,30 +1550,29 @@ public class Schuldatenbank : IDisposable
                 {
                     break;
                 }
-                if(s.IstAktiv)
-                {
-                    kListe += $"{kk.Bezeichnung}{kk.Suffix}|";
-                    if (kk.Fach.Equals("KL") || kk.Fach.Equals("StuBo"))
-                    {
-                        ausgabeMoodleEinschreibungen.Add($"add,schueler,{s.ID},{kk.Bezeichnung}{kk.Suffix}");
-                    }
-                    else
-                    {
-                        ausgabeMoodleEinschreibungen.Add($"add,student,{s.ID},{kk.Bezeichnung}{kk.Suffix}");
-                    }
 
-                    if (erprobungsstufe.Contains(schuelerstufe))
-                    {
-                        ausgabeMoodleEinschreibungen.Add($"add,schueler,{s.ID},erprobungsstufe{suffix}");
-                    }
-                    else if (mittelstufe.Contains(schuelerstufe))
-                    {
-                        ausgabeMoodleEinschreibungen.Add($"add,schueler,{s.ID},mittelstufe{suffix}");
-                    }
-                    else
-                    {
-                        ausgabeMoodleEinschreibungen.Add($"add,schueler,{s.ID},Stufenkurs{s.Klasse}{suffix}");
-                    }
+                if (!s.IstAktiv) continue;
+                kListe += $"{kk.Bezeichnung}{kk.Suffix}|";
+                if (kk.Fach.Equals("KL") || kk.Fach.Equals("StuBo"))
+                {
+                    ausgabeMoodleEinschreibungen.Add($"add,schueler,{s.ID},{kk.Bezeichnung}{kk.Suffix}");
+                }
+                else
+                {
+                    ausgabeMoodleEinschreibungen.Add($"add,student,{s.ID},{kk.Bezeichnung}{kk.Suffix}");
+                }
+
+                if (erprobungsstufe.Contains(schuelerstufe))
+                {
+                    ausgabeMoodleEinschreibungen.Add($"add,schueler,{s.ID},erprobungsstufe{suffix}");
+                }
+                else if (mittelstufe.Contains(schuelerstufe))
+                {
+                    ausgabeMoodleEinschreibungen.Add($"add,schueler,{s.ID},mittelstufe{suffix}");
+                }
+                else
+                {
+                    ausgabeMoodleEinschreibungen.Add($"add,schueler,{s.ID},Stufenkurs{s.Klasse}{suffix}");
                 }
             }
 
