@@ -526,8 +526,8 @@ public class Schuldatenbank : IDisposable
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
             "INSERT OR IGNORE INTO kurse (bez, fach, klasse, stufe, suffix, istkurs,bemerkung) VALUES ($bez, $fach, $klasse, $stufe, $suffix, $istkurs, $bemerkung);";
-        sqliteCmd.Parameters.AddWithValue("$fach", fach);
         sqliteCmd.Parameters.AddWithValue("$bez", bez);
+        sqliteCmd.Parameters.AddWithValue("$fach", fach);
         sqliteCmd.Parameters.AddWithValue("$klasse", klasse);
         sqliteCmd.Parameters.AddWithValue("$stufe", stufe);
         sqliteCmd.Parameters.AddWithValue("$suffix", suffix);
