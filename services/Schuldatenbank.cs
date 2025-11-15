@@ -33,7 +33,7 @@ public class Schuldatenbank : IDisposable
     private string[] oberstufe = ["EF", "Q1", "Q2"];
     private string[] stubostufen = ["8", "9", "10", "EF", "Q1", "Q2"];
     private string[] jamfstufen = ["9", "10", "EF", "Q1", "Q2"];
-    private List<Changes> ausstehende_aenderungen = [];
+    private HashSet<Changes> ausstehende_aenderungen = [];
 
     public string[] Stubostufen
     {
@@ -2883,28 +2883,24 @@ public class Schuldatenbank : IDisposable
                 var stmp = await GetSuSFromLine(tmpkurs, inn, inv);
                 var klasse = stmp.Klasse;
                 var alte_kurse = (await GetKurseVonSuS(stmp.ID)).ToList();
-                var krz = tmpkurs[inl];
-                var ltmp = await GetLehrkraft(krz);
+                var ltmp = await GetLehrkraft(tmpkurs[inl]);
+                HashSet<string> nk = [];
                 if (stmp.ID > 50000 && ltmp.ID > 0)
                 {
-                    while ((await GetSuSFromLine(lines[i].Split('|').Select(x => x.Trim()).ToArray(), inn, inv)).ID ==
+                    var stufe = stmp.GetStufe();
+                    while (i < lines.Length &&
+                           (await GetSuSFromLine(lines[i].Split('|').Select(x => x.Trim()).ToArray(), inn, inv)).ID ==
                            stmp.ID)
                     {
-                        var stufe = stmp.GetStufe();
+                        tmpkurs = lines[i].Split('|').Select(x => x.Trim()).ToArray();
+                        ltmp = await GetLehrkraft(tmpkurs[inl]);
                         if (!oberstufe.Contains(stufe))
                         {
                             var klkurs_bez = stmp.Klasse + "KL";
-                            if (GibtEsKurs(stmp.Klasse + "KL"))
+                            if (GibtEsKurs(klkurs_bez))
                             {
-                                if (!await IstSuSInKurs(stmp.ID, klkurs_bez))
-                                {
-                                    await AddStoK(stmp.ID, klkurs_bez);
-                                }
-
-                                if (!await IstLuLInKurs(ltmp.ID, klkurs_bez))
-                                {
-                                    await AddLtoK(Convert.ToInt32(ltmp.ID), klkurs_bez);
-                                }
+                                await AddSuSAndOrLuLToKursIfNotIn(stmp, ltmp, klkurs_bez);
+                                nk.Add(klkurs_bez);
                             }
                         }
                         else
@@ -2932,6 +2928,7 @@ public class Schuldatenbank : IDisposable
                                 await AddKurs(bez, fach, stufe, stufe, fachsuffix, 1, "");
                             }
 
+                            nk.Add(bez);
                             await AddSuSAndOrLuLToKursIfNotIn(stmp, ltmp, bez);
                         }
                         else
@@ -2949,204 +2946,70 @@ public class Schuldatenbank : IDisposable
                             {
                                 await AddKurs(bez, fach, klasse, stufe, fachsuffix, 0, "");
                             }
-
+                            nk.Add(bez);
                             await AddSuSAndOrLuLToKursIfNotIn(stmp, ltmp, bez);
                         }
-
-                        ++i;
+                        i++;
                     }
 
-                    var neue_kurse = GetKurseVonSuS(stmp.ID).Result.ToList();
-                    var to_add = neue_kurse.RemoveAll(k => alte_kurse.Contains(k));
-                    var to_del = alte_kurse.RemoveAll(k => GetKurseVonSuS(stmp.ID).Result.ToList().Contains(k));
-                    if (to_add > 0)
+                    await AddSuSToStufenAndStuBoKurs();
+
+                    async Task AddSuSToStufenAndStuBoKurs()
                     {
-                        foreach (var kurs in neue_kurse)
+                        if (stubostufen.Contains(stufe))
                         {
-                            ausstehende_aenderungen.Add(new Changes
-                                { id = stmp.ID, kind = ChangeKind.add, kurs = kurs, person = ChangePerson.SuS });
+                            await AddStoK(stmp.ID, $"StuBo-{stufe}");
+                            nk.Add($"StuBo-{stufe}");
+                        }
+
+                        if (erprobungsstufe.Contains(stufe))
+                        {
+                            await AddStoK(stmp.ID, "Erprobungsstufe");
+                            nk.Add("Erprobungsstufe");
+                        }else if (mittelstufe.Contains(stufe))
+                        {
+                            await AddStoK(stmp.ID, "Mittelstufe");
+                            nk.Add("Mittelstufe");
+                        }else if (oberstufe.Contains(stufe))
+                        {
+                            var lange_stufe = stufe switch
+                            {
+                                "EF" => "Einführungsphase",
+                                "Q1" => "Qualifikationsphase 1",
+                                "Q2" => "Qualifikationsphase 2",
+                                _ => ""
+                            };
+
+                            await AddStoK(stmp.ID, lange_stufe);
+                            nk.Add(lange_stufe);
                         }
                     }
-
-                    if (to_del > 0)
+                    var aktuelle_kurse = (await GetKursListe()).Where(k=>nk.ToList().Contains(k.Bezeichnung)).ToList();
+                    var additions = aktuelle_kurse.Where(k => !alte_kurse.Contains(k)).ToList();
+                    var deletions = alte_kurse.Where(k => !aktuelle_kurse.Contains(k)).ToList();
+                    foreach (var kurs in additions)
                     {
-                        foreach (var kurs in alte_kurse)
-                        {
-                            ausstehende_aenderungen.Add(new Changes
-                                { id = stmp.ID, kind = ChangeKind.del, kurs = kurs, person = ChangePerson.SuS });
-                        }
+                        ausstehende_aenderungen.Add(new Changes
+                            { id = stmp.ID, kind = ChangeKind.add, kurs = kurs, person = ChangePerson.SuS });
                     }
 
-                    AddLogMessage(new LogEintrag
+                    foreach (var kurs in deletions)
                     {
-                        Eintragsdatum = DateTime.Now, Nachricht =
-                            $"SuS{stmp.ID}:{stmp.Nachname},{stmp.Vorname} aus {to_del} Kursen gelöscht und zu {to_add} Kursen hinzugefügt",
-                        Warnstufe = "Info"
-                    });
-                    /*var klasse = stmp.Klasse;
-                    if (klasse != kursklasse && kursklasse != "")
-                    {
-                        continue;
+                        ausstehende_aenderungen.Add(new Changes
+                            { id = stmp.ID, kind = ChangeKind.del, kurs = kurs, person = ChangePerson.SuS });
                     }
 
-                    var alte_kurse = GetKurseVonSuS(stmp.ID).Result.ToList();
-                    var stufe = klasse[..2];
-                    if (!oberstufe.Contains(stufe))
+
+                    if (additions.Count != deletions.Count)
                     {
-                        if (!stufe.Equals("10"))
-                        {
-                            stufe = klasse[..1];
-                        }
-
-                        //Klassenkurse
-                        var klkurs = $"{klasse}KL";
-                        if (string.IsNullOrEmpty((await GetKurs(klkurs)).Bezeichnung)) //Kurs nicht existent
-                        {
-                            await AddKurs(klkurs, "KL", klasse, stufe, fachsuffix, 0, "");
-                        }
-
-                        if (!await IstSuSInKurs(Convert.ToInt32(stmp.ID), klkurs))
-                        {
-                            ausstehende_aenderungen.Add(new Changes
-                            {
-                                kind = ChangeKind.add, person = ChangePerson.SuS, kurs = await GetKurs(klkurs),
-                                id = stmp.ID, executed = false
-                            });
-                        }
-
-                        if (!await IstLuLInKurs(Convert.ToInt32(stmp.ID), klkurs))
-                        {
-                            ausstehende_aenderungen.Add(new Changes
-                            {
-                                kind = ChangeKind.add, person = ChangePerson.LuL, kurs = await GetKurs(klkurs),
-                                id = stmp.ID, executed = false
-                            });
-                        }
-
-                        await AddStoK(Convert.ToInt32(stmp.ID), klkurs);
-                        await AddLtoK(Convert.ToInt32(ltmp.ID), klkurs);
-                    }
-                    else
-                    {
-                        klasse = stufe;
-                    }
-
-                    var kursart = tmpkurs[inka];
-                    if (kursart != "")
-                    {
-                        string fach;
-                        if (!kursart.Equals("PUK") &&
-                            !kursart.Equals("ZUV")) //PUK = Klassenunterricht; ZUV = Zusatzveranstaltung
-                        {
-                            fach = tmpkurs[inf];
-                            for (var k = 0; k < fachersetzung.Count - 1; k++)
-                            {
-                                if (!fach.Equals(fachersetzung[k].Split(':')[0])) continue;
-                                fach = fachersetzung[k].Split(':')[1];
-                                break;
-                            }
-
-                            var bez = $"{stufe}-{tmpkurs[ink]}";
-                            if (string.IsNullOrEmpty((await GetKurs(bez)).Bezeichnung))
-                            {
-                                await AddKurs(bez, fach, stufe, stufe, fachsuffix, 1, "");
-                            }
-
-                            if (!await IstSuSInKurs(Convert.ToInt32(stmp.ID), bez))
-                            {
-                                ausstehende_aenderungen.Add(new Changes
-                                {
-                                    kind = ChangeKind.add, person = ChangePerson.SuS, kurs = await GetKurs(bez),
-                                    id = stmp.ID, executed = false
-                                });
-                                await AddStoK(Convert.ToInt32(stmp.ID), bez);
-                            }
-
-                            if (!await IstLuLInKurs(Convert.ToInt32(ltmp.ID), bez))
-                            {
-                                ausstehende_aenderungen.Add(new Changes
-                                {
-                                    kind = ChangeKind.add, person = ChangePerson.LuL, kurs = await GetKurs(bez),
-                                    id = stmp.ID, executed = false
-                                });
-                                await AddLtoK(Convert.ToInt32(ltmp.ID), bez);
-                            }
-                        }
-                        else
-                        {
-                            fach = tmpkurs[inf];
-                            for (var k = 0; k < fachersetzung.Count - 1; k++)
-                            {
-                                if (!fach.Equals(fachersetzung[k].Split(':')[0])) continue;
-                                fach = fachersetzung[k].Split(':')[1];
-                                break;
-                            }
-
-                            var bez = klasse + fach;
-                            if (string.IsNullOrEmpty((await GetKurs(bez)).Bezeichnung))
-                            {
-                                await AddKurs(bez, fach, klasse, stufe, fachsuffix, 0, "");
-                            }
-
-                            if (!await IstSuSInKurs(Convert.ToInt32(stmp.ID), bez))
-                            {
-                                ausstehende_aenderungen.Add(new Changes
-                                {
-                                    kind = ChangeKind.add, person = ChangePerson.SuS, kurs = await GetKurs(bez),
-                                    id = stmp.ID, executed = false
-                                });
-                                await AddStoK(Convert.ToInt32(stmp.ID), bez);
-                            }
-
-                            if (!await IstLuLInKurs(Convert.ToInt32(ltmp.ID), bez))
-                            {
-                                ausstehende_aenderungen.Add(new Changes
-                                {
-                                    kind = ChangeKind.add, person = ChangePerson.LuL, kurs = await GetKurs(bez),
-                                    id = stmp.ID, executed = false
-                                });
-                                await AddLtoK(Convert.ToInt32(ltmp.ID), bez);
-                            }
-                        }
-
-                        //ToDo: auslagern, und pro Schüler-Block ausführen, nicht pro Zeile
-                        var neue_kurse = GetKurseVonSuS(stmp.ID).Result.ToList();
-                        var to_add = neue_kurse.RemoveAll(k => alte_kurse.Contains(k));
-                        var to_del = alte_kurse.RemoveAll(k => GetKurseVonSuS(stmp.ID).Result.ToList().Contains(k));
-                        if (to_add > 0)
-                        {
-                            foreach (var kurs in neue_kurse)
-                            {
-                                ausstehende_aenderungen.Add(new Changes
-                                    { id = stmp.ID, kind = ChangeKind.add, kurs = kurs, person = ChangePerson.SuS });
-                            }
-                        }
-
-                        if (to_del > 0)
-                        {
-                            foreach (var kurs in alte_kurse)
-                            {
-                                ausstehende_aenderungen.Add(new Changes
-                                    { id = stmp.ID, kind = ChangeKind.del, kurs = kurs, person = ChangePerson.SuS });
-                            }
-                        }
-
                         AddLogMessage(new LogEintrag
                         {
                             Eintragsdatum = DateTime.Now, Nachricht =
-                                $"SuS{stmp.ID}:{stmp.Nachname},{stmp.Vorname} aus {to_del} Kursen gelöscht und zu {to_add} Kursen hinzugefügt",
+                                $"SuS {stmp.ID}:{stmp.Nachname},{stmp.Vorname} aus {deletions.Count} Kursen gelöscht und zu {additions.Count} Kursen hinzugefügt",
                             Warnstufe = "Info"
                         });
                     }
-                    else
-                    {
-                        AddLogMessage(new LogEintrag
-                        {
-                            Eintragsdatum = DateTime.Now, Nachricht =
-                                $"SuS{stmp.ID}:{stmp.Nachname},{stmp.Vorname} aus {stmp.Klasse} hat invalide Kurs-Art",
-                            Warnstufe = "Fehler"
-                        });
-                    }*/
+                    nk.Clear();
                 }
 
                 else
@@ -3154,7 +3017,7 @@ public class Schuldatenbank : IDisposable
                     AddLogMessage(new LogEintrag
                     {
                         Eintragsdatum = DateTime.Now, Nachricht =
-                            $"LehrerIn\t{krz} oder SchülerIn {stmp.ID} {tmpkurs[inv]} {tmpkurs[inn]}\t mit ungültiger ID",
+                            $"LehrerIn\t{ltmp.Kuerzel} oder SchülerIn {stmp.ID} {tmpkurs[inv]} {tmpkurs[inn]}\t mit ungültiger ID",
                         Warnstufe = "Hinweis"
                     });
                 }
@@ -3163,7 +3026,7 @@ public class Schuldatenbank : IDisposable
             {
 #if DEBUG
                 AddLogMessage(new LogEintrag
-                    { Eintragsdatum = DateTime.Now, Nachricht = ex.Message, Warnstufe = "Debug" });
+                    { Eintragsdatum = DateTime.Now, Nachricht = $"Zeile {i}: " + ex.Message, Warnstufe = "Debug" });
 #endif
                 AddLogMessage(new LogEintrag
                 {
@@ -3171,6 +3034,7 @@ public class Schuldatenbank : IDisposable
                 });
                 await StopTransaction();
             }
+            i--;
         }
 
         await StopTransaction();
@@ -3191,6 +3055,7 @@ public class Schuldatenbank : IDisposable
 
     private async Task<SuS> GetSuSFromLine(string[] tmpkurs, int inn, int inv)
     {
+        var vorname = tmpkurs[inv];
         string nachname;
         var kursklasse = "";
         if (tmpkurs[inn].Contains('#'))
@@ -3203,7 +3068,7 @@ public class Schuldatenbank : IDisposable
             nachname = tmpkurs[inn];
         }
 
-        var stmp = await GetSchueler(tmpkurs[inv].Replace("'", ""), nachname.Replace("'", ""), kursklasse);
+        var stmp = (await GetSchueler(vorname.Replace("'", ""), nachname.Replace("'", ""), kursklasse));
         return stmp;
     }
 
@@ -3211,26 +3076,36 @@ public class Schuldatenbank : IDisposable
     {
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
-            "SELECT lehrerid, kursbez FROM unterrichtet WHERE kursbez = $kbez AND lehrerid = $lulid";
+            "SELECT lehrerid, kursbez FROM unterrichtet WHERE kursbez = $kursbez AND lehrerid = $lulid";
         sqliteCmd.Parameters.AddWithValue("$kursbez", kursbez);
         sqliteCmd.Parameters.AddWithValue("$lulid", lulid);
         var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
-        var return_id = sqliteDatareader.GetInt32(0);
-        var return_kursbez = sqliteDatareader.GetString(1);
-        return return_id == lulid && return_kursbez == kursbez;
+        while (sqliteDatareader.Read())
+        {
+            var return_id = sqliteDatareader.GetInt32(0);
+            var return_kursbez = sqliteDatareader.GetString(1);
+            return return_id == lulid && return_kursbez == kursbez;
+        }
+
+        return false;
     }
 
     private async Task<bool> IstSuSInKurs(int schuelerid, string kursbez)
     {
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
-            "SELECT schuelerid, kursbez FROM nimmtteil WHERE kursbez = $kbez AND schuelerid = $schuelerid";
+            "SELECT schuelerid, kursbez FROM nimmtteil WHERE kursbez = $kursbez AND schuelerid = $schuelerid";
         sqliteCmd.Parameters.AddWithValue("$kursbez", kursbez);
         sqliteCmd.Parameters.AddWithValue("$schuelerid", schuelerid);
         var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
-        var return_id = sqliteDatareader.GetInt32(0);
-        var return_kursbez = sqliteDatareader.GetString(1);
-        return return_id == schuelerid && return_kursbez == kursbez;
+        while (sqliteDatareader.Read())
+        {
+            var return_id = sqliteDatareader.GetInt32(0);
+            var return_kursbez = sqliteDatareader.GetString(1);
+            return return_id == schuelerid && return_kursbez == kursbez;
+        }
+
+        return false;
     }
 
     /// <summary>
@@ -4125,11 +4000,12 @@ public class Schuldatenbank : IDisposable
         await AenderungenAusfuerenUndExportieren(ausstehende_aenderungen, exportpath);
     }
 
-    private async Task AenderungenAusfuerenUndExportieren(List<Changes> ausstehendeAenderungen, string exportpath)
+    private async Task AenderungenAusfuerenUndExportieren(HashSet<Changes> ausstehendeAenderungen, string exportpath)
     {
         var susidliste = new List<int>();
         var lulidliste = new List<int>();
         List<string> moodle_einschreibungen = [];
+        await StartTransaction();
         foreach (var change in ausstehendeAenderungen)
         {
             switch (change.kind)
@@ -4189,12 +4065,13 @@ public class Schuldatenbank : IDisposable
                     break;
             }
         }
-
+        await StopTransaction();
         await File.WriteAllLinesAsync(exportpath + "/mdl_einschreibungen.csv", moodle_einschreibungen);
         ExportJAMF(susidliste.AsReadOnly(), lulidliste.AsReadOnly(), true, exportpath, false);
+        ausstehende_aenderungen.RemoveWhere(ausstehendeAenderungen.Contains);
     }
 
-    public List<Changes> GetAenderungen()
+    public HashSet<Changes> GetAenderungen()
     {
         return ausstehende_aenderungen;
     }
