@@ -689,6 +689,11 @@ public class Schuldatenbank : IDisposable
         });
         if (string.IsNullOrEmpty(kurs.Bezeichnung)) return;
         var klkurs = $"{kurs.Klasse}KL";
+        if (!GibtEsKurs(klkurs))
+        {
+            await AddKurs(klkurs, "KL", kurs.Klasse, kurs.Stufe, kurs.Suffix, 0, "");
+        }
+
         var kurse = GetKurseVonLuL(lid).Result;
         if (!kurs.IstKurs && !oberstufe.Contains(kurs.Stufe) && kurse.All(k => k.Bezeichnung != klkurs))
         {
