@@ -3296,7 +3296,7 @@ public class Schuldatenbank : IDisposable
     /// <param name="kbez"></param>
     public async Task RemoveLfromK(int lid, string kbez)
     {
-        if (lid <= 0) return;
+        if (lid <= 0 || !GibtEsKurs(kbez)) return;
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText = "DELETE FROM unterrichtet WHERE lehrerid = $lid AND kursbez = $kbez;";
         sqliteCmd.Parameters.AddWithValue("$lid", lid);
@@ -3358,7 +3358,7 @@ public class Schuldatenbank : IDisposable
     /// <param name="kbez"></param>
     public async Task RemoveSfromK(int sid, string kbez)
     {
-        if (sid <= 0) return;
+        if (sid <= 0 || !GibtEsKurs(kbez)) return;
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText = "DELETE FROM nimmtteil WHERE schuelerid = $sid AND kursbez = $kbez;";
         sqliteCmd.Parameters.AddWithValue("$sid", sid);
