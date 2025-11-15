@@ -23,7 +23,7 @@ public record struct Changes{
             _ => "<?>"
         };
 
-        var status = executed ? "bereits ausgeführt" : " noch nicht ausgeführt";
+        var status = executed ? "bereits ausgeführt" : "noch nicht ausgeführt";
         var bezeichnung = kurs.Bezeichnung ?? "<ohne Bezeichnung>";
 
         return $"{action} {who} mit der ID {id} {bezeichnung} {status}";
