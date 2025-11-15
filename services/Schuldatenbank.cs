@@ -33,7 +33,7 @@ public class Schuldatenbank : IDisposable
     private string[] oberstufe = ["EF", "Q1", "Q2"];
     private string[] stubostufen = ["8", "9", "10", "EF", "Q1", "Q2"];
     private string[] jamfstufen = ["9", "10", "EF", "Q1", "Q2"];
-    private HashSet<Changes> ausstehende_aenderungen = [];
+    private readonly HashSet<Changes> ausstehende_aenderungen = [];
 
     public string[] Stubostufen
     {
