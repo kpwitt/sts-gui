@@ -2840,36 +2840,36 @@ public class Schuldatenbank : IDisposable
         var lines = await File.ReadAllLinesAsync(kursfile);
         int inv = -1, inn = -1, inf = -1, inl = -1, inka = -1, ink = -1;
         var header = lines[0].Split('|');
-        for (var i = 0; i < header.Length; i++)
+        for (var header_index = 0; header_index < header.Length; header_index++)
         {
-            if (header[i].Equals("Vorname"))
+            if (header[header_index].Equals("Vorname"))
             {
-                inv = i;
+                inv = header_index;
             }
 
-            if (header[i].Equals("Nachname"))
+            if (header[header_index].Equals("Nachname"))
             {
-                inn = i;
+                inn = header_index;
             }
 
-            if (header[i].Equals("Fach"))
+            if (header[header_index].Equals("Fach"))
             {
-                inf = i;
+                inf = header_index;
             }
 
-            if (header[i].Equals("Fachlehrer"))
+            if (header[header_index].Equals("Fachlehrer"))
             {
-                inl = i;
+                inl = header_index;
             }
 
-            if (header[i].Equals("Kursart"))
+            if (header[header_index].Equals("Kursart"))
             {
-                inka = i;
+                inka = header_index;
             }
 
-            if (header[i].Equals("Kurs"))
+            if (header[header_index].Equals("Kurs"))
             {
-                ink = i;
+                ink = header_index;
             }
         }
 
