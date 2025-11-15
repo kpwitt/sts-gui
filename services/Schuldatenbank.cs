@@ -703,10 +703,11 @@ public class Schuldatenbank : IDisposable
             });
         }
 
+        var lul = await GetLehrkraft(lid);
         AddLogMessage(new LogEintrag
         {
             Eintragsdatum = DateTime.Now,
-            Nachricht = $"Lehrkraft\t{lid}\tzu Kurs\t{kbez}\t hinzugefügt",
+            Nachricht = $"Lehrkraft {lul.Kuerzel}\t{lid}\tzu Kurs\t{kbez}\t hinzugefügt",
             Warnstufe = "Info"
         });
     }
