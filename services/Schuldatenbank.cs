@@ -685,7 +685,7 @@ public class Schuldatenbank : IDisposable
         ausstehende_aenderungen.Add(new Changes
         {
             kind = ChangeKind.add, person = ChangePerson.LuL, kurs = kurs,
-            id = lid, executed = false
+            id = lid
         });
         if (string.IsNullOrEmpty(kurs.Bezeichnung)) return;
         var klkurs = $"{kurs.Klasse}KL";
@@ -699,7 +699,7 @@ public class Schuldatenbank : IDisposable
             ausstehende_aenderungen.Add(new Changes
             {
                 kind = ChangeKind.add, person = ChangePerson.LuL, kurs = await GetKurs(klkurs),
-                id = lid, executed = false
+                id = lid
             });
         }
 
@@ -855,7 +855,7 @@ public class Schuldatenbank : IDisposable
         ausstehende_aenderungen.Add(new Changes
         {
             kind = ChangeKind.add, person = ChangePerson.SuS, kurs = await GetKurs(kbez),
-            id = sid, executed = false
+            id = sid
         });
         AddLogMessage(new LogEintrag
         {
@@ -901,7 +901,7 @@ public class Schuldatenbank : IDisposable
                 ausstehende_aenderungen.Add(new Changes
                 {
                     kind = ChangeKind.add, person = ChangePerson.SuS, kurs = await GetKurs(k.Bezeichnung),
-                    id = schulerin.ID, executed = false
+                    id = schulerin.ID
                 });
                 AddLogMessage(new LogEintrag
                 {
