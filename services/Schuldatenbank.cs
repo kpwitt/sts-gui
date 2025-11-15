@@ -3001,8 +3001,7 @@ public class Schuldatenbank : IDisposable
 
                     foreach (var kurs in deletions)
                     {
-                        ausstehende_aenderungen.Add(new Changes
-                            { id = stmp.ID, kind = ChangeKind.del, kurs = kurs, person = ChangePerson.SuS });
+                        await RemoveSfromK(stmp.ID, kurs.Bezeichnung);
                     }
 
 
@@ -3302,6 +3301,10 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$lid", lid);
         sqliteCmd.Parameters.AddWithValue("$kbez", kbez);
         sqliteCmd.ExecuteNonQuery();
+        ausstehende_aenderungen.Add(new Changes
+        {
+            id = lid, kind = ChangeKind.del, person = ChangePerson.LuL
+        });
         AddLogMessage(new LogEintrag
         {
             Eintragsdatum = DateTime.Now,
@@ -3364,6 +3367,10 @@ public class Schuldatenbank : IDisposable
         sqliteCmd.Parameters.AddWithValue("$sid", sid);
         sqliteCmd.Parameters.AddWithValue("$kbez", kbez);
         sqliteCmd.ExecuteNonQuery();
+        ausstehende_aenderungen.Add(new Changes
+        {
+            id = sid, kind = ChangeKind.del, person = ChangePerson.SuS
+        });
         AddLogMessage(new LogEintrag
         {
             Eintragsdatum = DateTime.Now, Nachricht = $"SuS mit der ID {sid} aus Kurs {kbez} gelöscht",
