@@ -846,6 +846,7 @@ public class Schuldatenbank : IDisposable
         if (sid == 0 || kbez == "") return;
         var kursliste = GetKurseVonSuS(sid).Result.Select(k => k.Bezeichnung).ToList();
         if (kursliste.Contains(kbez)) return;
+        if (!GibtEsKurs(kbez)) return;
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText = "INSERT OR IGNORE INTO nimmtteil (schuelerid, kursbez) VALUES ($sid, $kbez);";
         sqliteCmd.Parameters.AddWithValue("$sid", sid);
@@ -1956,7 +1957,8 @@ public class Schuldatenbank : IDisposable
     {
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
-            $"SELECT bez,fach,klasse,stufe,suffix,istkurs,bemerkung FROM kurse WHERE bez = '{kbez}';";
+            "SELECT bez,fach,klasse,stufe,suffix,istkurs,bemerkung FROM kurse WHERE bez = $kbez;";
+        sqliteCmd.Parameters.AddWithValue("$kbez", kbez);
         var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
         Kurs retKurs = new();
         while (sqliteDatareader.Read())
@@ -2400,31 +2402,35 @@ public class Schuldatenbank : IDisposable
     {
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
-            "SELECT id,nachname,vorname,mail,klasse,nutzername,aixmail,zweitaccount,zweitmail, m365, aktiv, seriennummer, jamf,bemerkung FROM schueler WHERE vorname LIKE $vorname AND nachname = $nachname AND klasse = $klasse;";
+            "SELECT id,nachname,vorname,mail,klasse,nutzername,aixmail,zweitaccount,zweitmail, m365, aktiv, seriennummer, jamf,bemerkung FROM schueler WHERE vorname = $vorname AND nachname = $nachname AND klasse = $klasse;";
         sqliteCmd.Parameters.AddWithValue("$vorname", vorname);
         sqliteCmd.Parameters.AddWithValue("$nachname", nachname);
         sqliteCmd.Parameters.AddWithValue("$klasse", klasse);
         var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
-
-        SuS schuelerin = new()
+        while (sqliteDatareader.Read())
         {
-            ID = sqliteDatareader.GetInt32(0),
-            Nachname = sqliteDatareader.GetString(1),
-            Vorname = sqliteDatareader.GetString(2),
-            Mail = sqliteDatareader.GetString(3),
-            Klasse = sqliteDatareader.GetString(4),
-            Nutzername = sqliteDatareader.GetString(5),
-            Aixmail = sqliteDatareader.GetString(6),
-            Zweitaccount = Convert.ToBoolean(sqliteDatareader.GetInt32(7)),
-            Zweitmail = sqliteDatareader.GetString(8),
-            HasM365Account = Convert.ToBoolean(sqliteDatareader.GetInt32(9)),
-            IstAktiv = sqliteDatareader.GetBoolean(10),
-            Seriennummer = sqliteDatareader.GetString(11),
-            AllowJAMF = sqliteDatareader.GetBoolean(12),
-            Bemerkung = sqliteDatareader.GetString(13)
-        };
+            SuS schuelerin = new()
+            {
+                ID = sqliteDatareader.GetInt32(0),
+                Nachname = sqliteDatareader.GetString(1),
+                Vorname = sqliteDatareader.GetString(2),
+                Mail = sqliteDatareader.GetString(3),
+                Klasse = sqliteDatareader.GetString(4),
+                Nutzername = sqliteDatareader.GetString(5),
+                Aixmail = sqliteDatareader.GetString(6),
+                Zweitaccount = Convert.ToBoolean(sqliteDatareader.GetInt32(7)),
+                Zweitmail = sqliteDatareader.GetString(8),
+                HasM365Account = Convert.ToBoolean(sqliteDatareader.GetInt32(9)),
+                IstAktiv = sqliteDatareader.GetBoolean(10),
+                Seriennummer = sqliteDatareader.GetString(11),
+                AllowJAMF = sqliteDatareader.GetBoolean(12),
+                Bemerkung = sqliteDatareader.GetString(13)
+            };
 
-        return schuelerin;
+            return schuelerin;
+        }
+
+        return new SuS();
     }
 
     public async Task<List<SuS>> GetSchueler(string name)
