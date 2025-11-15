@@ -528,6 +528,40 @@ public partial class MainWindow : Window
     {
         if (_myschool.GetFilePath() != ":memory:")
         {
+            if (_myschool.GetAenderungen().Count > 0)
+            {
+                var res = await MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams
+                    {
+                        ButtonDefinitions = ButtonEnum.YesNoAbort,
+                        ContentTitle = "Hinweis",
+                        ContentMessage = "Es gibt ungespeicherte Änderungen, wollen Sie diese speichern?",
+                        Icon = MsBox.Avalonia.Enums.Icon.Question,
+                        WindowIcon = _msgBoxWindowIcon
+                    })
+                    .ShowAsPopupAsync(this);
+                switch (res)
+                {
+                    case ButtonResult.Yes:
+                    {
+                        BtnAenderungenAlleAusfueren_OnClick(sender, e);
+                        break;
+                    }
+                    case ButtonResult.No:
+                    {
+                        break;
+                    }
+                    case ButtonResult.Abort:
+                    {
+                        return;
+                    }
+                    case ButtonResult.Ok:
+                    case ButtonResult.Cancel:
+                    case ButtonResult.None:
+                    default:
+                        break;
+                }
+            }
+
             var leftlist = this.GetControl<ListBox>("leftListBox");
             var rightlist = this.GetControl<ListBox>("rightListBox");
             ResetItemsSource(leftlist, []);
