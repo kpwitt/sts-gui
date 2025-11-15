@@ -452,7 +452,7 @@
                                      VerticalAlignment="Stretch" />
                         </DockPanel>
                     </TabItem>
-                    <TabItem Header ="Änderungen" Classes="Header">
+                    <TabItem Header ="Änderungen" Classes="Header"><!--Änderungen-Tab-->
                         <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="Auto">
                             <StackPanel Grid.Row="0">
                                 <WrapPanel Orientation="Horizontal">
