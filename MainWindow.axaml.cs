@@ -4287,7 +4287,7 @@ public partial class MainWindow : Window
     private async void BtnAenderungenAlleAusfueren_OnClick(object? sender, RoutedEventArgs e)
     {
         var folder = await ShowOpenFolderDialog("Bitte den Ordner zum Speichern angegeben");
-        if(folder == null) return;
+        if (folder == null) return;
         var path = folder.Path.LocalPath;
         if (path == "") return;
         await _myschool.AenderungenAusfuerenUndExportieren(path);
@@ -4303,17 +4303,7 @@ public partial class MainWindow : Window
 
     private async void BtnAnderungenSchildAbgleich_OnClick(object? sender, RoutedEventArgs e)
     {
-        var extx = new List<FilePickerFileType>
-        {
-            StSFileTypes.CSVFile,
-            FilePickerFileTypes.All
-        };
-        var files = await ShowOpenFileDialog("Lade Kursdaten", extx);
-        if (files == null) return;
-        var filePath = files.Path.LocalPath;
-        await _myschool.KurseEinlesen(filePath);
-        SetStatusText();
-        await ShowImportSuccessful();
+        OnMnuloadkursefromfileClick(sender, e);
         BtnAenderungenReload_OnClick(sender, e);
     }
 }
