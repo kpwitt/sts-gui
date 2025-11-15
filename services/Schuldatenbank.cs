@@ -2866,7 +2866,6 @@ public class Schuldatenbank : IDisposable
             }
         }
 
-        var lastid = 0;
         await StartTransaction();
         for (var i = 1; i < lines.Length; i++)
             // Parallel.ForEach(lines, async (line, _) =>
@@ -2875,11 +2874,10 @@ public class Schuldatenbank : IDisposable
             {
                 var tmpkurs = lines[i].Split('|').Select(x => x.Trim()).ToArray();
                 var stmp = await GetSuSFromLine(tmpkurs, inn, inv);
-                lastid = stmp.ID;
-                var kurse_von_sus = await GetKurseVonSuS(stmp.ID);
+                var klasse = stmp.Klasse;
+                var alte_kurse = (await GetKurseVonSuS(stmp.ID)).ToList();
                 var krz = tmpkurs[inl];
                 var ltmp = await GetLehrkraft(krz);
-
                 if (stmp.ID > 50000 && ltmp.ID > 0)
                 {
                     while ((await GetSuSFromLine(lines[i].Split('|').Select(x => x.Trim()).ToArray(), inn, inv)).ID ==
@@ -2888,17 +2886,96 @@ public class Schuldatenbank : IDisposable
                         var stufe = stmp.GetStufe();
                         if (!oberstufe.Contains(stufe))
                         {
+                            var klkurs_bez = stmp.Klasse + "KL";
                             if (GibtEsKurs(stmp.Klasse + "KL"))
                             {
-                                if (!await IstSuSInKurs(stmp.ID, stmp.Klasse + "KL"))
+                                if (!await IstSuSInKurs(stmp.ID, klkurs_bez))
                                 {
-                                    await AddStoK(stmp.ID, stmp.Klasse + "KL");
+                                    await AddStoK(stmp.ID, klkurs_bez);
+                                }
+
+                                if (!await IstLuLInKurs(ltmp.ID, klkurs_bez))
+                                {
+                                    await AddLtoK(Convert.ToInt32(ltmp.ID), klkurs_bez);
                                 }
                             }
+                        }
+                        else
+                        {
+                            klasse = stufe;
+                        }
+
+                        var kursart = tmpkurs[inka];
+                        if (kursart == "") continue;
+                        string fach;
+                        if (!kursart.Equals("PUK") &&
+                            !kursart.Equals("ZUV")) //PUK = Klassenunterricht; ZUV = Zusatzveranstaltung
+                        {
+                            fach = tmpkurs[inf];
+                            for (var k = 0; k < fachersetzung.Count - 1; k++)
+                            {
+                                if (!fach.Equals(fachersetzung[k].Split(':')[0])) continue;
+                                fach = fachersetzung[k].Split(':')[1];
+                                break;
+                            }
+
+                            var bez = $"{stufe}-{tmpkurs[ink]}";
+                            if (string.IsNullOrEmpty((await GetKurs(bez)).Bezeichnung))
+                            {
+                                await AddKurs(bez, fach, stufe, stufe, fachsuffix, 1, "");
+                            }
+
+                            await AddSuSAndOrLuLToKursIfNotIn(stmp, ltmp, bez);
+                        }
+                        else
+                        {
+                            fach = tmpkurs[inf];
+                            for (var k = 0; k < fachersetzung.Count - 1; k++)
+                            {
+                                if (!fach.Equals(fachersetzung[k].Split(':')[0])) continue;
+                                fach = fachersetzung[k].Split(':')[1];
+                                break;
+                            }
+
+                            var bez = klasse + fach;
+                            if (string.IsNullOrEmpty((await GetKurs(bez)).Bezeichnung))
+                            {
+                                await AddKurs(bez, fach, klasse, stufe, fachsuffix, 0, "");
+                            }
+
+                            await AddSuSAndOrLuLToKursIfNotIn(stmp, ltmp, bez);
                         }
 
                         ++i;
                     }
+
+                    var neue_kurse = GetKurseVonSuS(stmp.ID).Result.ToList();
+                    var to_add = neue_kurse.RemoveAll(k => alte_kurse.Contains(k));
+                    var to_del = alte_kurse.RemoveAll(k => GetKurseVonSuS(stmp.ID).Result.ToList().Contains(k));
+                    if (to_add > 0)
+                    {
+                        foreach (var kurs in neue_kurse)
+                        {
+                            ausstehende_aenderungen.Add(new Changes
+                                { id = stmp.ID, kind = ChangeKind.add, kurs = kurs, person = ChangePerson.SuS });
+                        }
+                    }
+
+                    if (to_del > 0)
+                    {
+                        foreach (var kurs in alte_kurse)
+                        {
+                            ausstehende_aenderungen.Add(new Changes
+                                { id = stmp.ID, kind = ChangeKind.del, kurs = kurs, person = ChangePerson.SuS });
+                        }
+                    }
+
+                    AddLogMessage(new LogEintrag
+                    {
+                        Eintragsdatum = DateTime.Now, Nachricht =
+                            $"SuS{stmp.ID}:{stmp.Nachname},{stmp.Vorname} aus {to_del} Kursen gelöscht und zu {to_add} Kursen hinzugefügt",
+                        Warnstufe = "Info"
+                    });
                     /*var klasse = stmp.Klasse;
                     if (klasse != kursklasse && kursklasse != "")
                     {
@@ -3064,6 +3141,7 @@ public class Schuldatenbank : IDisposable
                         });
                     }*/
                 }
+
                 else
                 {
                     AddLogMessage(new LogEintrag
@@ -3091,9 +3169,22 @@ public class Schuldatenbank : IDisposable
         await StopTransaction();
     }
 
+    private async Task AddSuSAndOrLuLToKursIfNotIn(SuS stmp, Lehrkraft ltmp, string kursbez)
+    {
+        if (!await IstSuSInKurs(Convert.ToInt32(stmp.ID), kursbez))
+        {
+            await AddStoK(Convert.ToInt32(stmp.ID), kursbez);
+        }
+
+        if (!await IstLuLInKurs(Convert.ToInt32(ltmp.ID), kursbez))
+        {
+            await AddLtoK(Convert.ToInt32(ltmp.ID), kursbez);
+        }
+    }
+
     private async Task<SuS> GetSuSFromLine(string[] tmpkurs, int inn, int inv)
     {
-        var nachname = "";
+        string nachname;
         var kursklasse = "";
         if (tmpkurs[inn].Contains('#'))
         {
@@ -3662,7 +3753,9 @@ public class Schuldatenbank : IDisposable
                     { Eintragsdatum = DateTime.Now, Nachricht = ex.Message, Warnstufe = "Debug" });
 #endif
                 AddLogMessage(new LogEintrag
-                    { Eintragsdatum = DateTime.Now, Nachricht = "Fehler beim Einlesen der SuS", Warnstufe = "Fehler" });
+                {
+                    Eintragsdatum = DateTime.Now, Nachricht = "Fehler beim Einlesen der SuS", Warnstufe = "Fehler"
+                });
             }
         });
         await StopTransaction();
@@ -3787,7 +3880,8 @@ public class Schuldatenbank : IDisposable
     public async void UpdateSchueler(SuS sus)
     {
         await UpdateSchueler(sus.ID, sus.Vorname, sus.Nachname, sus.Mail, sus.Klasse, sus.Nutzername, sus.Aixmail,
-            sus.Zweitaccount ? 1 : 0, sus.Zweitmail, sus.HasM365Account, sus.IstAktiv, sus.Seriennummer, sus.AllowJAMF,
+            sus.Zweitaccount ? 1 : 0, sus.Zweitmail, sus.HasM365Account, sus.IstAktiv, sus.Seriennummer,
+            sus.AllowJAMF,
             sus.Bemerkung);
     }
 
@@ -4021,7 +4115,7 @@ public class Schuldatenbank : IDisposable
 
     public async Task AenderungenAusfuerenUndExportieren(string exportpath)
     {
-        AenderungenAusfuerenUndExportieren(ausstehende_aenderungen, exportpath);
+        await AenderungenAusfuerenUndExportieren(ausstehende_aenderungen, exportpath);
     }
 
     private async Task AenderungenAusfuerenUndExportieren(List<Changes> ausstehendeAenderungen, string exportpath)
@@ -4049,7 +4143,8 @@ public class Schuldatenbank : IDisposable
                         default:
                             AddLogMessage(new LogEintrag
                             {
-                                Eintragsdatum = DateTime.Now, Nachricht = "Fehler im default-case add.change.person",
+                                Eintragsdatum = DateTime.Now,
+                                Nachricht = "Fehler im default-case add.change.person",
                                 Warnstufe = "Debug"
                             });
                             break;
@@ -4070,7 +4165,8 @@ public class Schuldatenbank : IDisposable
                         default:
                             AddLogMessage(new LogEintrag
                             {
-                                Eintragsdatum = DateTime.Now, Nachricht = "Fehler im default-case del.change.person",
+                                Eintragsdatum = DateTime.Now,
+                                Nachricht = "Fehler im default-case del.change.person",
                                 Warnstufe = "Debug"
                             });
                             break;
