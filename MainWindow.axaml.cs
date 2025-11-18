@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Timers;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Input.Platform;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
@@ -3578,7 +3579,7 @@ public partial class MainWindow : Window
     {
         var clipboard = Clipboard;
         if (clipboard == null) return;
-        var text = await clipboard.GetTextAsync();
+        var text = await clipboard.TryGetTextAsync();
         if (text == null) return;
         while (text.Contains('\r') || text.Contains('\n'))
         {
