@@ -40,6 +40,7 @@ public partial class MainWindow : Window
     private WindowIcon _msgBoxWindowIcon;
     private MenuItem _mnuItemCopySuSid;
     private MenuItem _mnuItemCopySuSMail;
+    private MenuItem _mnuItemCopyAIXSuSMail;
     private MenuItem _mnuItemCopyKursBez;
     private MenuItem _mnuItemCopyLuLKrz;
     private MenuItem _mnuItemCopyLuLMails;
@@ -197,6 +198,12 @@ public partial class MainWindow : Window
             Header = "Mail-Adressen"
         };
         _mnuItemCopySuSMail.Click += MnuItemCopySuSMailOnClick;
+        _mnuItemCopyAIXSuSMail = new MenuItem
+        {
+            Name = "mnuItemCopyAIXSuSMail",
+            Header = "AIX-Adressen"
+        };
+        _mnuItemCopyAIXSuSMail.Click += MnuItemCopySuSAIXMailOnClick;
         _mnuItemCopyKursBez = new MenuItem
         {
             Name = "mnuItemCopyKursBez",
@@ -217,6 +224,7 @@ public partial class MainWindow : Window
         _mnuItemCopyLuLMails.Click += MnuItemCopyLuLMailsOnClick;
         copyContextItems.Add(_mnuItemCopySuSid);
         copyContextItems.Add(_mnuItemCopySuSMail);
+        copyContextItems.Add(_mnuItemCopyAIXSuSMail);
         copyContextItems.Add(_mnuItemCopyKursBez);
         copyContextItems.Add(_mnuItemCopyLuLKrz);
         copyContextItems.Add(_mnuItemCopyLuLMails);
@@ -1317,7 +1325,8 @@ public partial class MainWindow : Window
         }
 
         var zeigeInaktive = _cbZeigeInaktiv.IsChecked.Value;
-        _mnuItemCopySuSid.IsVisible = _mnuItemCopySuSMail.IsVisible = cboxDataLeft.SelectedIndex == 0;
+        _mnuItemCopySuSid.IsVisible = _mnuItemCopySuSMail.IsVisible =
+            _mnuItemCopyAIXSuSMail.IsVisible = cboxDataLeft.SelectedIndex == 0;
         _mnuItemCopyLuLKrz.IsVisible = _mnuItemCopyLuLMails.IsVisible = cboxDataLeft.SelectedIndex == 1;
         _mnuItemCopyKursBez.IsVisible = cboxDataLeft.SelectedIndex == 2;
         switch (cboxDataLeft.SelectedIndex)
@@ -3509,6 +3518,17 @@ public partial class MainWindow : Window
         var sus = leftListBox.SelectedItems.Cast<string>().Aggregate("",
             (current, item) =>
                 $"{current}{_myschool.GetSchueler(Convert.ToInt32(item.Split(';')[1])).Result.Mail};");
+        var clipboard = Clipboard;
+        if (clipboard == null) return;
+        await clipboard.SetTextAsync(sus.TrimEnd(';'));
+    }
+
+    private async void MnuItemCopySuSAIXMailOnClick(object? sender, RoutedEventArgs e)
+    {
+        if (leftListBox.SelectedItems == null) return;
+        var sus = leftListBox.SelectedItems.Cast<string>().Aggregate("",
+            (current, item) =>
+                $"{current}{_myschool.GetSchueler(Convert.ToInt32(item.Split(';')[1])).Result.Aixmail};");
         var clipboard = Clipboard;
         if (clipboard == null) return;
         await clipboard.SetTextAsync(sus.TrimEnd(';'));
