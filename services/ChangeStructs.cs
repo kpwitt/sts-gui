@@ -22,7 +22,7 @@ public record struct Changes
             ChangePerson.SuS => "SuS",
             _ => "<?>"
         };
-        var bezeichnung = kurs.Bezeichnung ?? "<ohne Bezeichnung>";
+        var bezeichnung = kurs.Bezeichnung;
 
         return $"{action} {who} mit der ID {id} {bezeichnung}";
     }
