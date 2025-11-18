@@ -57,7 +57,7 @@ public class Schuldatenbank : IDisposable
             ? Path.Combine(Path.GetTempPath(), Path.ChangeExtension($"StS_{Guid.NewGuid()}_tmp", "log"))
             : _dbpath.Replace("sqlite", "log");
 
-        log = new LoggingModule(_logpath);
+        log = new LoggingModule(_logpath, FileLoggingMode.SingleLogFile);
         log.Settings.FileLogging = FileLoggingMode.SingleLogFile;
         log.Settings.EnableConsole = false;
         log.Settings.UseUtcTime = false;
