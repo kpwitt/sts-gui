@@ -2994,6 +2994,13 @@ public class Schuldatenbank : IDisposable
                                 await AddSuSAndOrLuLToKursIfNotIn(stmp, ltmp, klkurs_bez);
                                 nk.Add(klkurs_bez);
                             }
+                            else
+                            {
+                                await AddKurs(klkurs_bez, "KL", kursklasse, stmp.GetStufe(), await GetKursSuffix(), 0,
+                                    "");
+                                await AddStoK(stmp.ID, klkurs_bez);
+                                nk.Add(klkurs_bez);
+                            }
                         }
                         else
                         {
