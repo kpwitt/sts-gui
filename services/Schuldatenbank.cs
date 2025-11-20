@@ -2653,7 +2653,7 @@ public class Schuldatenbank : IDisposable {
                 }
 
                 var ltmp = lehrkaefte[0];
-                HashSet<string> nk = [];
+                HashSet<string> hash_set_neue_kurse = [];
                 if (stmp.ID > 50000 && ltmp.ID > 0) {
                     var stufe = stmp.GetStufe();
                     while (i < lines.Length &&
@@ -2676,13 +2676,13 @@ public class Schuldatenbank : IDisposable {
                             var klkurs_bez = stmp.Klasse + "KL";
                             if (await GibtEsKurs(klkurs_bez)) {
                                 await AddSuSAndOrLuLToKursIfNotIn(stmp, ltmp, klkurs_bez);
-                                nk.Add(klkurs_bez);
+                                hash_set_neue_kurse.Add(klkurs_bez);
                             }
                             else {
                                 await AddKurs(klkurs_bez, "KL", kursklasse, stmp.GetStufe(), await GetKursSuffix(), 0,
                                     "");
                                 await AddStoK(stmp.ID, klkurs_bez);
-                                nk.Add(klkurs_bez);
+                                hash_set_neue_kurse.Add(klkurs_bez);
                             }
                         }
                         else {
@@ -2707,7 +2707,7 @@ public class Schuldatenbank : IDisposable {
                                 await AddKurs(bez, fach, stufe, stufe, fachsuffix, 1, "");
                             }
 
-                            nk.Add(bez);
+                            hash_set_neue_kurse.Add(bez);
                             await AddSuSAndOrLuLToKursIfNotIn(stmp, ltmp, bez);
                         }
                         else {
@@ -2723,7 +2723,7 @@ public class Schuldatenbank : IDisposable {
                                 await AddKurs(bez, fach, klasse, stufe, fachsuffix, 0, "");
                             }
 
-                            nk.Add(bez);
+                            hash_set_neue_kurse.Add(bez);
                             await AddSuSAndOrLuLToKursIfNotIn(stmp, ltmp, bez);
                         }
 
@@ -2732,16 +2732,16 @@ public class Schuldatenbank : IDisposable {
 
                     if (stubostufen.Contains(stufe)) {
                         await AddStoK(stmp.ID, $"StuBo-{stufe}");
-                        nk.Add($"StuBo-{stufe}");
+                        hash_set_neue_kurse.Add($"StuBo-{stufe}");
                     }
 
                     if (erprobungsstufe.Contains(stufe)) {
                         await AddStoK(stmp.ID, "Erprobungsstufe");
-                        nk.Add("Erprobungsstufe");
+                        hash_set_neue_kurse.Add("Erprobungsstufe");
                     }
                     else if (mittelstufe.Contains(stufe)) {
                         await AddStoK(stmp.ID, "Mittelstufe");
-                        nk.Add("Mittelstufe");
+                        hash_set_neue_kurse.Add("Mittelstufe");
                     }
                     else if (oberstufe.Contains(stufe)) {
                         var lange_stufe = stufe switch {
@@ -2752,13 +2752,14 @@ public class Schuldatenbank : IDisposable {
                         };
 
                         await AddStoK(stmp.ID, lange_stufe);
-                        nk.Add(lange_stufe);
+                        hash_set_neue_kurse.Add(lange_stufe);
                     }
 
                     var aktuelle_kurse =
-                        (await GetKursListe()).Where(k => nk.ToList().Contains(k.Bezeichnung)).ToList();
+                        (await GetKursListe()).Where(k => hash_set_neue_kurse.Contains(k.Bezeichnung)).ToList();
                     var additions = aktuelle_kurse.Where(k => !alte_kurse.Contains(k)).ToList();
-                    var deletions = alte_kurse.Where(k => !aktuelle_kurse.Contains(k)).ToList();
+                    var deletions = alte_kurse.Where(k =>
+                        !hash_set_neue_kurse.Contains(k.Bezeichnung)).ToList();
                     foreach (var kurs in additions) {
                         ausstehende_aenderungen.Add(new Changes
                             { id = stmp.ID, kind = ChangeKind.add, kurs = kurs, person = ChangePerson.SuS });
@@ -2777,7 +2778,7 @@ public class Schuldatenbank : IDisposable {
                         });
                     }
 
-                    nk.Clear();
+                    hash_set_neue_kurse.Clear();
                 }
 
                 else {
