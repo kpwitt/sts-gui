@@ -2365,21 +2365,21 @@ public partial class MainWindow : Window {
                                 searchFields[0] && s.Vorname.ToLower().Equals(lowereingabe) ||
                                 searchFields[1] && s.Nachname.ToLower().Equals(lowereingabe) ||
                                 searchFields[2] &&
-                                (s.Mail.Equals(lowereingabe) || s.Aixmail.Equals(lowereingabe) ||
-                                 s.Zweitmail.Equals(lowereingabe)) ||
-                                searchFields[3] && s.Nutzername.Equals(lowereingabe) ||
+                                (s.Mail.ToLower().Equals(lowereingabe) || s.Aixmail.ToLower().Equals(lowereingabe) ||
+                                 s.Zweitmail.ToLower().Equals(lowereingabe)) ||
+                                searchFields[3] && s.Nutzername.ToLower().Equals(lowereingabe) ||
                                 searchFields[5] &&
                                 s.Seriennummer.Contains(eingabe, StringComparison.CurrentCultureIgnoreCase)).ToList()
                             : scachelist.Where(s =>
-                                searchFields[4] && (s.ID + "").Contains(lowereingabe) ||
+                                searchFields[4] && (s.ID + "").Contains(lowereingabe, StringComparison.CurrentCultureIgnoreCase) ||
                                 searchFields[0] && s.Vorname.Contains(lowereingabe,
                                     StringComparison.CurrentCultureIgnoreCase) ||
                                 searchFields[1] && s.Nachname.Contains(lowereingabe,
                                     StringComparison.CurrentCultureIgnoreCase) ||
-                                searchFields[2] && (s.Mail.Contains(lowereingabe) ||
-                                                    s.Aixmail.Contains(lowereingabe) ||
-                                                    s.Zweitmail.Contains(lowereingabe)) ||
-                                searchFields[3] && s.Nutzername.Contains(lowereingabe) ||
+                                searchFields[2] && (s.Mail.Contains(lowereingabe, StringComparison.CurrentCultureIgnoreCase) ||
+                                                    s.Aixmail.Contains(lowereingabe, StringComparison.CurrentCultureIgnoreCase) ||
+                                                    s.Zweitmail.Contains(lowereingabe, StringComparison.CurrentCultureIgnoreCase)) ||
+                                searchFields[3] && s.Nutzername.ToLower().Contains(lowereingabe, StringComparison.CurrentCultureIgnoreCase) ||
                                 searchFields[5] &&
                                 s.Seriennummer.Contains(eingabe, StringComparison.CurrentCultureIgnoreCase)).ToList());
                     }
