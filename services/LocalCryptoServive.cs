@@ -6,19 +6,16 @@ using System.Text;
 
 namespace StS_GUI_Avalonia;
 
-public static class LocalCryptoServive
-{
+public static class LocalCryptoServive {
     //quelle: https://ourcodeworld.com/articles/read/471/how-to-encrypt-and-decrypt-files-using-the-aes-encryption-algorithm-in-c-sharp
     /// <summary>
     /// Creates a random salt that will be used to encrypt your file. This method is required on FileEncrypt.
     /// </summary>
     /// <returns></returns>
-    private static byte[] GenerateRandomSalt()
-    {
+    private static byte[] GenerateRandomSalt() {
         var data = new byte[32];
         using var rng = RandomNumberGenerator.Create();
-        for (var i = 0; i < 10; i++)
-        {
+        for (var i = 0; i < 10; i++) {
             // Fill the buffer with the generated data
             rng.GetBytes(data);
         }
@@ -32,8 +29,7 @@ public static class LocalCryptoServive
     /// <param name="inputFile"></param>
     /// <param name="outputFile"></param>
     /// <param name="password"></param>
-    public static void FileDecrypt(string inputFile, string outputFile, string password)
-    {
+    public static void FileDecrypt(string inputFile, string outputFile, string password) {
         var passwordBytes = Encoding.UTF8.GetBytes(password);
         var salt = new byte[32];
         FileStream fsCrypt = new(inputFile, FileMode.Open);
@@ -49,31 +45,25 @@ public static class LocalCryptoServive
         CryptoStream cs = new(fsCrypt, aes.CreateDecryptor(), CryptoStreamMode.Read);
         FileStream fsOut = new(outputFile, FileMode.Create);
         var buffer = new byte[1048576];
-        try
-        {
+        try {
             int read;
-            while ((read = cs.Read(buffer, 0, buffer.Length)) > 0)
-            {
+            while ((read = cs.Read(buffer, 0, buffer.Length)) > 0) {
                 fsOut.Write(buffer, 0, read);
             }
         }
-        catch (Exception ex)
-        {
+        catch (Exception ex) {
             File.WriteAllText("error.log", $"Error: {ex.Message}");
             Debug.WriteLine($"Error: {ex.Message}");
         }
 
-        try
-        {
+        try {
             cs.Close();
         }
-        catch (Exception ex)
-        {
+        catch (Exception ex) {
             File.WriteAllText("error.log", $"Error: {ex.Message}");
             Debug.WriteLine($"Error by closing CryptoStream: {ex.Message}");
         }
-        finally
-        {
+        finally {
             fsOut.Close();
             fsCrypt.Close();
         }
@@ -85,8 +75,7 @@ public static class LocalCryptoServive
     /// <param name="inputFile"></param>
     /// <param name="password"></param>
     /// <param name="outputFile"></param>
-    public static void FileEncrypt(string inputFile, string outputFile, string password)
-    {
+    public static void FileEncrypt(string inputFile, string outputFile, string password) {
         //http://stackoverflow.com/questions/27645527/aes-encryption-on-large-files
         //generate random salt
         var salt = GenerateRandomSalt();
@@ -112,24 +101,20 @@ public static class LocalCryptoServive
         FileStream fsIn = new(inputFile, FileMode.Open);
         //create a buffer (1mb) so only this amount will allocate in the memory and not the whole file
         var buffer = new byte[1048576];
-        try
-        {
+        try {
             int read;
-            while ((read = fsIn.Read(buffer, 0, buffer.Length)) > 0)
-            {
+            while ((read = fsIn.Read(buffer, 0, buffer.Length)) > 0) {
                 cs.Write(buffer, 0, read);
             }
 
             // Close up
             fsIn.Close();
         }
-        catch (Exception ex)
-        {
+        catch (Exception ex) {
             File.WriteAllText("error.log", $"Error: {ex.Message}");
             Debug.WriteLine($"Error: {ex.Message}");
         }
-        finally
-        {
+        finally {
             cs.Close();
             fsCrypt.Close();
         }

@@ -17,13 +17,10 @@ public record struct SuS(
     string Bemerkung,
     bool HasM365Account = false,
     bool AllowJAMF = false,
-    bool IstAktiv = true)
-{
-    public string GetStufe()
-    {
+    bool IstAktiv = true) {
+    public string GetStufe() {
         var stufen = new[] { "5", "6", "7", "8", "9", "10", "EF", "Q1", "Q2" };
-        foreach (var stufe in stufen)
-        {
+        foreach (var stufe in stufen) {
             if (Klasse.StartsWith(stufe)) return stufe;
         }
 
@@ -44,10 +41,8 @@ public record struct Lehrkraft(
     string Seriennummer,
     string Bemerkung,
     bool IstAktiv = true
-) : IComparable<Lehrkraft>
-{
-    public int CompareTo(Lehrkraft other)
-    {
+) : IComparable<Lehrkraft> {
+    public int CompareTo(Lehrkraft other) {
         return string.Compare(Kuerzel, other.Kuerzel, StringComparison.Ordinal);
     }
 }
@@ -62,19 +57,15 @@ public record struct Kurs(
     string Art,
     string Bemerkung);
 
-public struct Einstellungen
-{
-    public Einstellungen()
-    {
+public struct Einstellungen {
+    public Einstellungen() {
         Mailsuffix = "@schule.local";
         Kurssuffix = string.Empty;
         Fachersetzung = string.Empty;
-        Kurzfaecher =
-        [
+        Kurzfaecher = [
             "D", "E", "M", "BI", "CH", "EK", "F7", "GE", "IF", "I0", "KU", "L7", "MU", "PH", "PK", "PS", "SN", "SP"
         ];
-        Langfaecher =
-        [
+        Langfaecher = [
             "Deutsch", "Englisch", "Mathematik", "Biologie", "Chemie", "Erdkunde", "Französisch", "Geschichte",
             "Informatik", "Italienisch", "Kunst", "Latein", "Musik", "Physik", "Politik", "Psychologie", "Schwimmen",
             "Sport"
@@ -115,32 +106,27 @@ public struct Einstellungen
     public string[] JAMFStufen { get; set; }
 }
 
-public record struct LogEintrag
-{
+public record struct LogEintrag {
     public string Warnstufe { get; set; }
     public DateTime Eintragsdatum { get; set; }
     public string Nachricht { get; set; }
 
-    public string Datumsstring()
-    {
+    public string Datumsstring() {
         return $"{Eintragsdatum.ToLongDateString()} {Eintragsdatum.ToLongTimeString()}";
     }
 
-    public override string ToString()
-    {
+    public override string ToString() {
         return $"{Warnstufe} {Datumsstring()} {Nachricht}";
     }
 }
 
-public struct FaKo : IComparable<FaKo>
-{
+public struct FaKo : IComparable<FaKo> {
     public string Fach { get; set; }
     public Lehrkraft Vorsitz { get; set; }
     public Lehrkraft Stellvertretung { get; set; }
     public List<Lehrkraft> Mitglieder { get; set; }
 
-    public int CompareTo(FaKo andere)
-    {
+    public int CompareTo(FaKo andere) {
         return string.Compare(Fach, andere.Fach, StringComparison.Ordinal);
     }
 }
