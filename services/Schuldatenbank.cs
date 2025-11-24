@@ -1731,10 +1731,10 @@ public class Schuldatenbank : IDisposable {
         foreach (var favo in FaVos) {
             result.AddRange(from fach in favo.Favo.Split(',')
                 where !string.IsNullOrEmpty(fach)
-                let sfavos = SFaVos.Where(l => l.SFavo.Contains(fach)).ToList()
+                let sfavos = SFaVos.Where(l => l.SFavo.Split(',').Contains(fach)).ToList()
                 let favomitglieder = lulcache.Where(l => l.Fakultas.Split(',').Contains(fach)).ToList()
                 select new FaKo
-                    { Fach = fach, Vorsitz = favo, Stellvertretung = sfavos.First(), Mitglieder = favomitglieder });
+                    { Fach = fach, Vorsitz = favo, Stellvertretung = sfavos.Count>0?sfavos.First():new Lehrkraft(), Mitglieder = favomitglieder });
         }
 
         result.Sort();

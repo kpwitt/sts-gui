@@ -3471,7 +3471,7 @@ public partial class MainWindow : Window {
                 select $"{fako_string.TrimEnd(' ').TrimEnd(',')}<br><br>");
 #if DEBUG
             var alle_lul = _myschool.GetLehrkraftListe().Result.Where(l => l.IstAktiv).Select(l => l.Mail);
-            favo_export.Add("<a href=\"mailto:" + string.Join(',', alle_lul) + "\">Alle Lehrkräfte</a>");
+            favo_export.Add("\n<br><a href=\"mailto:" + string.Join(',', alle_lul) + "\">Alle Lehrkräfte</a>");
 #endif
             var extx = new List<FilePickerFileType> {
                 FilePickerFileTypes.All
