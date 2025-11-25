@@ -2921,7 +2921,7 @@ public class Schuldatenbank : IDisposable {
         }
 
         await StartTransaction();
-        Parallel.ForEach(lines, async (line, _) => {
+        Parallel.ForEach(lines, async void (line, _) => {
             try {
                 if (line == "") return;
                 var tmpkuk = line.Split(';');
@@ -3290,7 +3290,7 @@ public class Schuldatenbank : IDisposable {
         }
 
         await StartTransaction();
-        Parallel.ForEach(lines, async (line, _) => {
+        Parallel.ForEach(lines, async void (line, _) => {
             try {
                 var tmpsus = line.Split(';');
                 for (var j = 0; j < tmpsus.Length; j++) {
