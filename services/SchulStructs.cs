@@ -106,11 +106,7 @@ public struct Einstellungen {
     public string[] JAMFStufen { get; set; }
 }
 
-public record struct LogEintrag {
-    public string Warnstufe { get; set; }
-    public DateTime Eintragsdatum { get; set; }
-    public string Nachricht { get; set; }
-
+public readonly record struct LogEintrag(string Warnstufe, DateTime Eintragsdatum, string Nachricht) {
     public string Datumsstring() {
         return $"{Eintragsdatum.ToShortDateString()} {Eintragsdatum.ToLongTimeString()}";
     }
@@ -120,11 +116,12 @@ public record struct LogEintrag {
     }
 }
 
-public struct FaKo : IComparable<FaKo> {
-    public string Fach { get; set; }
-    public Lehrkraft Vorsitz { get; set; }
-    public Lehrkraft Stellvertretung { get; set; }
-    public List<Lehrkraft> Mitglieder { get; set; }
+public readonly struct FaKo(string fach, Lehrkraft vorsitz, Lehrkraft stellvertretung, List<Lehrkraft> mitglieder)
+    : IComparable<FaKo> {
+    public string Fach { get; } = fach;
+    public Lehrkraft Vorsitz { get; } = vorsitz;
+    public Lehrkraft Stellvertretung { get; } = stellvertretung;
+    public List<Lehrkraft> Mitglieder { get; } = mitglieder;
 
     public int CompareTo(FaKo andere) {
         return string.Compare(Fach, andere.Fach, StringComparison.Ordinal);
