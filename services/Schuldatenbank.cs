@@ -675,7 +675,7 @@ public class Schuldatenbank : IDisposable {
     }
 
     /// <summary>
-    /// fügt den Schüler/die Schülerin hinzu
+    /// fügt den Schüler/die  SuS hinzu
     /// </summary>
     /// <param name="id"></param>
     /// <param name="vorname"></param>
@@ -747,7 +747,7 @@ public class Schuldatenbank : IDisposable {
     }
 
     /// <summary>
-    /// fügt den Schüler/die Schülerin hinzu
+    /// fügt den Schüler/die  SuS hinzu
     /// </summary>
     /// <param name="schuelerin"></param>
     /// <returns></returns>
@@ -781,7 +781,7 @@ public class Schuldatenbank : IDisposable {
     }
 
     /// <summary>
-    /// fügt den/die angegebenen Schüler/Schülerin zum angegebene Kurs hinzu
+    /// fügt den/die angegebenen Schüler/ SuS zum angegebene Kurs hinzu
     /// </summary>
     /// <param name="sid"></param>
     /// <param name="kbez"></param>
@@ -806,7 +806,7 @@ public class Schuldatenbank : IDisposable {
     }
 
     /// <summary>
-    /// fügt den/die angegebenen Schüler/Schülerin zum angegebene Kurs hinzu
+    /// fügt den/die angegebenen Schüler/ SuS zum angegebene Kurs hinzu
     /// </summary>
     /// <param name="schulerin"></param>
     /// <param name="kurs"></param>
@@ -1705,7 +1705,7 @@ public class Schuldatenbank : IDisposable {
     }
 
     /// <summary>
-    /// gibt die die Gegenüberstellung der Fächer in Kurz- und Langschreibweise  als Liste zurück
+    /// gibt die die Gegenüberstellung der Fächer in Kurz- und Langschreibweise als Liste zurück
     /// </summary>
     /// <returns>String-Liste der Schreibweise, pro Zeile ein Fach mit ;-getrennt </returns>
     public async Task<ReadOnlyCollection<string>> GetFachersatz() {
@@ -1863,7 +1863,7 @@ public class Schuldatenbank : IDisposable {
     }
 
     /// <summary>
-    /// gibt die Kurse des Schülers/der Schülerin als Liste zurück
+    /// gibt die SuS-Kurse als Liste zurück
     /// </summary>
     /// <param name="susid"></param>
     /// <returns>String-Liste der Kursbezeichnungen </returns>
@@ -2073,10 +2073,10 @@ public class Schuldatenbank : IDisposable {
     }
 
     /// <summary>
-    /// gibt die LuL des Schülers/der Schülerin zurück
+    /// gibt die Lehrkäfte von SuS zurück
     /// </summary>
     /// <param name="susid"></param>
-    /// <returns>Liste der LuL des Schülers/der Schülerin</returns>
+    /// <returns>Liste der LuL des Schülers/der SuS</returns>
     public async Task<ReadOnlyCollection<Lehrkraft>> GetLuLvonSuS(int susid) {
         List<Lehrkraft> lliste = [];
         var sqliteCmd = _sqliteConn.CreateCommand();
@@ -2115,7 +2115,7 @@ public class Schuldatenbank : IDisposable {
     }
 
     /// <summary>
-    /// gibt die Informationen ID, Nachname, Vorname, Mail, Klasse, Nutzername, aixmail, zweitaccount(1/0) und zweitmailadresse des Schülers/Schülerin zur übergebenen ID zurück
+    /// gibt die Informationen ID, Nachname, Vorname, Mail, Klasse, Nutzername, aixmail, zweitaccount(1/0) und zweitmailadresse von SuS zur übergebenen ID zurück
     /// </summary>
     /// <param name="id"></param>
     public async Task<SuS> GetSchueler(int id) {
@@ -2146,7 +2146,7 @@ public class Schuldatenbank : IDisposable {
     }
 
     /// <summary>
-    /// gibt die Informationen ID, Nachname, Vorname, Mail, Klasse und Nutzername des Schülers/Schülerin zur übergebenen Kombination aus Vor- und Nachname zurück
+    /// gibt die Informationen ID, Nachname, Vorname, Mail, Klasse und Nutzername von SuS zur übergebenen Kombination aus Vor- und Nachname zurück
     /// </summary>
     /// <param name="vorname"></param>
     /// <param name="nachname"></param>
@@ -2181,6 +2181,13 @@ public class Schuldatenbank : IDisposable {
         return susliste;
     }
 
+    /// <summary>
+    /// Gibt SuS mit Vorname, Nachname und Klasse zurück, erwartet, dass die Kombination eindeutig ist
+    /// </summary>
+    /// <param name="vorname"></param>
+    /// <param name="nachname"></param>
+    /// <param name="klasse"></param>
+    /// <returns></returns>
     private async Task<SuS> GetSchueler(string vorname, string nachname, string klasse) {
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
@@ -2213,6 +2220,11 @@ public class Schuldatenbank : IDisposable {
         return new SuS();
     }
 
+    /// <summary>
+    /// Gibt eine Liste von SuS zurück, name wird im Format "<Vorname> <Nachname>" erwartet
+    /// </summary>
+    /// <param name="name"></param>
+    /// <returns></returns>
     public async Task<List<SuS>> GetSchueler(string name) {
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
@@ -2244,7 +2256,7 @@ public class Schuldatenbank : IDisposable {
     }
 
     /// <summary>
-    /// gibt die IDs aller SchülerInnen zurück
+    /// gibt die IDs aller SuS zurück
     /// </summary>
     public async Task<ReadOnlyCollection<int>> GetSchuelerIDListe() {
         List<int> slist = [];
@@ -2436,7 +2448,7 @@ public class Schuldatenbank : IDisposable {
     }
 
     /// <summary>
-    /// gibt die IDs der SchülerInnen des Kurses als Liste zurück
+    /// gibt die IDs der SuS des Kurses als Liste zurück
     /// </summary>
     /// <param name="kbez"></param>
     /// <returns>Integer-Liste der SuS-IDs</returns>
@@ -2474,7 +2486,7 @@ public class Schuldatenbank : IDisposable {
     }
 
     /// <summary>
-    /// gibt die SuS der Lehrperson zurück
+    /// gibt die SuS der Lehrkraft zurück
     /// </summary>
     /// <param name="lulid"></param>
     /// <returns>Interger-Liste der SuS-IDs</returns>
@@ -2814,6 +2826,12 @@ public class Schuldatenbank : IDisposable {
         await StopTransaction();
     }
 
+    /// <summary>
+    /// Fügt SuS und Lehrkraft in den Kurs hinzu, wenn diese noch nicht drin sind
+    /// </summary>
+    /// <param name="stmp"></param>
+    /// <param name="ltmp"></param>
+    /// <param name="kursbez"></param>
     private async Task AddSuSAndOrLuLToKursIfNotIn(SuS stmp, Lehrkraft ltmp, string kursbez) {
         if (!await IstSuSInKurs(Convert.ToInt32(stmp.ID), kursbez)) {
             await AddStoK(Convert.ToInt32(stmp.ID), kursbez);
@@ -2824,6 +2842,13 @@ public class Schuldatenbank : IDisposable {
         }
     }
 
+    /// <summary>
+    /// Hilfsmethode beim Kurseinlesen, konvertiert die eingelesene Zeile in ein SuS-Objekt
+    /// </summary>
+    /// <param name="tmpkurs"></param>
+    /// <param name="inn"></param>
+    /// <param name="inv"></param>
+    /// <returns></returns>
     private async Task<SuS> GetSuSFromLine(string[] tmpkurs, int inn, int inv) {
         var vorname = tmpkurs[inv];
         string nachname;
@@ -2840,6 +2865,12 @@ public class Schuldatenbank : IDisposable {
         return stmp;
     }
 
+    /// <summary>
+    /// gibt zurück, ob Lehrkraft im Kurs ist
+    /// </summary>
+    /// <param name="lulid"></param>
+    /// <param name="kursbez"></param>
+    /// <returns></returns>
     private async Task<bool> IstLuLInKurs(int lulid, string kursbez) {
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
@@ -2856,6 +2887,12 @@ public class Schuldatenbank : IDisposable {
         return false;
     }
 
+    /// <summary>
+    /// gibt zurück, ob SuS im Kurs ist
+    /// </summary>
+    /// <param name="schuelerid"></param>
+    /// <param name="kursbez"></param>
+    /// <returns></returns>
     private async Task<bool> IstSuSInKurs(int schuelerid, string kursbez) {
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
@@ -3055,7 +3092,7 @@ public class Schuldatenbank : IDisposable {
     }
 
     /// <summary>
-    /// löscht den/die angegebene Schüler/Schülerin und die Kurszuordnungen
+    /// löscht angegebenen SuS und die Kurszuordnungen
     /// </summary>
     /// <param name="sid"></param>
     public async Task RemoveS(int sid) {
@@ -3074,7 +3111,7 @@ public class Schuldatenbank : IDisposable {
     }
 
     /// <summary>
-    /// löscht den/die angegebene Schüler/Schülerin und die Kurszuordnungen
+    /// löscht angegebenen SuS und die Kurszuordnungen
     /// </summary>
     /// <param name="schulerin"></param>
     /// <returns></returns>
@@ -3083,7 +3120,7 @@ public class Schuldatenbank : IDisposable {
     }
 
     /// <summary>
-    /// löscht den/die angegebenen Schüler/Schülerin aus dem angegeben Kurs
+    /// löscht angegebenen SuS aus dem angegeben Kurs
     /// </summary>
     /// <param name="sid"></param>
     /// <param name="kbez"></param>
@@ -3104,7 +3141,7 @@ public class Schuldatenbank : IDisposable {
     }
 
     /// <summary>
-    /// löscht den/die angegebenen Schüler/Schülerin aus dem angegeben Kurs
+    /// löscht angegebenen SuS aus dem angegeben Kurs
     /// </summary>
     /// <param name="schuelerin"></param>
     /// <param name="kurs"></param>
@@ -3138,6 +3175,11 @@ public class Schuldatenbank : IDisposable {
         }
     }
 
+    /// <summary>
+    /// Setzt die Einstellungen in der Datenbank
+    /// </summary>
+    /// <param name="sqliteCmd"></param>
+    /// <param name="einstellungen"></param>
     private void SetSettings(ref SqliteCommand sqliteCmd, ref Einstellungen einstellungen) {
         sqliteCmd.Parameters.AddWithValue("$mailsuffixparam", einstellungen.Mailsuffix);
         sqliteCmd.Parameters.AddWithValue("$kurssuffixparam", einstellungen.Kurssuffix);
@@ -3265,7 +3307,7 @@ public class Schuldatenbank : IDisposable {
     }
 
     /// <summary>
-    /// liest die SchülerInnen aus der übergebenen Datei ein (inkrementell oder gesamt)
+    /// liest die  SuSnen aus der übergebenen Datei ein (inkrementell oder gesamt)
     /// </summary>
     /// <param name="susfile"></param>
     public async Task SusEinlesen(string susfile) {
@@ -3296,6 +3338,7 @@ public class Schuldatenbank : IDisposable {
             }
         }
 
+        lines = lines[1..];
         await StartTransaction();
         Parallel.ForEach(lines, async void (line, _) => {
             try {
@@ -3435,7 +3478,7 @@ public class Schuldatenbank : IDisposable {
     }
 
     /// <summary>
-    /// setzt für per ID angebenen Schüler/Schülerin die Daten neu
+    /// setzt für per ID angebenen SuS die Daten neu
     /// </summary>
     /// <param name="id"></param>
     /// <param name="vorname"></param>
@@ -3476,6 +3519,10 @@ public class Schuldatenbank : IDisposable {
         sqliteCmd.ExecuteNonQuery();
     }
 
+    /// <summary>
+    /// updated die Werte für übergebenen SuS
+    /// </summary>
+    /// <param name="sus"></param>
     public async void UpdateSchueler(SuS sus) {
         try {
             await UpdateSchueler(sus.ID, sus.Vorname, sus.Nachname, sus.Mail, sus.Klasse, sus.Nutzername, sus.Aixmail,
@@ -3492,7 +3539,7 @@ public class Schuldatenbank : IDisposable {
     }
 
     /// <summary>
-    /// setzt den AIXMailadresse des per ID angegebenen Schülers/Schülerin
+    /// setzt den AIXMailadresse des per ID angegebenen Schülers/ SuS
     /// </summary>
     /// <param name="id"></param>
     /// <param name="mail"></param>
@@ -3506,7 +3553,7 @@ public class Schuldatenbank : IDisposable {
     }
 
     /// <summary>
-    /// setzt den Nutzername des per ID angegebenen Schülers/Schülerin
+    /// setzt den Nutzername des per ID angegebenen Schülers/ SuS
     /// </summary>
     /// <param name="id"></param>
     /// <param name="nutzername"></param>
@@ -3695,10 +3742,19 @@ public class Schuldatenbank : IDisposable {
         sqliteCmd.ExecuteNonQuery();
     }
 
+    /// <summary>
+    /// führt die Änderungen aus und exportiert diese
+    /// </summary>
+    /// <param name="exportpath"></param>
     public async Task AenderungenAusfuerenUndExportieren(string exportpath) {
         await AenderungenAusfuerenUndExportieren(ausstehende_aenderungen, exportpath);
     }
 
+    /// <summary>
+    /// führt die Änderungen aus und exportiert diese
+    /// </summary>
+    /// <param name="ausstehendeAenderungen"></param>
+    /// <param name="exportpath"></param>
     private async Task AenderungenAusfuerenUndExportieren(HashSet<Changes> ausstehendeAenderungen, string exportpath) {
         var susidliste = new List<int>();
         var lulidliste = new List<int>();
