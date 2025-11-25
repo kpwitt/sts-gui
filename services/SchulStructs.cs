@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 
+// ReSharper disable InconsistentNaming
+
 namespace SchulDB;
 #pragma warning disable CS1591
 public record struct SuS(
