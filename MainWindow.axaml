@@ -461,7 +461,7 @@
                                         Änderungen löschen
                                     </Button>
                                     <Button x:Name="btnAenderungenAlleAusfueren"
-                                            Click="BtnAenderungenAlleAusfueren_OnClick">
+                                            Click="BtnAenderungenAlleExportieren_OnClick">
                                         Änderungen exportieren
                                     </Button>
                                     <Button x:Name="btnAnderungenSchildAbgleich"

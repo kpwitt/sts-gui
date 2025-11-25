@@ -3774,13 +3774,18 @@ public partial class MainWindow : Window {
         ResetItemsSource(lbAenderungen, []);
     }
 
-    private async void BtnAenderungenAlleAusfueren_OnClick(object? sender, RoutedEventArgs e) {
-        var folder = await ShowOpenFolderDialog("Bitte den Ordner zum Speichern angegeben");
-        if (folder == null) return;
-        var path = folder.Path.LocalPath;
-        if (path == "") return;
-        await _myschool.AenderungenAusfuerenUndExportieren(path);
-        BtnAenderungenReload_OnClick(sender, e);
+    private async void BtnAenderungenAlleExportieren_OnClick(object? sender, RoutedEventArgs e) {
+        try {
+            var folder = await ShowOpenFolderDialog("Bitte den Ordner zum Speichern angegeben");
+            if (folder == null) return;
+            var path = folder.Path.LocalPath;
+            if (path == "") return;
+            await _myschool.AenderungenAusfuerenUndExportieren(path);
+            BtnAenderungenReload_OnClick(sender, e);
+        }
+        catch (Exception ex) {
+            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Exportieren der Änderungen"});
+        }
     }
 
     private void BtnAenderungenReload_OnClick(object? sender, RoutedEventArgs e) {
