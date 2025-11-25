@@ -65,20 +65,20 @@ public class Schuldatenbank : IDisposable {
         try {
             sqliteCmd.CommandText = """
                                     CREATE TABLE IF NOT EXISTS
-                                            [lehrkraft] (
-                                            [id]   INTEGER NOT NULL PRIMARY KEY,
-                                            [nachname]  NVARCHAR(512) NOT NULL,
-                                            [vorname]  NVARCHAR(512) NOT NULL,
-                                            [mail]  NVARCHAR(512) NOT NULL UNIQUE,
-                                            [kuerzel]  NVARCHAR(8) NOT NULL UNIQUE,
-                                            [fakultas]  NVARCHAR(16) NOT NULL,
-                                            [pwtemp] NVARCHAR(16) NOT NULL,
-                                            [favo] NVARCHAR(8) NOT NULL,
-                                            [sfavo] NVARCHAR(8) NOT NULL,
-                                            [aktiv] BOOLEAN NOT NULL DEFAULT TRUE,
-                                            [seriennummer] NVARCHAR(64) NOT NULL DEFAULT '',
-                                            [bemerkung] NVARCHAR(512) NOT NULL DEFAULT ''
-                                          )
+                                        [lehrkraft] (
+                                        [id] INTEGER NOT NULL PRIMARY KEY,
+                                        [nachname] NVARCHAR(512) NOT NULL,
+                                        [vorname] NVARCHAR(512) NOT NULL,
+                                        [mail] NVARCHAR(512) NOT NULL UNIQUE,
+                                        [kuerzel] NVARCHAR(8) NOT NULL UNIQUE,
+                                        [fakultas] NVARCHAR(16) NOT NULL,
+                                        [pwtemp] NVARCHAR(16) NOT NULL,
+                                        [favo] NVARCHAR(8) NOT NULL,
+                                        [sfavo] NVARCHAR(8) NOT NULL,
+                                        [aktiv] BOOLEAN NOT NULL DEFAULT TRUE,
+                                        [seriennummer] NVARCHAR(64) NOT NULL DEFAULT '',
+                                        [bemerkung] NVARCHAR(512) NOT NULL DEFAULT ''
+                                       )
                                     """;
             sqliteCmd.ExecuteNonQuery();
 
@@ -87,22 +87,22 @@ public class Schuldatenbank : IDisposable {
 
             sqliteCmd.CommandText = """
                                     CREATE TABLE IF NOT EXISTS
-                                            [schueler] (
-                                            [id]   INTEGER NOT NULL PRIMARY KEY,
-                                            [nachname]  NVARCHAR(512) NOT NULL,
-                                            [vorname]  NVARCHAR(512) NOT NULL,
-                                            [mail]  NVARCHAR(512) NOT NULL,
-                                            [klasse]  NVARCHAR(16) NOT NULL,
-                                            [nutzername]  NVARCHAR(7) NOT NULL,
-                                            [aixmail] NVARCHAR(128) NOT NULL,
-                                            [zweitaccount] INTEGER DEFAULT 0 NOT NULL,
-                                            [zweitmail] NVARCHAR(512) DEFAULT '' NOT NULL,
-                                            [m365] INTEGER DEFAULT 1 NOT NULL,
-                                            [aktiv] BOOLEAN NOT NULL DEFAULT TRUE,
-                                            [seriennummer] NVARCHAR(64) NOT NULL DEFAULT '',
-                                            [jamf]	INTEGER NOT NULL DEFAULT 0,
-                                            [bemerkung] NVARCHAR(512) NOT NULL DEFAULT ''
-                                          )
+                                        [schueler] (
+                                        [id] INTEGER NOT NULL PRIMARY KEY,
+                                        [nachname] NVARCHAR(512) NOT NULL,
+                                        [vorname] NVARCHAR(512) NOT NULL,
+                                        [mail] NVARCHAR(512) NOT NULL,
+                                        [klasse] NVARCHAR(16) NOT NULL,
+                                        [nutzername] NVARCHAR(7) NOT NULL,
+                                        [aixmail] NVARCHAR(128) NOT NULL,
+                                        [zweitaccount] INTEGER DEFAULT 0 NOT NULL,
+                                        [zweitmail] NVARCHAR(512) DEFAULT '' NOT NULL,
+                                        [m365] INTEGER DEFAULT 1 NOT NULL,
+                                        [aktiv] BOOLEAN NOT NULL DEFAULT TRUE,
+                                        [seriennummer] NVARCHAR(64) NOT NULL DEFAULT '',
+                                        [jamf]	INTEGER NOT NULL DEFAULT 0,
+                                        [bemerkung] NVARCHAR(512) NOT NULL DEFAULT ''
+                                       )
                                     """;
             sqliteCmd.ExecuteNonQuery();
 
@@ -111,15 +111,15 @@ public class Schuldatenbank : IDisposable {
 
             sqliteCmd.CommandText = """
                                     CREATE TABLE IF NOT EXISTS
-                                            [kurse] (
-                                            [bez]   NVARCHAR(512) NOT NULL PRIMARY KEY,
-                                            [fach]  NVARCHAR(512) NOT NULL,
-                                            [klasse]  NVARCHAR(16) NOT NULL,
-                                            [stufe]  NVARCHAR(16) NOT NULL,
-                                            [suffix]  NVARCHAR(16) NOT NULL,
-                                            [istkurs]  INTEGER NOT NULL,
-                                            [bemerkung] NVARCHAR(512) NOT NULL DEFAULT ''
-                                          )
+                                        [kurse] (
+                                        [bez] NVARCHAR(512) NOT NULL PRIMARY KEY,
+                                        [fach] NVARCHAR(512) NOT NULL,
+                                        [klasse] NVARCHAR(16) NOT NULL,
+                                        [stufe] NVARCHAR(16) NOT NULL,
+                                        [suffix] NVARCHAR(16) NOT NULL,
+                                        [istkurs] INTEGER NOT NULL,
+                                        [bemerkung] NVARCHAR(512) NOT NULL DEFAULT ''
+                                       )
                                     """;
             sqliteCmd.ExecuteNonQuery();
 
@@ -128,44 +128,44 @@ public class Schuldatenbank : IDisposable {
 
             sqliteCmd.CommandText = """
                                     CREATE TABLE IF NOT EXISTS
-                                            [unterrichtet] (
-                                            [lehrerid]   INTEGER NOT NULL,
-                                            [kursbez]  NVARCHAR(32) NOT NULL,
-                                            PRIMARY KEY(lehrerid,kursbez),
-                                            FOREIGN KEY(lehrerid) REFERENCES lehrkraft(id),
-                                            FOREIGN KEY(kursbez) REFERENCES kurse(bez)
-                                          )
+                                        [unterrichtet] (
+                                        [lehrerid] INTEGER NOT NULL,
+                                        [kursbez] NVARCHAR(32) NOT NULL,
+                                        PRIMARY KEY(lehrerid,kursbez),
+                                        FOREIGN KEY(lehrerid) REFERENCES lehrkraft(id),
+                                        FOREIGN KEY(kursbez) REFERENCES kurse(bez)
+                                       )
                                     """;
             sqliteCmd.ExecuteNonQuery();
 
             sqliteCmd.CommandText = """
                                     CREATE TABLE IF NOT EXISTS
-                                            [nimmtteil] (
-                                            [schuelerid]   INTEGER NOT NULL,
-                                            [kursbez]  NVARCHAR(32) NOT NULL,
-                                            PRIMARY KEY(schuelerid,kursbez),
-                                            FOREIGN KEY(schuelerid) REFERENCES schueler(id),
-                                            FOREIGN KEY(kursbez) REFERENCES kurse(bez)
-                                          )
+                                        [nimmtteil] (
+                                        [schuelerid] INTEGER NOT NULL,
+                                        [kursbez] NVARCHAR(32) NOT NULL,
+                                        PRIMARY KEY(schuelerid,kursbez),
+                                        FOREIGN KEY(schuelerid) REFERENCES schueler(id),
+                                        FOREIGN KEY(kursbez) REFERENCES kurse(bez)
+                                       )
                                     """;
             sqliteCmd.ExecuteNonQuery();
 
             sqliteCmd.CommandText = """
                                     CREATE TABLE IF NOT EXISTS
-                                            [settings] (
-                                            [setting]   NVARCHAR(512) NOT NULL UNIQUE,
-                                            [value]  NVARCHAR(512) NOT NULL
-                                          )
+                                        [settings] (
+                                        [setting] NVARCHAR(512) NOT NULL UNIQUE,
+                                        [value] NVARCHAR(512) NOT NULL
+                                       )
                                     """;
             sqliteCmd.ExecuteNonQuery();
 
             sqliteCmd.CommandText = """
                                     CREATE TABLE IF NOT EXISTS
-                                            [fachersatz] (
-                                            [kurzfach]   NVARCHAR(16) NOT NULL,
-                                            [langfach]  NVARCHAR(64) NOT NULL,
-                                            PRIMARY KEY(kurzfach,langfach)
-                                          )
+                                        [fachersatz] (
+                                        [kurzfach] NVARCHAR(16) NOT NULL,
+                                        [langfach] NVARCHAR(64) NOT NULL,
+                                        PRIMARY KEY(kurzfach,langfach)
+                                       )
                                     """;
             sqliteCmd.ExecuteNonQuery();
 
@@ -286,7 +286,7 @@ public class Schuldatenbank : IDisposable {
             catch (Exception ex) {
                 sqliteDatareader.Close();
                 AddLogMessage(new LogEintrag
-                    { Warnstufe = "Fehler", Eintragsdatum = new DateTime(), Nachricht = ex.Message });
+                    { Warnstufe = "Fehler", Eintragsdatum = DateTime.Now, Nachricht = ex.Message });
                 Environment.Exit(-1);
             }
         }
@@ -327,7 +327,7 @@ public class Schuldatenbank : IDisposable {
             catch (Exception ex) {
                 sqliteDatareader.Close();
                 AddLogMessage(new LogEintrag
-                    { Warnstufe = "Fehler", Eintragsdatum = new DateTime(), Nachricht = ex.Message });
+                    { Warnstufe = "Fehler", Eintragsdatum = DateTime.Now, Nachricht = ex.Message });
                 Environment.Exit(-1);
             }
         }
@@ -347,7 +347,7 @@ public class Schuldatenbank : IDisposable {
             catch (Exception ex) {
                 sqliteDatareader.Close();
                 AddLogMessage(new LogEintrag
-                    { Warnstufe = "Fehler", Eintragsdatum = new DateTime(), Nachricht = ex.Message });
+                    { Warnstufe = "Fehler", Eintragsdatum = DateTime.Now, Nachricht = ex.Message });
                 Environment.Exit(-1);
             }
         }
@@ -425,7 +425,7 @@ public class Schuldatenbank : IDisposable {
             catch (Exception ex) {
                 sqliteDatareader.Close();
                 AddLogMessage(new LogEintrag
-                    { Warnstufe = "Fehler", Eintragsdatum = new DateTime(), Nachricht = ex.Message });
+                    { Warnstufe = "Fehler", Eintragsdatum = DateTime.Now, Nachricht = ex.Message });
                 Environment.Exit(-1);
             }
         }
@@ -464,7 +464,7 @@ public class Schuldatenbank : IDisposable {
             catch (Exception ex) {
                 sqliteDatareader.Close();
                 AddLogMessage(new LogEintrag
-                    { Warnstufe = "Fehler", Eintragsdatum = new DateTime(), Nachricht = ex.Message });
+                    { Warnstufe = "Fehler", Eintragsdatum = DateTime.Now, Nachricht = ex.Message });
                 Environment.Exit(-1);
             }
         }
@@ -496,7 +496,7 @@ public class Schuldatenbank : IDisposable {
         sqliteCmd.Parameters.AddWithValue("$bemerkung", bemerkung);
         sqliteCmd.ExecuteNonQuery();
         AddLogMessage(new LogEintrag {
-            Eintragsdatum = DateTime.Now, Nachricht = $"Kurs\t{bez}\t\t angelegt",
+            Eintragsdatum = DateTime.Now, Nachricht = $"Kurs {bez} angelegt",
             Warnstufe = "Info"
         });
     }
@@ -520,7 +520,7 @@ public class Schuldatenbank : IDisposable {
         sqliteCmd.Parameters.AddWithValue("$bemerkung", kurs.Bemerkung);
         sqliteCmd.ExecuteNonQuery();
         AddLogMessage(new LogEintrag {
-            Eintragsdatum = DateTime.Now, Nachricht = $"Kurs\t{kurs.Bezeichnung}\t\t angelegt",
+            Eintragsdatum = DateTime.Now, Nachricht = $"Kurs {kurs.Bezeichnung} angelegt",
             Warnstufe = "Info"
         });
     }
@@ -561,7 +561,7 @@ public class Schuldatenbank : IDisposable {
         AddLogMessage(new LogEintrag {
             Eintragsdatum = DateTime.Now,
             Nachricht =
-                $"LehrerIn\t{nachname}\t{vorname}\t{mail}\t angelegt",
+                $" Lehrkraft {nachname} {vorname} {kuerzel} angelegt",
             Warnstufe = "Info"
         });
     }
@@ -594,7 +594,7 @@ public class Schuldatenbank : IDisposable {
         AddLogMessage(new LogEintrag {
             Eintragsdatum = DateTime.Now,
             Nachricht =
-                $"LehrerIn\t{lehrkraft.Nachname}\t{lehrkraft.Vorname}\t{lehrkraft.Mail}\t angelegt",
+                $" Lehrkraft {lehrkraft.Nachname} {lehrkraft.Vorname} {lehrkraft.Mail} angelegt",
             Warnstufe = "Info"
         });
     }
@@ -658,7 +658,7 @@ public class Schuldatenbank : IDisposable {
         var lul = await GetLehrkraft(lid);
         AddLogMessage(new LogEintrag {
             Eintragsdatum = DateTime.Now,
-            Nachricht = $"Lehrkraft {lul.Kuerzel}\t{lid}\tzu Kurs\t{kbez}\t hinzugefügt",
+            Nachricht = $"Lehrkraft {lul.Kuerzel} {lid} zu Kurs {kbez} hinzugefügt",
             Warnstufe = "Info"
         });
     }
@@ -675,7 +675,7 @@ public class Schuldatenbank : IDisposable {
     }
 
     /// <summary>
-    /// fügt den Schüler/die Schülerin hinzu
+    /// fügt den Schüler/die  SuS hinzu
     /// </summary>
     /// <param name="id"></param>
     /// <param name="vorname"></param>
@@ -710,7 +710,7 @@ public class Schuldatenbank : IDisposable {
         sqliteCmd.ExecuteNonQuery();
         AddLogMessage(new LogEintrag {
             Eintragsdatum = DateTime.Now,
-            Nachricht = $"SchülerIn\t{nachname}\t{vorname}\t{mail}\t angelegt",
+            Nachricht = $" SuS {nachname} {vorname} {mail} angelegt",
             Warnstufe = "Info"
         });
     }
@@ -741,13 +741,13 @@ public class Schuldatenbank : IDisposable {
         sqliteCmd.ExecuteNonQuery();
         AddLogMessage(new LogEintrag {
             Eintragsdatum = DateTime.Now,
-            Nachricht = $"SchülerIn\t{nachname}\t{vorname}\t{mail}\t angelegt",
+            Nachricht = $" SuS {nachname} {vorname} {mail} angelegt",
             Warnstufe = "Info"
         });
     }
 
     /// <summary>
-    /// fügt den Schüler/die Schülerin hinzu
+    /// fügt den Schüler/die  SuS hinzu
     /// </summary>
     /// <param name="schuelerin"></param>
     /// <returns></returns>
@@ -775,13 +775,13 @@ public class Schuldatenbank : IDisposable {
         sqliteCmd.ExecuteNonQuery();
         AddLogMessage(new LogEintrag {
             Eintragsdatum = DateTime.Now,
-            Nachricht = $"SchülerIn\t{schuelerin.Nachname}\t{schuelerin.Vorname}\t{schuelerin.Mail}\t angelegt",
+            Nachricht = $" SuS {schuelerin.Nachname} {schuelerin.Vorname} {schuelerin.Mail} angelegt",
             Warnstufe = "Info"
         });
     }
 
     /// <summary>
-    /// fügt den/die angegebenen Schüler/Schülerin zum angegebene Kurs hinzu
+    /// fügt den/die angegebenen Schüler/ SuS zum angegebene Kurs hinzu
     /// </summary>
     /// <param name="sid"></param>
     /// <param name="kbez"></param>
@@ -800,13 +800,13 @@ public class Schuldatenbank : IDisposable {
         });
         AddLogMessage(new LogEintrag {
             Eintragsdatum = DateTime.Now,
-            Nachricht = $"SchülerIn\t{sid}\tzu Kurs\t{kbez}\t hinzugefügt",
+            Nachricht = $" SuS {sid} zu Kurs {kbez} hinzugefügt",
             Warnstufe = "Info"
         });
     }
 
     /// <summary>
-    /// fügt den/die angegebenen Schüler/Schülerin zum angegebene Kurs hinzu
+    /// fügt den/die angegebenen Schüler/ SuS zum angegebene Kurs hinzu
     /// </summary>
     /// <param name="schulerin"></param>
     /// <param name="kurs"></param>
@@ -840,7 +840,7 @@ public class Schuldatenbank : IDisposable {
                 });
                 AddLogMessage(new LogEintrag {
                     Eintragsdatum = DateTime.Now,
-                    Nachricht = $"SchülerIn\t{schulerin.ID}\tzu Klassenkurs\t{k.Bezeichnung}\t hinzugefügt",
+                    Nachricht = $" SuS {schulerin.ID} zu Klassenkurs {k.Bezeichnung} hinzugefügt",
                     Warnstufe = "Info"
                 });
             }
@@ -1626,9 +1626,11 @@ public class Schuldatenbank : IDisposable {
                 where lul.Seriennummer != ""
                 let kurse = GetKurseVonLuL(lulid)
                     .Result.Where(x =>
-                        !string.IsNullOrEmpty(x.Fach) && jamfstufen.Contains(x.Stufe) && kurs_wl.Contains(x.Bezeichnung))
+                        !string.IsNullOrEmpty(x.Fach) && jamfstufen.Contains(x.Stufe) &&
+                        kurs_wl.Contains(x.Bezeichnung))
                     .Select(x => x.Bezeichnung)
-                select string.Join(";", lul.Kuerzel, lul.Mail, lul.Vorname, lul.Nachname, lul.Seriennummer, "Lehrer-605",
+                select string.Join(";", lul.Kuerzel, lul.Mail, lul.Vorname, lul.Nachname, lul.Seriennummer,
+                    "Lehrer-605",
                     string.Join(',', kurse),
                     withPasswort ? GetTempPasswort(lulid).Result : ""));
             foreach (var stufe in Jamfstufen) {
@@ -1682,7 +1684,10 @@ public class Schuldatenbank : IDisposable {
             }
         }
         catch (Exception e) {
-            AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = e.StackTrace??"unbekannter Fehler beim JAMF-Export"});
+            AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = e.StackTrace ?? "unbekannter Fehler beim JAMF-Export"
+            });
         }
     }
 
@@ -1700,7 +1705,7 @@ public class Schuldatenbank : IDisposable {
     }
 
     /// <summary>
-    /// gibt die die Gegenüberstellung der Fächer in Kurz- und Langschreibweise  als Liste zurück
+    /// gibt die die Gegenüberstellung der Fächer in Kurz- und Langschreibweise als Liste zurück
     /// </summary>
     /// <returns>String-Liste der Schreibweise, pro Zeile ein Fach mit ;-getrennt </returns>
     public async Task<ReadOnlyCollection<string>> GetFachersatz() {
@@ -1730,8 +1735,10 @@ public class Schuldatenbank : IDisposable {
                 where !string.IsNullOrEmpty(fach)
                 let sfavos = SFaVos.Where(l => l.SFavo.Split(',').Contains(fach)).ToList()
                 let favomitglieder = lulcache.Where(l => l.Fakultas.Split(',').Contains(fach)).ToList()
-                select new FaKo
-                    { Fach = fach, Vorsitz = favo, Stellvertretung = sfavos.Count>0?sfavos.First():new Lehrkraft(), Mitglieder = favomitglieder });
+                select new FaKo {
+                    Fach = fach, Vorsitz = favo, Stellvertretung = sfavos.Count > 0 ? sfavos.First() : new Lehrkraft(),
+                    Mitglieder = favomitglieder
+                });
         }
 
         result.Sort();
@@ -1856,7 +1863,7 @@ public class Schuldatenbank : IDisposable {
     }
 
     /// <summary>
-    /// gibt die Kurse des Schülers/der Schülerin als Liste zurück
+    /// gibt die SuS-Kurse als Liste zurück
     /// </summary>
     /// <param name="susid"></param>
     /// <returns>String-Liste der Kursbezeichnungen </returns>
@@ -2023,9 +2030,9 @@ public class Schuldatenbank : IDisposable {
         List<LogEintrag> logentries = [];
         if (!File.Exists(_logpath)) return logentries.AsReadOnly();
         var entries = await File.ReadAllLinesAsync(_logpath);
-        logentries.AddRange(entries.Select(entry => entry.Split('\t')).Select(logentry => new LogEintrag {
+        logentries.AddRange(entries.Select(entry => entry.Split(' ')).Select(logentry => new LogEintrag {
             Warnstufe = logentry[0], Eintragsdatum = DateTime.Parse(logentry[1]),
-            Nachricht = string.Join("\t", logentry[2..])
+            Nachricht = string.Join(" ", logentry[2..])
         }));
         return logentries.Where(eintrag => eintrag.Warnstufe == stufe).ToList().AsReadOnly();
     }
@@ -2066,10 +2073,10 @@ public class Schuldatenbank : IDisposable {
     }
 
     /// <summary>
-    /// gibt die LuL des Schülers/der Schülerin zurück
+    /// gibt die Lehrkäfte von SuS zurück
     /// </summary>
     /// <param name="susid"></param>
-    /// <returns>Liste der LuL des Schülers/der Schülerin</returns>
+    /// <returns>Liste der LuL des Schülers/der SuS</returns>
     public async Task<ReadOnlyCollection<Lehrkraft>> GetLuLvonSuS(int susid) {
         List<Lehrkraft> lliste = [];
         var sqliteCmd = _sqliteConn.CreateCommand();
@@ -2108,7 +2115,7 @@ public class Schuldatenbank : IDisposable {
     }
 
     /// <summary>
-    /// gibt die Informationen ID, Nachname, Vorname, Mail, Klasse, Nutzername, aixmail, zweitaccount(1/0) und zweitmailadresse des Schülers/Schülerin zur übergebenen ID zurück
+    /// gibt die Informationen ID, Nachname, Vorname, Mail, Klasse, Nutzername, aixmail, zweitaccount(1/0) und zweitmailadresse von SuS zur übergebenen ID zurück
     /// </summary>
     /// <param name="id"></param>
     public async Task<SuS> GetSchueler(int id) {
@@ -2139,7 +2146,7 @@ public class Schuldatenbank : IDisposable {
     }
 
     /// <summary>
-    /// gibt die Informationen ID, Nachname, Vorname, Mail, Klasse und Nutzername des Schülers/Schülerin zur übergebenen Kombination aus Vor- und Nachname zurück
+    /// gibt die Informationen ID, Nachname, Vorname, Mail, Klasse und Nutzername von SuS zur übergebenen Kombination aus Vor- und Nachname zurück
     /// </summary>
     /// <param name="vorname"></param>
     /// <param name="nachname"></param>
@@ -2174,6 +2181,13 @@ public class Schuldatenbank : IDisposable {
         return susliste;
     }
 
+    /// <summary>
+    /// Gibt SuS mit Vorname, Nachname und Klasse zurück, erwartet, dass die Kombination eindeutig ist
+    /// </summary>
+    /// <param name="vorname"></param>
+    /// <param name="nachname"></param>
+    /// <param name="klasse"></param>
+    /// <returns></returns>
     private async Task<SuS> GetSchueler(string vorname, string nachname, string klasse) {
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
@@ -2206,6 +2220,11 @@ public class Schuldatenbank : IDisposable {
         return new SuS();
     }
 
+    /// <summary>
+    /// Gibt eine Liste von SuS zurück, name wird im Format "<Vorname> <Nachname>" erwartet
+    /// </summary>
+    /// <param name="name"></param>
+    /// <returns></returns>
     public async Task<List<SuS>> GetSchueler(string name) {
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
@@ -2237,7 +2256,7 @@ public class Schuldatenbank : IDisposable {
     }
 
     /// <summary>
-    /// gibt die IDs aller SchülerInnen zurück
+    /// gibt die IDs aller SuS zurück
     /// </summary>
     public async Task<ReadOnlyCollection<int>> GetSchuelerIDListe() {
         List<int> slist = [];
@@ -2429,7 +2448,7 @@ public class Schuldatenbank : IDisposable {
     }
 
     /// <summary>
-    /// gibt die IDs der SchülerInnen des Kurses als Liste zurück
+    /// gibt die IDs der SuS des Kurses als Liste zurück
     /// </summary>
     /// <param name="kbez"></param>
     /// <returns>Integer-Liste der SuS-IDs</returns>
@@ -2467,7 +2486,7 @@ public class Schuldatenbank : IDisposable {
     }
 
     /// <summary>
-    /// gibt die SuS der Lehrperson zurück
+    /// gibt die SuS der Lehrkraft zurück
     /// </summary>
     /// <param name="lulid"></param>
     /// <returns>Interger-Liste der SuS-IDs</returns>
@@ -2630,7 +2649,7 @@ public class Schuldatenbank : IDisposable {
                 if (sus.Length == 0) {
                     AddLogMessage(new LogEintrag {
                         Eintragsdatum = DateTime.Now,
-                        Nachricht = $"Schüler:in\t{vorname} {nachname} {kursklasse} in Zeile {i} nicht gefunden",
+                        Nachricht = $"Schüler:in {vorname} {nachname} {kursklasse} in Zeile {i} nicht gefunden",
                         Warnstufe = "Fehler"
                     });
                     continue;
@@ -2643,7 +2662,7 @@ public class Schuldatenbank : IDisposable {
                 if (lehrkaefte.Length == 0) {
                     AddLogMessage(new LogEintrag {
                         Eintragsdatum = DateTime.Now,
-                        Nachricht = $"Lehrer:In\t{tmpkurs[inl]} in Zeile {i} nicht gefunden",
+                        Nachricht = $"Lehrer:In {tmpkurs[inl]} in Zeile {i} nicht gefunden",
                         Warnstufe = "Fehler"
                     });
                     continue;
@@ -2661,7 +2680,7 @@ public class Schuldatenbank : IDisposable {
                         if (lehrkaefte.Length == 0) {
                             AddLogMessage(new LogEintrag {
                                 Eintragsdatum = DateTime.Now,
-                                Nachricht = $"Lehrer:In\t{tmpkurs[inl]} in Zeile {i} nicht gefunden",
+                                Nachricht = $"Lehrkraft {tmpkurs[inl]} in Zeile {i} nicht gefunden",
                                 Warnstufe = "Fehler"
                             });
                             i++;
@@ -2782,7 +2801,7 @@ public class Schuldatenbank : IDisposable {
                     AddLogMessage(new LogEintrag {
                         Eintragsdatum = DateTime.Now,
                         Nachricht =
-                            $"LehrerIn\t{ltmp.Kuerzel} oder SchülerIn {stmp.ID} {tmpkurs[inv]} {tmpkurs[inn]}\t mit ungültiger ID",
+                            $" Lehrkraft {ltmp.Kuerzel} oder  SuS {stmp.ID} {tmpkurs[inv]} {tmpkurs[inn]} mit ungültiger ID",
                         Warnstufe = "Hinweis"
                     });
                 }
@@ -2807,6 +2826,12 @@ public class Schuldatenbank : IDisposable {
         await StopTransaction();
     }
 
+    /// <summary>
+    /// Fügt SuS und Lehrkraft in den Kurs hinzu, wenn diese noch nicht drin sind
+    /// </summary>
+    /// <param name="stmp"></param>
+    /// <param name="ltmp"></param>
+    /// <param name="kursbez"></param>
     private async Task AddSuSAndOrLuLToKursIfNotIn(SuS stmp, Lehrkraft ltmp, string kursbez) {
         if (!await IstSuSInKurs(Convert.ToInt32(stmp.ID), kursbez)) {
             await AddStoK(Convert.ToInt32(stmp.ID), kursbez);
@@ -2817,6 +2842,13 @@ public class Schuldatenbank : IDisposable {
         }
     }
 
+    /// <summary>
+    /// Hilfsmethode beim Kurseinlesen, konvertiert die eingelesene Zeile in ein SuS-Objekt
+    /// </summary>
+    /// <param name="tmpkurs"></param>
+    /// <param name="inn"></param>
+    /// <param name="inv"></param>
+    /// <returns></returns>
     private async Task<SuS> GetSuSFromLine(string[] tmpkurs, int inn, int inv) {
         var vorname = tmpkurs[inv];
         string nachname;
@@ -2833,6 +2865,12 @@ public class Schuldatenbank : IDisposable {
         return stmp;
     }
 
+    /// <summary>
+    /// gibt zurück, ob Lehrkraft im Kurs ist
+    /// </summary>
+    /// <param name="lulid"></param>
+    /// <param name="kursbez"></param>
+    /// <returns></returns>
     private async Task<bool> IstLuLInKurs(int lulid, string kursbez) {
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
@@ -2849,6 +2887,12 @@ public class Schuldatenbank : IDisposable {
         return false;
     }
 
+    /// <summary>
+    /// gibt zurück, ob SuS im Kurs ist
+    /// </summary>
+    /// <param name="schuelerid"></param>
+    /// <param name="kursbez"></param>
+    /// <returns></returns>
     private async Task<bool> IstSuSInKurs(int schuelerid, string kursbez) {
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
@@ -3048,7 +3092,7 @@ public class Schuldatenbank : IDisposable {
     }
 
     /// <summary>
-    /// löscht den/die angegebene Schüler/Schülerin und die Kurszuordnungen
+    /// löscht angegebenen SuS und die Kurszuordnungen
     /// </summary>
     /// <param name="sid"></param>
     public async Task RemoveS(int sid) {
@@ -3067,7 +3111,7 @@ public class Schuldatenbank : IDisposable {
     }
 
     /// <summary>
-    /// löscht den/die angegebene Schüler/Schülerin und die Kurszuordnungen
+    /// löscht angegebenen SuS und die Kurszuordnungen
     /// </summary>
     /// <param name="schulerin"></param>
     /// <returns></returns>
@@ -3076,7 +3120,7 @@ public class Schuldatenbank : IDisposable {
     }
 
     /// <summary>
-    /// löscht den/die angegebenen Schüler/Schülerin aus dem angegeben Kurs
+    /// löscht angegebenen SuS aus dem angegeben Kurs
     /// </summary>
     /// <param name="sid"></param>
     /// <param name="kbez"></param>
@@ -3097,7 +3141,7 @@ public class Schuldatenbank : IDisposable {
     }
 
     /// <summary>
-    /// löscht den/die angegebenen Schüler/Schülerin aus dem angegeben Kurs
+    /// löscht angegebenen SuS aus dem angegeben Kurs
     /// </summary>
     /// <param name="schuelerin"></param>
     /// <param name="kurs"></param>
@@ -3131,6 +3175,11 @@ public class Schuldatenbank : IDisposable {
         }
     }
 
+    /// <summary>
+    /// Setzt die Einstellungen in der Datenbank
+    /// </summary>
+    /// <param name="sqliteCmd"></param>
+    /// <param name="einstellungen"></param>
     private void SetSettings(ref SqliteCommand sqliteCmd, ref Einstellungen einstellungen) {
         sqliteCmd.Parameters.AddWithValue("$mailsuffixparam", einstellungen.Mailsuffix);
         sqliteCmd.Parameters.AddWithValue("$kurssuffixparam", einstellungen.Kurssuffix);
@@ -3258,7 +3307,7 @@ public class Schuldatenbank : IDisposable {
     }
 
     /// <summary>
-    /// liest die SchülerInnen aus der übergebenen Datei ein (inkrementell oder gesamt)
+    /// liest die  SuSnen aus der übergebenen Datei ein (inkrementell oder gesamt)
     /// </summary>
     /// <param name="susfile"></param>
     public async Task SusEinlesen(string susfile) {
@@ -3289,6 +3338,7 @@ public class Schuldatenbank : IDisposable {
             }
         }
 
+        lines = lines[1..];
         await StartTransaction();
         Parallel.ForEach(lines, async void (line, _) => {
             try {
@@ -3307,7 +3357,7 @@ public class Schuldatenbank : IDisposable {
                 }
                 else {
                     AddLogMessage(new LogEintrag {
-                        Eintragsdatum = DateTime.Now, Nachricht = $"SuS\t{tmpsus[ini]}\tohne primäre Mailadresse",
+                        Eintragsdatum = DateTime.Now, Nachricht = $"SuS {tmpsus[ini]} ohne primäre Mailadresse",
                         Warnstufe = "Hinweis"
                     });
                 }
@@ -3420,12 +3470,15 @@ public class Schuldatenbank : IDisposable {
                 l.SFavo, l.Seriennummer, l.Bemerkung);
         }
         catch (Exception e) {
-            AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = e.StackTrace??"unbekannter Fehler beim Lehrkraft-Update"});
+            AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = e.StackTrace ?? "unbekannter Fehler beim Lehrkraft-Update"
+            });
         }
     }
 
     /// <summary>
-    /// setzt für per ID angebenen Schüler/Schülerin die Daten neu
+    /// setzt für per ID angebenen SuS die Daten neu
     /// </summary>
     /// <param name="id"></param>
     /// <param name="vorname"></param>
@@ -3466,6 +3519,10 @@ public class Schuldatenbank : IDisposable {
         sqliteCmd.ExecuteNonQuery();
     }
 
+    /// <summary>
+    /// updated die Werte für übergebenen SuS
+    /// </summary>
+    /// <param name="sus"></param>
     public async void UpdateSchueler(SuS sus) {
         try {
             await UpdateSchueler(sus.ID, sus.Vorname, sus.Nachname, sus.Mail, sus.Klasse, sus.Nutzername, sus.Aixmail,
@@ -3474,12 +3531,15 @@ public class Schuldatenbank : IDisposable {
                 sus.Bemerkung);
         }
         catch (Exception e) {
-            AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = e.StackTrace??"unbekannter Fehler beim SuS-Update"});
+            AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = e.StackTrace ?? "unbekannter Fehler beim SuS-Update"
+            });
         }
     }
 
     /// <summary>
-    /// setzt den AIXMailadresse des per ID angegebenen Schülers/Schülerin
+    /// setzt den AIXMailadresse des per ID angegebenen Schülers/ SuS
     /// </summary>
     /// <param name="id"></param>
     /// <param name="mail"></param>
@@ -3493,7 +3553,7 @@ public class Schuldatenbank : IDisposable {
     }
 
     /// <summary>
-    /// setzt den Nutzername des per ID angegebenen Schülers/Schülerin
+    /// setzt den Nutzername des per ID angegebenen Schülers/ SuS
     /// </summary>
     /// <param name="id"></param>
     /// <param name="nutzername"></param>
@@ -3682,10 +3742,19 @@ public class Schuldatenbank : IDisposable {
         sqliteCmd.ExecuteNonQuery();
     }
 
+    /// <summary>
+    /// führt die Änderungen aus und exportiert diese
+    /// </summary>
+    /// <param name="exportpath"></param>
     public async Task AenderungenAusfuerenUndExportieren(string exportpath) {
         await AenderungenAusfuerenUndExportieren(ausstehende_aenderungen, exportpath);
     }
 
+    /// <summary>
+    /// führt die Änderungen aus und exportiert diese
+    /// </summary>
+    /// <param name="ausstehendeAenderungen"></param>
+    /// <param name="exportpath"></param>
     private async Task AenderungenAusfuerenUndExportieren(HashSet<Changes> ausstehendeAenderungen, string exportpath) {
         var susidliste = new List<int>();
         var lulidliste = new List<int>();
@@ -3750,11 +3819,18 @@ public class Schuldatenbank : IDisposable {
         ausstehende_aenderungen.RemoveWhere(ausstehendeAenderungen.Contains);
     }
 
-    public HashSet<Changes> GetAenderungen() {
+    /// <summary>
+    /// Gibt die nicht exportierten Änderungen zurück
+    /// </summary>
+    /// <returns></returns>
+    public HashSet<Changes> GetNichtExportierteAenderungen() {
         return ausstehende_aenderungen;
     }
 
-    public void LoescheAlleAenderungen() {
+    /// <summary>
+    /// Löscht alle nicht exportierten Änderungen
+    /// </summary>
+    public void LoescheAlleNichtExportiertenAenderungen() {
         ausstehende_aenderungen.Clear();
     }
 

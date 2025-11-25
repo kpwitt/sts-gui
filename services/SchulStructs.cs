@@ -112,7 +112,7 @@ public record struct LogEintrag {
     public string Nachricht { get; set; }
 
     public string Datumsstring() {
-        return $"{Eintragsdatum.ToLongDateString()} {Eintragsdatum.ToLongTimeString()}";
+        return $"{Eintragsdatum.ToShortDateString()} {Eintragsdatum.ToLongTimeString()}";
     }
 
     public override string ToString() {
