@@ -65,20 +65,20 @@ public class Schuldatenbank : IDisposable {
         try {
             sqliteCmd.CommandText = """
                                     CREATE TABLE IF NOT EXISTS
-                                            [lehrkraft] (
-                                            [id]   INTEGER NOT NULL PRIMARY KEY,
-                                            [nachname]  NVARCHAR(512) NOT NULL,
-                                            [vorname]  NVARCHAR(512) NOT NULL,
-                                            [mail]  NVARCHAR(512) NOT NULL UNIQUE,
-                                            [kuerzel]  NVARCHAR(8) NOT NULL UNIQUE,
-                                            [fakultas]  NVARCHAR(16) NOT NULL,
-                                            [pwtemp] NVARCHAR(16) NOT NULL,
-                                            [favo] NVARCHAR(8) NOT NULL,
-                                            [sfavo] NVARCHAR(8) NOT NULL,
-                                            [aktiv] BOOLEAN NOT NULL DEFAULT TRUE,
-                                            [seriennummer] NVARCHAR(64) NOT NULL DEFAULT '',
-                                            [bemerkung] NVARCHAR(512) NOT NULL DEFAULT ''
-                                          )
+                                        [lehrkraft] (
+                                        [id] INTEGER NOT NULL PRIMARY KEY,
+                                        [nachname] NVARCHAR(512) NOT NULL,
+                                        [vorname] NVARCHAR(512) NOT NULL,
+                                        [mail] NVARCHAR(512) NOT NULL UNIQUE,
+                                        [kuerzel] NVARCHAR(8) NOT NULL UNIQUE,
+                                        [fakultas] NVARCHAR(16) NOT NULL,
+                                        [pwtemp] NVARCHAR(16) NOT NULL,
+                                        [favo] NVARCHAR(8) NOT NULL,
+                                        [sfavo] NVARCHAR(8) NOT NULL,
+                                        [aktiv] BOOLEAN NOT NULL DEFAULT TRUE,
+                                        [seriennummer] NVARCHAR(64) NOT NULL DEFAULT '',
+                                        [bemerkung] NVARCHAR(512) NOT NULL DEFAULT ''
+                                       )
                                     """;
             sqliteCmd.ExecuteNonQuery();
 
@@ -87,22 +87,22 @@ public class Schuldatenbank : IDisposable {
 
             sqliteCmd.CommandText = """
                                     CREATE TABLE IF NOT EXISTS
-                                            [schueler] (
-                                            [id]   INTEGER NOT NULL PRIMARY KEY,
-                                            [nachname]  NVARCHAR(512) NOT NULL,
-                                            [vorname]  NVARCHAR(512) NOT NULL,
-                                            [mail]  NVARCHAR(512) NOT NULL,
-                                            [klasse]  NVARCHAR(16) NOT NULL,
-                                            [nutzername]  NVARCHAR(7) NOT NULL,
-                                            [aixmail] NVARCHAR(128) NOT NULL,
-                                            [zweitaccount] INTEGER DEFAULT 0 NOT NULL,
-                                            [zweitmail] NVARCHAR(512) DEFAULT '' NOT NULL,
-                                            [m365] INTEGER DEFAULT 1 NOT NULL,
-                                            [aktiv] BOOLEAN NOT NULL DEFAULT TRUE,
-                                            [seriennummer] NVARCHAR(64) NOT NULL DEFAULT '',
-                                            [jamf]	INTEGER NOT NULL DEFAULT 0,
-                                            [bemerkung] NVARCHAR(512) NOT NULL DEFAULT ''
-                                          )
+                                        [schueler] (
+                                        [id] INTEGER NOT NULL PRIMARY KEY,
+                                        [nachname] NVARCHAR(512) NOT NULL,
+                                        [vorname] NVARCHAR(512) NOT NULL,
+                                        [mail] NVARCHAR(512) NOT NULL,
+                                        [klasse] NVARCHAR(16) NOT NULL,
+                                        [nutzername] NVARCHAR(7) NOT NULL,
+                                        [aixmail] NVARCHAR(128) NOT NULL,
+                                        [zweitaccount] INTEGER DEFAULT 0 NOT NULL,
+                                        [zweitmail] NVARCHAR(512) DEFAULT '' NOT NULL,
+                                        [m365] INTEGER DEFAULT 1 NOT NULL,
+                                        [aktiv] BOOLEAN NOT NULL DEFAULT TRUE,
+                                        [seriennummer] NVARCHAR(64) NOT NULL DEFAULT '',
+                                        [jamf]	INTEGER NOT NULL DEFAULT 0,
+                                        [bemerkung] NVARCHAR(512) NOT NULL DEFAULT ''
+                                       )
                                     """;
             sqliteCmd.ExecuteNonQuery();
 
@@ -111,15 +111,15 @@ public class Schuldatenbank : IDisposable {
 
             sqliteCmd.CommandText = """
                                     CREATE TABLE IF NOT EXISTS
-                                            [kurse] (
-                                            [bez]   NVARCHAR(512) NOT NULL PRIMARY KEY,
-                                            [fach]  NVARCHAR(512) NOT NULL,
-                                            [klasse]  NVARCHAR(16) NOT NULL,
-                                            [stufe]  NVARCHAR(16) NOT NULL,
-                                            [suffix]  NVARCHAR(16) NOT NULL,
-                                            [istkurs]  INTEGER NOT NULL,
-                                            [bemerkung] NVARCHAR(512) NOT NULL DEFAULT ''
-                                          )
+                                        [kurse] (
+                                        [bez] NVARCHAR(512) NOT NULL PRIMARY KEY,
+                                        [fach] NVARCHAR(512) NOT NULL,
+                                        [klasse] NVARCHAR(16) NOT NULL,
+                                        [stufe] NVARCHAR(16) NOT NULL,
+                                        [suffix] NVARCHAR(16) NOT NULL,
+                                        [istkurs] INTEGER NOT NULL,
+                                        [bemerkung] NVARCHAR(512) NOT NULL DEFAULT ''
+                                       )
                                     """;
             sqliteCmd.ExecuteNonQuery();
 
@@ -128,44 +128,44 @@ public class Schuldatenbank : IDisposable {
 
             sqliteCmd.CommandText = """
                                     CREATE TABLE IF NOT EXISTS
-                                            [unterrichtet] (
-                                            [lehrerid]   INTEGER NOT NULL,
-                                            [kursbez]  NVARCHAR(32) NOT NULL,
-                                            PRIMARY KEY(lehrerid,kursbez),
-                                            FOREIGN KEY(lehrerid) REFERENCES lehrkraft(id),
-                                            FOREIGN KEY(kursbez) REFERENCES kurse(bez)
-                                          )
+                                        [unterrichtet] (
+                                        [lehrerid] INTEGER NOT NULL,
+                                        [kursbez] NVARCHAR(32) NOT NULL,
+                                        PRIMARY KEY(lehrerid,kursbez),
+                                        FOREIGN KEY(lehrerid) REFERENCES lehrkraft(id),
+                                        FOREIGN KEY(kursbez) REFERENCES kurse(bez)
+                                       )
                                     """;
             sqliteCmd.ExecuteNonQuery();
 
             sqliteCmd.CommandText = """
                                     CREATE TABLE IF NOT EXISTS
-                                            [nimmtteil] (
-                                            [schuelerid]   INTEGER NOT NULL,
-                                            [kursbez]  NVARCHAR(32) NOT NULL,
-                                            PRIMARY KEY(schuelerid,kursbez),
-                                            FOREIGN KEY(schuelerid) REFERENCES schueler(id),
-                                            FOREIGN KEY(kursbez) REFERENCES kurse(bez)
-                                          )
+                                        [nimmtteil] (
+                                        [schuelerid] INTEGER NOT NULL,
+                                        [kursbez] NVARCHAR(32) NOT NULL,
+                                        PRIMARY KEY(schuelerid,kursbez),
+                                        FOREIGN KEY(schuelerid) REFERENCES schueler(id),
+                                        FOREIGN KEY(kursbez) REFERENCES kurse(bez)
+                                       )
                                     """;
             sqliteCmd.ExecuteNonQuery();
 
             sqliteCmd.CommandText = """
                                     CREATE TABLE IF NOT EXISTS
-                                            [settings] (
-                                            [setting]   NVARCHAR(512) NOT NULL UNIQUE,
-                                            [value]  NVARCHAR(512) NOT NULL
-                                          )
+                                        [settings] (
+                                        [setting] NVARCHAR(512) NOT NULL UNIQUE,
+                                        [value] NVARCHAR(512) NOT NULL
+                                       )
                                     """;
             sqliteCmd.ExecuteNonQuery();
 
             sqliteCmd.CommandText = """
                                     CREATE TABLE IF NOT EXISTS
-                                            [fachersatz] (
-                                            [kurzfach]   NVARCHAR(16) NOT NULL,
-                                            [langfach]  NVARCHAR(64) NOT NULL,
-                                            PRIMARY KEY(kurzfach,langfach)
-                                          )
+                                        [fachersatz] (
+                                        [kurzfach] NVARCHAR(16) NOT NULL,
+                                        [langfach] NVARCHAR(64) NOT NULL,
+                                        PRIMARY KEY(kurzfach,langfach)
+                                       )
                                     """;
             sqliteCmd.ExecuteNonQuery();
 
@@ -3750,12 +3750,17 @@ public class Schuldatenbank : IDisposable {
         ausstehende_aenderungen.RemoveWhere(ausstehendeAenderungen.Contains);
     }
 
-    public HashSet<Changes> GetAenderungen() {
+    /// <summary>
+    /// Gibt die nicht exportierten Änderungen zurück
+    /// </summary>
+    /// <returns></returns>
     public HashSet<Changes> GetNichtExportierteAenderungen() {
         return ausstehende_aenderungen;
     }
 
-    public void LoescheAlleAenderungen() {
+    /// <summary>
+    /// Löscht alle nicht exportierten Änderungen
+    /// </summary>
     public void LoescheAlleNichtExportiertenAenderungen() {
         ausstehende_aenderungen.Clear();
     }
