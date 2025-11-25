@@ -475,7 +475,7 @@ public partial class MainWindow : Window {
     private async void OnMnuschuleschließenClick(object? sender, RoutedEventArgs e) {
         try {
             if (_myschool.GetFilePath() != ":memory:") {
-                if (_myschool.GetAenderungen().Count > 0) {
+                if (_myschool.GetNichtExportierteAenderungen().Count > 0) {
                     var res = await MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams {
                             ButtonDefinitions = ButtonEnum.YesNoAbort,
                             ContentTitle = "Hinweis",
@@ -4070,7 +4070,7 @@ public partial class MainWindow : Window {
     }
 
     private void BtnAenderungenAlleLoeschen_OnClick(object? sender, RoutedEventArgs e) {
-        _myschool.LoescheAlleAenderungen();
+        _myschool.LoescheAlleNichtExportiertenAenderungen();
         ResetItemsSource(lbAenderungen, []);
     }
 
@@ -4090,7 +4090,7 @@ public partial class MainWindow : Window {
 
     private void BtnAenderungenReload_OnClick(object? sender, RoutedEventArgs e) {
         if (lbAenderungen.SelectedItems == null) return;
-        var items = _myschool.GetAenderungen();
+        var items = _myschool.GetNichtExportierteAenderungen();
         ResetItemsSource(lbAenderungen, items.Select(x => x.ToString()));
     }
 

@@ -3751,10 +3751,12 @@ public class Schuldatenbank : IDisposable {
     }
 
     public HashSet<Changes> GetAenderungen() {
+    public HashSet<Changes> GetNichtExportierteAenderungen() {
         return ausstehende_aenderungen;
     }
 
     public void LoescheAlleAenderungen() {
+    public void LoescheAlleNichtExportiertenAenderungen() {
         ausstehende_aenderungen.Clear();
     }
 
