@@ -286,7 +286,7 @@ public class Schuldatenbank : IDisposable {
             catch (Exception ex) {
                 sqliteDatareader.Close();
                 AddLogMessage(new LogEintrag
-                    { Warnstufe = "Fehler", Eintragsdatum = new DateTime(), Nachricht = ex.Message });
+                    { Warnstufe = "Fehler", Eintragsdatum = DateTime.Now, Nachricht = ex.Message });
                 Environment.Exit(-1);
             }
         }
@@ -327,7 +327,7 @@ public class Schuldatenbank : IDisposable {
             catch (Exception ex) {
                 sqliteDatareader.Close();
                 AddLogMessage(new LogEintrag
-                    { Warnstufe = "Fehler", Eintragsdatum = new DateTime(), Nachricht = ex.Message });
+                    { Warnstufe = "Fehler", Eintragsdatum = DateTime.Now, Nachricht = ex.Message });
                 Environment.Exit(-1);
             }
         }
@@ -347,7 +347,7 @@ public class Schuldatenbank : IDisposable {
             catch (Exception ex) {
                 sqliteDatareader.Close();
                 AddLogMessage(new LogEintrag
-                    { Warnstufe = "Fehler", Eintragsdatum = new DateTime(), Nachricht = ex.Message });
+                    { Warnstufe = "Fehler", Eintragsdatum = DateTime.Now, Nachricht = ex.Message });
                 Environment.Exit(-1);
             }
         }
@@ -425,7 +425,7 @@ public class Schuldatenbank : IDisposable {
             catch (Exception ex) {
                 sqliteDatareader.Close();
                 AddLogMessage(new LogEintrag
-                    { Warnstufe = "Fehler", Eintragsdatum = new DateTime(), Nachricht = ex.Message });
+                    { Warnstufe = "Fehler", Eintragsdatum = DateTime.Now, Nachricht = ex.Message });
                 Environment.Exit(-1);
             }
         }
@@ -464,7 +464,7 @@ public class Schuldatenbank : IDisposable {
             catch (Exception ex) {
                 sqliteDatareader.Close();
                 AddLogMessage(new LogEintrag
-                    { Warnstufe = "Fehler", Eintragsdatum = new DateTime(), Nachricht = ex.Message });
+                    { Warnstufe = "Fehler", Eintragsdatum = DateTime.Now, Nachricht = ex.Message });
                 Environment.Exit(-1);
             }
         }
