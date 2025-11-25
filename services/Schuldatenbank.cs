@@ -2174,7 +2174,7 @@ public class Schuldatenbank : IDisposable {
         return susliste;
     }
 
-    public async Task<SuS> GetSchueler(string vorname, string nachname, string klasse) {
+    private async Task<SuS> GetSchueler(string vorname, string nachname, string klasse) {
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
             "SELECT id,nachname,vorname,mail,klasse,nutzername,aixmail,zweitaccount,zweitmail, m365, aktiv, seriennummer, jamf,bemerkung FROM schueler WHERE vorname = $vorname AND nachname = $nachname AND klasse = $klasse;";
