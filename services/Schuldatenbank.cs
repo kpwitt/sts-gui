@@ -496,7 +496,7 @@ public class Schuldatenbank : IDisposable {
         sqliteCmd.Parameters.AddWithValue("$bemerkung", bemerkung);
         sqliteCmd.ExecuteNonQuery();
         AddLogMessage(new LogEintrag {
-            Eintragsdatum = DateTime.Now, Nachricht = $"Kurs\t{bez}\t\t angelegt",
+            Eintragsdatum = DateTime.Now, Nachricht = $"Kurs {bez} angelegt",
             Warnstufe = "Info"
         });
     }
@@ -520,7 +520,7 @@ public class Schuldatenbank : IDisposable {
         sqliteCmd.Parameters.AddWithValue("$bemerkung", kurs.Bemerkung);
         sqliteCmd.ExecuteNonQuery();
         AddLogMessage(new LogEintrag {
-            Eintragsdatum = DateTime.Now, Nachricht = $"Kurs\t{kurs.Bezeichnung}\t\t angelegt",
+            Eintragsdatum = DateTime.Now, Nachricht = $"Kurs {kurs.Bezeichnung} angelegt",
             Warnstufe = "Info"
         });
     }
@@ -561,7 +561,7 @@ public class Schuldatenbank : IDisposable {
         AddLogMessage(new LogEintrag {
             Eintragsdatum = DateTime.Now,
             Nachricht =
-                $"LehrerIn\t{nachname}\t{vorname}\t{mail}\t angelegt",
+                $" Lehrkraft {nachname} {vorname} {kuerzel} angelegt",
             Warnstufe = "Info"
         });
     }
@@ -594,7 +594,7 @@ public class Schuldatenbank : IDisposable {
         AddLogMessage(new LogEintrag {
             Eintragsdatum = DateTime.Now,
             Nachricht =
-                $"LehrerIn\t{lehrkraft.Nachname}\t{lehrkraft.Vorname}\t{lehrkraft.Mail}\t angelegt",
+                $" Lehrkraft {lehrkraft.Nachname} {lehrkraft.Vorname} {lehrkraft.Mail} angelegt",
             Warnstufe = "Info"
         });
     }
@@ -658,7 +658,7 @@ public class Schuldatenbank : IDisposable {
         var lul = await GetLehrkraft(lid);
         AddLogMessage(new LogEintrag {
             Eintragsdatum = DateTime.Now,
-            Nachricht = $"Lehrkraft {lul.Kuerzel}\t{lid}\tzu Kurs\t{kbez}\t hinzugefügt",
+            Nachricht = $"Lehrkraft {lul.Kuerzel} {lid} zu Kurs {kbez} hinzugefügt",
             Warnstufe = "Info"
         });
     }
@@ -710,7 +710,7 @@ public class Schuldatenbank : IDisposable {
         sqliteCmd.ExecuteNonQuery();
         AddLogMessage(new LogEintrag {
             Eintragsdatum = DateTime.Now,
-            Nachricht = $"SchülerIn\t{nachname}\t{vorname}\t{mail}\t angelegt",
+            Nachricht = $" SuS {nachname} {vorname} {mail} angelegt",
             Warnstufe = "Info"
         });
     }
@@ -741,7 +741,7 @@ public class Schuldatenbank : IDisposable {
         sqliteCmd.ExecuteNonQuery();
         AddLogMessage(new LogEintrag {
             Eintragsdatum = DateTime.Now,
-            Nachricht = $"SchülerIn\t{nachname}\t{vorname}\t{mail}\t angelegt",
+            Nachricht = $" SuS {nachname} {vorname} {mail} angelegt",
             Warnstufe = "Info"
         });
     }
@@ -775,7 +775,7 @@ public class Schuldatenbank : IDisposable {
         sqliteCmd.ExecuteNonQuery();
         AddLogMessage(new LogEintrag {
             Eintragsdatum = DateTime.Now,
-            Nachricht = $"SchülerIn\t{schuelerin.Nachname}\t{schuelerin.Vorname}\t{schuelerin.Mail}\t angelegt",
+            Nachricht = $" SuS {schuelerin.Nachname} {schuelerin.Vorname} {schuelerin.Mail} angelegt",
             Warnstufe = "Info"
         });
     }
@@ -800,7 +800,7 @@ public class Schuldatenbank : IDisposable {
         });
         AddLogMessage(new LogEintrag {
             Eintragsdatum = DateTime.Now,
-            Nachricht = $"SchülerIn\t{sid}\tzu Kurs\t{kbez}\t hinzugefügt",
+            Nachricht = $" SuS {sid} zu Kurs {kbez} hinzugefügt",
             Warnstufe = "Info"
         });
     }
@@ -840,7 +840,7 @@ public class Schuldatenbank : IDisposable {
                 });
                 AddLogMessage(new LogEintrag {
                     Eintragsdatum = DateTime.Now,
-                    Nachricht = $"SchülerIn\t{schulerin.ID}\tzu Klassenkurs\t{k.Bezeichnung}\t hinzugefügt",
+                    Nachricht = $" SuS {schulerin.ID} zu Klassenkurs {k.Bezeichnung} hinzugefügt",
                     Warnstufe = "Info"
                 });
             }
@@ -1626,9 +1626,11 @@ public class Schuldatenbank : IDisposable {
                 where lul.Seriennummer != ""
                 let kurse = GetKurseVonLuL(lulid)
                     .Result.Where(x =>
-                        !string.IsNullOrEmpty(x.Fach) && jamfstufen.Contains(x.Stufe) && kurs_wl.Contains(x.Bezeichnung))
+                        !string.IsNullOrEmpty(x.Fach) && jamfstufen.Contains(x.Stufe) &&
+                        kurs_wl.Contains(x.Bezeichnung))
                     .Select(x => x.Bezeichnung)
-                select string.Join(";", lul.Kuerzel, lul.Mail, lul.Vorname, lul.Nachname, lul.Seriennummer, "Lehrer-605",
+                select string.Join(";", lul.Kuerzel, lul.Mail, lul.Vorname, lul.Nachname, lul.Seriennummer,
+                    "Lehrer-605",
                     string.Join(',', kurse),
                     withPasswort ? GetTempPasswort(lulid).Result : ""));
             foreach (var stufe in Jamfstufen) {
@@ -1682,7 +1684,10 @@ public class Schuldatenbank : IDisposable {
             }
         }
         catch (Exception e) {
-            AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = e.StackTrace??"unbekannter Fehler beim JAMF-Export"});
+            AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = e.StackTrace ?? "unbekannter Fehler beim JAMF-Export"
+            });
         }
     }
 
@@ -1730,8 +1735,10 @@ public class Schuldatenbank : IDisposable {
                 where !string.IsNullOrEmpty(fach)
                 let sfavos = SFaVos.Where(l => l.SFavo.Split(',').Contains(fach)).ToList()
                 let favomitglieder = lulcache.Where(l => l.Fakultas.Split(',').Contains(fach)).ToList()
-                select new FaKo
-                    { Fach = fach, Vorsitz = favo, Stellvertretung = sfavos.Count>0?sfavos.First():new Lehrkraft(), Mitglieder = favomitglieder });
+                select new FaKo {
+                    Fach = fach, Vorsitz = favo, Stellvertretung = sfavos.Count > 0 ? sfavos.First() : new Lehrkraft(),
+                    Mitglieder = favomitglieder
+                });
         }
 
         result.Sort();
@@ -2023,9 +2030,9 @@ public class Schuldatenbank : IDisposable {
         List<LogEintrag> logentries = [];
         if (!File.Exists(_logpath)) return logentries.AsReadOnly();
         var entries = await File.ReadAllLinesAsync(_logpath);
-        logentries.AddRange(entries.Select(entry => entry.Split('\t')).Select(logentry => new LogEintrag {
+        logentries.AddRange(entries.Select(entry => entry.Split(' ')).Select(logentry => new LogEintrag {
             Warnstufe = logentry[0], Eintragsdatum = DateTime.Parse(logentry[1]),
-            Nachricht = string.Join("\t", logentry[2..])
+            Nachricht = string.Join(" ", logentry[2..])
         }));
         return logentries.Where(eintrag => eintrag.Warnstufe == stufe).ToList().AsReadOnly();
     }
@@ -2630,7 +2637,7 @@ public class Schuldatenbank : IDisposable {
                 if (sus.Length == 0) {
                     AddLogMessage(new LogEintrag {
                         Eintragsdatum = DateTime.Now,
-                        Nachricht = $"Schüler:in\t{vorname} {nachname} {kursklasse} in Zeile {i} nicht gefunden",
+                        Nachricht = $"Schüler:in {vorname} {nachname} {kursklasse} in Zeile {i} nicht gefunden",
                         Warnstufe = "Fehler"
                     });
                     continue;
@@ -2643,7 +2650,7 @@ public class Schuldatenbank : IDisposable {
                 if (lehrkaefte.Length == 0) {
                     AddLogMessage(new LogEintrag {
                         Eintragsdatum = DateTime.Now,
-                        Nachricht = $"Lehrer:In\t{tmpkurs[inl]} in Zeile {i} nicht gefunden",
+                        Nachricht = $"Lehrer:In {tmpkurs[inl]} in Zeile {i} nicht gefunden",
                         Warnstufe = "Fehler"
                     });
                     continue;
@@ -2661,7 +2668,7 @@ public class Schuldatenbank : IDisposable {
                         if (lehrkaefte.Length == 0) {
                             AddLogMessage(new LogEintrag {
                                 Eintragsdatum = DateTime.Now,
-                                Nachricht = $"Lehrer:In\t{tmpkurs[inl]} in Zeile {i} nicht gefunden",
+                                Nachricht = $"Lehrkraft {tmpkurs[inl]} in Zeile {i} nicht gefunden",
                                 Warnstufe = "Fehler"
                             });
                             i++;
@@ -2782,7 +2789,7 @@ public class Schuldatenbank : IDisposable {
                     AddLogMessage(new LogEintrag {
                         Eintragsdatum = DateTime.Now,
                         Nachricht =
-                            $"LehrerIn\t{ltmp.Kuerzel} oder SchülerIn {stmp.ID} {tmpkurs[inv]} {tmpkurs[inn]}\t mit ungültiger ID",
+                            $" Lehrkraft {ltmp.Kuerzel} oder  SuS {stmp.ID} {tmpkurs[inv]} {tmpkurs[inn]} mit ungültiger ID",
                         Warnstufe = "Hinweis"
                     });
                 }
@@ -3307,7 +3314,7 @@ public class Schuldatenbank : IDisposable {
                 }
                 else {
                     AddLogMessage(new LogEintrag {
-                        Eintragsdatum = DateTime.Now, Nachricht = $"SuS\t{tmpsus[ini]}\tohne primäre Mailadresse",
+                        Eintragsdatum = DateTime.Now, Nachricht = $"SuS {tmpsus[ini]} ohne primäre Mailadresse",
                         Warnstufe = "Hinweis"
                     });
                 }
@@ -3420,7 +3427,10 @@ public class Schuldatenbank : IDisposable {
                 l.SFavo, l.Seriennummer, l.Bemerkung);
         }
         catch (Exception e) {
-            AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = e.StackTrace??"unbekannter Fehler beim Lehrkraft-Update"});
+            AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = e.StackTrace ?? "unbekannter Fehler beim Lehrkraft-Update"
+            });
         }
     }
 
@@ -3474,7 +3484,10 @@ public class Schuldatenbank : IDisposable {
                 sus.Bemerkung);
         }
         catch (Exception e) {
-            AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = e.StackTrace??"unbekannter Fehler beim SuS-Update"});
+            AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = e.StackTrace ?? "unbekannter Fehler beim SuS-Update"
+            });
         }
     }
 
