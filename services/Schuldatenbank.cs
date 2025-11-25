@@ -1592,92 +1592,97 @@ public class Schuldatenbank : IDisposable {
     /// <exception cref="NotImplementedException"></exception>
     private async void ExportJAMF(ReadOnlyCollection<int> susidliste,
         ReadOnlyCollection<int> lulidliste, bool withPasswort, string folder, bool expand) {
-        var blacklist = new[] { "Qualifikations", "Einführungs", "KL", "StuBo", "Phase", "stufe", "Jahrgang" };
-        var kurs_wl = GetKursBezListe().Result.ToList();
-        foreach (var bl_entry in blacklist) {
-            kurs_wl.RemoveAll(x =>
-                x.StartsWith(bl_entry) || x.EndsWith(bl_entry) || !Jamfstufen.Contains(GetKurs(x).Result.Stufe));
-        }
+        try {
+            var blacklist = new[] { "Qualifikations", "Einführungs", "KL", "StuBo", "Phase", "stufe", "Jahrgang" };
+            var kurs_wl = GetKursBezListe().Result.ToList();
+            foreach (var bl_entry in blacklist) {
+                kurs_wl.RemoveAll(x =>
+                    x.StartsWith(bl_entry) || x.EndsWith(bl_entry) || !Jamfstufen.Contains(GetKurs(x).Result.Stufe));
+            }
 
-        List<string> ausgabeSuSJamf = [
-            "Username;Email;FirstName;LastName;SerialNumber;Groups" +
-            (withPasswort ? ";Password" : "")
-        ];
-        List<string> ausgabeLuLJamf = [
-            "Username;Email;FirstName;LastName;SerialNumber;Groups;TeacherGroups" +
-            (withPasswort ? ";Password" : "")
-        ];
-        List<string> ausgabeTeacherGroupsJAMF = ["TeacherGroup;Usernames"];
-        ausgabeSuSJamf.AddRange(from sus_id in susidliste
-            select GetSchueler(sus_id).Result
-            into sus
-            where sus.AllowJAMF
-            where sus.IstAktiv
-            where Jamfstufen.Contains(sus.GetStufe()) && sus.Seriennummer != ""
-            let kbez_liste = GetKurseVonSuS(sus.ID).Result.Where(k => kurs_wl.Contains(k.Bezeichnung)).ToList()
-                .Select(k => k.Bezeichnung).ToList()
-            select string.Join(";", sus.Nutzername, !string.IsNullOrEmpty(sus.Aixmail) ? sus.Aixmail : sus.Mail,
-                sus.Vorname, sus.Nachname, sus.Seriennummer, string.Join(',', kbez_liste),
-                withPasswort ? $"Klasse{sus.Klasse}{DateTime.Now.Year}!" : ""));
-        ausgabeLuLJamf.AddRange(from lulid in lulidliste
-            let lul = GetLehrkraft(lulid).Result
-            where lul.IstAktiv
-            where lul.Seriennummer != ""
-            let kurse = GetKurseVonLuL(lulid)
-                .Result.Where(x =>
-                    !string.IsNullOrEmpty(x.Fach) && jamfstufen.Contains(x.Stufe) && kurs_wl.Contains(x.Bezeichnung))
-                .Select(x => x.Bezeichnung)
-            select string.Join(";", lul.Kuerzel, lul.Mail, lul.Vorname, lul.Nachname, lul.Seriennummer, "Lehrer-605",
-                string.Join(',', kurse),
-                withPasswort ? GetTempPasswort(lulid).Result : ""));
-        foreach (var stufe in Jamfstufen) {
-            var kurse_in_stufe = GetKurseAusStufe(stufe).Result.ToList();
-            kurse_in_stufe.RemoveAll(k => !kurs_wl.Contains(k.Bezeichnung));
-            ausgabeTeacherGroupsJAMF.AddRange(from kurs in kurse_in_stufe
-                let lul_aus_kurs = GetLuLAusKurs(kurs.Bezeichnung).Result.Where(l => l.IstAktiv)
-                select $"{kurs.Bezeichnung};" + string.Join(',', lul_aus_kurs.Select(l => l.Kuerzel)));
-        }
+            List<string> ausgabeSuSJamf = [
+                "Username;Email;FirstName;LastName;SerialNumber;Groups" +
+                (withPasswort ? ";Password" : "")
+            ];
+            List<string> ausgabeLuLJamf = [
+                "Username;Email;FirstName;LastName;SerialNumber;Groups;TeacherGroups" +
+                (withPasswort ? ";Password" : "")
+            ];
+            List<string> ausgabeTeacherGroupsJAMF = ["TeacherGroup;Usernames"];
+            ausgabeSuSJamf.AddRange(from sus_id in susidliste
+                select GetSchueler(sus_id).Result
+                into sus
+                where sus.AllowJAMF
+                where sus.IstAktiv
+                where Jamfstufen.Contains(sus.GetStufe()) && sus.Seriennummer != ""
+                let kbez_liste = GetKurseVonSuS(sus.ID).Result.Where(k => kurs_wl.Contains(k.Bezeichnung)).ToList()
+                    .Select(k => k.Bezeichnung).ToList()
+                select string.Join(";", sus.Nutzername, !string.IsNullOrEmpty(sus.Aixmail) ? sus.Aixmail : sus.Mail,
+                    sus.Vorname, sus.Nachname, sus.Seriennummer, string.Join(',', kbez_liste),
+                    withPasswort ? $"Klasse{sus.Klasse}{DateTime.Now.Year}!" : ""));
+            ausgabeLuLJamf.AddRange(from lulid in lulidliste
+                let lul = GetLehrkraft(lulid).Result
+                where lul.IstAktiv
+                where lul.Seriennummer != ""
+                let kurse = GetKurseVonLuL(lulid)
+                    .Result.Where(x =>
+                        !string.IsNullOrEmpty(x.Fach) && jamfstufen.Contains(x.Stufe) && kurs_wl.Contains(x.Bezeichnung))
+                    .Select(x => x.Bezeichnung)
+                select string.Join(";", lul.Kuerzel, lul.Mail, lul.Vorname, lul.Nachname, lul.Seriennummer, "Lehrer-605",
+                    string.Join(',', kurse),
+                    withPasswort ? GetTempPasswort(lulid).Result : ""));
+            foreach (var stufe in Jamfstufen) {
+                var kurse_in_stufe = GetKurseAusStufe(stufe).Result.ToList();
+                kurse_in_stufe.RemoveAll(k => !kurs_wl.Contains(k.Bezeichnung));
+                ausgabeTeacherGroupsJAMF.AddRange(from kurs in kurse_in_stufe
+                    let lul_aus_kurs = GetLuLAusKurs(kurs.Bezeichnung).Result.Where(l => l.IstAktiv)
+                    select $"{kurs.Bezeichnung};" + string.Join(',', lul_aus_kurs.Select(l => l.Kuerzel)));
+            }
 
-        if (File.Exists($"{folder}/jamf_sus.csv") && expand) {
-            var jamf_sus =
-                (await File.ReadAllLinesAsync($"{folder}/jamf_sus.csv")).ToList();
-            jamf_sus.RemoveAt(0);
-            ausgabeSuSJamf.AddRange(jamf_sus);
-            await File.WriteAllLinesAsync($"{folder}/jamf_sus.csv",
-                ausgabeSuSJamf.Distinct().ToList(), Encoding.UTF8);
-        }
-        else {
-            await File.WriteAllLinesAsync($"{folder}/jamf_sus.csv",
-                ausgabeSuSJamf.Distinct().ToList(),
-                Encoding.UTF8);
-        }
+            if (File.Exists($"{folder}/jamf_sus.csv") && expand) {
+                var jamf_sus =
+                    (await File.ReadAllLinesAsync($"{folder}/jamf_sus.csv")).ToList();
+                jamf_sus.RemoveAt(0);
+                ausgabeSuSJamf.AddRange(jamf_sus);
+                await File.WriteAllLinesAsync($"{folder}/jamf_sus.csv",
+                    ausgabeSuSJamf.Distinct().ToList(), Encoding.UTF8);
+            }
+            else {
+                await File.WriteAllLinesAsync($"{folder}/jamf_sus.csv",
+                    ausgabeSuSJamf.Distinct().ToList(),
+                    Encoding.UTF8);
+            }
 
-        if (File.Exists($"{folder}/jamf_lul.csv") && expand) {
-            var jamf_lul =
-                (await File.ReadAllLinesAsync($"{folder}/jamf_lul.csv")).ToList();
-            jamf_lul.RemoveAt(0);
-            ausgabeLuLJamf.AddRange(jamf_lul);
-            await File.WriteAllLinesAsync($"{folder}/jamf_lul.csv",
-                ausgabeLuLJamf.Distinct().ToList(), Encoding.UTF8);
-        }
-        else {
-            await File.WriteAllLinesAsync($"{folder}/jamf_lul.csv",
-                ausgabeLuLJamf.Distinct().ToList(),
-                Encoding.UTF8);
-        }
+            if (File.Exists($"{folder}/jamf_lul.csv") && expand) {
+                var jamf_lul =
+                    (await File.ReadAllLinesAsync($"{folder}/jamf_lul.csv")).ToList();
+                jamf_lul.RemoveAt(0);
+                ausgabeLuLJamf.AddRange(jamf_lul);
+                await File.WriteAllLinesAsync($"{folder}/jamf_lul.csv",
+                    ausgabeLuLJamf.Distinct().ToList(), Encoding.UTF8);
+            }
+            else {
+                await File.WriteAllLinesAsync($"{folder}/jamf_lul.csv",
+                    ausgabeLuLJamf.Distinct().ToList(),
+                    Encoding.UTF8);
+            }
 
-        if (File.Exists($"{folder}/jamf_teacher_groups.csv") && expand) {
-            var teacher_groups =
-                (await File.ReadAllLinesAsync($"{folder}/jamf_teacher_groups.csv")).ToList();
-            teacher_groups.RemoveAt(0);
-            ausgabeTeacherGroupsJAMF.AddRange(teacher_groups);
-            await File.WriteAllLinesAsync($"{folder}/jamf_teacher_groups.csv",
-                ausgabeTeacherGroupsJAMF.Distinct().ToList(), Encoding.UTF8);
+            if (File.Exists($"{folder}/jamf_teacher_groups.csv") && expand) {
+                var teacher_groups =
+                    (await File.ReadAllLinesAsync($"{folder}/jamf_teacher_groups.csv")).ToList();
+                teacher_groups.RemoveAt(0);
+                ausgabeTeacherGroupsJAMF.AddRange(teacher_groups);
+                await File.WriteAllLinesAsync($"{folder}/jamf_teacher_groups.csv",
+                    ausgabeTeacherGroupsJAMF.Distinct().ToList(), Encoding.UTF8);
+            }
+            else {
+                await File.WriteAllLinesAsync($"{folder}/jamf_teacher_groups.csv",
+                    ausgabeTeacherGroupsJAMF.Distinct().ToList(),
+                    Encoding.UTF8);
+            }
         }
-        else {
-            await File.WriteAllLinesAsync($"{folder}/jamf_teacher_groups.csv",
-                ausgabeTeacherGroupsJAMF.Distinct().ToList(),
-                Encoding.UTF8);
+        catch (Exception e) {
+            AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = e.StackTrace??"unbekannter Fehler beim JAMF-Export"});
         }
     }
 
@@ -3409,9 +3414,14 @@ public class Schuldatenbank : IDisposable {
     /// </summary>
     /// <param name="l"></param>
     public async void UpdateLehrkraft(Lehrkraft l) {
-        if (string.IsNullOrEmpty(l.Kuerzel) || l.ID <= 0) return;
-        await UpdateLehrkraft(l.ID, l.Vorname, l.Nachname, l.Kuerzel, l.Mail, l.Fakultas, l.Pwttemp, l.Favo,
-            l.SFavo, l.Seriennummer, l.Bemerkung);
+        try {
+            if (string.IsNullOrEmpty(l.Kuerzel) || l.ID <= 0) return;
+            await UpdateLehrkraft(l.ID, l.Vorname, l.Nachname, l.Kuerzel, l.Mail, l.Fakultas, l.Pwttemp, l.Favo,
+                l.SFavo, l.Seriennummer, l.Bemerkung);
+        }
+        catch (Exception e) {
+            AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = e.StackTrace??"unbekannter Fehler beim Lehrkraft-Update"});
+        }
     }
 
     /// <summary>
@@ -3457,10 +3467,15 @@ public class Schuldatenbank : IDisposable {
     }
 
     public async void UpdateSchueler(SuS sus) {
-        await UpdateSchueler(sus.ID, sus.Vorname, sus.Nachname, sus.Mail, sus.Klasse, sus.Nutzername, sus.Aixmail,
-            sus.Zweitaccount ? 1 : 0, sus.Zweitmail, sus.HasM365Account, sus.IstAktiv, sus.Seriennummer,
-            sus.AllowJAMF,
-            sus.Bemerkung);
+        try {
+            await UpdateSchueler(sus.ID, sus.Vorname, sus.Nachname, sus.Mail, sus.Klasse, sus.Nutzername, sus.Aixmail,
+                sus.Zweitaccount ? 1 : 0, sus.Zweitmail, sus.HasM365Account, sus.IstAktiv, sus.Seriennummer,
+                sus.AllowJAMF,
+                sus.Bemerkung);
+        }
+        catch (Exception e) {
+            AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = e.StackTrace??"unbekannter Fehler beim SuS-Update"});
+        }
     }
 
     /// <summary>
