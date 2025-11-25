@@ -1735,10 +1735,9 @@ public class Schuldatenbank : IDisposable {
                 where !string.IsNullOrEmpty(fach)
                 let sfavos = SFaVos.Where(l => l.SFavo.Split(',').Contains(fach)).ToList()
                 let favomitglieder = lulcache.Where(l => l.Fakultas.Split(',').Contains(fach)).ToList()
-                select new FaKo {
-                    Fach = fach, Vorsitz = favo, Stellvertretung = sfavos.Count > 0 ? sfavos.First() : new Lehrkraft(),
-                    Mitglieder = favomitglieder
-                });
+                select new FaKo(fach, favo, sfavos.Count > 0 ? sfavos.First() : new Lehrkraft(),
+                    favomitglieder
+                ));
         }
 
         result.Sort();
@@ -2221,7 +2220,7 @@ public class Schuldatenbank : IDisposable {
     }
 
     /// <summary>
-    /// Gibt eine Liste von SuS zurück, name wird im Format "<Vorname> <Nachname>" erwartet
+    /// Gibt eine Liste von SuS zurück, name wird im Format "Vorname Nachname" erwartet
     /// </summary>
     /// <param name="name"></param>
     /// <returns></returns>

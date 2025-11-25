@@ -1,11 +1,7 @@
 ﻿namespace SchulDB;
 
-public record struct Changes {
-    public ChangeKind kind { get; set; }
-    public ChangePerson person { get; set; }
-    public Kurs kurs { get; set; }
-    public int id { get; set; }
-
+// ReSharper disable InconsistentNaming
+public readonly record struct Changes(ChangeKind kind, ChangePerson person, Kurs kurs, int id) {
     public override string ToString() {
         var action = kind switch {
             ChangeKind.add => "Add",

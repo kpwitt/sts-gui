@@ -1,5 +1,7 @@
 ﻿using Avalonia.Platform.Storage;
 
+// ReSharper disable InconsistentNaming
+
 namespace StS_GUI_Avalonia.services;
 
 internal static class StSFileTypes {
