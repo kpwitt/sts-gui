@@ -2772,23 +2772,25 @@ public class Schuldatenbank : IDisposable {
 
                     var aktuelle_kurse =
                         (await GetKursListe()).Where(k => hash_set_neue_kurse.Contains(k.Bezeichnung)).ToList();
-                    var additions = aktuelle_kurse.Where(k => !alte_kurse.Contains(k)).ToList();
-                    var deletions = alte_kurse.Where(k =>
+                    var courses_to_add = aktuelle_kurse.Where(k => !alte_kurse.Contains(k)).ToList();
+                    var courses_to_delete = alte_kurse.Where(k =>
                         !hash_set_neue_kurse.Contains(k.Bezeichnung)).ToList();
-                    foreach (var kurs in additions) {
+                    foreach (var kurs in courses_to_add) {
                         ausstehende_aenderungen.Add(new Changes
                             { id = stmp.ID, kind = ChangeKind.add, kurs = kurs, person = ChangePerson.SuS });
                     }
 
-                    foreach (var kurs in deletions) {
+                    var _deletions = courses_to_delete.RemoveAll(k =>
+                        k.Bezeichnung.Contains("StuBo") || courses_to_add.Exists(l => l.Bezeichnung.Equals(k.Bezeichnung)));
+                    foreach (var kurs in courses_to_delete) {
                         await RemoveSfromK(stmp.ID, kurs.Bezeichnung);
                     }
 
-                    if (additions.Count != deletions.Count) {
+                    if (courses_to_add.Count != courses_to_delete.Count) {
                         AddLogMessage(new LogEintrag {
                             Eintragsdatum = DateTime.Now,
                             Nachricht =
-                                $"SuS {stmp.ID}:{stmp.Nachname},{stmp.Vorname} aus {deletions.Count} Kursen gelöscht und zu {additions.Count} Kursen hinzugefügt",
+                                $"SuS {stmp.ID}:{stmp.Nachname},{stmp.Vorname} aus {courses_to_delete.Count} Kursen gelöscht und zu {courses_to_add.Count} Kursen hinzugefügt",
                             Warnstufe = "Info"
                         });
                     }
