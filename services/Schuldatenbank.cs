@@ -2780,7 +2780,8 @@ public class Schuldatenbank : IDisposable {
                             { id = stmp.ID, kind = ChangeKind.add, kurs = kurs, person = ChangePerson.SuS });
                     }
 
-                    foreach (var kurs in deletions) {
+                    var _deletions = courses_to_delete.RemoveAll(k =>
+                        k.Bezeichnung.Contains("StuBo") || courses_to_add.Exists(l => l.Bezeichnung.Equals(k.Bezeichnung)));
                     foreach (var kurs in courses_to_delete) {
                         await RemoveSfromK(stmp.ID, kurs.Bezeichnung);
                     }
