@@ -674,47 +674,6 @@ public class Schuldatenbank : IDisposable {
         await AddLtoK(lehrkraft.ID, kurs.Bezeichnung);
     }
 
-    /// <summary>
-    /// fügt den Schüler/die  SuS hinzu
-    /// </summary>
-    /// <param name="id"></param>
-    /// <param name="vorname"></param>
-    /// <param name="nachname"></param>
-    /// <param name="mail"></param>
-    /// <param name="klasse"></param>
-    /// <param name="nutzername"></param>
-    /// <param name="aixmail"></param>
-    /// <param name="zweitaccount"></param>
-    /// <param name="zweitmail"></param>
-    /// <param name="seriennummer"></param>
-    /// <param name="bemerkung"></param>
-    private async Task AddSchuelerIn(int id, string vorname, string nachname, string mail, string klasse,
-        string nutzername, string aixmail, int zweitaccount, string zweitmail, string seriennummer, string bemerkung) {
-        if (GibtEsSchueler(id)) return;
-        seriennummer = string.IsNullOrEmpty(seriennummer) ? "" : seriennummer;
-        var sqliteCmd = _sqliteConn.CreateCommand();
-        sqliteCmd.CommandText =
-            "INSERT OR IGNORE INTO schueler (id, vorname, nachname, mail, klasse, nutzername, aixmail, zweitaccount, zweitmail, seriennummer,bemerkung)" +
-            "VALUES ($id, $vorname, $nachname, $mail, $klasse, $nutzername, $aixmail,$zweitaccount, $zweitmail, $seriennummer,$bemerkung);";
-        sqliteCmd.Parameters.AddWithValue("$id", id);
-        sqliteCmd.Parameters.AddWithValue("$vorname", vorname);
-        sqliteCmd.Parameters.AddWithValue("$nachname", nachname);
-        sqliteCmd.Parameters.AddWithValue("$mail", mail.ToLower());
-        sqliteCmd.Parameters.AddWithValue("$klasse", klasse);
-        sqliteCmd.Parameters.AddWithValue("$nutzername", nutzername.ToLower());
-        sqliteCmd.Parameters.AddWithValue("$aixmail", aixmail.ToLower());
-        sqliteCmd.Parameters.AddWithValue("$zweitaccount", zweitaccount);
-        sqliteCmd.Parameters.AddWithValue("$zweitmail", zweitmail.ToLower());
-        sqliteCmd.Parameters.AddWithValue("$seriennummer", seriennummer);
-        sqliteCmd.Parameters.AddWithValue("$bemerkung", bemerkung);
-        sqliteCmd.ExecuteNonQuery();
-        AddLogMessage(new LogEintrag {
-            Eintragsdatum = DateTime.Now,
-            Nachricht = $" SuS {nachname} {vorname} {mail} angelegt",
-            Warnstufe = "Info"
-        });
-    }
-
     public async Task AddSchuelerIn(int id, string vorname, string nachname, string mail, string klasse,
         string nutzername, string aixmail, int zweitaccount, string zweitmail, string seriennummer, bool m365,
         bool jamf, bool aktiv, string bemerkung) {
@@ -1015,7 +974,7 @@ public class Schuldatenbank : IDisposable {
         foreach (var schueler in await importfrom.GetSchuelerListe()) {
             await AddSchuelerIn(schueler.ID, schueler.Vorname, schueler.Nachname, schueler.Mail, schueler.Klasse,
                 schueler.Nutzername, schueler.Aixmail, Convert.ToInt32(schueler.Zweitaccount), schueler.Zweitmail,
-                schueler.Seriennummer, schueler.Bemerkung);
+                schueler.Seriennummer, schueler.HasM365Account, schueler.AllowJAMF,schueler.IstAktiv, schueler.Bemerkung );
             foreach (var kurs in await importfrom.GetKurseVonSuS(Convert.ToInt32(schueler.ID))) {
                 await AddStoK(Convert.ToInt32(schueler.ID), kurs.Bezeichnung);
             }
@@ -3384,7 +3343,7 @@ public class Schuldatenbank : IDisposable {
                 }
                 else {
                     await AddSchuelerIn(susid, tmpsus[inv].Replace("'", ""),
-                        tmpsus[inn].Replace("'", ""), mail, klasse, "", "", 0, mails, "", "");
+                        tmpsus[inn].Replace("'", ""), mail, klasse, "", "", 0, mails, "", false,false,false,"");
                 }
             }
             catch (Exception ex) {
