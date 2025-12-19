@@ -261,7 +261,7 @@ public class Schuldatenbank : IDisposable {
         sqliteDatareader.Close();
 
         if (db_version != 1) return;
-
+/*
         //upgrade DB to 0.6
         sqliteCmd.CommandText =
             "SELECT COUNT(*) AS m365_col_count FROM pragma_table_info('schueler') WHERE name='m365'";
@@ -469,6 +469,8 @@ public class Schuldatenbank : IDisposable {
             }
         }
         //Ende Update 0.73
+
+ */
     }
 
     /// <summary>
