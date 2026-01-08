@@ -3341,11 +3341,12 @@ public class Schuldatenbank : IDisposable {
                     sus.Klasse = klasse;
                     sus.Mail = mail;
                     sus.Zweitmail = mails;
+                    sus.IstAktiv = true;
                     UpdateSchueler(sus);
                 }
                 else {
                     await AddSchuelerIn(susid, tmpsus[inv].Replace("'", ""),
-                        tmpsus[inn].Replace("'", ""), mail, klasse, "", "", 0, mails, "", false,false,false,"");
+                        tmpsus[inn].Replace("'", ""), mail, klasse, "", "", 0, mails, "", false,false,true,"");
                 }
             }
             catch (Exception ex) {
