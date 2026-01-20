@@ -702,7 +702,7 @@ public class Schuldatenbank : IDisposable {
         sqliteCmd.ExecuteNonQuery();
         AddLogMessage(new LogEintrag {
             Eintragsdatum = DateTime.Now,
-            Nachricht = $" SuS {nachname} {vorname} {mail} angelegt",
+            Nachricht = $"SuS {nachname} {vorname} {mail} angelegt",
             Warnstufe = "Info"
         });
     }
