@@ -851,7 +851,7 @@ public class Schuldatenbank : IDisposable {
     private async Task<int> DumpDataToCSVs(string folder, ReadOnlyCollection<SuS> susliste,
         IEnumerable<Lehrkraft> lehrerliste) {
         try {
-            List<string> lulliste = ["firstname;lastname;idnumber;username;fakultas;email;seriennummer"];
+            List<string> lulliste = ["firstname;lastname;idnumber;username;fakultas;email;serialnumber"];
             lulliste.AddRange(lehrerliste.Select(lehrer =>
                 string.Join(";", lehrer.Vorname, lehrer.Nachname, lehrer.ID, lehrer.Kuerzel, lehrer.Fakultas,
                     lehrer.Mail, lehrer.Seriennummer)));
