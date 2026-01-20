@@ -1807,6 +1807,11 @@ public partial class MainWindow : Window {
                             string.Join(",", mathelehrkraft));
                     }
 
+                    if (_myschool.Jamfstufen.Contains(sus.GetStufe())&&!sus.AllowJAMF) {
+                        ergebnisliste.Add(
+                            $"{sus.Nachname}, {sus.Vorname};Klasse {sus.Klasse};{sus.ID};ohne Zustimmung zu JAMF in JAMF-Stufe {sus.GetStufe()}");
+                    }
+
                     ergebnisliste.AddRange(from kurs in _myschool.GetKurseVonSuS(sus.ID).Result
                         where !(kurs.Bezeichnung.Contains("stufe", StringComparison.CurrentCultureIgnoreCase) ||
                                 kurs.Bezeichnung.Contains("stubo", StringComparison.CurrentCultureIgnoreCase)) &&

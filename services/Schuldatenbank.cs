@@ -702,7 +702,7 @@ public class Schuldatenbank : IDisposable {
         sqliteCmd.ExecuteNonQuery();
         AddLogMessage(new LogEintrag {
             Eintragsdatum = DateTime.Now,
-            Nachricht = $" SuS {nachname} {vorname} {mail} angelegt",
+            Nachricht = $"SuS {nachname} {vorname} {mail} angelegt",
             Warnstufe = "Info"
         });
     }
@@ -851,7 +851,7 @@ public class Schuldatenbank : IDisposable {
     private async Task<int> DumpDataToCSVs(string folder, ReadOnlyCollection<SuS> susliste,
         IEnumerable<Lehrkraft> lehrerliste) {
         try {
-            List<string> lulliste = ["firstname;lastname;idnumber;username;fakultas;email;seriennummer"];
+            List<string> lulliste = ["firstname;lastname;idnumber;username;fakultas;email;serialnumber"];
             lulliste.AddRange(lehrerliste.Select(lehrer =>
                 string.Join(";", lehrer.Vorname, lehrer.Nachname, lehrer.ID, lehrer.Kuerzel, lehrer.Fakultas,
                     lehrer.Mail, lehrer.Seriennummer)));
@@ -895,7 +895,7 @@ public class Schuldatenbank : IDisposable {
                     if (luls.Count > 0) {
                         var l = await GetLehrkraft(luls[0].ID);
                         var fach = kurs.Fach.IndexOf('-') > 0 ? kurs.Fach[..kurs.Fach.IndexOf('-')] : kurs.Fach;
-                        kurse.Add(string.Join("|", $"{schueler.Nachname}|{schueler.Vorname}", fach,
+                        kurse.Add(string.Join("|", $"{schueler.Vorname}|{schueler.Nachname}", fach,
                             l.Kuerzel.ToUpper(),
                             (kurs.IstKurs ? "PUK|" : "GKM|") + (!kurs.IstKurs ? "" : kurs.Fach)));
                     }
@@ -2237,7 +2237,7 @@ public class Schuldatenbank : IDisposable {
         List<SuS> slist = [];
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
-            "SELECT id,nachname,vorname,mail,klasse,nutzername,aixmail,zweitaccount,zweitmail,m365, aktiv, seriennummer,bemerkung FROM schueler;";
+            "SELECT id,nachname,vorname,mail,klasse,nutzername,aixmail,zweitaccount,zweitmail,m365, aktiv, seriennummer,bemerkung, jamf FROM schueler;";
         var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
         while (sqliteDatareader.Read()) {
             SuS schuelerin = new() {
@@ -2253,7 +2253,8 @@ public class Schuldatenbank : IDisposable {
                 HasM365Account = Convert.ToBoolean(sqliteDatareader.GetInt32(9)),
                 IstAktiv = sqliteDatareader.GetBoolean(10),
                 Seriennummer = sqliteDatareader.GetString(11),
-                Bemerkung = sqliteDatareader.GetString(12)
+                Bemerkung = sqliteDatareader.GetString(12),
+                AllowJAMF = Convert.ToBoolean(sqliteDatareader.GetInt32(13))
             };
             slist.Add(schuelerin);
         }
