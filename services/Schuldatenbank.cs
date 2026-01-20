@@ -895,7 +895,7 @@ public class Schuldatenbank : IDisposable {
                     if (luls.Count > 0) {
                         var l = await GetLehrkraft(luls[0].ID);
                         var fach = kurs.Fach.IndexOf('-') > 0 ? kurs.Fach[..kurs.Fach.IndexOf('-')] : kurs.Fach;
-                        kurse.Add(string.Join("|", $"{schueler.Nachname}|{schueler.Vorname}", fach,
+                        kurse.Add(string.Join("|", $"{schueler.Vorname}|{schueler.Nachname}", fach,
                             l.Kuerzel.ToUpper(),
                             (kurs.IstKurs ? "PUK|" : "GKM|") + (!kurs.IstKurs ? "" : kurs.Fach)));
                     }
