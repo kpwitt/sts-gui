@@ -45,6 +45,7 @@
       <AvaloniaResource Include="Assets\gfx\visible_off.png"/>
       <None Remove="Assets\gfx\visible_on.png"/>
       <AvaloniaResource Include="Assets\gfx\visible_on.png"/>
+    <AvaloniaResource Include="Assets\gfx\copy.png"/>
   </ItemGroup>
   <ItemGroup>
     <Compile Update="PasswordInputDec.axaml.cs">

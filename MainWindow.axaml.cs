@@ -398,7 +398,10 @@ public partial class MainWindow : Window {
             SetStatusText();
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim laden der Schule"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim laden der Schule"
+            });
         }
     }
 
@@ -547,7 +550,10 @@ public partial class MainWindow : Window {
             }
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim schließen der Schule"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim schließen der Schule"
+            });
         }
     }
 
@@ -576,7 +582,10 @@ public partial class MainWindow : Window {
             }
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim speichern der Schule"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim speichern der Schule"
+            });
         }
     }
 
@@ -616,7 +625,10 @@ public partial class MainWindow : Window {
             }
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim verschlüsseltem speichern der Schule"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim verschlüsseltem speichern der Schule"
+            });
         }
     }
 
@@ -657,7 +669,10 @@ public partial class MainWindow : Window {
             }
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim verschlüsseltem laden der Schule"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim verschlüsseltem laden der Schule"
+            });
         }
     }
 
@@ -710,7 +725,10 @@ public partial class MainWindow : Window {
             }
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim laden des Ordners"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim laden des Ordners"
+            });
         }
     }
 
@@ -727,7 +745,10 @@ public partial class MainWindow : Window {
             await ShowImportSuccessful();
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Einlesen der SuS"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Einlesen der SuS"
+            });
         }
     }
 
@@ -744,7 +765,10 @@ public partial class MainWindow : Window {
             await ShowImportSuccessful();
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Einlesen der Lehrkräfte"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Einlesen der Lehrkräfte"
+            });
         }
     }
 
@@ -762,7 +786,10 @@ public partial class MainWindow : Window {
             await ShowImportSuccessful();
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Einlesen der Kurse"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Einlesen der Kurse"
+            });
         }
     }
 
@@ -780,7 +807,10 @@ public partial class MainWindow : Window {
             await ShowImportSuccessful();
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Einlesen der AIX-Daten"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Einlesen der AIX-Daten"
+            });
         }
     }
 
@@ -798,7 +828,10 @@ public partial class MainWindow : Window {
             await ShowImportSuccessful();
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Einlesen der Zweitaccounts"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Einlesen der Zweitaccounts"
+            });
         }
     }
 
@@ -832,7 +865,10 @@ public partial class MainWindow : Window {
             }
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Exportieren in CSV-Dateien"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Exportieren in CSV-Dateien"
+            });
         }
     }
 
@@ -853,7 +889,10 @@ public partial class MainWindow : Window {
             });
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Anzeigen der App-Infos"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Anzeigen der App-Infos"
+            });
         }
     }
 
@@ -924,7 +963,10 @@ public partial class MainWindow : Window {
             }
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Ändern/Hinzufügen eines SuS"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Ändern/Hinzufügen eines SuS"
+            });
         }
     }
 
@@ -961,7 +1003,10 @@ public partial class MainWindow : Window {
             SetStatusText();
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Löschen eines SuS"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Löschen eines SuS"
+            });
         }
     }
 
@@ -985,7 +1030,10 @@ public partial class MainWindow : Window {
             SetStatusText();
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Einschreiben eines SuS"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Einschreiben eines SuS"
+            });
         }
     }
 
@@ -1038,7 +1086,8 @@ public partial class MainWindow : Window {
                         "Vorsicht");
                 }
 
-                await _myschool.UpdateLehrkraft(lid, lulvname, lulnname, lulkrz, lulmail, lulfakultas, lulpwtemp, lulfavo,
+                await _myschool.UpdateLehrkraft(lid, lulvname, lulnname, lulkrz, lulmail, lulfakultas, lulpwtemp,
+                    lulfavo,
                     lulsfavo, seriennummer, lulBemerkung);
                 _myschool.SetzeAktivstatusLehrkraft(lid, cbLuLAktiv.IsChecked != null && lulistAktiv.Value);
                 foreach (var kurs in schnittmenge.Where(kurs => _myschool.GibtEsKurs(kurs.Bezeichnung).Result)) {
@@ -1064,7 +1113,10 @@ public partial class MainWindow : Window {
             SetStatusText();
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Hinzufügen/Ändern einer Lehrkraft"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Hinzufügen/Ändern einer Lehrkraft"
+            });
         }
     }
 
@@ -1099,7 +1151,10 @@ public partial class MainWindow : Window {
             SetStatusText();
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Löschen einer Lehrkraft"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Löschen einer Lehrkraft"
+            });
         }
     }
 
@@ -1597,7 +1652,8 @@ public partial class MainWindow : Window {
         try {
             if (cbMoodle.IsChecked != null && !cbMoodle.IsChecked.Value && cbAIX.IsChecked != null &&
                 !cbAIX.IsChecked.Value && cbAJAMF.IsChecked != null && !cbAJAMF.IsChecked.Value) {
-                await ShowCustomErrorMessage("Bitte wählen Sie entweder Moodle und/oder AIX und/oder JAMF als Zielsystem!",
+                await ShowCustomErrorMessage(
+                    "Bitte wählen Sie entweder Moodle und/oder AIX und/oder JAMF als Zielsystem!",
                     "Kein Zielsystem ausgewählt");
                 return;
             }
@@ -1675,14 +1731,18 @@ public partial class MainWindow : Window {
                 }
 
                 var res = await _myschool.ExportToCSV(folderpath, destsys, whattoexport,
-                    cbExportwithPasswort.IsChecked != null && cbExportwithPasswort.IsChecked.Value, "", expandFiles == 0,
+                    cbExportwithPasswort.IsChecked != null && cbExportwithPasswort.IsChecked.Value, "",
+                    expandFiles == 0,
                     nurMoodleSuffix, kursvorlagen, new ReadOnlyCollection<int>(_myschool.GetSchuelerIDListe().Result),
                     await _myschool.GetLehrerIDListe(), await _myschool.GetKursBezListe());
                 await CheckSuccesfulExport(res);
             }
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Exportieren der Daten"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Exportieren der Daten"
+            });
         }
     }
 
@@ -1807,7 +1867,7 @@ public partial class MainWindow : Window {
                             string.Join(",", mathelehrkraft));
                     }
 
-                    if (_myschool.Jamfstufen.Contains(sus.GetStufe())&&!sus.AllowJAMF) {
+                    if (_myschool.Jamfstufen.Contains(sus.GetStufe()) && !sus.AllowJAMF) {
                         ergebnisliste.Add(
                             $"{sus.Nachname}, {sus.Vorname};Klasse {sus.Klasse};{sus.ID};ohne Zustimmung zu JAMF in JAMF-Stufe {sus.GetStufe()}");
                     }
@@ -1868,7 +1928,10 @@ public partial class MainWindow : Window {
             }
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Exportieren der Fehler"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Exportieren der Fehler"
+            });
         }
     }
 
@@ -1909,7 +1972,10 @@ public partial class MainWindow : Window {
             }
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Exportieren der Stufenkurse"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Exportieren der Stufenkurse"
+            });
         }
     }
 
@@ -1932,7 +1998,8 @@ public partial class MainWindow : Window {
                         let kbez_liste =
                             _myschool.GetKurseVonSuS(sus.ID).Result.Where(k => !k.Bezeichnung.EndsWith("KL")).ToList()
                                 .Select(k => k.Bezeichnung).ToList()
-                        select string.Join(";", sus.Nutzername, !string.IsNullOrEmpty(sus.Aixmail) ? sus.Aixmail : sus.Mail,
+                        select string.Join(";", sus.Nutzername,
+                            !string.IsNullOrEmpty(sus.Aixmail) ? sus.Aixmail : sus.Mail,
                             sus.Vorname, sus.Nachname, sus.Seriennummer, string.Join(',', kbez_liste), ""));
                     ausgabeJamf.AddRange(from lul in _myschool.GetLuLAusStufe(stufe).Result
                         let kurse = _myschool.GetKurseVonLuL(lul.ID)
@@ -1950,7 +2017,8 @@ public partial class MainWindow : Window {
                             where sus.AllowJAMF
                             where _myschool.Jamfstufen.Contains(sus.GetStufe())
                             let kbez_liste =
-                                _myschool.GetKurseVonSuS(sus.ID).Result.Where(k => !k.Bezeichnung.EndsWith("KL")).ToList()
+                                _myschool.GetKurseVonSuS(sus.ID).Result.Where(k => !k.Bezeichnung.EndsWith("KL"))
+                                    .ToList()
                                     .Select(k => k.Bezeichnung).ToList()
                             select string.Join(";", sus.Nutzername,
                                 !string.IsNullOrEmpty(sus.Aixmail) ? sus.Aixmail : sus.Mail,
@@ -1971,7 +2039,10 @@ public partial class MainWindow : Window {
             }
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Exportieren der JAMF-Daten"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Exportieren der JAMF-Daten"
+            });
         }
     }
 
@@ -2002,7 +2073,10 @@ public partial class MainWindow : Window {
             }
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Exportieren der 5er inkl. Passwort"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Exportieren der 5er inkl. Passwort"
+            });
         }
     }
 
@@ -2048,9 +2122,13 @@ public partial class MainWindow : Window {
                 Erprobungsstufe = string.IsNullOrEmpty(tbSettingErprobungsstufen.Text)
                     ? []
                     : tbSettingErprobungsstufen.Text.Split(','),
-                Mittelstufe = string.IsNullOrEmpty(tbSettingMittelstufen.Text) ? [] : tbSettingMittelstufen.Text.Split(','),
+                Mittelstufe = string.IsNullOrEmpty(tbSettingMittelstufen.Text)
+                    ? []
+                    : tbSettingMittelstufen.Text.Split(','),
                 Oberstufe = string.IsNullOrEmpty(tbSettingOberstufe.Text) ? [] : tbSettingOberstufe.Text.Split(','),
-                StuboStufen = string.IsNullOrEmpty(tbSettingStuBoStufen.Text) ? [] : tbSettingStuBoStufen.Text.Split(','),
+                StuboStufen = string.IsNullOrEmpty(tbSettingStuBoStufen.Text)
+                    ? []
+                    : tbSettingStuBoStufen.Text.Split(','),
                 JAMFStufen = string.IsNullOrEmpty(tbSettingJAMFStufen.Text) ? [] : tbSettingJAMFStufen.Text.Split(',')
             };
 
@@ -2302,7 +2380,10 @@ public partial class MainWindow : Window {
             await ShowCustomSuccessMessage("Einstellungen erfolgreich angewendet!", "Erfolg");
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Speichern der Einstellungen"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Speichern der Einstellungen"
+            });
         }
     }
 
@@ -2324,7 +2405,10 @@ public partial class MainWindow : Window {
             await _myschool.LoescheLog();
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Löschen des Logs"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Löschen des Logs"
+            });
         }
     }
 
@@ -2416,7 +2500,10 @@ public partial class MainWindow : Window {
             OnRightDataChanged(true);
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Hinzufügen/Ändern eines Kurses"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Hinzufügen/Ändern eines Kurses"
+            });
         }
     }
 
@@ -2450,7 +2537,10 @@ public partial class MainWindow : Window {
             SetStatusText();
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Löschen eines Kurses"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Löschen eines Kurses"
+            });
         }
     }
 
@@ -2459,7 +2549,10 @@ public partial class MainWindow : Window {
             await CallLeftTimer();
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim linken Timer"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim linken Timer"
+            });
         }
     }
 
@@ -2516,15 +2609,18 @@ public partial class MainWindow : Window {
                                 searchFields[5] &&
                                 s.Seriennummer.Contains(eingabe, StringComparison.CurrentCultureIgnoreCase)).ToList()
                             : scachelist.Where(s =>
-                                searchFields[4] && (s.ID + "").Contains(lowereingabe, StringComparison.CurrentCultureIgnoreCase) ||
+                                searchFields[4] && (s.ID + "").Contains(lowereingabe,
+                                    StringComparison.CurrentCultureIgnoreCase) ||
                                 searchFields[0] && s.Vorname.Contains(lowereingabe,
                                     StringComparison.CurrentCultureIgnoreCase) ||
                                 searchFields[1] && s.Nachname.Contains(lowereingabe,
                                     StringComparison.CurrentCultureIgnoreCase) ||
-                                searchFields[2] && (s.Mail.Contains(lowereingabe, StringComparison.CurrentCultureIgnoreCase) ||
-                                                    s.Aixmail.Contains(lowereingabe, StringComparison.CurrentCultureIgnoreCase) ||
-                                                    s.Zweitmail.Contains(lowereingabe, StringComparison.CurrentCultureIgnoreCase)) ||
-                                searchFields[3] && s.Nutzername.ToLower().Contains(lowereingabe, StringComparison.CurrentCultureIgnoreCase) ||
+                                searchFields[2] &&
+                                (s.Mail.Contains(lowereingabe, StringComparison.CurrentCultureIgnoreCase) ||
+                                 s.Aixmail.Contains(lowereingabe, StringComparison.CurrentCultureIgnoreCase) ||
+                                 s.Zweitmail.Contains(lowereingabe, StringComparison.CurrentCultureIgnoreCase)) ||
+                                searchFields[3] && s.Nutzername.ToLower().Contains(lowereingabe,
+                                    StringComparison.CurrentCultureIgnoreCase) ||
                                 searchFields[5] &&
                                 s.Seriennummer.Contains(eingabe, StringComparison.CurrentCultureIgnoreCase)).ToList());
                     }
@@ -2694,7 +2790,10 @@ public partial class MainWindow : Window {
             }
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim rechten Timer"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim rechten Timer"
+            });
         }
     }
 
@@ -2774,7 +2873,10 @@ public partial class MainWindow : Window {
             }
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Exportieren des Serienbriefes"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Exportieren des Serienbriefes"
+            });
         }
     }
 
@@ -2791,7 +2893,10 @@ public partial class MainWindow : Window {
             await _myschool.StopTransaction();
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Passwortgenerieren"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Passwortgenerieren"
+            });
         }
     }
 
@@ -2907,7 +3012,10 @@ public partial class MainWindow : Window {
             }
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Exportieren der Daten"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Exportieren der Daten"
+            });
         }
     }
 
@@ -2923,7 +3031,10 @@ public partial class MainWindow : Window {
             await _myschool.ElternEinlesen(filepath);
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Laden der Elternmailadressen"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Laden der Elternmailadressen"
+            });
         }
     }
 
@@ -2945,7 +3056,10 @@ public partial class MainWindow : Window {
             }
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Exportieren der Lehkräfte einspaltig"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Exportieren der Lehkräfte einspaltig"
+            });
         }
     }
 
@@ -2985,7 +3099,10 @@ public partial class MainWindow : Window {
             }
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Exportieren der Lehkräfte zweispaltig"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Exportieren der Lehkräfte zweispaltig"
+            });
         }
     }
 
@@ -3015,7 +3132,10 @@ public partial class MainWindow : Window {
             tbLuLtmpPwd.Text = pwd;
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Generieren eines neuen Lehrkräftepasswort"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Generieren eines neuen Lehrkräftepasswort"
+            });
         }
     }
 
@@ -3190,7 +3310,10 @@ public partial class MainWindow : Window {
             }
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Erstellen der Einschreibungen"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Erstellen der Einschreibungen"
+            });
         }
     }
 
@@ -3236,7 +3359,10 @@ public partial class MainWindow : Window {
             await clipboard.SetTextAsync(ids);
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Einlesen der Datenschutzeinwilligungen"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Einlesen der Datenschutzeinwilligungen"
+            });
         }
     }
 
@@ -3250,7 +3376,10 @@ public partial class MainWindow : Window {
             await clipboard.SetTextAsync(ids.TrimEnd(';'));
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Kopieren der SuS-ID(s)"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Kopieren der SuS-ID(s)"
+            });
         }
     }
 
@@ -3265,7 +3394,10 @@ public partial class MainWindow : Window {
             await clipboard.SetTextAsync(sus.TrimEnd(';'));
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Kopieren der SuS-Mailadressen"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Kopieren der SuS-Mailadressen"
+            });
         }
     }
 
@@ -3280,7 +3412,10 @@ public partial class MainWindow : Window {
             await clipboard.SetTextAsync(sus.TrimEnd(';'));
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Kopieren der SuS-AIX-Mailadressen"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Kopieren der SuS-AIX-Mailadressen"
+            });
         }
     }
 
@@ -3294,7 +3429,10 @@ public partial class MainWindow : Window {
             await clipboard.SetTextAsync(bezliste.TrimEnd(';'));
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Kopieren der Kursbezeichnungen"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Kopieren der Kursbezeichnungen"
+            });
         }
     }
 
@@ -3308,7 +3446,10 @@ public partial class MainWindow : Window {
             await clipboard.SetTextAsync(mails.TrimEnd(';'));
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Kopieren der Lehrkräfte-Mailadressen"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Kopieren der Lehrkräfte-Mailadressen"
+            });
         }
     }
 
@@ -3322,7 +3463,10 @@ public partial class MainWindow : Window {
             await clipboard.SetTextAsync(krzs.TrimEnd(';'));
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Kopieren der Lehrkräftekürzel"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Kopieren der Lehrkräftekürzel"
+            });
         }
     }
 
@@ -3336,7 +3480,10 @@ public partial class MainWindow : Window {
             await clipboard.SetTextAsync(logentries);
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Kopieren des Logs"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Kopieren des Logs"
+            });
         }
     }
 
@@ -3357,7 +3504,10 @@ public partial class MainWindow : Window {
             await clipboard.SetTextAsync(text.TrimEnd(';'));
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Einfügen aus der Zwischenablage"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Einfügen aus der Zwischenablage"
+            });
         }
     }
 
@@ -3394,7 +3544,10 @@ public partial class MainWindow : Window {
             }
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Exportieren der Favos"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Exportieren der Favos"
+            });
         }
     }
 
@@ -3407,7 +3560,8 @@ public partial class MainWindow : Window {
                     "", "", l.Seriennummer, l.Bemerkung);
             }
 
-            var faecherliste = _myschool.GetLehrkraftListe().Result.Select(l => l.Fakultas.Split(',')).Distinct().ToList();
+            var faecherliste = _myschool.GetLehrkraftListe().Result.Select(l => l.Fakultas.Split(',')).Distinct()
+                .ToList();
             if (faecherliste.Count < 1) return;
             var faecher = new List<string>();
             foreach (var faecherarray in faecherliste) {
@@ -3458,7 +3612,10 @@ public partial class MainWindow : Window {
             await ShowCustomInfoMessage("Speichern erfolgreich.", "Erfolg");
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Speichern der Favos"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Speichern der Favos"
+            });
         }
     }
 
@@ -3491,7 +3648,10 @@ public partial class MainWindow : Window {
             }
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Speichern der Einstellungen"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Speichern der Einstellungen"
+            });
         }
     }
 
@@ -3506,7 +3666,8 @@ public partial class MainWindow : Window {
                 if (files == null) return;
                 var filepath = files.Path.LocalPath;
                 try {
-                    var json_settings = JsonSerializer.Deserialize<Einstellungen>(File.ReadAllTextAsync(filepath).Result);
+                    var json_settings =
+                        JsonSerializer.Deserialize<Einstellungen>(File.ReadAllTextAsync(filepath).Result);
                     await _myschool.SetSettings(json_settings);
                     LoadSettingsToGUI(json_settings);
                     await ShowCustomSuccessMessage("Einstellungen erfolgreich geladen", "Erfolg");
@@ -3519,7 +3680,10 @@ public partial class MainWindow : Window {
             }
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Laden der Einstellungen"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Laden der Einstellungen"
+            });
         }
     }
 
@@ -3557,7 +3721,10 @@ public partial class MainWindow : Window {
             await ShowCustomInfoMessage("Import erfolgreich.", "Erfolg");
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Einlesen der M365-DV-Zustimmungen"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Einlesen der M365-DV-Zustimmungen"
+            });
         }
     }
 
@@ -3597,7 +3764,10 @@ public partial class MainWindow : Window {
             }
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Einlesen der temp. Accounts"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Einlesen der temp. Accounts"
+            });
         }
     }
 
@@ -3676,7 +3846,10 @@ public partial class MainWindow : Window {
             }
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Exportieren des Logs"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Exportieren des Logs"
+            });
         }
     }
 
@@ -3708,7 +3881,10 @@ public partial class MainWindow : Window {
             await ShowCustomInfoMessage("Speichern erfolgreich.", "Erfolg");
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Exportieren der Inaktiven"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Exportieren der Inaktiven"
+            });
         }
     }
 
@@ -3742,7 +3918,8 @@ public partial class MainWindow : Window {
                         .Append("</a><br>Mitglieder: ")
                         .ToString()
                     select fako.Mitglieder.Aggregate(fako_string,
-                        (current, lul) => $"{current}<a href=\"mailto:{lul.Mail.ToLower()}\">{lul.Mail.ToLower()}</a>, ")
+                        (current, lul) =>
+                            $"{current}<a href=\"mailto:{lul.Mail.ToLower()}\">{lul.Mail.ToLower()}</a>, ")
                     into fako_string
                     select $"{fako_string.TrimEnd(' ').TrimEnd(',')}<br><br>");
 #if DEBUG
@@ -3767,7 +3944,10 @@ public partial class MainWindow : Window {
             }
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Exportieren der Fakos"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Exportieren der Fakos"
+            });
         }
     }
 
@@ -3826,7 +4006,8 @@ public partial class MainWindow : Window {
                             continue;
                         }
 
-                        var lul = lulliste.Where(l => l.Kuerzel.Equals(kuerzel, StringComparison.CurrentCultureIgnoreCase))
+                        var lul = lulliste.Where(l =>
+                                l.Kuerzel.Equals(kuerzel, StringComparison.CurrentCultureIgnoreCase))
                             .ToList();
                         switch (lul.Count) {
                             case 1:
@@ -3835,7 +4016,8 @@ public partial class MainWindow : Window {
                                 _myschool.UpdateLehrkraft(l);
                                 break;
                             case > 1:
-                                await ShowCustomErrorMessage($"Mehrere Lehrkräfte mit Kürzel {kuerzel} gefunden", "Fehler");
+                                await ShowCustomErrorMessage($"Mehrere Lehrkräfte mit Kürzel {kuerzel} gefunden",
+                                    "Fehler");
                                 break;
                         }
                     }
@@ -3891,7 +4073,10 @@ public partial class MainWindow : Window {
             await ShowCustomSuccessMessage("Import der Seriennummern abgeschlossen", "Erfolg");
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Einlesen der Seriennummern"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Einlesen der Seriennummern"
+            });
         }
     }
 
@@ -3911,7 +4096,8 @@ public partial class MainWindow : Window {
                     ? _myschool.GetSchuelerListe().Result
                         .Where(s => s.Vorname.StartsWith(vorname) && s.Nachname.Equals(nachname)).ToList()
                     : _myschool.GetSchuelerListe().Result
-                        .Where(s => s.Vorname.StartsWith(vorname) && s.Nachname.Equals(nachname) && s.Klasse.Equals(klasse))
+                        .Where(s => s.Vorname.StartsWith(vorname) && s.Nachname.Equals(nachname) &&
+                                    s.Klasse.Equals(klasse))
                         .ToList();
                 switch (s.Count) {
                     case 1:
@@ -3927,7 +4113,10 @@ public partial class MainWindow : Window {
             tbSuSNamen.Text = string.Join('\n', ergebnis);
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Zuordnen von Namen und Klassen"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Zuordnen von Namen und Klassen"
+            });
         }
     }
 
@@ -3997,7 +4186,10 @@ public partial class MainWindow : Window {
             await ShowCustomSuccessMessage("Speichern erfolgreich", "Erfolg");
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Einlesen der Neuzugänge/Abgänge"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Einlesen der Neuzugänge/Abgänge"
+            });
         }
     }
 
@@ -4009,8 +4201,9 @@ public partial class MainWindow : Window {
             };
             var file = await ShowSaveFileDialog("CSV-Datei zum Speichern der Spielwiesen angegeben", extx);
             if (file == null) return;
-            List<string> spielwiesen =
-                ["shortname;fullname;idnumber;category_idnumber;format;enrolment_0;enrolment_0_role;enrolment_0_password"];
+            List<string> spielwiesen = [
+                "shortname;fullname;idnumber;category_idnumber;format;enrolment_0;enrolment_0_role;enrolment_0_password"
+            ];
             for (var i = 1; i <= 15; ++i) {
                 spielwiesen.Add($"SPW{i};Spielwiese {i};SPW{i};spw;tiles;self;editingteacher;SPW{i}");
             }
@@ -4018,7 +4211,10 @@ public partial class MainWindow : Window {
             await File.WriteAllLinesAsync(file.Path.LocalPath, spielwiesen, Encoding.UTF8);
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Exportieren der Spielwiesen"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Exportieren der Spielwiesen"
+            });
         }
     }
 
@@ -4070,7 +4266,10 @@ public partial class MainWindow : Window {
             await ShowCustomSuccessMessage("Einlesen erfolgreich", "Erfolg");
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Einlesen der JAMF-Zustimmungen"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Einlesen der JAMF-Zustimmungen"
+            });
         }
     }
 
@@ -4089,7 +4288,10 @@ public partial class MainWindow : Window {
             BtnAenderungenReload_OnClick(sender, e);
         }
         catch (Exception ex) {
-            _myschool.AddLogMessage(new LogEintrag{Eintragsdatum = DateTime.Now, Warnstufe = "Debug", Nachricht = ex.StackTrace??"unbekannter Fehler beim Exportieren der Änderungen"});
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Exportieren der Änderungen"
+            });
         }
     }
 
@@ -4102,5 +4304,22 @@ public partial class MainWindow : Window {
     private void BtnAnderungenSchildAbgleich_OnClick(object? sender, RoutedEventArgs e) {
         OnMnuloadkursefromfileClick(sender, e);
         BtnAenderungenReload_OnClick(sender, e);
+    }
+
+    private async void BtnLuLCopyTmpPasswort_OnClick(object? sender, RoutedEventArgs e) {
+        try {
+            if (tbLuLKuerzel == null || tbLuLID == null || string.IsNullOrEmpty(tbLuLKuerzel.Text) ||
+                string.IsNullOrEmpty(tbLuLID.Text)) return;
+            var lul = await _myschool.GetLehrkraft(tbLuLKuerzel.Text);
+            var clipboard = Clipboard;
+            if (clipboard == null) return;
+            await clipboard.SetTextAsync(lul.Pwttemp);
+        }
+        catch (Exception ex) {
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim KOpieren des Passwortes"
+            });
+        }
     }
 }

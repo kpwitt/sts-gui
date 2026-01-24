@@ -237,6 +237,13 @@
                                                            Source="/Assets/gfx/visible_off.png" />
                                                 </Panel>
                                             </Button>
+                                            <Button x:Name="btnLuLCopyTmpPasswort"
+                                                    Click="BtnLuLCopyTmpPasswort_OnClick"
+                                                    ToolTip.Tip="Kopiere temp. Passwort">
+                                                <Panel>
+                                                    <Image Source="/Assets/gfx/copy.png" />
+                                                </Panel>
+                                            </Button>
                                             <Button x:Name="btnLuLNewTmpPasswort"
                                                     Click="BtnLuLNewTmpPasswort_OnClick"
                                                     ToolTip.Tip="neues temp. Passwort generieren">
