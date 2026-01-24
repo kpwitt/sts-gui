@@ -3,7 +3,7 @@
 # SchildToSchule - StS
 
 StS nimmt den Daten- und Leistungsdatenexport von
-SchiLD-NRW ([Schulverwaltungsprogram von ribeka](https://www.ribeka.com/schild-nrw/)) und formatiert in
+SchiLD-NRW ([Schulverwaltungsprogram von ribeka](https://www.ribeka.com/schild-nrw/)) und formatiert ihn
 für [Moodle](https://moodle.org/), [AixConcept](https://aixconcept.de/)-Systeme und [JAMF](https://www.jamf.com/de/) so
 um, dass Schüler:innen, Lehkräfte und Kurse in diese Systeme importiert werden können.
 Lizenziert ist es unter der MIT-Lizenz (siehe LICENSE)
