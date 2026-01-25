@@ -2873,6 +2873,7 @@ public partial class MainWindow : Window {
                 }
 
                 await File.WriteAllLinesAsync(file_path, ausgabe.Distinct().ToList(), Encoding.UTF8);
+                await ShowCustomSuccessMessage("Export erfolgreich", "Erfolg");
             }
         }
         catch (Exception ex) {
