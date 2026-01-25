@@ -2843,6 +2843,9 @@ public partial class MainWindow : Window {
                             maildienst = UpperCaseFirstCharacter + maildienst[1..];
                             var fakult = fakultas.Aggregate("", (current, t) => $"{current}{t};");
                             switch (fakultas.Length) {
+                                case 1:
+                                    fakult += $";;{lt.Fakultas}"; //; oder ,
+                                    break;
                                 case 2:
                                     fakult += $";{lt.Fakultas}"; //; oder ,
                                     break;
