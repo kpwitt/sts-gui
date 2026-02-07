@@ -976,7 +976,8 @@ public class Schuldatenbank : IDisposable {
         foreach (var schueler in await importfrom.GetSchuelerListe()) {
             await AddSchuelerIn(schueler.ID, schueler.Vorname, schueler.Nachname, schueler.Mail, schueler.Klasse,
                 schueler.Nutzername, schueler.Aixmail, Convert.ToInt32(schueler.Zweitaccount), schueler.Zweitmail,
-                schueler.Seriennummer, schueler.HasM365Account, schueler.AllowJAMF,schueler.IstAktiv, schueler.Bemerkung );
+                schueler.Seriennummer, schueler.HasM365Account, schueler.AllowJAMF, schueler.IstAktiv,
+                schueler.Bemerkung);
             foreach (var kurs in await importfrom.GetKurseVonSuS(Convert.ToInt32(schueler.ID))) {
                 await AddStoK(Convert.ToInt32(schueler.ID), kurs.Bezeichnung);
             }
@@ -2743,7 +2744,8 @@ public class Schuldatenbank : IDisposable {
                     }
 
                     var _deletions = courses_to_delete.RemoveAll(k =>
-                        k.Bezeichnung.Contains("StuBo") || courses_to_add.Exists(l => l.Bezeichnung.Equals(k.Bezeichnung)));
+                        k.Bezeichnung.Contains("StuBo") ||
+                        courses_to_add.Exists(l => l.Bezeichnung.Equals(k.Bezeichnung)));
                     foreach (var kurs in courses_to_delete) {
                         await RemoveSfromK(stmp.ID, kurs.Bezeichnung);
                     }
@@ -3347,7 +3349,7 @@ public class Schuldatenbank : IDisposable {
                 }
                 else {
                     await AddSchuelerIn(susid, tmpsus[inv].Replace("'", ""),
-                        tmpsus[inn].Replace("'", ""), mail, klasse, "", "", 0, mails, "", false,false,true,"");
+                        tmpsus[inn].Replace("'", ""), mail, klasse, "", "", 0, mails, "", false, false, true, "");
                 }
             }
             catch (Exception ex) {
@@ -3463,6 +3465,12 @@ public class Schuldatenbank : IDisposable {
         string seriennummer, bool jamf, string bemerkung) {
         if (id <= 0) return;
         seriennummer = string.IsNullOrEmpty(seriennummer) ? "" : seriennummer;
+        var sus = await GetSchueler(id);
+        if (sus.Klasse != klasse) {
+            await RemoveSfromK(id, $"StuBo-{Tooling.KlasseToStufe(sus.Klasse)}");
+            await AddStoK(id, $"StuBo-{Tooling.KlasseToStufe(klasse)}");
+        }
+
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
             "UPDATE schueler SET nachname=$nachname, vorname=$vorname, mail=$mail, klasse=$klasse, nutzername=$nutzername, aixmail=$aixmail, zweitaccount = $zweitaccount, zweitmail=$zweitmail, m365=$hasM365, aktiv=$aktiv, seriennummer=$seriennummer, jamf = $jamf,bemerkung=$bemerkung WHERE id=$id;";
