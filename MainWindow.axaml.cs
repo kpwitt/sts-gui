@@ -4326,4 +4326,62 @@ public partial class MainWindow : Window {
             });
         }
     }
+
+    private async void MnuInaktiveEinlesen_OnClick(object? sender, RoutedEventArgs e) {
+        try {
+            var extx = new List<FilePickerFileType> {
+                StSFileTypes.CSVFile,
+                FilePickerFileTypes.All
+            };
+            var file = await ShowOpenFileDialog("Seriennummern einlesen", extx);
+            if (file == null) return;
+            var inaktiveCSVFilePath = file.Path.LocalPath;
+            var inaktiveCSVFileText = File.ReadAllLinesAsync(inaktiveCSVFilePath).Result.ToList();
+            int inv = -1, inn = -1, ini = -1, ink = -1;
+            List<int> inm = [];
+
+            var header = inaktiveCSVFileText[0].Split(';');
+            for (var i = 0; i < header.Length; i++) {
+                header[i] = header[i].Trim('"');
+                if (header[i].Equals("Vorname")) {
+                    inv = i;
+                }
+
+                if (header[i].Equals("Nachname")) {
+                    inn = i;
+                }
+
+                if (header[i].Equals("Interne ID-Nummer")) {
+                    ini = i;
+                }
+
+                if (header[i].Contains("E-Mail") && !header[i].Contains("schulisch")) {
+                    inm.Add(i);
+                }
+
+                if (header[i].Equals("Klasse")) {
+                    ink = i;
+                }
+            }
+
+            if (ini == -1) {
+                await ShowCustomErrorMessage("Header beinhaltet keine Interne ID-Nummer", "Fehler");
+                throw new Exception("Header beinhaltet keine Interne ID-Nummer");
+            }
+
+            await _myschool.StartTransaction();
+            foreach (var id in inaktiveCSVFileText[1..].Select(line => Convert.ToInt32(line.Split(';')[ini]))) {
+                _myschool.SetzeAktivstatusSchueler(id, false);
+            }
+
+            await _myschool.StopTransaction();
+        }
+        catch (Exception ex) {
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Einlesen der Beurlaubten/Inaktiven/Abgänge"
+            });
+            await _myschool.StopTransaction();
+        }
+    }
 }

@@ -3691,7 +3691,7 @@ public class Schuldatenbank : IDisposable {
     /// </summary>
     /// <param name="susid"></param>
     /// <param name="istAktiv"></param>
-    private void SetzeAktivstatusSchueler(int susid, bool istAktiv) {
+    public void SetzeAktivstatusSchueler(int susid, bool istAktiv) {
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText = "UPDATE schueler SET aktiv = $istAktiv WHERE id = $susid;";
         sqliteCmd.Parameters.AddWithValue("$susid", susid);

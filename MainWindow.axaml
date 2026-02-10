@@ -79,6 +79,8 @@
                                       Click="MnuIPadSeriennummernEinlesen_OnClick" />
                             <MenuItem Header="_JAMF-Einwillungen einlesen" x:Name="mnuJAMFEinlesen"
                                       Click="MnuJAMFEinlesen_OnClick" />
+                            <MenuItem Header="_Beurlaubte/Inaktive/Abgänge einlesen" x:Name="mnuInaktiveEinlesen"
+                                      Click="MnuInaktiveEinlesen_OnClick" />
                         </MenuItem>
                         <MenuItem Header="Änderungen _einlesen" x:Name="mnuReadDiffs" IsVisible="False" />
                         <MenuItem Header="Export als Ausgangsdaten" x:Name="mnuExportToCSV"
