@@ -4337,30 +4337,12 @@ public partial class MainWindow : Window {
             if (file == null) return;
             var inaktiveCSVFilePath = file.Path.LocalPath;
             var inaktiveCSVFileText = File.ReadAllLinesAsync(inaktiveCSVFilePath).Result.ToList();
-            int inv = -1, inn = -1, ini = -1, ink = -1;
-            List<int> inm = [];
-
+            var ini = -1;
             var header = inaktiveCSVFileText[0].Split(';');
             for (var i = 0; i < header.Length; i++) {
                 header[i] = header[i].Trim('"');
-                if (header[i].Equals("Vorname")) {
-                    inv = i;
-                }
-
-                if (header[i].Equals("Nachname")) {
-                    inn = i;
-                }
-
                 if (header[i].Equals("Interne ID-Nummer")) {
                     ini = i;
-                }
-
-                if (header[i].Contains("E-Mail") && !header[i].Contains("schulisch")) {
-                    inm.Add(i);
-                }
-
-                if (header[i].Equals("Klasse")) {
-                    ink = i;
                 }
             }
 
