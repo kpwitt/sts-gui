@@ -4322,7 +4322,7 @@ public partial class MainWindow : Window {
         catch (Exception ex) {
             _myschool.AddLogMessage(new LogEintrag {
                 Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
-                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim KOpieren des Passwortes"
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Kopieren des Passwortes"
             });
         }
     }
