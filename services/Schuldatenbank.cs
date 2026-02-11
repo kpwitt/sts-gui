@@ -3697,6 +3697,10 @@ public class Schuldatenbank : IDisposable {
         sqliteCmd.Parameters.AddWithValue("$susid", susid);
         sqliteCmd.Parameters.AddWithValue("$istAktiv", istAktiv);
         sqliteCmd.ExecuteNonQuery();
+        AddLogMessage(new LogEintrag {
+            Eintragsdatum = DateTime.Now, Warnstufe = "Info",
+            Nachricht = $@"Aktivstatus für SuS mit der id {susid} auf {istAktiv} gesetzt"
+        });
     }
 
     /// <summary>
