@@ -3675,6 +3675,10 @@ public class Schuldatenbank : IDisposable {
         sqliteCmd.Parameters.AddWithValue("$lulid", lulid);
         sqliteCmd.Parameters.AddWithValue("$istAktiv", istAktiv);
         sqliteCmd.ExecuteNonQuery();
+        AddLogMessage(new LogEintrag {
+            Eintragsdatum = DateTime.Now, Warnstufe = "Info",
+            Nachricht = $@"Aktivstatus für LuL mit der id {lulid} auf {istAktiv} gesetzt (falls existent)."
+        });
     }
 
     /// <summary>
@@ -3699,7 +3703,7 @@ public class Schuldatenbank : IDisposable {
         sqliteCmd.ExecuteNonQuery();
         AddLogMessage(new LogEintrag {
             Eintragsdatum = DateTime.Now, Warnstufe = "Info",
-            Nachricht = $@"Aktivstatus für SuS mit der id {susid} auf {istAktiv} gesetzt"
+            Nachricht = $@"Aktivstatus für SuS mit der id {susid} auf {istAktiv} gesetzt (falls existent)."
         });
     }
 
