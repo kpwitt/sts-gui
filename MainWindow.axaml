@@ -79,7 +79,7 @@
                                       Click="MnuIPadSeriennummernEinlesen_OnClick" />
                             <MenuItem Header="_JAMF-Einwillungen einlesen" x:Name="mnuJAMFEinlesen"
                                       Click="MnuJAMFEinlesen_OnClick" />
-                            <MenuItem Header="_Beurlaubte/Inaktive/Abgänge einlesen" x:Name="mnuInaktiveEinlesen"
+                            <MenuItem Header="_Inaktive/Abgänge einlesen" x:Name="mnuInaktiveEinlesen"
                                       Click="MnuInaktiveEinlesen_OnClick" />
                         </MenuItem>
                         <MenuItem Header="Änderungen _einlesen" x:Name="mnuReadDiffs" IsVisible="False" />
@@ -255,7 +255,7 @@
                                             </Button>
                                         </StackPanel>
                                         <TextBlock Classes="Header" Text="Kurse:" Grid.Column="0" Grid.Row="8" />
-                                        <TextBox x:Name="tbLuLKurse" Grid.Column="1" Grid.Row="8" />
+                                        <TextBox x:Name="tbLuLKurse" Grid.Column="1" Grid.Row="8" MaxWidth="600"/>
                                         <TextBlock Classes="Header" Text="Fachvorsitz:" Grid.Column="0" Grid.Row="9" />
                                         <TextBox x:Name="tbLuLFavo" Grid.Column="1" Grid.Row="9" />
                                         <TextBlock Classes="Header" Text="stellv. Fachvorsitz:" Grid.Column="0"
@@ -556,7 +556,7 @@
                             </StackPanel>
                             <Button Grid.Row="1" x:Name="btnSonstDVIDs" Click="BtnSonstDVIDs_OnClick">ID's ohne DV kopieren</Button>
                             <Button Grid.Row="2" x:Name="btnExportInaktive" Click="BtnExportInaktive_OnClick">Inaktive Accounts exportieren</Button>
-                            <TextBox Grid.Row="3" x:Name="tbSuSNamen" MinLines="15" AcceptsReturn="True"></TextBox>
+                            <TextBox Grid.Row="3" x:Name="tbSuSNamen" MinLines="15" AcceptsReturn="True" />
                             <Button Grid.Row="4" Click="BtnSonstigesNamenKlassen">Klassen hinzufügen</Button>
                             <Button Grid.Row="5" x:Name="btnSonstNeuzugangAbgang"
                                     Click="BtnSonstNeuzugangAbgang_OnClick">
