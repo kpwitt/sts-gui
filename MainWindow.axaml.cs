@@ -4357,6 +4357,7 @@ public partial class MainWindow : Window {
             }
 
             await _myschool.StopTransaction();
+            await ShowCustomSuccessMessage("Aktiv-Status erfolgreich eingelesen", "Erfolg");
         }
         catch (Exception ex) {
             _myschool.AddLogMessage(new LogEintrag {
