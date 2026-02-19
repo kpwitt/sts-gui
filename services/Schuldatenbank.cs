@@ -3675,6 +3675,10 @@ public class Schuldatenbank : IDisposable {
         sqliteCmd.Parameters.AddWithValue("$lulid", lulid);
         sqliteCmd.Parameters.AddWithValue("$istAktiv", istAktiv);
         sqliteCmd.ExecuteNonQuery();
+        AddLogMessage(new LogEintrag {
+            Eintragsdatum = DateTime.Now, Warnstufe = "Info",
+            Nachricht = $@"Aktivstatus für LuL mit der id {lulid} auf {istAktiv} gesetzt (falls existent)."
+        });
     }
 
     /// <summary>
@@ -3691,12 +3695,16 @@ public class Schuldatenbank : IDisposable {
     /// </summary>
     /// <param name="susid"></param>
     /// <param name="istAktiv"></param>
-    private void SetzeAktivstatusSchueler(int susid, bool istAktiv) {
+    public void SetzeAktivstatusSchueler(int susid, bool istAktiv) {
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText = "UPDATE schueler SET aktiv = $istAktiv WHERE id = $susid;";
         sqliteCmd.Parameters.AddWithValue("$susid", susid);
         sqliteCmd.Parameters.AddWithValue("$istAktiv", istAktiv);
         sqliteCmd.ExecuteNonQuery();
+        AddLogMessage(new LogEintrag {
+            Eintragsdatum = DateTime.Now, Warnstufe = "Info",
+            Nachricht = $@"Aktivstatus für SuS mit der id {susid} auf {istAktiv} gesetzt (falls existent)."
+        });
     }
 
     /// <summary>

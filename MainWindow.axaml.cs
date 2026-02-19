@@ -4322,8 +4322,49 @@ public partial class MainWindow : Window {
         catch (Exception ex) {
             _myschool.AddLogMessage(new LogEintrag {
                 Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
-                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim KOpieren des Passwortes"
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Kopieren des Passwortes"
             });
+        }
+    }
+
+    private async void MnuInaktiveEinlesen_OnClick(object? sender, RoutedEventArgs e) {
+        try {
+            var extx = new List<FilePickerFileType> {
+                StSFileTypes.CSVFile,
+                FilePickerFileTypes.All
+            };
+            var file = await ShowOpenFileDialog("Seriennummern einlesen", extx);
+            if (file == null) return;
+            var inaktiveCSVFilePath = file.Path.LocalPath;
+            var inaktiveCSVFileText = File.ReadAllLinesAsync(inaktiveCSVFilePath).Result.ToList();
+            var ini = -1;
+            var header = inaktiveCSVFileText[0].Split(';');
+            for (var i = 0; i < header.Length; i++) {
+                header[i] = header[i].Trim('"');
+                if (header[i].Equals("Interne ID-Nummer")) {
+                    ini = i;
+                }
+            }
+
+            if (ini == -1) {
+                await ShowCustomErrorMessage("Header beinhaltet keine Interne ID-Nummer", "Fehler");
+                throw new Exception("Header beinhaltet keine Interne ID-Nummer");
+            }
+
+            await _myschool.StartTransaction();
+            foreach (var id in inaktiveCSVFileText[1..].Select(line => Convert.ToInt32(line.Split(';')[ini]))) {
+                _myschool.SetzeAktivstatusSchueler(id, false);
+            }
+
+            await _myschool.StopTransaction();
+            await ShowCustomSuccessMessage("Aktiv-Status erfolgreich eingelesen", "Erfolg");
+        }
+        catch (Exception ex) {
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim Einlesen der Beurlaubten/Inaktiven/Abgänge"
+            });
+            await _myschool.StopTransaction();
         }
     }
 }
