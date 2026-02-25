@@ -3748,12 +3748,12 @@ public class Schuldatenbank : IDisposable {
                         case ChangePerson.SuS:
                             await AddStoK(change.id, change.kurs.Bezeichnung);
                             susidliste.Add(change.id);
-                            moodle_einschreibungen.Add($"add,student,{change.id},{change.kurs.Bezeichnung}");
+                            moodle_einschreibungen.Add($"add,student,{change.id},{change.kurs.Bezeichnung}{GetKursSuffix().Result}");
                             break;
                         case ChangePerson.LuL:
                             await AddLtoK(change.id, change.kurs.Bezeichnung);
                             lulidliste.Add(change.id);
-                            moodle_einschreibungen.Add($"add,editingteacher,{change.id},{change.kurs.Bezeichnung}");
+                            moodle_einschreibungen.Add($"add,editingteacher,{change.id},{change.kurs.Bezeichnung}{GetKursSuffix().Result}");
                             break;
                         default:
                             AddLogMessage(new LogEintrag {
@@ -3769,11 +3769,11 @@ public class Schuldatenbank : IDisposable {
                     switch (change.person) {
                         case ChangePerson.SuS:
                             await RemoveSfromK(change.id, change.kurs.Bezeichnung);
-                            moodle_einschreibungen.Add($"del,student,{change.id},{change.kurs.Bezeichnung}");
+                            moodle_einschreibungen.Add($"del,student,{change.id},{change.kurs.Bezeichnung}{GetKursSuffix().Result}");
                             break;
                         case ChangePerson.LuL:
                             await RemoveLfromK(change.id, change.kurs.Bezeichnung);
-                            moodle_einschreibungen.Add($"del,editingteacher,{change.id},{change.kurs.Bezeichnung}");
+                            moodle_einschreibungen.Add($"del,editingteacher,{change.id},{change.kurs.Bezeichnung}{GetKursSuffix().Result}");
                             break;
                         default:
                             AddLogMessage(new LogEintrag {
