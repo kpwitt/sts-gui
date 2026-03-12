@@ -1696,7 +1696,7 @@ public class Schuldatenbank : IDisposable {
             result.AddRange(from fach in favo.Favo.Split(',')
                 where !string.IsNullOrEmpty(fach)
                 let sfavos = SFaVos.Where(l => l.SFavo.Split(',').Contains(fach)).ToList()
-                let favomitglieder = lulcache.Where(l => l.Fakultas.Split(',').Contains(fach)).ToList()
+                let favomitglieder = lulcache.Where(l => l.Fakultas.Split(',').Contains(fach)&&l.IstAktiv).ToList()
                 select new FaKo(fach, favo, sfavos.Count > 0 ? sfavos.First() : new Lehrkraft(),
                     favomitglieder
                 ));
