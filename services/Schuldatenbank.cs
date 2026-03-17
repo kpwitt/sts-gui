@@ -97,10 +97,10 @@ public class Schuldatenbank : IDisposable {
                                         [aixmail] NVARCHAR(128) NOT NULL,
                                         [zweitaccount] INTEGER DEFAULT 0 NOT NULL,
                                         [zweitmail] NVARCHAR(512) DEFAULT '' NOT NULL,
-                                        [m365] INTEGER DEFAULT 1 NOT NULL,
+                                        [has_m365] INTEGER DEFAULT 1 NOT NULL,
                                         [aktiv] BOOLEAN NOT NULL DEFAULT TRUE,
                                         [seriennummer] NVARCHAR(64) NOT NULL DEFAULT '',
-                                        [jamf]	INTEGER NOT NULL DEFAULT 0,
+                                        [has_jamf]	INTEGER NOT NULL DEFAULT 0,
                                         [bemerkung] NVARCHAR(512) NOT NULL DEFAULT ''
                                        )
                                     """;
@@ -683,7 +683,7 @@ public class Schuldatenbank : IDisposable {
         seriennummer = string.IsNullOrEmpty(seriennummer) ? "" : seriennummer;
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
-            "INSERT OR IGNORE INTO schueler (id, vorname, nachname, mail, klasse, nutzername, aixmail, zweitaccount, zweitmail, seriennummer, m365, jamf, aktiv,bemerkung)" +
+            "INSERT OR IGNORE INTO schueler (id, vorname, nachname, mail, klasse, nutzername, aixmail, zweitaccount, zweitmail, seriennummer, has_m365, has_jamf, aktiv,bemerkung)" +
             " VALUES ($id, $vorname, $nachname, $mail, $klasse, $nutzername, $aixmail,$zweitaccount, $zweitmail, $seriennummer, $m365, $jamf, $aktiv,$bemerkung);";
         sqliteCmd.Parameters.AddWithValue("$id", id);
         sqliteCmd.Parameters.AddWithValue("$vorname", vorname);
@@ -717,7 +717,7 @@ public class Schuldatenbank : IDisposable {
         schuelerin.Seriennummer = string.IsNullOrEmpty(schuelerin.Seriennummer) ? "" : schuelerin.Seriennummer;
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
-            "INSERT OR IGNORE INTO schueler (id, vorname, nachname, mail, klasse, nutzername, aixmail, zweitaccount, zweitmail, seriennummer, m365, jamf, aktiv,bemerkung) " +
+            "INSERT OR IGNORE INTO schueler (id, vorname, nachname, mail, klasse, nutzername, aixmail, zweitaccount, zweitmail, seriennummer, has_m365, has_jamf, aktiv,bemerkung) " +
             "VALUES ($id, $vorname, $nachname, $mail, $klasse, $nutzername, $aixmail,$zweitaccount, $zweitmail, $seriennummer, $m365, $jamf, $aktiv,$bemerkung);";
         sqliteCmd.Parameters.AddWithValue("$id", schuelerin.ID);
         sqliteCmd.Parameters.AddWithValue("$vorname", schuelerin.Vorname);
@@ -2082,7 +2082,7 @@ public class Schuldatenbank : IDisposable {
     public async Task<SuS> GetSchueler(int id) {
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
-            "SELECT id,nachname,vorname,mail,klasse,nutzername,aixmail,zweitaccount,zweitmail, m365, aktiv, seriennummer, jamf, bemerkung FROM schueler WHERE id = $id;";
+            "SELECT id,nachname,vorname,mail,klasse,nutzername,aixmail,zweitaccount,zweitmail, has_m365, aktiv, seriennummer, has_jamf, bemerkung FROM schueler WHERE id = $id;";
         sqliteCmd.Parameters.AddWithValue("$id", id);
         var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
         SuS schuelerin = new();
@@ -2114,7 +2114,7 @@ public class Schuldatenbank : IDisposable {
     public async Task<List<SuS>> GetSchueler(string vorname, string nachname) {
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
-            "SELECT id,nachname,vorname,mail,klasse,nutzername,aixmail,zweitaccount,zweitmail, m365, aktiv, seriennummer, jamf,bemerkung FROM schueler WHERE vorname LIKE $vorname AND nachname = $nachname;";
+            "SELECT id,nachname,vorname,mail,klasse,nutzername,aixmail,zweitaccount,zweitmail, has_m365, aktiv, seriennummer, has_jamf,bemerkung FROM schueler WHERE vorname LIKE $vorname AND nachname = $nachname;";
         sqliteCmd.Parameters.AddWithValue("$vorname", vorname);
         sqliteCmd.Parameters.AddWithValue("$nachname", nachname);
         var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
@@ -2152,7 +2152,7 @@ public class Schuldatenbank : IDisposable {
     private async Task<SuS> GetSchueler(string vorname, string nachname, string klasse) {
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
-            "SELECT id,nachname,vorname,mail,klasse,nutzername,aixmail,zweitaccount,zweitmail, m365, aktiv, seriennummer, jamf,bemerkung FROM schueler WHERE vorname = $vorname AND nachname = $nachname AND klasse = $klasse;";
+            "SELECT id,nachname,vorname,mail,klasse,nutzername,aixmail,zweitaccount,zweitmail, has_m365, aktiv, seriennummer, has_jamf,bemerkung FROM schueler WHERE vorname = $vorname AND nachname = $nachname AND klasse = $klasse;";
         sqliteCmd.Parameters.AddWithValue("$vorname", vorname);
         sqliteCmd.Parameters.AddWithValue("$nachname", nachname);
         sqliteCmd.Parameters.AddWithValue("$klasse", klasse);
@@ -2189,7 +2189,7 @@ public class Schuldatenbank : IDisposable {
     public async Task<List<SuS>> GetSchueler(string name) {
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
-            "SELECT id,nachname,vorname,mail,klasse,nutzername,aixmail,zweitaccount,zweitmail, m365, aktiv, seriennummer, jamf,bemerkung FROM schueler WHERE CONCAT(vorname, ' ', nachname)== $name;";
+            "SELECT id,nachname,vorname,mail,klasse,nutzername,aixmail,zweitaccount,zweitmail, has_m365, aktiv, seriennummer, has_jamf,bemerkung FROM schueler WHERE CONCAT(vorname, ' ', nachname)== $name;";
         sqliteCmd.Parameters.AddWithValue("$name", name);
         var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
         var susliste = new List<SuS>();
@@ -2238,7 +2238,7 @@ public class Schuldatenbank : IDisposable {
         List<SuS> slist = [];
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
-            "SELECT id,nachname,vorname,mail,klasse,nutzername,aixmail,zweitaccount,zweitmail,m365, aktiv, seriennummer,bemerkung, jamf FROM schueler;";
+            "SELECT id,nachname,vorname,mail,klasse,nutzername,aixmail,zweitaccount,zweitmail,has_m365, aktiv, seriennummer,bemerkung, has_jamf FROM schueler;";
         var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
         while (sqliteDatareader.Read()) {
             SuS schuelerin = new() {
@@ -2885,14 +2885,6 @@ public class Schuldatenbank : IDisposable {
     }
 
     /// <summary>
-    /// löscht das Log für die übergebene Stufe
-    /// </summary>
-    /// <param name="stufe">"Fehler", "Hinweis", oder "Info"</param>
-    public async Task LoescheLog(string stufe) {
-        //ToDo: Implementierung
-    }
-
-    /// <summary>
     /// liest die Lehrkräfte aus der übergebenen Datei ein (inkrementell oder gesamt)
     /// </summary>
     /// <param name="lulfile"></param>
@@ -3266,14 +3258,14 @@ public class Schuldatenbank : IDisposable {
     /// ende von SQLite-Transaktionen zur Beschleunigung von Inserts oder Updates
     /// </summary>
     public async Task StopTransaction() {
-        if (_activeTransaction == false) return;
+        if (!_activeTransaction) return;
         _activeTransaction = false;
         if (_dbtrans == null) return;
         await _dbtrans.CommitAsync();
     }
 
     /// <summary>
-    /// liest die  SuSnen aus der übergebenen Datei ein (inkrementell oder gesamt)
+    /// liest die  SuS aus der übergebenen Datei ein (inkrementell oder gesamt)
     /// </summary>
     /// <param name="susfile"></param>
     public async Task SusEinlesen(string susfile) {
@@ -3305,6 +3297,7 @@ public class Schuldatenbank : IDisposable {
         }
 
         lines = lines[1..];
+        var settings = GetSettings().Result;
         await StartTransaction();
         Parallel.ForEach(lines, async void (line, _) => {
             try {
@@ -3314,7 +3307,6 @@ public class Schuldatenbank : IDisposable {
                 }
 
                 var susid = Convert.ToInt32(tmpsus[ini]);
-                var settings = GetSettings().Result;
                 var mail = tmpsus[ini] + settings.Mailsuffix;
                 var maillist = (from idm in inm where !tmpsus[idm].Equals("") select tmpsus[idm]).ToList();
 
@@ -3474,7 +3466,7 @@ public class Schuldatenbank : IDisposable {
 
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText =
-            "UPDATE schueler SET nachname=$nachname, vorname=$vorname, mail=$mail, klasse=$klasse, nutzername=$nutzername, aixmail=$aixmail, zweitaccount = $zweitaccount, zweitmail=$zweitmail, m365=$hasM365, aktiv=$aktiv, seriennummer=$seriennummer, jamf = $jamf,bemerkung=$bemerkung WHERE id=$id;";
+            "UPDATE schueler SET nachname=$nachname, vorname=$vorname, mail=$mail, klasse=$klasse, nutzername=$nutzername, aixmail=$aixmail, zweitaccount = $zweitaccount, zweitmail=$zweitmail, has_m365=$hasM365, aktiv=$aktiv, seriennummer=$seriennummer, has_jamf = $jamf,bemerkung=$bemerkung WHERE id=$id;";
         sqliteCmd.Parameters.AddWithValue("$id", id);
         sqliteCmd.Parameters.AddWithValue("$vorname", vorname);
         sqliteCmd.Parameters.AddWithValue("$nachname", nachname);
@@ -3546,7 +3538,7 @@ public class Schuldatenbank : IDisposable {
     public async Task<ReadOnlyCollection<int>> GetM365Blacklist() {
         List<int> ids = [];
         var sqliteCmd = _sqliteConn.CreateCommand();
-        sqliteCmd.CommandText = "SELECT id FROM schueler WHERE m365 = 0;";
+        sqliteCmd.CommandText = "SELECT id FROM schueler WHERE has_m365 = 0;";
         var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
         while (sqliteDatareader.Read()) {
             ids.Add(int.Parse(sqliteDatareader["id"].ToString() ?? string.Empty));
@@ -3581,7 +3573,7 @@ public class Schuldatenbank : IDisposable {
     public async void SetM365(int susid, int has_m365) {
         if (susid <= 0) return;
         var sqliteCmd = _sqliteConn.CreateCommand();
-        sqliteCmd.CommandText = "UPDATE schueler SET m365 = $has_m365 WHERE id = $susid;";
+        sqliteCmd.CommandText = "UPDATE schueler SET has_m365 = $has_m365 WHERE id = $susid;";
         sqliteCmd.Parameters.AddWithValue("$has_m365", has_m365);
         sqliteCmd.Parameters.AddWithValue("$susid", susid);
         sqliteCmd.ExecuteNonQuery();
@@ -3717,7 +3709,7 @@ public class Schuldatenbank : IDisposable {
 
     public void SetJAMF(int susid, int i) {
         var sqliteCmd = _sqliteConn.CreateCommand();
-        sqliteCmd.CommandText = "UPDATE schueler SET jamf = $jamf WHERE id = $susid;";
+        sqliteCmd.CommandText = "UPDATE schueler SET has_jamf = $jamf WHERE id = $susid;";
         sqliteCmd.Parameters.AddWithValue("$susid", susid);
         sqliteCmd.Parameters.AddWithValue("$jamf", i);
         sqliteCmd.ExecuteNonQuery();
@@ -3813,9 +3805,5 @@ public class Schuldatenbank : IDisposable {
     /// </summary>
     public void LoescheAlleNichtExportiertenAenderungen() {
         ausstehende_aenderungen.Clear();
-    }
-
-    public bool LoescheAenderung(Changes to_delete) {
-        return ausstehende_aenderungen.Remove(to_delete);
     }
 }
