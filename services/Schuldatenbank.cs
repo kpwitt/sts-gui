@@ -3258,7 +3258,7 @@ public class Schuldatenbank : IDisposable {
     /// ende von SQLite-Transaktionen zur Beschleunigung von Inserts oder Updates
     /// </summary>
     public async Task StopTransaction() {
-        if (_activeTransaction == false) return;
+        if (!_activeTransaction) return;
         _activeTransaction = false;
         if (_dbtrans == null) return;
         await _dbtrans.CommitAsync();
