@@ -540,32 +540,38 @@ public class Schuldatenbank : IDisposable {
     /// <param name="sfavo"></param>
     /// <param name="seriennummer"></param>
     /// <param name="bemerkung"></param>
-    public async Task Addlehrkraft(int id, string vorname, string nachname, string kuerzel, string mail,
+    public Task Addlehrkraft(int id, string vorname, string nachname, string kuerzel, string mail,
         string fakultas, string favo, string sfavo, string seriennummer, string bemerkung) {
-        if (GibtEsLehrkraft(id)) return;
-        seriennummer = string.IsNullOrEmpty(seriennummer) ? "" : seriennummer;
-        var sqliteCmd = _sqliteConn.CreateCommand();
-        sqliteCmd.CommandText =
-            "INSERT OR IGNORE INTO lehrkraft (id, nachname, vorname, kuerzel, mail, fakultas, pwtemp, favo, sfavo, seriennummer, bemerkung)" +
-            " VALUES ($id,$nachname,$vorname,$kuerzel,$mail,$fakultas,$pwtemp,$favo,$sfavo,$seriennummer,$bemerkung);";
-        sqliteCmd.Parameters.AddWithValue("$id", id);
-        sqliteCmd.Parameters.AddWithValue("$vorname", vorname);
-        sqliteCmd.Parameters.AddWithValue("$nachname", nachname);
-        sqliteCmd.Parameters.AddWithValue("$kuerzel", kuerzel.ToUpper());
-        sqliteCmd.Parameters.AddWithValue("$mail", mail.ToLower());
-        sqliteCmd.Parameters.AddWithValue("$fakultas", fakultas.TrimEnd(';'));
-        sqliteCmd.Parameters.AddWithValue("$pwtemp", Tooling.GeneratePasswort(8));
-        sqliteCmd.Parameters.AddWithValue("$favo", favo);
-        sqliteCmd.Parameters.AddWithValue("$sfavo", sfavo);
-        sqliteCmd.Parameters.AddWithValue("$seriennummer", seriennummer);
-        sqliteCmd.Parameters.AddWithValue("$bemerkung", bemerkung);
-        sqliteCmd.ExecuteNonQuery();
-        AddLogMessage(new LogEintrag {
-            Eintragsdatum = DateTime.Now,
-            Nachricht =
-                $" Lehrkraft {nachname} {vorname} {kuerzel} angelegt",
-            Warnstufe = "Info"
-        });
+        try {
+            if (GibtEsLehrkraft(id)) return Task.CompletedTask;
+            seriennummer = string.IsNullOrEmpty(seriennummer) ? "" : seriennummer;
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText =
+                "INSERT OR IGNORE INTO lehrkraft (id, nachname, vorname, kuerzel, mail, fakultas, pwtemp, favo, sfavo, seriennummer, bemerkung)" +
+                " VALUES ($id,$nachname,$vorname,$kuerzel,$mail,$fakultas,$pwtemp,$favo,$sfavo,$seriennummer,$bemerkung);";
+            sqliteCmd.Parameters.AddWithValue("$id", id);
+            sqliteCmd.Parameters.AddWithValue("$vorname", vorname);
+            sqliteCmd.Parameters.AddWithValue("$nachname", nachname);
+            sqliteCmd.Parameters.AddWithValue("$kuerzel", kuerzel.ToUpper());
+            sqliteCmd.Parameters.AddWithValue("$mail", mail.ToLower());
+            sqliteCmd.Parameters.AddWithValue("$fakultas", fakultas.TrimEnd(';'));
+            sqliteCmd.Parameters.AddWithValue("$pwtemp", Tooling.GeneratePasswort(8));
+            sqliteCmd.Parameters.AddWithValue("$favo", favo);
+            sqliteCmd.Parameters.AddWithValue("$sfavo", sfavo);
+            sqliteCmd.Parameters.AddWithValue("$seriennummer", seriennummer);
+            sqliteCmd.Parameters.AddWithValue("$bemerkung", bemerkung);
+            sqliteCmd.ExecuteNonQuery();
+            AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now,
+                Nachricht =
+                    $" Lehrkraft {nachname} {vorname} {kuerzel} angelegt",
+                Warnstufe = "Info"
+            });
+            return Task.CompletedTask;
+        }
+        catch (Exception exception) {
+            return Task.FromException(exception);
+        }
     }
 
     /// <summary>
@@ -573,32 +579,38 @@ public class Schuldatenbank : IDisposable {
     /// </summary>
     /// <param name="lehrkraft"></param>
     /// <returns></returns>
-    public async Task Addlehrkraft(Lehrkraft lehrkraft) {
-        if (GibtEsLehrkraft(lehrkraft.ID)) return;
-        lehrkraft.Seriennummer = string.IsNullOrEmpty(lehrkraft.Seriennummer) ? "" : lehrkraft.Seriennummer;
-        var sqliteCmd = _sqliteConn.CreateCommand();
-        sqliteCmd.CommandText =
-            "INSERT OR IGNORE INTO lehrkraft (id, nachname, vorname, kuerzel, mail, fakultas, pwtemp, favo, sfavo, seriennummer,bemerkung)" +
-            "VALUES ($id, $nachname, $vorname, $kuerzel, $mail, $fakultas, $pwtemp, $favo, $sfavo, $seriennummer,$bemerkung);";
-        sqliteCmd.Parameters.AddWithValue("$id", lehrkraft.ID);
-        sqliteCmd.Parameters.AddWithValue("$vorname", lehrkraft.Vorname);
-        sqliteCmd.Parameters.AddWithValue("$nachname", lehrkraft.Nachname);
-        sqliteCmd.Parameters.AddWithValue("$kuerzel", lehrkraft.Kuerzel.ToUpper());
-        sqliteCmd.Parameters.AddWithValue("$mail", lehrkraft.Mail.ToLower());
-        sqliteCmd.Parameters.AddWithValue("$fakultas", lehrkraft.Fakultas.TrimEnd(';'));
-        sqliteCmd.Parameters.AddWithValue("$pwtemp",
-            lehrkraft.Pwttemp.Length > 7 ? lehrkraft.Pwttemp : Tooling.GeneratePasswort(8));
-        sqliteCmd.Parameters.AddWithValue("$favo", lehrkraft.Favo);
-        sqliteCmd.Parameters.AddWithValue("$sfavo", lehrkraft.SFavo);
-        sqliteCmd.Parameters.AddWithValue("$seriennummer", lehrkraft.Seriennummer);
-        sqliteCmd.Parameters.AddWithValue("$bemerkung", lehrkraft.Bemerkung);
-        sqliteCmd.ExecuteNonQuery();
-        AddLogMessage(new LogEintrag {
-            Eintragsdatum = DateTime.Now,
-            Nachricht =
-                $" Lehrkraft {lehrkraft.Nachname} {lehrkraft.Vorname} {lehrkraft.Mail} angelegt",
-            Warnstufe = "Info"
-        });
+    public Task Addlehrkraft(Lehrkraft lehrkraft) {
+        try {
+            if (GibtEsLehrkraft(lehrkraft.ID)) return Task.CompletedTask;
+            lehrkraft.Seriennummer = string.IsNullOrEmpty(lehrkraft.Seriennummer) ? "" : lehrkraft.Seriennummer;
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText =
+                "INSERT OR IGNORE INTO lehrkraft (id, nachname, vorname, kuerzel, mail, fakultas, pwtemp, favo, sfavo, seriennummer,bemerkung)" +
+                "VALUES ($id, $nachname, $vorname, $kuerzel, $mail, $fakultas, $pwtemp, $favo, $sfavo, $seriennummer,$bemerkung);";
+            sqliteCmd.Parameters.AddWithValue("$id", lehrkraft.ID);
+            sqliteCmd.Parameters.AddWithValue("$vorname", lehrkraft.Vorname);
+            sqliteCmd.Parameters.AddWithValue("$nachname", lehrkraft.Nachname);
+            sqliteCmd.Parameters.AddWithValue("$kuerzel", lehrkraft.Kuerzel.ToUpper());
+            sqliteCmd.Parameters.AddWithValue("$mail", lehrkraft.Mail.ToLower());
+            sqliteCmd.Parameters.AddWithValue("$fakultas", lehrkraft.Fakultas.TrimEnd(';'));
+            sqliteCmd.Parameters.AddWithValue("$pwtemp",
+                lehrkraft.Pwttemp.Length > 7 ? lehrkraft.Pwttemp : Tooling.GeneratePasswort(8));
+            sqliteCmd.Parameters.AddWithValue("$favo", lehrkraft.Favo);
+            sqliteCmd.Parameters.AddWithValue("$sfavo", lehrkraft.SFavo);
+            sqliteCmd.Parameters.AddWithValue("$seriennummer", lehrkraft.Seriennummer);
+            sqliteCmd.Parameters.AddWithValue("$bemerkung", lehrkraft.Bemerkung);
+            sqliteCmd.ExecuteNonQuery();
+            AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now,
+                Nachricht =
+                    $" Lehrkraft {lehrkraft.Nachname} {lehrkraft.Vorname} {lehrkraft.Mail} angelegt",
+                Warnstufe = "Info"
+            });
+            return Task.CompletedTask;
+        }
+        catch (Exception exception) {
+            return Task.FromException(exception);
+        }
     }
 
     /// <summary>
@@ -676,35 +688,41 @@ public class Schuldatenbank : IDisposable {
         await AddLtoK(lehrkraft.ID, kurs.Bezeichnung);
     }
 
-    public async Task AddSchuelerIn(int id, string vorname, string nachname, string mail, string klasse,
+    public Task AddSchuelerIn(int id, string vorname, string nachname, string mail, string klasse,
         string nutzername, string aixmail, int zweitaccount, string zweitmail, string seriennummer, bool m365,
         bool jamf, bool aktiv, string bemerkung) {
-        if (GibtEsSchueler(id)) return;
-        seriennummer = string.IsNullOrEmpty(seriennummer) ? "" : seriennummer;
-        var sqliteCmd = _sqliteConn.CreateCommand();
-        sqliteCmd.CommandText =
-            "INSERT OR IGNORE INTO schueler (id, vorname, nachname, mail, klasse, nutzername, aixmail, zweitaccount, zweitmail, seriennummer, has_m365, has_jamf, aktiv,bemerkung)" +
-            " VALUES ($id, $vorname, $nachname, $mail, $klasse, $nutzername, $aixmail,$zweitaccount, $zweitmail, $seriennummer, $m365, $jamf, $aktiv,$bemerkung);";
-        sqliteCmd.Parameters.AddWithValue("$id", id);
-        sqliteCmd.Parameters.AddWithValue("$vorname", vorname);
-        sqliteCmd.Parameters.AddWithValue("$nachname", nachname);
-        sqliteCmd.Parameters.AddWithValue("$mail", mail.ToLower());
-        sqliteCmd.Parameters.AddWithValue("$klasse", klasse);
-        sqliteCmd.Parameters.AddWithValue("$nutzername", nutzername.ToLower());
-        sqliteCmd.Parameters.AddWithValue("$aixmail", aixmail.ToLower());
-        sqliteCmd.Parameters.AddWithValue("$zweitaccount", zweitaccount);
-        sqliteCmd.Parameters.AddWithValue("$zweitmail", zweitmail.ToLower());
-        sqliteCmd.Parameters.AddWithValue("$seriennummer", seriennummer);
-        sqliteCmd.Parameters.AddWithValue("$m365", m365);
-        sqliteCmd.Parameters.AddWithValue("$jamf", jamf);
-        sqliteCmd.Parameters.AddWithValue("$aktiv", aktiv);
-        sqliteCmd.Parameters.AddWithValue("$bemerkung", bemerkung);
-        sqliteCmd.ExecuteNonQuery();
-        AddLogMessage(new LogEintrag {
-            Eintragsdatum = DateTime.Now,
-            Nachricht = $"SuS {nachname} {vorname} {mail} angelegt",
-            Warnstufe = "Info"
-        });
+        try {
+            if (GibtEsSchueler(id)) return Task.CompletedTask;
+            seriennummer = string.IsNullOrEmpty(seriennummer) ? "" : seriennummer;
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText =
+                "INSERT OR IGNORE INTO schueler (id, vorname, nachname, mail, klasse, nutzername, aixmail, zweitaccount, zweitmail, seriennummer, has_m365, has_jamf, aktiv,bemerkung)" +
+                " VALUES ($id, $vorname, $nachname, $mail, $klasse, $nutzername, $aixmail,$zweitaccount, $zweitmail, $seriennummer, $m365, $jamf, $aktiv,$bemerkung);";
+            sqliteCmd.Parameters.AddWithValue("$id", id);
+            sqliteCmd.Parameters.AddWithValue("$vorname", vorname);
+            sqliteCmd.Parameters.AddWithValue("$nachname", nachname);
+            sqliteCmd.Parameters.AddWithValue("$mail", mail.ToLower());
+            sqliteCmd.Parameters.AddWithValue("$klasse", klasse);
+            sqliteCmd.Parameters.AddWithValue("$nutzername", nutzername.ToLower());
+            sqliteCmd.Parameters.AddWithValue("$aixmail", aixmail.ToLower());
+            sqliteCmd.Parameters.AddWithValue("$zweitaccount", zweitaccount);
+            sqliteCmd.Parameters.AddWithValue("$zweitmail", zweitmail.ToLower());
+            sqliteCmd.Parameters.AddWithValue("$seriennummer", seriennummer);
+            sqliteCmd.Parameters.AddWithValue("$m365", m365);
+            sqliteCmd.Parameters.AddWithValue("$jamf", jamf);
+            sqliteCmd.Parameters.AddWithValue("$aktiv", aktiv);
+            sqliteCmd.Parameters.AddWithValue("$bemerkung", bemerkung);
+            sqliteCmd.ExecuteNonQuery();
+            AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now,
+                Nachricht = $"SuS {nachname} {vorname} {mail} angelegt",
+                Warnstufe = "Info"
+            });
+            return Task.CompletedTask;
+        }
+        catch (Exception exception) {
+            return Task.FromException(exception);
+        }
     }
 
     /// <summary>
@@ -712,33 +730,39 @@ public class Schuldatenbank : IDisposable {
     /// </summary>
     /// <param name="schuelerin"></param>
     /// <returns></returns>
-    public async Task AddSchuelerIn(SuS schuelerin) {
-        if (GibtEsSchueler(schuelerin.ID)) return;
-        schuelerin.Seriennummer = string.IsNullOrEmpty(schuelerin.Seriennummer) ? "" : schuelerin.Seriennummer;
-        var sqliteCmd = _sqliteConn.CreateCommand();
-        sqliteCmd.CommandText =
-            "INSERT OR IGNORE INTO schueler (id, vorname, nachname, mail, klasse, nutzername, aixmail, zweitaccount, zweitmail, seriennummer, has_m365, has_jamf, aktiv,bemerkung) " +
-            "VALUES ($id, $vorname, $nachname, $mail, $klasse, $nutzername, $aixmail,$zweitaccount, $zweitmail, $seriennummer, $m365, $jamf, $aktiv,$bemerkung);";
-        sqliteCmd.Parameters.AddWithValue("$id", schuelerin.ID);
-        sqliteCmd.Parameters.AddWithValue("$vorname", schuelerin.Vorname);
-        sqliteCmd.Parameters.AddWithValue("$nachname", schuelerin.Nachname);
-        sqliteCmd.Parameters.AddWithValue("$mail", schuelerin.Mail.ToLower());
-        sqliteCmd.Parameters.AddWithValue("$klasse", schuelerin.Klasse);
-        sqliteCmd.Parameters.AddWithValue("$nutzername", schuelerin.Nutzername.ToLower());
-        sqliteCmd.Parameters.AddWithValue("$aixmail", schuelerin.Aixmail.ToLower());
-        sqliteCmd.Parameters.AddWithValue("$zweitaccount", schuelerin.Zweitaccount);
-        sqliteCmd.Parameters.AddWithValue("$zweitmail", schuelerin.Zweitmail.ToLower());
-        sqliteCmd.Parameters.AddWithValue("$seriennummer", schuelerin.Seriennummer);
-        sqliteCmd.Parameters.AddWithValue("$m365", schuelerin.HasM365Account);
-        sqliteCmd.Parameters.AddWithValue("$jamf", schuelerin.AllowJAMF);
-        sqliteCmd.Parameters.AddWithValue("$aktiv", schuelerin.IstAktiv);
-        sqliteCmd.Parameters.AddWithValue("$bemerkung", schuelerin.Bemerkung);
-        sqliteCmd.ExecuteNonQuery();
-        AddLogMessage(new LogEintrag {
-            Eintragsdatum = DateTime.Now,
-            Nachricht = $" SuS {schuelerin.Nachname} {schuelerin.Vorname} {schuelerin.Mail} angelegt",
-            Warnstufe = "Info"
-        });
+    public Task AddSchuelerIn(SuS schuelerin) {
+        try {
+            if (GibtEsSchueler(schuelerin.ID)) return Task.CompletedTask;
+            schuelerin.Seriennummer = string.IsNullOrEmpty(schuelerin.Seriennummer) ? "" : schuelerin.Seriennummer;
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText =
+                "INSERT OR IGNORE INTO schueler (id, vorname, nachname, mail, klasse, nutzername, aixmail, zweitaccount, zweitmail, seriennummer, has_m365, has_jamf, aktiv,bemerkung) " +
+                "VALUES ($id, $vorname, $nachname, $mail, $klasse, $nutzername, $aixmail,$zweitaccount, $zweitmail, $seriennummer, $m365, $jamf, $aktiv,$bemerkung);";
+            sqliteCmd.Parameters.AddWithValue("$id", schuelerin.ID);
+            sqliteCmd.Parameters.AddWithValue("$vorname", schuelerin.Vorname);
+            sqliteCmd.Parameters.AddWithValue("$nachname", schuelerin.Nachname);
+            sqliteCmd.Parameters.AddWithValue("$mail", schuelerin.Mail.ToLower());
+            sqliteCmd.Parameters.AddWithValue("$klasse", schuelerin.Klasse);
+            sqliteCmd.Parameters.AddWithValue("$nutzername", schuelerin.Nutzername.ToLower());
+            sqliteCmd.Parameters.AddWithValue("$aixmail", schuelerin.Aixmail.ToLower());
+            sqliteCmd.Parameters.AddWithValue("$zweitaccount", schuelerin.Zweitaccount);
+            sqliteCmd.Parameters.AddWithValue("$zweitmail", schuelerin.Zweitmail.ToLower());
+            sqliteCmd.Parameters.AddWithValue("$seriennummer", schuelerin.Seriennummer);
+            sqliteCmd.Parameters.AddWithValue("$m365", schuelerin.HasM365Account);
+            sqliteCmd.Parameters.AddWithValue("$jamf", schuelerin.AllowJAMF);
+            sqliteCmd.Parameters.AddWithValue("$aktiv", schuelerin.IstAktiv);
+            sqliteCmd.Parameters.AddWithValue("$bemerkung", schuelerin.Bemerkung);
+            sqliteCmd.ExecuteNonQuery();
+            AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now,
+                Nachricht = $" SuS {schuelerin.Nachname} {schuelerin.Vorname} {schuelerin.Mail} angelegt",
+                Warnstufe = "Info"
+            });
+            return Task.CompletedTask;
+        }
+        catch (Exception exception) {
+            return Task.FromException(exception);
+        }
     }
 
     /// <summary>
@@ -1696,7 +1720,7 @@ public class Schuldatenbank : IDisposable {
             result.AddRange(from fach in favo.Favo.Split(',')
                 where !string.IsNullOrEmpty(fach)
                 let sfavos = SFaVos.Where(l => l.SFavo.Split(',').Contains(fach)).ToList()
-                let favomitglieder = lulcache.Where(l => l.Fakultas.Split(',').Contains(fach)&&l.IstAktiv).ToList()
+                let favomitglieder = lulcache.Where(l => l.Fakultas.Split(',').Contains(fach) && l.IstAktiv).ToList()
                 select new FaKo(fach, favo, sfavos.Count > 0 ? sfavos.First() : new Lehrkraft(),
                     favomitglieder
                 ));
@@ -1790,8 +1814,13 @@ public class Schuldatenbank : IDisposable {
     /// gibt das globale Kurssuffix zurück
     /// </summary>
     /// <returns>String Kurssuffix</returns>
-    private async Task<string> GetKursSuffix() {
-        return GetSettings().Result.Kurssuffix;
+    private Task<string> GetKursSuffix() {
+        try {
+            return Task.FromResult(GetSettings().Result.Kurssuffix);
+        }
+        catch (Exception exception) {
+            return Task.FromException<string>(exception);
+        }
     }
 
     /// <summary>
@@ -1959,27 +1988,32 @@ public class Schuldatenbank : IDisposable {
     /// gibt die Log-Meldungen zurück
     /// </summary>
     /// <returns>Log-Entrag-Liste der Nachrichten </returns>
-    public async Task<ReadOnlyCollection<LogEintrag>> GetLog() {
-        List<LogEintrag> logentries = [];
-        if (File.Exists(log.Settings.LogFilename)) {
-            logentries.AddRange(from line in File.ReadAllLinesAsync(log.Settings.LogFilename).Result
-                select line.Split(' ')
-                into split_line
-                let date = split_line[0]
-                let time = split_line[1]
-                let level = split_line[3]
-                let message = string.Join(" ", split_line[4..])
-                where !string.IsNullOrEmpty(date) && !string.IsNullOrEmpty(time)
-                select new LogEintrag
-                    { Eintragsdatum = DateTime.Parse($"{date} {time}"), Warnstufe = level, Nachricht = message });
-            return logentries.AsReadOnly();
-        }
+    public Task<ReadOnlyCollection<LogEintrag>> GetLog() {
+        try {
+            List<LogEintrag> logentries = [];
+            if (File.Exists(log.Settings.LogFilename)) {
+                logentries.AddRange(from line in File.ReadAllLinesAsync(log.Settings.LogFilename).Result
+                    select line.Split(' ')
+                    into split_line
+                    let date = split_line[0]
+                    let time = split_line[1]
+                    let level = split_line[3]
+                    let message = string.Join(" ", split_line[4..])
+                    where !string.IsNullOrEmpty(date) && !string.IsNullOrEmpty(time)
+                    select new LogEintrag
+                        { Eintragsdatum = DateTime.Parse($"{date} {time}"), Warnstufe = level, Nachricht = message });
+                return Task.FromResult(logentries.AsReadOnly());
+            }
 
-        _logpath = log.Settings.LogFilename =
-            _dbpath == ":memory:"
-                ? Path.Combine(Path.GetTempPath(), Path.ChangeExtension($"StS_{Guid.NewGuid()}_tmp", "log"))
-                : _dbpath.Replace("sqlite", "log");
-        return new ReadOnlyCollection<LogEintrag>(logentries);
+            _logpath = log.Settings.LogFilename =
+                _dbpath == ":memory:"
+                    ? Path.Combine(Path.GetTempPath(), Path.ChangeExtension($"StS_{Guid.NewGuid()}_tmp", "log"))
+                    : _dbpath.Replace("sqlite", "log");
+            return Task.FromResult(new ReadOnlyCollection<LogEintrag>(logentries));
+        }
+        catch (Exception exception) {
+            return Task.FromException<ReadOnlyCollection<LogEintrag>>(exception);
+        }
     }
 
     /// <summary>
@@ -2358,10 +2392,15 @@ public class Schuldatenbank : IDisposable {
     /// <summary>
     /// gibt die Statistik als fertigen String zurück
     /// </summary>
-    public async Task<string> GetStat() {
-        var result =
-            $"Kurse: {GetKursListe().Result.Count}; Lehrer:Innen: {GetLehrkraftListe().Result.Count}; Schüler:Innen: {GetSchuelerListe().Result.Count}";
-        return result;
+    public Task<string> GetStat() {
+        try {
+            var result =
+                $"Kurse: {GetKursListe().Result.Count}; Lehrer:Innen: {GetLehrkraftListe().Result.Count}; Schüler:Innen: {GetSchuelerListe().Result.Count}";
+            return Task.FromResult(result);
+        }
+        catch (Exception exception) {
+            return Task.FromException<string>(exception);
+        }
     }
 
     /// <summary>
@@ -2369,25 +2408,30 @@ public class Schuldatenbank : IDisposable {
     /// </summary>
     /// <param name="stufe"></param>
     /// <returns></returns>
-    private async Task<List<Lehrkraft>> GetOberstufenleitung(string stufe) {
-        if (string.IsNullOrEmpty(stufe) || !oberstufe.Contains(stufe))
-            return [];
-        List<Lehrkraft> luls = [];
-        switch (stufe) {
-            case "EF":
-                luls.AddRange(GetSettings().Result.EFStufenleitung.Split(',')
-                    .Select(krz => GetLehrkraft(krz).Result));
-                return luls;
-            case "Q1":
-                luls.AddRange(GetSettings().Result.Q1Stufenleitung.Split(',')
-                    .Select(krz => GetLehrkraft(krz).Result));
-                return luls;
-            case "Q2":
-                luls.AddRange(GetSettings().Result.Q2Stufenleitung.Split(',')
-                    .Select(krz => GetLehrkraft(krz).Result));
-                return luls;
-            default:
-                return [];
+    private Task<List<Lehrkraft>> GetOberstufenleitung(string stufe) {
+        try {
+            if (string.IsNullOrEmpty(stufe) || !oberstufe.Contains(stufe))
+                return Task.FromResult<List<Lehrkraft>>([]);
+            List<Lehrkraft> luls = [];
+            switch (stufe) {
+                case "EF":
+                    luls.AddRange(GetSettings().Result.EFStufenleitung.Split(',')
+                        .Select(krz => GetLehrkraft(krz).Result));
+                    return Task.FromResult(luls);
+                case "Q1":
+                    luls.AddRange(GetSettings().Result.Q1Stufenleitung.Split(',')
+                        .Select(krz => GetLehrkraft(krz).Result));
+                    return Task.FromResult(luls);
+                case "Q2":
+                    luls.AddRange(GetSettings().Result.Q2Stufenleitung.Split(',')
+                        .Select(krz => GetLehrkraft(krz).Result));
+                    return Task.FromResult(luls);
+                default:
+                    return Task.FromResult<List<Lehrkraft>>([]);
+            }
+        }
+        catch (Exception exception) {
+            return Task.FromException<List<Lehrkraft>>(exception);
         }
     }
 
@@ -2738,7 +2782,7 @@ public class Schuldatenbank : IDisposable {
                     var courses_to_add = aktuelle_kurse.Where(k => !alte_kurse.Contains(k)).ToList();
                     var courses_to_delete = alte_kurse.Where(k =>
                         !hash_set_neue_kurse.Contains(k.Bezeichnung)).ToList();
-                    courses_to_add.RemoveAll(k=>courses_to_delete.Contains(k));
+                    courses_to_add.RemoveAll(k => courses_to_delete.Contains(k));
                     foreach (var kurs in courses_to_add) {
                         ausstehende_aenderungen.Add(new Changes
                             { id = stmp.ID, kind = ChangeKind.add, kurs = kurs, person = ChangePerson.SuS });
@@ -2878,9 +2922,16 @@ public class Schuldatenbank : IDisposable {
     /// <summary>
     /// löscht das komplette Log
     /// </summary>
-    public async Task LoescheLog() {
-        if (File.Exists(_logpath)) {
-            File.Delete(_logpath);
+    public Task LoescheLog() {
+        try {
+            if (File.Exists(_logpath)) {
+                File.Delete(_logpath);
+            }
+
+            return Task.CompletedTask;
+        }
+        catch (Exception exception) {
+            return Task.FromException(exception);
         }
     }
 
@@ -2949,25 +3000,31 @@ public class Schuldatenbank : IDisposable {
     /// löscht den angegeben Kurs und alle dazugehörigen Einträge
     /// </summary>
     /// <param name="kbez"></param>
-    public async Task RemoveK(string kbez) {
-        if (string.IsNullOrEmpty(kbez)) return;
-        var sqliteCmd = _sqliteConn.CreateCommand();
-        sqliteCmd.CommandText = "DELETE FROM nimmtteil WHERE kursbez = $kbez;";
-        sqliteCmd.Parameters.AddWithValue("$kbez", kbez);
-        sqliteCmd.ExecuteNonQuery();
-        sqliteCmd.Parameters.Clear();
-        sqliteCmd.CommandText = "DELETE FROM unterrichtet WHERE kursbez = $kbez;";
-        sqliteCmd.Parameters.AddWithValue("$kbez", kbez);
-        sqliteCmd.ExecuteNonQuery();
-        sqliteCmd.Parameters.Clear();
-        sqliteCmd.CommandText = "DELETE FROM kurse WHERE bez =$kbez;";
-        sqliteCmd.Parameters.AddWithValue("$kbez", kbez);
-        sqliteCmd.ExecuteNonQuery();
-        sqliteCmd.Parameters.Clear();
-        AddLogMessage(new LogEintrag {
-            Eintragsdatum = DateTime.Now, Nachricht = $"Kurs mit der Bezeichnung {kbez} gelöscht",
-            Warnstufe = "Info"
-        });
+    public Task RemoveK(string kbez) {
+        try {
+            if (string.IsNullOrEmpty(kbez)) return Task.CompletedTask;
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText = "DELETE FROM nimmtteil WHERE kursbez = $kbez;";
+            sqliteCmd.Parameters.AddWithValue("$kbez", kbez);
+            sqliteCmd.ExecuteNonQuery();
+            sqliteCmd.Parameters.Clear();
+            sqliteCmd.CommandText = "DELETE FROM unterrichtet WHERE kursbez = $kbez;";
+            sqliteCmd.Parameters.AddWithValue("$kbez", kbez);
+            sqliteCmd.ExecuteNonQuery();
+            sqliteCmd.Parameters.Clear();
+            sqliteCmd.CommandText = "DELETE FROM kurse WHERE bez =$kbez;";
+            sqliteCmd.Parameters.AddWithValue("$kbez", kbez);
+            sqliteCmd.ExecuteNonQuery();
+            sqliteCmd.Parameters.Clear();
+            AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Nachricht = $"Kurs mit der Bezeichnung {kbez} gelöscht",
+                Warnstufe = "Info"
+            });
+            return Task.CompletedTask;
+        }
+        catch (Exception exception) {
+            return Task.FromException(exception);
+        }
     }
 
     /// <summary>
@@ -2983,20 +3040,26 @@ public class Schuldatenbank : IDisposable {
     /// löscht die angegebene Lehrperson und die Kurszuordnungen
     /// </summary>
     /// <param name="lid"></param>
-    public async Task RemoveL(int lid) {
-        if (lid <= 0) return;
-        var sqliteCmd = _sqliteConn.CreateCommand();
-        sqliteCmd.CommandText = "DELETE FROM unterrichtet WHERE lehrerid = $lid;";
-        sqliteCmd.Parameters.AddWithValue("$lid", lid);
-        sqliteCmd.ExecuteNonQuery();
-        sqliteCmd.Parameters.Clear();
-        sqliteCmd.CommandText = "DELETE FROM lehrkraft INDEXED BY lindex WHERE id = $lid;";
-        sqliteCmd.Parameters.AddWithValue("$lid", lid);
-        sqliteCmd.ExecuteNonQuery();
-        sqliteCmd.Parameters.Clear();
-        AddLogMessage(new LogEintrag {
-            Eintragsdatum = DateTime.Now, Nachricht = $"Lehrkraft mit der ID {lid} gelöscht", Warnstufe = "Info"
-        });
+    public Task RemoveL(int lid) {
+        try {
+            if (lid <= 0) return Task.CompletedTask;
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText = "DELETE FROM unterrichtet WHERE lehrerid = $lid;";
+            sqliteCmd.Parameters.AddWithValue("$lid", lid);
+            sqliteCmd.ExecuteNonQuery();
+            sqliteCmd.Parameters.Clear();
+            sqliteCmd.CommandText = "DELETE FROM lehrkraft INDEXED BY lindex WHERE id = $lid;";
+            sqliteCmd.Parameters.AddWithValue("$lid", lid);
+            sqliteCmd.ExecuteNonQuery();
+            sqliteCmd.Parameters.Clear();
+            AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Nachricht = $"Lehrkraft mit der ID {lid} gelöscht", Warnstufe = "Info"
+            });
+            return Task.CompletedTask;
+        }
+        catch (Exception exception) {
+            return Task.FromException(exception);
+        }
     }
 
     /// <summary>
@@ -3053,19 +3116,25 @@ public class Schuldatenbank : IDisposable {
     /// löscht angegebenen SuS und die Kurszuordnungen
     /// </summary>
     /// <param name="sid"></param>
-    public async Task RemoveS(int sid) {
-        if (sid <= 0) return;
-        var sqliteCmd = _sqliteConn.CreateCommand();
-        sqliteCmd.CommandText = "DELETE FROM nimmtteil WHERE schuelerid = $sid;";
-        sqliteCmd.Parameters.AddWithValue("$sid", sid);
-        sqliteCmd.ExecuteNonQuery();
-        sqliteCmd.Parameters.Clear();
-        sqliteCmd.CommandText = "DELETE FROM schueler WHERE id = $sid;";
-        sqliteCmd.Parameters.AddWithValue("$sid", sid);
-        sqliteCmd.ExecuteNonQuery();
-        sqliteCmd.Parameters.Clear();
-        AddLogMessage(new LogEintrag
-            { Eintragsdatum = DateTime.Now, Nachricht = $"SuS mit der ID {sid} gelöscht", Warnstufe = "Info" });
+    public Task RemoveS(int sid) {
+        try {
+            if (sid <= 0) return Task.CompletedTask;
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText = "DELETE FROM nimmtteil WHERE schuelerid = $sid;";
+            sqliteCmd.Parameters.AddWithValue("$sid", sid);
+            sqliteCmd.ExecuteNonQuery();
+            sqliteCmd.Parameters.Clear();
+            sqliteCmd.CommandText = "DELETE FROM schueler WHERE id = $sid;";
+            sqliteCmd.Parameters.AddWithValue("$sid", sid);
+            sqliteCmd.ExecuteNonQuery();
+            sqliteCmd.Parameters.Clear();
+            AddLogMessage(new LogEintrag
+                { Eintragsdatum = DateTime.Now, Nachricht = $"SuS mit der ID {sid} gelöscht", Warnstufe = "Info" });
+            return Task.CompletedTask;
+        }
+        catch (Exception exception) {
+            return Task.FromException(exception);
+        }
     }
 
     /// <summary>
@@ -3240,18 +3309,30 @@ public class Schuldatenbank : IDisposable {
     /// setzt die Einstellungen der Schule in der Datenbank
     /// </summary>
     /// <param name="einstellungen"></param>
-    public async Task SetSettings(Einstellungen einstellungen) {
-        var sqliteCmd = _sqliteConn.CreateCommand();
-        SetSettings(ref sqliteCmd, ref einstellungen);
+    public Task SetSettings(Einstellungen einstellungen) {
+        try {
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            SetSettings(ref sqliteCmd, ref einstellungen);
+            return Task.CompletedTask;
+        }
+        catch (Exception exception) {
+            return Task.FromException(exception);
+        }
     }
 
     /// <summary>
     /// start von SQLite-Transaktionen zur Beschleunigung von Inserts oder Updates
     /// </summary>
-    public async Task StartTransaction() {
-        if (_activeTransaction) return;
-        _activeTransaction = true;
-        _dbtrans = _sqliteConn.BeginTransaction();
+    public Task StartTransaction() {
+        try {
+            if (_activeTransaction) return Task.CompletedTask;
+            _activeTransaction = true;
+            _dbtrans = _sqliteConn.BeginTransaction();
+            return Task.CompletedTask;
+        }
+        catch (Exception exception) {
+            return Task.FromException(exception);
+        }
     }
 
     /// <summary>
@@ -3368,20 +3449,26 @@ public class Schuldatenbank : IDisposable {
     /// <param name="suffix"></param>
     /// <param name="istkurs"></param>
     /// <param name="bemerkung"></param>
-    public async Task UpdateKurs(string bez, string fach, string klasse, string stufe, string suffix, int istkurs,
+    public Task UpdateKurs(string bez, string fach, string klasse, string stufe, string suffix, int istkurs,
         string bemerkung) {
-        if (string.IsNullOrEmpty(bez)) return;
-        var sqliteCmd = _sqliteConn.CreateCommand();
-        sqliteCmd.CommandText =
-            "UPDATE kurse SET fach = $fach, klasse = $klasse, stufe = $stufe, suffix = $suffix, istkurs = $istkurs,bemerkung=$bemerkung WHERE bez=$bez;";
-        sqliteCmd.Parameters.AddWithValue("$fach", fach);
-        sqliteCmd.Parameters.AddWithValue("$bez", bez);
-        sqliteCmd.Parameters.AddWithValue("$klasse", klasse);
-        sqliteCmd.Parameters.AddWithValue("$stufe", stufe);
-        sqliteCmd.Parameters.AddWithValue("$suffix", suffix);
-        sqliteCmd.Parameters.AddWithValue("$istkurs", istkurs);
-        sqliteCmd.Parameters.AddWithValue("$bemerkung", bemerkung);
-        sqliteCmd.ExecuteNonQuery();
+        try {
+            if (string.IsNullOrEmpty(bez)) return Task.CompletedTask;
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText =
+                "UPDATE kurse SET fach = $fach, klasse = $klasse, stufe = $stufe, suffix = $suffix, istkurs = $istkurs,bemerkung=$bemerkung WHERE bez=$bez;";
+            sqliteCmd.Parameters.AddWithValue("$fach", fach);
+            sqliteCmd.Parameters.AddWithValue("$bez", bez);
+            sqliteCmd.Parameters.AddWithValue("$klasse", klasse);
+            sqliteCmd.Parameters.AddWithValue("$stufe", stufe);
+            sqliteCmd.Parameters.AddWithValue("$suffix", suffix);
+            sqliteCmd.Parameters.AddWithValue("$istkurs", istkurs);
+            sqliteCmd.Parameters.AddWithValue("$bemerkung", bemerkung);
+            sqliteCmd.ExecuteNonQuery();
+            return Task.CompletedTask;
+        }
+        catch (Exception exception) {
+            return Task.FromException(exception);
+        }
     }
 
     /// <summary>
@@ -3398,24 +3485,30 @@ public class Schuldatenbank : IDisposable {
     /// <param name="sfavo"></param>
     /// <param name="seriennummer"></param>
     /// <param name="bemerkung"></param>
-    public async Task UpdateLehrkraft(int id, string vorname, string nachname, string kuerzel, string mail,
+    public Task UpdateLehrkraft(int id, string vorname, string nachname, string kuerzel, string mail,
         string fakultas, string pwtemp, string favo, string sfavo, string seriennummer, string bemerkung) {
-        if (string.IsNullOrEmpty(kuerzel) || id <= 0) return;
-        var sqliteCmd = _sqliteConn.CreateCommand();
-        sqliteCmd.CommandText =
-            "UPDATE lehrkraft SET nachname=$nachname, vorname=$vorname, kuerzel= $kuerzel, mail=$mail, fakultas=$fakultas, pwtemp = $pwtemp, favo = $favo, sfavo=$sfavo, seriennummer=$seriennummer,bemerkung=$bemerkung WHERE id=$id;";
-        sqliteCmd.Parameters.AddWithValue("$id", id);
-        sqliteCmd.Parameters.AddWithValue("$vorname", vorname);
-        sqliteCmd.Parameters.AddWithValue("$nachname", nachname);
-        sqliteCmd.Parameters.AddWithValue("$kuerzel", kuerzel.ToUpper());
-        sqliteCmd.Parameters.AddWithValue("$mail", mail);
-        sqliteCmd.Parameters.AddWithValue("$fakultas", fakultas.TrimEnd(';'));
-        sqliteCmd.Parameters.AddWithValue("$pwtemp", pwtemp);
-        sqliteCmd.Parameters.AddWithValue("$favo", favo);
-        sqliteCmd.Parameters.AddWithValue("$sfavo", sfavo);
-        sqliteCmd.Parameters.AddWithValue("$seriennummer", seriennummer);
-        sqliteCmd.Parameters.AddWithValue("$bemerkung", bemerkung);
-        sqliteCmd.ExecuteNonQuery();
+        try {
+            if (string.IsNullOrEmpty(kuerzel) || id <= 0) return Task.CompletedTask;
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText =
+                "UPDATE lehrkraft SET nachname=$nachname, vorname=$vorname, kuerzel= $kuerzel, mail=$mail, fakultas=$fakultas, pwtemp = $pwtemp, favo = $favo, sfavo=$sfavo, seriennummer=$seriennummer,bemerkung=$bemerkung WHERE id=$id;";
+            sqliteCmd.Parameters.AddWithValue("$id", id);
+            sqliteCmd.Parameters.AddWithValue("$vorname", vorname);
+            sqliteCmd.Parameters.AddWithValue("$nachname", nachname);
+            sqliteCmd.Parameters.AddWithValue("$kuerzel", kuerzel.ToUpper());
+            sqliteCmd.Parameters.AddWithValue("$mail", mail);
+            sqliteCmd.Parameters.AddWithValue("$fakultas", fakultas.TrimEnd(';'));
+            sqliteCmd.Parameters.AddWithValue("$pwtemp", pwtemp);
+            sqliteCmd.Parameters.AddWithValue("$favo", favo);
+            sqliteCmd.Parameters.AddWithValue("$sfavo", sfavo);
+            sqliteCmd.Parameters.AddWithValue("$seriennummer", seriennummer);
+            sqliteCmd.Parameters.AddWithValue("$bemerkung", bemerkung);
+            sqliteCmd.ExecuteNonQuery();
+            return Task.CompletedTask;
+        }
+        catch (Exception exception) {
+            return Task.FromException(exception);
+        }
     }
 
     /// <summary>
@@ -3635,22 +3728,34 @@ public class Schuldatenbank : IDisposable {
     /// </summary>
     /// <param name="id"></param>
     /// <param name="pStatus"></param>
-    private async Task SetZweitAccount(int id, int pStatus) {
-        if (id <= 0) return;
-        var sqliteCmd = _sqliteConn.CreateCommand();
-        sqliteCmd.CommandText = "UPDATE schueler SET zweitaccount = $status WHERE id = $susid;";
-        sqliteCmd.Parameters.AddWithValue("$status", pStatus);
-        sqliteCmd.Parameters.AddWithValue("$susid", id);
-        sqliteCmd.ExecuteNonQuery();
+    private Task SetZweitAccount(int id, int pStatus) {
+        try {
+            if (id <= 0) return Task.CompletedTask;
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText = "UPDATE schueler SET zweitaccount = $status WHERE id = $susid;";
+            sqliteCmd.Parameters.AddWithValue("$status", pStatus);
+            sqliteCmd.Parameters.AddWithValue("$susid", id);
+            sqliteCmd.ExecuteNonQuery();
+            return Task.CompletedTask;
+        }
+        catch (Exception exception) {
+            return Task.FromException(exception);
+        }
     }
 
     /// <summary>
     /// Gibt die Fachvorsitzenden und Stellvertreter zurück
     /// </summary>
     /// <returns>Liste der Fachvorsitzenden und Stellvertreter</returns>
-    public async Task<List<Lehrkraft>> GetFavos() {
-        return GetLehrkraftListe().Result.Where(l => !string.IsNullOrEmpty(l.Favo) || !string.IsNullOrEmpty(l.SFavo))
-            .ToList();
+    public Task<List<Lehrkraft>> GetFavos() {
+        try {
+            return Task.FromResult(GetLehrkraftListe().Result
+                .Where(l => !string.IsNullOrEmpty(l.Favo) || !string.IsNullOrEmpty(l.SFavo))
+                .ToList());
+        }
+        catch (Exception exception) {
+            return Task.FromException<List<Lehrkraft>>(exception);
+        }
     }
 
     public string GetLogPath() {
@@ -3740,12 +3845,14 @@ public class Schuldatenbank : IDisposable {
                         case ChangePerson.SuS:
                             await AddStoK(change.id, change.kurs.Bezeichnung);
                             susidliste.Add(change.id);
-                            moodle_einschreibungen.Add($"add,student,{change.id},{change.kurs.Bezeichnung}{GetKursSuffix().Result}");
+                            moodle_einschreibungen.Add(
+                                $"add,student,{change.id},{change.kurs.Bezeichnung}{GetKursSuffix().Result}");
                             break;
                         case ChangePerson.LuL:
                             await AddLtoK(change.id, change.kurs.Bezeichnung);
                             lulidliste.Add(change.id);
-                            moodle_einschreibungen.Add($"add,editingteacher,{change.id},{change.kurs.Bezeichnung}{GetKursSuffix().Result}");
+                            moodle_einschreibungen.Add(
+                                $"add,editingteacher,{change.id},{change.kurs.Bezeichnung}{GetKursSuffix().Result}");
                             break;
                         default:
                             AddLogMessage(new LogEintrag {
@@ -3761,11 +3868,13 @@ public class Schuldatenbank : IDisposable {
                     switch (change.person) {
                         case ChangePerson.SuS:
                             await RemoveSfromK(change.id, change.kurs.Bezeichnung);
-                            moodle_einschreibungen.Add($"del,student,{change.id},{change.kurs.Bezeichnung}{GetKursSuffix().Result}");
+                            moodle_einschreibungen.Add(
+                                $"del,student,{change.id},{change.kurs.Bezeichnung}{GetKursSuffix().Result}");
                             break;
                         case ChangePerson.LuL:
                             await RemoveLfromK(change.id, change.kurs.Bezeichnung);
-                            moodle_einschreibungen.Add($"del,editingteacher,{change.id},{change.kurs.Bezeichnung}{GetKursSuffix().Result}");
+                            moodle_einschreibungen.Add(
+                                $"del,editingteacher,{change.id},{change.kurs.Bezeichnung}{GetKursSuffix().Result}");
                             break;
                         default:
                             AddLogMessage(new LogEintrag {
