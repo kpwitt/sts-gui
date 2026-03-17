@@ -2885,14 +2885,6 @@ public class Schuldatenbank : IDisposable {
     }
 
     /// <summary>
-    /// löscht das Log für die übergebene Stufe
-    /// </summary>
-    /// <param name="stufe">"Fehler", "Hinweis", oder "Info"</param>
-    public async Task LoescheLog(string stufe) {
-        //ToDo: Implementierung
-    }
-
-    /// <summary>
     /// liest die Lehrkräfte aus der übergebenen Datei ein (inkrementell oder gesamt)
     /// </summary>
     /// <param name="lulfile"></param>
