@@ -3305,6 +3305,7 @@ public class Schuldatenbank : IDisposable {
         }
 
         lines = lines[1..];
+        var settings = GetSettings().Result;
         await StartTransaction();
         Parallel.ForEach(lines, async void (line, _) => {
             try {
@@ -3314,7 +3315,6 @@ public class Schuldatenbank : IDisposable {
                 }
 
                 var susid = Convert.ToInt32(tmpsus[ini]);
-                var settings = GetSettings().Result;
                 var mail = tmpsus[ini] + settings.Mailsuffix;
                 var maillist = (from idm in inm where !tmpsus[idm].Equals("") select tmpsus[idm]).ToList();
 
