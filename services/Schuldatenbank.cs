@@ -3806,8 +3806,4 @@ public class Schuldatenbank : IDisposable {
     public void LoescheAlleNichtExportiertenAenderungen() {
         ausstehende_aenderungen.Clear();
     }
-
-    public bool LoescheAenderung(Changes to_delete) {
-        return ausstehende_aenderungen.Remove(to_delete);
-    }
 }
