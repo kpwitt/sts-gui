@@ -3265,7 +3265,7 @@ public class Schuldatenbank : IDisposable {
     }
 
     /// <summary>
-    /// liest die  SuSnen aus der übergebenen Datei ein (inkrementell oder gesamt)
+    /// liest die  SuS aus der übergebenen Datei ein (inkrementell oder gesamt)
     /// </summary>
     /// <param name="susfile"></param>
     public async Task SusEinlesen(string susfile) {
