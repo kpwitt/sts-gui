@@ -1999,7 +1999,7 @@ public class Schuldatenbank : IDisposable {
                     let time = split_line[1]
                     let level = split_line[3]
                     let message = string.Join(" ", split_line[4..])
-                    where !string.IsNullOrEmpty(date) && !string.IsNullOrEmpty(time)
+                    where !string.IsNullOrEmpty(date) && !string.IsNullOrEmpty(time)&& char.IsAsciiDigit(date.ToCharArray()[0])
                     select new LogEintrag
                         { Eintragsdatum = DateTime.Parse($"{date} {time}"), Warnstufe = level, Nachricht = message });
                 return Task.FromResult(logentries.AsReadOnly());
