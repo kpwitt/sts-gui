@@ -5,7 +5,7 @@ using System.Security.Cryptography;
 
 namespace StS_GUI_Avalonia;
 
-public static class LocalCryptoServive {
+public static class LocalCryptoService {
     /// <summary>
     /// Decrypts an encrypted file with the FileEncrypt method through its path and the plain password.
     /// </summary>
