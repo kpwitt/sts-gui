@@ -61,7 +61,7 @@ public class Schuldatenbank : IDisposable {
         _sqliteConn = new SqliteConnection(strconnection);
         _sqliteConn.Open();
         var sqliteCmd = _sqliteConn.CreateCommand();
-        upgradeDB(sqliteCmd);
+        // upgradeDB(sqliteCmd);
         try {
             sqliteCmd.CommandText = """
                                     CREATE TABLE IF NOT EXISTS
@@ -243,6 +243,7 @@ public class Schuldatenbank : IDisposable {
         _disposed = true;
     }
 
+/*
     /// <summary>
     /// updatet alte DBs von 0.5 auf 0.6
     /// </summary>
@@ -261,7 +262,7 @@ public class Schuldatenbank : IDisposable {
         sqliteDatareader.Close();
 
         if (db_version != 1) return;
-/*
+
         //upgrade DB to 0.6
         sqliteCmd.CommandText =
             "SELECT COUNT(*) AS m365_col_count FROM pragma_table_info('schueler') WHERE name='m365'";
@@ -469,9 +470,7 @@ public class Schuldatenbank : IDisposable {
             }
         }
         //Ende Update 0.73
-
- */
-    }
+    }*/
 
     /// <summary>
     /// fügt den Kurs hinzu
@@ -1999,7 +1998,8 @@ public class Schuldatenbank : IDisposable {
                     let time = split_line[1]
                     let level = split_line[3]
                     let message = string.Join(" ", split_line[4..])
-                    where !string.IsNullOrEmpty(date) && !string.IsNullOrEmpty(time)&& char.IsAsciiDigit(date.ToCharArray()[0])
+                    where !string.IsNullOrEmpty(date) && !string.IsNullOrEmpty(time) &&
+                          char.IsAsciiDigit(date.ToCharArray()[0])
                     select new LogEintrag
                         { Eintragsdatum = DateTime.Parse($"{date} {time}"), Warnstufe = level, Nachricht = message });
                 return Task.FromResult(logentries.AsReadOnly());
@@ -2788,7 +2788,7 @@ public class Schuldatenbank : IDisposable {
                             { id = stmp.ID, kind = ChangeKind.add, kurs = kurs, person = ChangePerson.SuS });
                     }
 
-                    var _deletions = courses_to_delete.RemoveAll(k =>
+                    courses_to_delete.RemoveAll(k =>
                         k.Bezeichnung.Contains("StuBo") ||
                         courses_to_add.Exists(l => l.Bezeichnung.Equals(k.Bezeichnung)));
                     foreach (var kurs in courses_to_delete) {
