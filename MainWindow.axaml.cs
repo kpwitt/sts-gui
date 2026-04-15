@@ -101,7 +101,7 @@ public partial class MainWindow : Window {
                 }
             } while (keyInfo.Key != ConsoleKey.Enter);
 
-            LocalCryptoServive.FileDecrypt(filepath, outputFilePath, password);
+            LocalCryptoService.FileDecrypt(filepath, outputFilePath, password);
             _myschool = new Schuldatenbank(outputFilePath);
         }
         else {
@@ -608,11 +608,11 @@ public partial class MainWindow : Window {
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
                     //workaround damit der FileHandle geschlossen ist, vor dem verschlüsseln
                     File.Copy(dbPath, dbPath.Replace("sqlite", "tmp"), true);
-                    LocalCryptoServive.FileEncrypt(dbPath.Replace("sqlite", "tmp"), filepath, inputResult);
+                    LocalCryptoService.FileEncrypt(dbPath.Replace("sqlite", "tmp"), filepath, inputResult);
                     File.Delete(dbPath.Replace("sqlite", "tmp"));
                 }
                 else {
-                    LocalCryptoServive.FileEncrypt(dbPath, filepath, inputResult);
+                    LocalCryptoService.FileEncrypt(dbPath, filepath, inputResult);
                 }
 
                 await ShowCustomInfoMessage("Speichern erfolgreich.", "Erfolg");
@@ -662,7 +662,7 @@ public partial class MainWindow : Window {
                 var outputFilePath = saveFile?.Path.LocalPath;
                 if (outputFilePath == null) return;
 
-                LocalCryptoServive.FileDecrypt(inputFilePath, outputFilePath, inputResult);
+                LocalCryptoService.FileDecrypt(inputFilePath, outputFilePath, inputResult);
                 _myschool = new Schuldatenbank(outputFilePath);
                 await LoadFavos();
                 await ShowCustomInfoMessage("Laden erfolgreich", "Information");
