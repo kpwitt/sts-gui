@@ -1246,6 +1246,8 @@ public partial class MainWindow : Window {
         cbLuLAktiv.IsChecked = false;
         tbLuLSeriennummer.Text = "";
         tbLuLBemerkung.Text = "";
+        tbLuLFavo.Text = "";
+        tbLuLSFavo.Text = "";
     }
 
     private void ClearSuSTextFields() {
