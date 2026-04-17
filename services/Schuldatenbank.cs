@@ -2782,7 +2782,7 @@ public class Schuldatenbank : IDisposable {
                     var courses_to_add = aktuelle_kurse.Where(k => !alte_kurse.Contains(k)).ToList();
                     var courses_to_delete = alte_kurse.Where(k =>
                         !hash_set_neue_kurse.Contains(k.Bezeichnung)).ToList();
-                    courses_to_add.RemoveAll(k => courses_to_delete.Contains(k));
+                    courses_to_add.RemoveAll(courses_to_delete.Contains);
                     foreach (var kurs in courses_to_add) {
                         ausstehende_aenderungen.Add(new Changes
                             { id = stmp.ID, kind = ChangeKind.add, kurs = kurs, person = ChangePerson.SuS });
