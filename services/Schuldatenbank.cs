@@ -1318,7 +1318,8 @@ public class Schuldatenbank : IDisposable {
                             $"{sus.Nutzername}_E1",
                             $"E_{sus.ID}1",
                             $"{sus.Nachname}_Eltern," +
-                            sus.Vorname));
+                            sus.Vorname,
+                            Convert.ToInt32(!sus.IstAktiv)));
                         ausgabeMoodleEinschreibungen.Add(
                             $"add,eltern,E_{sus.ID}1,{sus.Klasse}KL{suffix}");
                         ausgabeMoodleEinschreibungen.Add(
@@ -1326,7 +1327,8 @@ public class Schuldatenbank : IDisposable {
                     }
                     else if (mittelstufe.Contains(schuelerstufe)) {
                         ausgabeMoodleUser.Add(
-                            $"{sus.Zweitmail.Split(',')[0]};Klasse{sus.Klasse}{DateTime.Now.Year}!;{sus.Nutzername}_E1;E_{sus.ID}1;{sus.Nachname}_Eltern;{sus.Vorname};eltern");
+                            $"{sus.Zweitmail.Split(',')[0]};Klasse{sus.Klasse}{DateTime.Now.Year}!;{sus.Nutzername}_E1;E_{sus.ID}1;{sus.Nachname}_Eltern;{sus.Vorname};eltern;{
+                                Convert.ToInt32(!sus.IstAktiv)}");
                         ausgabeMoodleEinschreibungen.Add(
                             $"add,eltern,E_{sus.ID}1,{sus.Klasse}KL{suffix}");
                         ausgabeMoodleEinschreibungen.Add($"add,eltern,E_{sus.ID}1,mittelstufe{suffix}");
@@ -1345,13 +1347,16 @@ public class Schuldatenbank : IDisposable {
 
             if (erprobungsstufe.Contains(schuelerstufe)) {
                 ausgabeMoodleUser.Add(
-                    $"{susmail};Klasse{sus.Klasse}{DateTime.Now.Year}!;{sus.Nutzername}_E;E_{sus.ID};{sus.Nachname}_Eltern;{sus.Vorname};eltern");
+                    $"{susmail};Klasse{sus.Klasse}{DateTime.Now.Year}!;{sus.Nutzername}_E;E_{sus.ID};{sus.Nachname}_Eltern;{sus.Vorname};eltern;" +
+                    Convert.ToInt32(!sus.IstAktiv)
+                );
                 ausgabeMoodleEinschreibungen.Add($"add,eltern,E_{sus.ID},{sus.Klasse}KL{suffix}");
                 ausgabeMoodleEinschreibungen.Add($"add,eltern,E_{sus.ID},erprobungsstufe{suffix}");
             }
             else if (mittelstufe.Contains(schuelerstufe)) {
                 ausgabeMoodleUser.Add(
-                    $"{susmail};Klasse{sus.Klasse}{DateTime.Now.Year}!;{sus.Nutzername}_E;E_{sus.ID};{sus.Nachname}_Eltern;{sus.Vorname};eltern");
+                    $"{susmail};Klasse{sus.Klasse}{DateTime.Now.Year}!;{sus.Nutzername}_E;E_{sus.ID};{sus.Nachname}_Eltern;{sus.Vorname};eltern;" +
+                    Convert.ToInt32(!sus.IstAktiv));
                 ausgabeMoodleEinschreibungen.Add($"add,eltern,E_{sus.ID},{sus.Klasse}KL{suffix}");
                 ausgabeMoodleEinschreibungen.Add($"add,eltern,E_{sus.ID},mittelstufe{suffix}");
             }
