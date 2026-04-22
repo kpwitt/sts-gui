@@ -2597,6 +2597,7 @@ public partial class MainWindow : Window {
                         scachelist = scachelist.Where(s => s.Bemerkung != "").ToList();
                     }
 
+                    //todo: hier RegEx-Suche implementieren
                     foreach (var eingabe in eingabeliste) {
                         var lowereingabe = eingabe.ToLower();
                         sliste.AddRange(searchFields[6]
