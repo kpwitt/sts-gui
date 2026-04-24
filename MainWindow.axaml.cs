@@ -257,7 +257,7 @@ public partial class MainWindow : Window {
         };
         var cbSucheExact = new CheckBox {
             Name = "cbMnuSucheExact",
-            Content = "Exakte Suche",
+            Content = "Groß-/Kleinschreibung beachten",
             IsChecked = false
         };
         _cbZeigeInaktiv = new CheckBox {
