@@ -1,5 +1,7 @@
+using System;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace SchulDB;
 
@@ -31,5 +33,21 @@ public static class Tooling {
             3 => klasse[..2],
             _ => ""
         };
+    }
+
+    ///<summary>
+    /// Konvertiert das benutzerdefinierte Wildcard-Muster in einen Regex
+    /// </summary>
+    public static Regex ToRegex(string pattern, bool followCase = false) {
+        ArgumentNullException.ThrowIfNull(pattern);
+        var escaped = Regex.Escape(pattern);
+        escaped = escaped
+            .Replace(@"\.", ".") // genau ein beliebiges Zeichen
+            .Replace(@"\?", ".?") // ein oder kein beliebiges Zeichen
+            .Replace(@"\*", ".*"); // beliebig viele beliebige Zeichen
+        var options = RegexOptions.CultureInvariant;
+        if (followCase) return new Regex("^" + escaped + "$", options);
+        options |= RegexOptions.IgnoreCase;
+        return new Regex(escaped, options);
     }
 }
