@@ -2597,35 +2597,25 @@ public partial class MainWindow : Window {
                         scachelist = scachelist.Where(s => s.Bemerkung != "").ToList();
                     }
 
-                    //todo: hier RegEx-Suche implementieren
-                    foreach (var eingabe in eingabeliste) {
-                        var lowereingabe = eingabe.ToLower();
-                        sliste.AddRange(searchFields[6]
-                            ? scachelist.Where(s =>
-                                searchFields[4] && (s.ID + "").Equals(lowereingabe) ||
-                                searchFields[0] && s.Vorname.ToLower().Equals(lowereingabe) ||
-                                searchFields[1] && s.Nachname.ToLower().Equals(lowereingabe) ||
-                                searchFields[2] &&
-                                (s.Mail.ToLower().Equals(lowereingabe) || s.Aixmail.ToLower().Equals(lowereingabe) ||
-                                 s.Zweitmail.ToLower().Equals(lowereingabe)) ||
-                                searchFields[3] && s.Nutzername.ToLower().Equals(lowereingabe) ||
-                                searchFields[5] &&
-                                s.Seriennummer.Contains(eingabe, StringComparison.CurrentCultureIgnoreCase)).ToList()
-                            : scachelist.Where(s =>
-                                searchFields[4] && (s.ID + "").Contains(lowereingabe,
-                                    StringComparison.CurrentCultureIgnoreCase) ||
-                                searchFields[0] && s.Vorname.Contains(lowereingabe,
-                                    StringComparison.CurrentCultureIgnoreCase) ||
-                                searchFields[1] && s.Nachname.Contains(lowereingabe,
-                                    StringComparison.CurrentCultureIgnoreCase) ||
-                                searchFields[2] &&
-                                (s.Mail.Contains(lowereingabe, StringComparison.CurrentCultureIgnoreCase) ||
-                                 s.Aixmail.Contains(lowereingabe, StringComparison.CurrentCultureIgnoreCase) ||
-                                 s.Zweitmail.Contains(lowereingabe, StringComparison.CurrentCultureIgnoreCase)) ||
-                                searchFields[3] && s.Nutzername.ToLower().Contains(lowereingabe,
-                                    StringComparison.CurrentCultureIgnoreCase) ||
-                                searchFields[5] &&
-                                s.Seriennummer.Contains(eingabe, StringComparison.CurrentCultureIgnoreCase)).ToList());
+                    if (eingabeliste is [""]) {
+                        sliste = scachelist;
+                    }
+                    else {
+                        foreach (var eingabe in eingabeliste) {
+                            var regexPattern = Tooling.ToRegex(eingabe, searchFields[6]);
+                            sliste.AddRange(
+                                scachelist.Where(s =>
+                                    searchFields[4] && regexPattern.IsMatch(s.ID + "") ||
+                                    searchFields[0] && regexPattern.IsMatch(s.Vorname) ||
+                                    searchFields[1] && regexPattern.IsMatch(s.Nachname) ||
+                                    searchFields[2] &&
+                                    (regexPattern.IsMatch(s.Mail) || regexPattern.IsMatch(s.Aixmail) ||
+                                     regexPattern.IsMatch(s.Zweitmail) ||
+                                     searchFields[3] && regexPattern.IsMatch(s.Nutzername) ||
+                                     searchFields[5] &&
+                                     regexPattern.IsMatch(s.Seriennummer))).ToList()
+                            );
+                        }
                     }
 
                     var seliste = sliste.Distinct()
@@ -2636,31 +2626,23 @@ public partial class MainWindow : Window {
                     break;
                 case 1:
                     var lliste = new List<Lehrkraft>();
-                    var cachlist = _myschool.GetLehrkraftListe().Result.Where(s => s.IstAktiv || zeigeInaktive)
+                    var cachelist = _myschool.GetLehrkraftListe().Result.Where(s => s.IstAktiv || zeigeInaktive)
                         .ToList();
-                    foreach (var eingabe in eingabeliste) {
-                        var lowereingabe = eingabe.ToLower();
-                        lliste.AddRange(searchFields[6]
-                            ? cachlist.Where(l =>
-                                l.Kuerzel.ToLower().Equals(lowereingabe) ||
-                                searchFields[0] && l.Vorname.ToLower().Equals(lowereingabe) ||
-                                searchFields[1] && l.Nachname.ToLower().Equals(lowereingabe) ||
-                                searchFields[2] && l.Mail.Equals(lowereingabe) ||
-                                searchFields[3] && l.Kuerzel.Equals(lowereingabe) ||
-                                searchFields[4] && (l.ID + "").Equals(lowereingabe) ||
+                    if (eingabeliste is [""]) {
+                        lliste = cachelist;
+                    }
+                    else {
+                        foreach (var eingabe in eingabeliste) {
+                            var regexPattern = Tooling.ToRegex(eingabe, searchFields[6]);
+                            lliste.AddRange(cachelist.Where(l =>
+                                searchFields[0] && regexPattern.IsMatch(l.Vorname) ||
+                                searchFields[1] && regexPattern.IsMatch(l.Nachname) ||
+                                searchFields[2] && regexPattern.IsMatch(l.Mail) ||
+                                searchFields[3] && regexPattern.IsMatch(l.Kuerzel) ||
+                                searchFields[4] && regexPattern.IsMatch(l.ID + "") ||
                                 searchFields[5] &&
-                                l.Seriennummer.Contains(eingabe, StringComparison.CurrentCultureIgnoreCase)).ToList()
-                            : cachlist.Where(l =>
-                                l.Kuerzel.Contains(lowereingabe, StringComparison.CurrentCultureIgnoreCase) ||
-                                searchFields[0] && l.Vorname.Contains(lowereingabe,
-                                    StringComparison.CurrentCultureIgnoreCase) ||
-                                searchFields[1] && l.Nachname.Contains(lowereingabe,
-                                    StringComparison.CurrentCultureIgnoreCase) ||
-                                searchFields[2] && l.Mail.Contains(lowereingabe) ||
-                                searchFields[3] && l.Kuerzel.Contains(lowereingabe) ||
-                                searchFields[4] && (l.ID + "").Contains(lowereingabe) ||
-                                searchFields[5] &&
-                                l.Seriennummer.Contains(eingabe, StringComparison.CurrentCultureIgnoreCase)).ToList());
+                                regexPattern.IsMatch(l.Seriennummer)).ToList());
+                        }
                     }
 
                     var leliste = lliste.Distinct()
@@ -2672,10 +2654,16 @@ public partial class MainWindow : Window {
                 case 2:
                     var kliste = new List<Kurs>();
                     var kcachelist = _myschool.GetKursListe().Result;
-                    foreach (var eingabe in eingabeliste) {
-                        kliste.AddRange(kcachelist
-                            .Where(s => s.Bezeichnung.Contains(eingabe, StringComparison.CurrentCultureIgnoreCase))
-                            .ToList());
+                    if (eingabeliste is [""]) {
+                        kliste = kcachelist.ToList();
+                    }
+                    else {
+                        foreach (var eingabe in eingabeliste) {
+                            var regexPattern = Tooling.ToRegex(eingabe, searchFields[6]);
+                            kliste.AddRange(kcachelist
+                                .Where(k => regexPattern.IsMatch(k.Bezeichnung))
+                                .ToList());
+                        }
                     }
 
                     var keliste = kliste.Distinct()
@@ -2689,6 +2677,18 @@ public partial class MainWindow : Window {
     }
 
     private async void OnRightTimedEvent(object? source, ElapsedEventArgs e) {
+        try {
+            await CallRightTimer();
+        }
+        catch (Exception ex) {
+            _myschool.AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Warnstufe = "Debug",
+                Nachricht = ex.StackTrace ?? "unbekannter Fehler beim rechten Timer"
+            });
+        }
+    }
+
+    private async Task CallRightTimer() {
         try {
             await Dispatcher.UIThread.InvokeAsync(UpdateRightList);
             _rightInputTimer.Enabled = false;
@@ -2705,39 +2705,62 @@ public partial class MainWindow : Window {
 
                 tbRightSearch.Text = tbRightSearch.Text.TrimStart(' ').TrimEnd(' ');
                 var eingabeliste = tbRightSearch.Text.Split(";");
+                if (_cbZeigeInaktiv.IsChecked == null || _cbZeigeNurBemerkungen.IsChecked == null) return;
+                var zeigeInaktive = _cbZeigeInaktiv.IsChecked.Value;
+                var zeigeNurBemerkungen = _cbZeigeNurBemerkungen.IsChecked.Value;
                 if (tbLeftSearch?.ContextMenu?.ItemsSource == null) return;
                 var searchContextMenu = tbLeftSearch.ContextMenu.ItemsSource.Cast<CheckBox>().ToList();
-                var searchFields = new[] { false, false, false, false, false, false, false }; //v,n,m,a/k,i,e,ia
+                var searchFields = new[]
+                    { false, false, false, false, false, false, false, false, false }; //v,n,m,a/k,i,s,e,ia,b
                 for (var i = 0; i < searchContextMenu.Count; ++i) {
                     if (searchContextMenu[i].IsChecked == true) {
                         searchFields[i] = true;
                     }
                 }
 
+                if (leftListBox.SelectedItems == null ||
+                    leftListBox.SelectedItems.Count == 0 || leftListBox.SelectedItems[0] == null) return;
                 switch (cboxDataRight.SelectedIndex) {
                     case 0:
                         var sliste = new List<SuS>();
-                        var scachelist = _myschool.GetSchuelerListe().Result;
-                        foreach (var eingabe in eingabeliste) {
-                            var lowereingabe = eingabe.ToLower();
-                            sliste.AddRange(searchFields[5]
-                                ? scachelist.Where(s =>
-                                    searchFields[4] && (s.ID + "").Equals(lowereingabe) ||
-                                    searchFields[0] && s.Vorname.ToLower().Equals(lowereingabe) ||
-                                    searchFields[1] && s.Nachname.ToLower().Equals(lowereingabe) ||
-                                    searchFields[2] && (s.Mail.Equals(lowereingabe) || s.Aixmail.Equals(lowereingabe) ||
-                                                        s.Zweitmail.Equals(lowereingabe)) ||
-                                    searchFields[3] && s.Nutzername.Equals(lowereingabe)).ToList()
-                                : scachelist.Where(s =>
-                                    searchFields[4] && (s.ID + "").Contains(lowereingabe) ||
-                                    searchFields[0] && s.Vorname.Contains(lowereingabe,
-                                        StringComparison.CurrentCultureIgnoreCase) ||
-                                    searchFields[1] && s.Nachname.Contains(lowereingabe,
-                                        StringComparison.CurrentCultureIgnoreCase) ||
-                                    searchFields[2] && (s.Mail.Contains(lowereingabe) ||
-                                                        s.Aixmail.Contains(lowereingabe) ||
-                                                        s.Zweitmail.Contains(lowereingabe)) ||
-                                    searchFields[3] && s.Nutzername.Contains(lowereingabe)).ToList());
+                        List<SuS> scachelist;
+                        switch (cboxDataLeft.SelectedIndex) {
+                            case 1:
+                                var krz = leftListBox.SelectedItems[0]!.ToString()!.Split(';')[0];
+                                scachelist = _myschool.GetSuSVonLuL(_myschool.GetLehrkraft(krz).Result.ID).Result
+                                    .ToList();
+                                break;
+                            case 2:
+                                var bez = leftListBox.SelectedItems[0]!.ToString()!.Split(';')[1];
+                                scachelist = _myschool.GetSuSAusKurs(bez).Result.ToList();
+                                break;
+                            default:
+                                return;
+                        }
+
+                        scachelist = scachelist.Where(s =>
+                            s.Bemerkung != "" || zeigeNurBemerkungen && (s.IstAktiv || zeigeInaktive)).ToList();
+
+
+                        if (eingabeliste is [""]) {
+                            sliste = scachelist;
+                        }
+                        else {
+                            foreach (var eingabe in eingabeliste) {
+                                var regexPattern = Tooling.ToRegex(eingabe, searchFields[6]);
+                                sliste.AddRange(
+                                    scachelist.Where(s =>
+                                        searchFields[4] && regexPattern.IsMatch(s.ID + "") ||
+                                        searchFields[0] && regexPattern.IsMatch(s.Vorname) ||
+                                        searchFields[1] && regexPattern.IsMatch(s.Nachname) ||
+                                        searchFields[2] &&
+                                        (regexPattern.IsMatch(s.Mail) || regexPattern.IsMatch(s.Aixmail) ||
+                                         regexPattern.IsMatch(s.Zweitmail) ||
+                                         searchFields[3] && regexPattern.IsMatch(s.Nutzername) ||
+                                         searchFields[5] &&
+                                         regexPattern.IsMatch(s.Seriennummer))).ToList()
+                                );
+                            }
                         }
 
                         var seliste = sliste.Distinct()
@@ -2748,26 +2771,35 @@ public partial class MainWindow : Window {
                         break;
                     case 1:
                         var lliste = new List<Lehrkraft>();
-                        var lcachelist = _myschool.GetLehrkraftListe().Result;
-                        foreach (var eingabe in eingabeliste) {
-                            var lowereingabe = eingabe.ToLower();
-                            lliste.AddRange(searchFields[5]
-                                ? lcachelist.Where(l =>
-                                    l.Kuerzel.ToLower().Equals(lowereingabe) ||
-                                    searchFields[0] && l.Vorname.ToLower().Equals(lowereingabe) ||
-                                    searchFields[1] && l.Nachname.ToLower().Equals(lowereingabe) ||
-                                    searchFields[2] && l.Mail.Equals(lowereingabe) ||
-                                    searchFields[3] && l.Kuerzel.Equals(lowereingabe) ||
-                                    searchFields[4] && (l.ID + "").Equals(lowereingabe)).ToList()
-                                : lcachelist.Where(l =>
-                                    l.Kuerzel.Contains(lowereingabe, StringComparison.CurrentCultureIgnoreCase) ||
-                                    searchFields[0] && l.Vorname.Contains(lowereingabe,
-                                        StringComparison.CurrentCultureIgnoreCase) ||
-                                    searchFields[1] && l.Nachname.Contains(lowereingabe,
-                                        StringComparison.CurrentCultureIgnoreCase) ||
-                                    searchFields[2] && l.Mail.Contains(lowereingabe) ||
-                                    searchFields[3] && l.Kuerzel.Contains(lowereingabe) ||
-                                    searchFields[4] && (l.ID + "").Contains(lowereingabe)).ToList());
+                        List<Lehrkraft> cachelist;
+                        switch (cboxDataLeft.SelectedIndex) {
+                            case 0:
+                                var id = Convert.ToInt32(leftListBox.SelectedItems[0]!.ToString()!.Split(';')[1]);
+                                cachelist = _myschool.GetLuLvonSuS(id).Result.ToList();
+                                break;
+                            case 2:
+                                var bez = leftListBox.SelectedItems[0]!.ToString()!.Split(';')[1];
+                                cachelist = _myschool.GetLuLAusKurs(bez).Result.ToList();
+                                break;
+                            default:
+                                return;
+                        }
+
+                        if (eingabeliste is [""]) {
+                            lliste = cachelist;
+                        }
+                        else {
+                            foreach (var eingabe in eingabeliste) {
+                                var regexPattern = Tooling.ToRegex(eingabe, searchFields[6]);
+                                lliste.AddRange(cachelist.Where(l =>
+                                    searchFields[0] && regexPattern.IsMatch(l.Vorname) ||
+                                    searchFields[1] && regexPattern.IsMatch(l.Nachname) ||
+                                    searchFields[2] && regexPattern.IsMatch(l.Mail) ||
+                                    searchFields[3] && regexPattern.IsMatch(l.Kuerzel) ||
+                                    searchFields[4] && regexPattern.IsMatch(l.ID + "") ||
+                                    searchFields[5] &&
+                                    regexPattern.IsMatch(l.Seriennummer)).ToList());
+                            }
                         }
 
                         var leliste = lliste.Distinct()
@@ -2778,9 +2810,30 @@ public partial class MainWindow : Window {
                         break;
                     case 2:
                         var kliste = new List<Kurs>();
-                        var kcachelist = _myschool.GetKursListe().Result;
-                        foreach (var eingabe in eingabeliste) {
-                            kliste.AddRange(kcachelist.Where(s => s.Bezeichnung.Contains(eingabe)).ToList());
+                        ReadOnlyCollection<Kurs> kcachelist;
+                        switch (cboxDataLeft.SelectedIndex) {
+                            case 0:
+                                var id = Convert.ToInt32(leftListBox.SelectedItems[0]!.ToString()!.Split(';')[1]);
+                                kcachelist = _myschool.GetKurseVonSuS(id).Result;
+                                break;
+                            case 1:
+                                var krz = leftListBox.SelectedItems[0]!.ToString()!.Split(';')[0];
+                                kcachelist = _myschool.GetKurseVonLuL(_myschool.GetLehrkraft(krz).Result.ID).Result;
+                                break;
+                            default:
+                                return;
+                        }
+
+                        if (eingabeliste is [""]) {
+                            kliste = kcachelist.ToList();
+                        }
+                        else {
+                            foreach (var eingabe in eingabeliste) {
+                                var regexPattern = Tooling.ToRegex(eingabe, searchFields[6]);
+                                kliste.AddRange(kcachelist
+                                    .Where(k => regexPattern.IsMatch(k.Bezeichnung))
+                                    .ToList());
+                            }
                         }
 
                         var keliste = kliste.Distinct()
