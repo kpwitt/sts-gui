@@ -181,7 +181,7 @@
                                             <TextBlock Classes="Header" Text="Bemerkung:" Grid.Column="0"
                                                        Grid.Row="11" />
                                             <TextBox x:Name="tbSuSBemerkung" Grid.Column="1" Grid.Row="11"
-                                                     Watermark="max 512 Zeichen" />
+                                                     PlaceholderText="max 512 Zeichen" />
                                             <CheckBox x:Name="cbSuSM365" Grid.Column="0" Grid.Row="12"
                                                       Click="CbSuSM365_OnClick">
                                                 M365 zugestimmt:
@@ -267,7 +267,7 @@
                                         <TextBlock Classes="Header" Text="Bemerkung:" Grid.Column="0"
                                                    Grid.Row="12" />
                                         <TextBox x:Name="tbLuLBemerkung" Grid.Column="1" Grid.Row="12"
-                                                 Watermark="max 512 Zeichen" />
+                                                 PlaceholderText="max 512 Zeichen" />
                                         <CheckBox x:Name="cbLuLAktiv" Grid.Column="0" Grid.Row="13">Aktiv</CheckBox>
                                         <Button x:Name="btnLuLAdd" Grid.Column="0" Grid.Row="14"
                                                 Click="OnBtnluladdClick">
@@ -303,7 +303,7 @@
                                             <TextBlock Classes="Header" Text="Bemerkung:" Grid.Column="0"
                                                        Grid.Row="7" />
                                             <TextBox x:Name="tbKursBemerkung" Grid.Column="1" Grid.Row="7"
-                                                     Watermark="max 512 Zeichen" />
+                                                     PlaceholderText="max 512 Zeichen" />
                                         </Grid>
                                         <StackPanel Orientation="Vertical" Grid.Row="1">
                                             <CheckBox x:Name="cbKursIstKurs">Ist ein Kurs</CheckBox>
