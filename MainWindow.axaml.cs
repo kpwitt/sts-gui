@@ -3109,7 +3109,7 @@ public partial class MainWindow : Window {
                 if (files == null) return;
                 var filepath = files.Path.LocalPath;
                 List<string> lulliste = ["Kürzel;Nachname;Fächer;Mailadresse"];
-                lulliste.AddRange(_myschool.GetLehrkraftListe().Result.Select(lehrer =>
+                lulliste.AddRange(_myschool.GetLehrkraftListe().Result.Where(l=>l.IstAktiv).Select(lehrer =>
                         $@"{lehrer.Kuerzel};{lehrer.Nachname};{lehrer.Fakultas};\underline{{\href{{mailto:{lehrer.Mail.ToLower()}}}{{{lehrer.Mail.ToLower()}}}}}")
                     .OrderBy(s => s.Split(';')[0]));
                 await File.WriteAllLinesAsync(filepath, lulliste, Encoding.UTF8);
@@ -3135,7 +3135,7 @@ public partial class MainWindow : Window {
                 var filepath = files.Path.LocalPath;
                 List<string> header = ["Kürzel;Nachname;Fächer;Mailadresse;Kürzel;Nachname;Fächer;Mailadresse"];
                 List<string> lulliste = [];
-                var llist = _myschool.GetLehrkraftListe().Result.OrderBy(lk => lk.Kuerzel).ToList();
+                var llist = _myschool.GetLehrkraftListe().Result.Where(l=>l.IstAktiv).OrderBy(lk => lk.Kuerzel).ToList();
                 var half = llist.Count / 2;
                 for (var i = 0; i < llist.Count / 2 + 1; ++i) {
                     var lehrer = llist[i];
