@@ -554,7 +554,7 @@ public class Schuldatenbank : IDisposable {
             sqliteCmd.Parameters.AddWithValue("$kuerzel", kuerzel.ToUpper());
             sqliteCmd.Parameters.AddWithValue("$mail", mail.ToLower());
             sqliteCmd.Parameters.AddWithValue("$fakultas", fakultas.TrimEnd(';'));
-            sqliteCmd.Parameters.AddWithValue("$pwtemp", Tooling.GeneratePasswort(8));
+            sqliteCmd.Parameters.AddWithValue("$pwtemp", Tooling.GeneratePasswort(12));
             sqliteCmd.Parameters.AddWithValue("$favo", favo);
             sqliteCmd.Parameters.AddWithValue("$sfavo", sfavo);
             sqliteCmd.Parameters.AddWithValue("$seriennummer", seriennummer);
@@ -593,7 +593,7 @@ public class Schuldatenbank : IDisposable {
             sqliteCmd.Parameters.AddWithValue("$mail", lehrkraft.Mail.ToLower());
             sqliteCmd.Parameters.AddWithValue("$fakultas", lehrkraft.Fakultas.TrimEnd(';'));
             sqliteCmd.Parameters.AddWithValue("$pwtemp",
-                lehrkraft.Pwttemp.Length > 7 ? lehrkraft.Pwttemp : Tooling.GeneratePasswort(8));
+                lehrkraft.Pwttemp.Length > 11 ? lehrkraft.Pwttemp : Tooling.GeneratePasswort(12));
             sqliteCmd.Parameters.AddWithValue("$favo", lehrkraft.Favo);
             sqliteCmd.Parameters.AddWithValue("$sfavo", lehrkraft.SFavo);
             sqliteCmd.Parameters.AddWithValue("$seriennummer", lehrkraft.Seriennummer);
