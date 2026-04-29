@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -13,12 +14,26 @@ public static class Tooling {
     /// <returns>String das generierte Passwort aus Zufallszeichen</returns>
     public static string GeneratePasswort(int laenge) {
         //erlaubt beim Hoster: /-_#*+!§,()=:.$äöüÄÖÜß
+        const string validChars = "+-.()!*/_#";
+        const string validLetters = "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ";
+        const string validDigits = "0123456789";
         const string validPasswordChars = "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ1234567890+-.()!*/_#";
         StringBuilder res = new();
-        while (0 < laenge--) {
+        var c = 0;
+        while (c < laenge) {
             res.Append(validPasswordChars[RandomNumberGenerator.GetInt32(validPasswordChars.Length)]);
+            c++;
         }
 
+        while  (!(res.ToString().Any(validChars.Contains) && res.ToString().Any(validLetters.Contains) &&
+            res.ToString().Any(validDigits.Contains))) {
+            res.Clear();
+                    c = 0;
+                    while (c < laenge) {
+                        res.Append(validPasswordChars[RandomNumberGenerator.GetInt32(validPasswordChars.Length)]);
+                        c++;
+                    }
+        }
         return res.ToString();
     }
 
