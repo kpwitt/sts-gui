@@ -317,6 +317,18 @@ public partial class MainWindow : Window {
         });
         return files;
     }
+    
+    private async Task<IStorageFile?> ShowSaveFileDialog(string dialogtitle, string filename,
+        List<FilePickerFileType> extensions) {
+        var topLevel = GetTopLevel(this);
+        if (topLevel == null) return null;
+        var files = await topLevel.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions {
+            Title = dialogtitle,
+            SuggestedFileName = filename,
+            DefaultExtension = extensions[0].Name
+        });
+        return files;
+    }
 
     private async Task<IStorageFile?> ShowOpenFileDialog(string dialogtitle,
         IReadOnlyList<FilePickerFileType> extensions) {
@@ -3105,7 +3117,7 @@ public partial class MainWindow : Window {
 
             async Task SaveLKtoHp() {
                 var extx = new List<FilePickerFileType> { StSFileTypes.CSVFile };
-                var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
+                var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", "HP_1sp.csv", extx);
                 if (files == null) return;
                 var filepath = files.Path.LocalPath;
                 List<string> lulliste = ["Kürzel;Nachname;Fächer;Mailadresse"];
@@ -3130,7 +3142,7 @@ public partial class MainWindow : Window {
 
             async Task SaveLKtoHp() {
                 var extx = new List<FilePickerFileType> { StSFileTypes.CSVFile };
-                var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
+                var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", "HP_2sp.csv", extx);
                 if (files == null) return;
                 var filepath = files.Path.LocalPath;
                 List<string> header = ["Kürzel;Nachname;Fächer;Mailadresse;Kürzel;Nachname;Fächer;Mailadresse"];
