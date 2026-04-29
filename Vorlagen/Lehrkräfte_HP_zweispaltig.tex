@@ -20,7 +20,7 @@
 \usepackage{wasysym}%Square
 \usepackage{pbox}
 \usepackage{csvsimple}
-\usepackage[bookmarksnumbered=true, colorlinks=true, linkcolor=black, urlcolor = black, pdftitle={Übersicht Lehrkräfte}, pdfauthor={WIB}]{hyperref}
+\usepackage[bookmarksnumbered=true, colorlinks=true, linkcolor=black, urlcolor = black, pdftitle={Übersicht Lehrkräfte}, pdfauthor={KRZ}]{hyperref}
 \pagestyle{fancy}
 
 \newcommand{\tabitem}{~~\llap{\textbullet}~~}
@@ -33,7 +33,7 @@
 		\renewcommand{\headrulewidth}{0pt}
 		\renewcommand{\footrulewidth}{0pt}}
 	\begin{tabular}{p{13cm}p{3cm}}
-			\makecell{ {\Large Schulname}\\Kürzel-Liste der Lehrerinnen und Lehrer\\{\small Stand: \today }} &\makecell{\includegraphics[scale=0.4]{Logo.png}}
+			\makecell{ {\Large Schulname}\\Kürzel-Liste der Lehrerinnen und Lehrer\\{\small Stand: \today }} &\makecell{\includegraphics[scale=0.4]{Logo}}
 	\end{tabular}
 	\tiny
 	\csvautolongtable[separator=semicolon]{HP_2sp.csv}
