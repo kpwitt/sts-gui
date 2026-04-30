@@ -20,11 +20,12 @@ Lizenziert ist es unter der MIT-Lizenz (siehe LICENSE)
     - AIX
     - JAMF
     - Mailverteiler (Fachschaften und Lehrkräfte) als HTML-Seite
+    - Übersicht der Lehrkräfte in eine csv-Datei, die als Import in eine Latex-Vorlage dienen kann, um diese als PDF zu veröffentlichen 
 - Verwaltung der Fachschaftsvorsitzenden, Stufenleitungen und Klassen/Stufenzuordnung
 
 ### Testen
 
-Mit Hilfe des [Datengenerators](https://git.wittboldkp.de/kayp/sts-datengenerator) lassen sich Testdaten erzeugen und
+Mithilfe des [Datengenerators](https://git.wittboldkp.de/kayp/sts-datengenerator) lassen sich Testdaten erzeugen und
 einlesen.
 
 ### Erstellt mit
