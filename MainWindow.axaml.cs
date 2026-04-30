@@ -317,7 +317,7 @@ public partial class MainWindow : Window {
         });
         return files;
     }
-    
+
     private async Task<IStorageFile?> ShowSaveFileDialog(string dialogtitle, string filename,
         List<FilePickerFileType> extensions) {
         var topLevel = GetTopLevel(this);
@@ -2591,13 +2591,13 @@ public partial class MainWindow : Window {
             var eingabeliste = tbLeftSearch.Text.Split(";");
             if (tbLeftSearch.ContextMenu?.ItemsSource == null) return;
             var searchContextMenu = tbLeftSearch.ContextMenu.ItemsSource.Cast<CheckBox>().ToList();
-            var searchFields = new[]
-                { false, false, false, false, false, false, false, false, false }; //v,n,m,a/k,i,s,e,ia,b
-            for (var i = 0; i < searchContextMenu.Count; ++i) {
-                if (searchContextMenu[i].IsChecked == true) {
-                    searchFields[i] = true;
-                }
-            }
+            var searchFields = new SearchFields {
+                Vorname = searchContextMenu[0].IsChecked == true, Nachname = searchContextMenu[1].IsChecked == true,
+                Mailadrese = searchContextMenu[2].IsChecked == true,
+                Nutzername = searchContextMenu[3].IsChecked == true,
+                ID = searchContextMenu[4].IsChecked == true, Seriennummer = searchContextMenu[5].IsChecked == true,
+                GrossKleinschreibung = searchContextMenu[6].IsChecked == true
+            };
 
             switch (cboxDataLeft.SelectedIndex) {
                 case 0:
@@ -2614,17 +2614,17 @@ public partial class MainWindow : Window {
                     }
                     else {
                         foreach (var eingabe in eingabeliste) {
-                            var regexPattern = Tooling.ToRegex(eingabe, searchFields[6]);
+                            var regexPattern = Tooling.ToRegex(eingabe, searchFields.GrossKleinschreibung);
                             sliste.AddRange(
                                 scachelist.Where(s =>
-                                    searchFields[4] && regexPattern.IsMatch(s.ID + "") ||
-                                    searchFields[0] && regexPattern.IsMatch(s.Vorname) ||
-                                    searchFields[1] && regexPattern.IsMatch(s.Nachname) ||
-                                    searchFields[2] &&
+                                    searchFields.ID && regexPattern.IsMatch(s.ID + "") ||
+                                    searchFields.Vorname && regexPattern.IsMatch(s.Vorname) ||
+                                    searchFields.Nachname && regexPattern.IsMatch(s.Nachname) ||
+                                    searchFields.Mailadrese &&
                                     (regexPattern.IsMatch(s.Mail) || regexPattern.IsMatch(s.Aixmail) ||
                                      regexPattern.IsMatch(s.Zweitmail) ||
-                                     searchFields[3] && regexPattern.IsMatch(s.Nutzername) ||
-                                     searchFields[5] &&
+                                     searchFields.Nutzername && regexPattern.IsMatch(s.Nutzername) ||
+                                     searchFields.Seriennummer &&
                                      regexPattern.IsMatch(s.Seriennummer))).ToList()
                             );
                         }
@@ -2645,14 +2645,14 @@ public partial class MainWindow : Window {
                     }
                     else {
                         foreach (var eingabe in eingabeliste) {
-                            var regexPattern = Tooling.ToRegex(eingabe, searchFields[6]);
+                            var regexPattern = Tooling.ToRegex(eingabe, searchFields.GrossKleinschreibung);
                             lliste.AddRange(cachelist.Where(l =>
-                                searchFields[0] && regexPattern.IsMatch(l.Vorname) ||
-                                searchFields[1] && regexPattern.IsMatch(l.Nachname) ||
-                                searchFields[2] && regexPattern.IsMatch(l.Mail) ||
-                                searchFields[3] && regexPattern.IsMatch(l.Kuerzel) ||
-                                searchFields[4] && regexPattern.IsMatch(l.ID + "") ||
-                                searchFields[5] &&
+                                searchFields.Vorname && regexPattern.IsMatch(l.Vorname) ||
+                                searchFields.Nachname && regexPattern.IsMatch(l.Nachname) ||
+                                searchFields.Mailadrese && regexPattern.IsMatch(l.Mail) ||
+                                searchFields.Nutzername && regexPattern.IsMatch(l.Kuerzel) ||
+                                searchFields.ID && regexPattern.IsMatch(l.ID + "") ||
+                                searchFields.Seriennummer &&
                                 regexPattern.IsMatch(l.Seriennummer)).ToList());
                         }
                     }
@@ -2671,7 +2671,7 @@ public partial class MainWindow : Window {
                     }
                     else {
                         foreach (var eingabe in eingabeliste) {
-                            var regexPattern = Tooling.ToRegex(eingabe, searchFields[6]);
+                            var regexPattern = Tooling.ToRegex(eingabe, searchFields.GrossKleinschreibung);
                             kliste.AddRange(kcachelist
                                 .Where(k => regexPattern.IsMatch(k.Bezeichnung))
                                 .ToList());
@@ -2722,13 +2722,13 @@ public partial class MainWindow : Window {
                 var zeigeNurBemerkungen = _cbZeigeNurBemerkungen.IsChecked.Value;
                 if (tbLeftSearch?.ContextMenu?.ItemsSource == null) return;
                 var searchContextMenu = tbLeftSearch.ContextMenu.ItemsSource.Cast<CheckBox>().ToList();
-                var searchFields = new[]
-                    { false, false, false, false, false, false, false, false, false }; //v,n,m,a/k,i,s,e,ia,b
-                for (var i = 0; i < searchContextMenu.Count; ++i) {
-                    if (searchContextMenu[i].IsChecked == true) {
-                        searchFields[i] = true;
-                    }
-                }
+                var searchFields = new SearchFields {
+                    Vorname = searchContextMenu[0].IsChecked == true, Nachname = searchContextMenu[1].IsChecked == true,
+                    Mailadrese = searchContextMenu[2].IsChecked == true,
+                    Nutzername = searchContextMenu[3].IsChecked == true,
+                    ID = searchContextMenu[4].IsChecked == true, Seriennummer = searchContextMenu[5].IsChecked == true,
+                    GrossKleinschreibung = searchContextMenu[6].IsChecked == true
+                };
 
                 if (leftListBox.SelectedItems == null ||
                     leftListBox.SelectedItems.Count == 0 || leftListBox.SelectedItems[0] == null) return;
@@ -2759,17 +2759,17 @@ public partial class MainWindow : Window {
                         }
                         else {
                             foreach (var eingabe in eingabeliste) {
-                                var regexPattern = Tooling.ToRegex(eingabe, searchFields[6]);
+                                var regexPattern = Tooling.ToRegex(eingabe, searchFields.GrossKleinschreibung);
                                 sliste.AddRange(
                                     scachelist.Where(s =>
-                                        searchFields[4] && regexPattern.IsMatch(s.ID + "") ||
-                                        searchFields[0] && regexPattern.IsMatch(s.Vorname) ||
-                                        searchFields[1] && regexPattern.IsMatch(s.Nachname) ||
-                                        searchFields[2] &&
+                                        searchFields.ID && regexPattern.IsMatch(s.ID + "") ||
+                                        searchFields.Vorname && regexPattern.IsMatch(s.Vorname) ||
+                                        searchFields.Nachname && regexPattern.IsMatch(s.Nachname) ||
+                                        searchFields.Mailadrese &&
                                         (regexPattern.IsMatch(s.Mail) || regexPattern.IsMatch(s.Aixmail) ||
                                          regexPattern.IsMatch(s.Zweitmail) ||
-                                         searchFields[3] && regexPattern.IsMatch(s.Nutzername) ||
-                                         searchFields[5] &&
+                                         searchFields.Nutzername && regexPattern.IsMatch(s.Nutzername) ||
+                                         searchFields.Seriennummer &&
                                          regexPattern.IsMatch(s.Seriennummer))).ToList()
                                 );
                             }
@@ -2802,14 +2802,14 @@ public partial class MainWindow : Window {
                         }
                         else {
                             foreach (var eingabe in eingabeliste) {
-                                var regexPattern = Tooling.ToRegex(eingabe, searchFields[6]);
+                                var regexPattern = Tooling.ToRegex(eingabe, searchFields.GrossKleinschreibung);
                                 lliste.AddRange(cachelist.Where(l =>
-                                    searchFields[0] && regexPattern.IsMatch(l.Vorname) ||
-                                    searchFields[1] && regexPattern.IsMatch(l.Nachname) ||
-                                    searchFields[2] && regexPattern.IsMatch(l.Mail) ||
-                                    searchFields[3] && regexPattern.IsMatch(l.Kuerzel) ||
-                                    searchFields[4] && regexPattern.IsMatch(l.ID + "") ||
-                                    searchFields[5] &&
+                                    searchFields.Vorname && regexPattern.IsMatch(l.Vorname) ||
+                                    searchFields.Nachname && regexPattern.IsMatch(l.Nachname) ||
+                                    searchFields.Mailadrese && regexPattern.IsMatch(l.Mail) ||
+                                    searchFields.Nutzername && regexPattern.IsMatch(l.Kuerzel) ||
+                                    searchFields.ID && regexPattern.IsMatch(l.ID + "") ||
+                                    searchFields.Seriennummer &&
                                     regexPattern.IsMatch(l.Seriennummer)).ToList());
                             }
                         }
@@ -2841,7 +2841,7 @@ public partial class MainWindow : Window {
                         }
                         else {
                             foreach (var eingabe in eingabeliste) {
-                                var regexPattern = Tooling.ToRegex(eingabe, searchFields[6]);
+                                var regexPattern = Tooling.ToRegex(eingabe, searchFields.GrossKleinschreibung);
                                 kliste.AddRange(kcachelist
                                     .Where(k => regexPattern.IsMatch(k.Bezeichnung))
                                     .ToList());
@@ -3121,7 +3121,7 @@ public partial class MainWindow : Window {
                 if (files == null) return;
                 var filepath = files.Path.LocalPath;
                 List<string> lulliste = ["Kürzel;Nachname;Fächer;Mailadresse"];
-                lulliste.AddRange(_myschool.GetLehrkraftListe().Result.Where(l=>l.IstAktiv).Select(lehrer =>
+                lulliste.AddRange(_myschool.GetLehrkraftListe().Result.Where(l => l.IstAktiv).Select(lehrer =>
                         $@"{lehrer.Kuerzel};{lehrer.Nachname};{lehrer.Fakultas};\underline{{\href{{mailto:{lehrer.Mail.ToLower()}}}{{{lehrer.Mail.ToLower()}}}}}")
                     .OrderBy(s => s.Split(';')[0]));
                 await File.WriteAllLinesAsync(filepath, lulliste, Encoding.UTF8);
@@ -3147,7 +3147,8 @@ public partial class MainWindow : Window {
                 var filepath = files.Path.LocalPath;
                 List<string> header = ["Kürzel;Nachname;Fächer;Mailadresse;Kürzel;Nachname;Fächer;Mailadresse"];
                 List<string> lulliste = [];
-                var llist = _myschool.GetLehrkraftListe().Result.Where(l=>l.IstAktiv).OrderBy(lk => lk.Kuerzel).ToList();
+                var llist = _myschool.GetLehrkraftListe().Result.Where(l => l.IstAktiv).OrderBy(lk => lk.Kuerzel)
+                    .ToList();
                 var half = llist.Count / 2;
                 for (var i = 0; i < llist.Count / 2 + 1; ++i) {
                     var lehrer = llist[i];
@@ -3704,7 +3705,7 @@ public partial class MainWindow : Window {
                 var filepath = files.Path.LocalPath;
                 await Dispatcher.UIThread.InvokeAsync(async () => {
                     try {
-                        var json_options = new JsonSerializerOptions() {
+                        var json_options = new JsonSerializerOptions {
                             WriteIndented = true
                         };
                         var json_settings = JsonSerializer.Serialize(_myschool.GetSettings().Result, json_options);
