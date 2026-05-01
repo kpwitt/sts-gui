@@ -59,8 +59,8 @@ public record struct Kurs(
     string Art,
     string Bemerkung);
 
-public struct Einstellungen {
-    public Einstellungen() {
+public struct DBEinstellungen {
+    public DBEinstellungen() {
         Mailsuffix = "@schule.local";
         Kurssuffix = string.Empty;
         Fachersetzung = string.Empty;
@@ -128,15 +128,4 @@ public readonly struct FaKo(string fach, Lehrkraft vorsitz, Lehrkraft stellvertr
     public int CompareTo(FaKo andere) {
         return string.Compare(Fach, andere.Fach, StringComparison.Ordinal);
     }
-}
-
-public struct SearchFields
-{
-public bool Vorname { get; init; }
-public bool Nachname { get; init; }
-public bool Mailadrese { get; init; }
-public bool Nutzername { get; init; }
-public bool ID { get; init; }
-public bool Seriennummer { get; init; } 
-public bool GrossKleinschreibung { get; init; }
 }

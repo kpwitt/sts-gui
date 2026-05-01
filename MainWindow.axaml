@@ -42,6 +42,7 @@
                 <Menu DockPanel.Dock="Top"><!-- Menuleiste -->
                     <MenuItem Header="_Datei">
                         <MenuItem Header="Schule _laden" x:Name="mnuSchuleLaden" Click="OnMnuSchoolLoadClick" />
+                        <MenuItem Header="Letze Datenbanken" x:Name="mnuLetzteDBs" />
                         <MenuItem Header="Schule _schließen" x:Name="mnuSchuleSchließen"
                                   Click="OnMnuschuleschließenClick" />
                         <Separator />
@@ -255,7 +256,7 @@
                                             </Button>
                                         </StackPanel>
                                         <TextBlock Classes="Header" Text="Kurse:" Grid.Column="0" Grid.Row="8" />
-                                        <TextBox x:Name="tbLuLKurse" Grid.Column="1" Grid.Row="8" MaxWidth="600"/>
+                                        <TextBox x:Name="tbLuLKurse" Grid.Column="1" Grid.Row="8" MaxWidth="600" />
                                         <TextBlock Classes="Header" Text="Fachvorsitz:" Grid.Column="0" Grid.Row="9" />
                                         <TextBox x:Name="tbLuLFavo" Grid.Column="1" Grid.Row="9" />
                                         <TextBlock Classes="Header" Text="stellv. Fachvorsitz:" Grid.Column="0"
