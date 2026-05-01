@@ -12,9 +12,9 @@ public struct SearchFields {
     public bool GrossKleinschreibung { get; init; }
 }
 
-public struct AppSettings {
-    public Theme Theme { get; set; }
-    public List<string> LastFiles { get; set; }
+public struct AppSettings() {
+    public Theme Theme { get; set; } = Theme.Dark;
+    public List<string> LastFiles { get; init; } = [];
 
     public void AddLastFile(string filename) {
         if (LastFiles.Contains(filename)) return;
