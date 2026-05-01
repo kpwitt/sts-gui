@@ -1766,7 +1766,6 @@ public partial class MainWindow : Window {
             var susliste = _myschool.GetSchuelerListe().Result;
             var ergebnisliste = new List<string>();
             if (cbFehlerLeereKurse.IsChecked != null && cbFehlerLeereKurse.IsChecked.Value) {
-                //TODO: Fehlerforsetzen
                 ergebnisliste.Add("######BEGIN Leere Kurse######");
                 ergebnisliste.Add("Kursbezeichnung; Fehler");
                 foreach (var k in kursliste) {
