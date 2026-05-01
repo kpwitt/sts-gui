@@ -182,7 +182,7 @@ public class Schuldatenbank : IDisposable {
             var calcSuffix = DateTime.Now.Month < 8
                 ? $"{DateTime.Now.Year - 2001}{DateTime.Now.Year - 2000}"
                 : $"{DateTime.Now.Year - 2000}{DateTime.Now.Year - 1999}";
-            Einstellungen einstellungen = new() {
+            DBEinstellungen dbEinstellungen = new() {
                 Mailsuffix = "@schule.local",
                 Fachersetzung = "",
                 Kurzfaecher = fachk,
@@ -202,7 +202,7 @@ public class Schuldatenbank : IDisposable {
                 StuBos = "",
                 Version = version
             };
-            SetSettings(ref sqliteCmd, ref einstellungen);
+            SetSettings(ref sqliteCmd, ref dbEinstellungen);
             if (fachk.Length != fachl.Length) return;
             for (var i = 0; i < fachk.Length; i++) {
                 if (fachl[i] == "" || fachk[i] == "") continue;
@@ -2305,68 +2305,68 @@ public class Schuldatenbank : IDisposable {
     /// <summary>
     /// gibt die schulspezifischen Einstellungen der Datenbank als Settings-Struct zurück
     /// </summary>
-    public async Task<Einstellungen> GetSettings() {
+    public async Task<DBEinstellungen> GetSettings() {
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText = "SELECT setting,value FROM settings;";
         var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
-        Einstellungen einstellungenResult = new();
+        DBEinstellungen dbEinstellungenResult = new();
         while (sqliteDatareader.Read()) {
             var key = sqliteDatareader.GetString(0);
             var value = string.IsNullOrEmpty(sqliteDatareader.GetString(1)) ? "" : sqliteDatareader.GetString(1);
             switch (key) {
                 case "mailsuffix":
-                    einstellungenResult.Mailsuffix = value;
+                    dbEinstellungenResult.Mailsuffix = value;
                     break;
                 case "kurssuffix":
-                    einstellungenResult.Kurssuffix = value;
+                    dbEinstellungenResult.Kurssuffix = value;
                     break;
                 case "fachersatz":
-                    einstellungenResult.Fachersetzung = value;
+                    dbEinstellungenResult.Fachersetzung = value;
                     break;
                 case "erprobungsstufenleitung":
-                    einstellungenResult.Erprobungstufenleitung = value;
+                    dbEinstellungenResult.Erprobungstufenleitung = value;
                     break;
                 case "mittelstufenleitung":
-                    einstellungenResult.Mittelstufenleitung = value;
+                    dbEinstellungenResult.Mittelstufenleitung = value;
                     break;
                 case "efstufenleitung":
-                    einstellungenResult.EFStufenleitung = value;
+                    dbEinstellungenResult.EFStufenleitung = value;
                     break;
                 case "q1stufenleitung":
-                    einstellungenResult.Q1Stufenleitung = value;
+                    dbEinstellungenResult.Q1Stufenleitung = value;
                     break;
                 case "q2stufenleitung":
-                    einstellungenResult.Q2Stufenleitung = value;
+                    dbEinstellungenResult.Q2Stufenleitung = value;
                     break;
                 case "oberstufenkoordination":
-                    einstellungenResult.Oberstufenkoordination = value;
+                    dbEinstellungenResult.Oberstufenkoordination = value;
                     break;
                 case "stubos":
-                    einstellungenResult.StuBos = value;
+                    dbEinstellungenResult.StuBos = value;
                     break;
                 case "erprobungsstufen":
-                    einstellungenResult.Erprobungsstufe = value.Split(',').Length == 0 ? [""] : value.Split(',');
+                    dbEinstellungenResult.Erprobungsstufe = value.Split(',').Length == 0 ? [""] : value.Split(',');
                     break;
                 case "mittelstufen":
-                    einstellungenResult.Mittelstufe = value.Split(',').Length == 0 ? [""] : value.Split(',');
+                    dbEinstellungenResult.Mittelstufe = value.Split(',').Length == 0 ? [""] : value.Split(',');
                     break;
                 case "oberstufen":
-                    einstellungenResult.Oberstufe = value.Split(',').Length == 0 ? [""] : value.Split(',');
+                    dbEinstellungenResult.Oberstufe = value.Split(',').Length == 0 ? [""] : value.Split(',');
                     break;
                 case "stubostufen":
-                    einstellungenResult.StuboStufen = value.Split(',').Length == 0 ? [""] : value.Split(',');
+                    dbEinstellungenResult.StuboStufen = value.Split(',').Length == 0 ? [""] : value.Split(',');
                     break;
                 case "jamfstufen":
-                    einstellungenResult.JAMFStufen = value.Split(',').Length == 0 ? [""] : value.Split(',');
+                    dbEinstellungenResult.JAMFStufen = value.Split(',').Length == 0 ? [""] : value.Split(',');
                     break;
             }
         }
 
-        erprobungsstufe = einstellungenResult.Erprobungsstufe;
-        mittelstufe = einstellungenResult.Mittelstufe;
-        oberstufe = einstellungenResult.Oberstufe;
-        stubostufen = einstellungenResult.StuboStufen;
-        jamfstufen = einstellungenResult.JAMFStufen;
+        erprobungsstufe = dbEinstellungenResult.Erprobungsstufe;
+        mittelstufe = dbEinstellungenResult.Mittelstufe;
+        oberstufe = dbEinstellungenResult.Oberstufe;
+        stubostufen = dbEinstellungenResult.StuboStufen;
+        jamfstufen = dbEinstellungenResult.JAMFStufen;
 
         List<string> flist = [];
         sqliteCmd = _sqliteConn.CreateCommand();
@@ -2388,10 +2388,10 @@ public class Schuldatenbank : IDisposable {
             fachl.Add(faecher.Split(';')[1]);
         }
 
-        einstellungenResult.Kurzfaecher = [.. fachk];
-        einstellungenResult.Langfaecher = [.. fachl];
-        einstellungenResult.Version = version;
-        return einstellungenResult;
+        dbEinstellungenResult.Kurzfaecher = [.. fachk];
+        dbEinstellungenResult.Langfaecher = [.. fachl];
+        dbEinstellungenResult.Version = version;
+        return dbEinstellungenResult;
     }
 
     /// <summary>
@@ -3211,11 +3211,11 @@ public class Schuldatenbank : IDisposable {
     /// Setzt die Einstellungen in der Datenbank
     /// </summary>
     /// <param name="sqliteCmd"></param>
-    /// <param name="einstellungen"></param>
-    private void SetSettings(ref SqliteCommand sqliteCmd, ref Einstellungen einstellungen) {
-        sqliteCmd.Parameters.AddWithValue("$mailsuffixparam", einstellungen.Mailsuffix);
-        sqliteCmd.Parameters.AddWithValue("$kurssuffixparam", einstellungen.Kurssuffix);
-        sqliteCmd.Parameters.AddWithValue("$fachersatzparam", einstellungen.Fachersetzung);
+    /// <param name="dbEinstellungen"></param>
+    private void SetSettings(ref SqliteCommand sqliteCmd, ref DBEinstellungen dbEinstellungen) {
+        sqliteCmd.Parameters.AddWithValue("$mailsuffixparam", dbEinstellungen.Mailsuffix);
+        sqliteCmd.Parameters.AddWithValue("$kurssuffixparam", dbEinstellungen.Kurssuffix);
+        sqliteCmd.Parameters.AddWithValue("$fachersatzparam", dbEinstellungen.Fachersetzung);
 
         sqliteCmd.Parameters.AddWithValue("$mailsuffix", "mailsuffix");
         sqliteCmd.Parameters.AddWithValue("$kurssuffix", "kurssuffix");
@@ -3233,25 +3233,25 @@ public class Schuldatenbank : IDisposable {
         sqliteCmd.Parameters.AddWithValue("$oberstufen", "oberstufen");
         sqliteCmd.Parameters.AddWithValue("$stubostufen", "stubostufen");
         sqliteCmd.Parameters.AddWithValue("$jamfstufen", "jamfstufen");
-        sqliteCmd.Parameters.AddWithValue("$erprobungsstufeparam", string.Join(',', einstellungen.Erprobungsstufe));
-        sqliteCmd.Parameters.AddWithValue("$mittelstufeparam", string.Join(',', einstellungen.Mittelstufe));
-        sqliteCmd.Parameters.AddWithValue("$oberstufeparam", string.Join(',', einstellungen.Oberstufe));
-        sqliteCmd.Parameters.AddWithValue("$stubostufenparam", string.Join(',', einstellungen.StuboStufen));
-        sqliteCmd.Parameters.AddWithValue("$jamfstufenparam", string.Join(',', einstellungen.JAMFStufen));
+        sqliteCmd.Parameters.AddWithValue("$erprobungsstufeparam", string.Join(',', dbEinstellungen.Erprobungsstufe));
+        sqliteCmd.Parameters.AddWithValue("$mittelstufeparam", string.Join(',', dbEinstellungen.Mittelstufe));
+        sqliteCmd.Parameters.AddWithValue("$oberstufeparam", string.Join(',', dbEinstellungen.Oberstufe));
+        sqliteCmd.Parameters.AddWithValue("$stubostufenparam", string.Join(',', dbEinstellungen.StuboStufen));
+        sqliteCmd.Parameters.AddWithValue("$jamfstufenparam", string.Join(',', dbEinstellungen.JAMFStufen));
 
         sqliteCmd.Parameters.AddWithValue("$stubos", "stubos");
         sqliteCmd.Parameters.AddWithValue("$version", "version");
 
         sqliteCmd.Parameters.AddWithValue("$erprobungstufenleitungparam",
-            einstellungen.Erprobungstufenleitung);
+            dbEinstellungen.Erprobungstufenleitung);
         sqliteCmd.Parameters.AddWithValue("$mittelstufenleitungparam",
-            einstellungen.Mittelstufenleitung);
-        sqliteCmd.Parameters.AddWithValue("$efstufenleitungparam", einstellungen.EFStufenleitung);
-        sqliteCmd.Parameters.AddWithValue("$q1stufenleitungparam", einstellungen.Q1Stufenleitung);
-        sqliteCmd.Parameters.AddWithValue("$q2stufenleitungparam", einstellungen.Q2Stufenleitung);
+            dbEinstellungen.Mittelstufenleitung);
+        sqliteCmd.Parameters.AddWithValue("$efstufenleitungparam", dbEinstellungen.EFStufenleitung);
+        sqliteCmd.Parameters.AddWithValue("$q1stufenleitungparam", dbEinstellungen.Q1Stufenleitung);
+        sqliteCmd.Parameters.AddWithValue("$q2stufenleitungparam", dbEinstellungen.Q2Stufenleitung);
         sqliteCmd.Parameters.AddWithValue("$oberstufenkoordinationparam",
-            einstellungen.Oberstufenkoordination);
-        sqliteCmd.Parameters.AddWithValue("$stubosparam", einstellungen.StuBos);
+            dbEinstellungen.Oberstufenkoordination);
+        sqliteCmd.Parameters.AddWithValue("$stubosparam", dbEinstellungen.StuBos);
         sqliteCmd.Parameters.AddWithValue("$versionparam", version);
         sqliteCmd.CommandText =
             "INSERT OR REPLACE INTO settings (setting,value) VALUES($mailsuffix, $mailsuffixparam)";
@@ -3302,22 +3302,22 @@ public class Schuldatenbank : IDisposable {
             "INSERT OR REPLACE INTO settings (setting,value) VALUES($version, $versionparam)";
         sqliteCmd.ExecuteNonQuery();
         sqliteCmd.Parameters.Clear();
-        erprobungsstufe = einstellungen.Erprobungsstufe;
-        mittelstufe = einstellungen.Mittelstufe;
-        oberstufe = einstellungen.Oberstufe;
-        jamfstufen = einstellungen.JAMFStufen;
-        stubostufen = einstellungen.StuboStufen;
-        _ = SetKurzLangFach(einstellungen.Kurzfaecher, einstellungen.Langfaecher);
+        erprobungsstufe = dbEinstellungen.Erprobungsstufe;
+        mittelstufe = dbEinstellungen.Mittelstufe;
+        oberstufe = dbEinstellungen.Oberstufe;
+        jamfstufen = dbEinstellungen.JAMFStufen;
+        stubostufen = dbEinstellungen.StuboStufen;
+        _ = SetKurzLangFach(dbEinstellungen.Kurzfaecher, dbEinstellungen.Langfaecher);
     }
 
     /// <summary>
     /// setzt die Einstellungen der Schule in der Datenbank
     /// </summary>
-    /// <param name="einstellungen"></param>
-    public Task SetSettings(Einstellungen einstellungen) {
+    /// <param name="dbEinstellungen"></param>
+    public Task SetSettings(DBEinstellungen dbEinstellungen) {
         try {
             var sqliteCmd = _sqliteConn.CreateCommand();
-            SetSettings(ref sqliteCmd, ref einstellungen);
+            SetSettings(ref sqliteCmd, ref dbEinstellungen);
             return Task.CompletedTask;
         }
         catch (Exception exception) {

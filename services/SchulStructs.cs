@@ -59,8 +59,8 @@ public record struct Kurs(
     string Art,
     string Bemerkung);
 
-public struct Einstellungen {
-    public Einstellungen() {
+public struct DBEinstellungen {
+    public DBEinstellungen() {
         Mailsuffix = "@schule.local";
         Kurssuffix = string.Empty;
         Fachersetzung = string.Empty;

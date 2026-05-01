@@ -1182,7 +1182,7 @@ public partial class MainWindow : Window {
         _ = LoadFavos();
     }
 
-    private void LoadSettingsToGUI(Einstellungen settings) {
+    private void LoadSettingsToGUI(DBEinstellungen settings) {
         tbSettingMailplatzhalter.Text = settings.Mailsuffix;
         tbSettingKursersetzung.Text = string.IsNullOrEmpty(settings.Fachersetzung)
             ? ""
@@ -2095,7 +2095,7 @@ public partial class MainWindow : Window {
 
     private async void BtnSettingSave_OnClick(object? sender, RoutedEventArgs e) {
         try {
-            Einstellungen settings = new() {
+            DBEinstellungen settings = new() {
                 Mailsuffix = string.IsNullOrEmpty(tbSettingMailplatzhalter.Text)
                     ? "@local.domain"
                     : tbSettingMailplatzhalter.Text,
@@ -3739,7 +3739,7 @@ public partial class MainWindow : Window {
                 var filepath = files.Path.LocalPath;
                 try {
                     var json_settings =
-                        JsonSerializer.Deserialize<Einstellungen>(File.ReadAllTextAsync(filepath).Result);
+                        JsonSerializer.Deserialize<DBEinstellungen>(File.ReadAllTextAsync(filepath).Result);
                     await _myschool.SetSettings(json_settings);
                     LoadSettingsToGUI(json_settings);
                     await ShowCustomSuccessMessage("Einstellungen erfolgreich geladen", "Erfolg");
