@@ -17,6 +17,7 @@ public struct AppSettings {
     public List<string> LastFiles { get; set; }
 
     public void AddLastFile(string filename) {
+        if (LastFiles.Contains(filename)) return;
         LastFiles.Insert(0, filename);
         if (LastFiles.Count > 5) {
             LastFiles.RemoveAt(6);
