@@ -1,4 +1,6 @@
-﻿namespace SchulDB;
+﻿using System.Collections.Generic;
+
+namespace SchulDB;
 
 public struct SearchFields {
     public bool Vorname { get; init; }
@@ -8,4 +10,21 @@ public struct SearchFields {
     public bool ID { get; init; }
     public bool Seriennummer { get; init; }
     public bool GrossKleinschreibung { get; init; }
+}
+
+public struct AppSettings {
+    public Theme Theme { get; set; }
+    public List<string> LastFiles { get; set; }
+
+    public void AddLastFile(string filename) {
+        LastFiles.Insert(0, filename);
+        if (LastFiles.Count > 5) {
+            LastFiles.RemoveAt(6);
+        }
+    }
+}
+
+public enum Theme {
+    Dark,
+    Light
 }
