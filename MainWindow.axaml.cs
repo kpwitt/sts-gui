@@ -49,6 +49,8 @@ public partial class MainWindow : Window {
     private readonly ContextMenu _logListContextMenu = new();
     private int leftLastComboIndex = -1;
     private int rightLastComboIndex = -1;
+    private AppSettings appSettings = new();
+    private bool submenuActive = false;
 
 #pragma warning disable CS8618, CS9264
     //InitGUi() initialisiert die nicht initialisierten Variablen/Objekte/etc.
@@ -305,6 +307,58 @@ public partial class MainWindow : Window {
             lbLogDisplay.Width = FrameSize.Value.Width * 0.75;
             exportScrollViewerFavo.MaxHeight = leftListBox.MaxHeight;
         };
+        var settingspath = new FileInfo(Assembly.GetCallingAssembly().Location).Directory?.FullName +
+                           "\\appsettings.json";
+        if (File.Exists(settingspath)) {
+            try {
+                appSettings =
+                    JsonSerializer.Deserialize<AppSettings>(File.ReadAllTextAsync(settingspath).Result);
+                if (appSettings.LastFiles.Count > 0) {
+                    RegenerateLoadMenuEntries();
+                }
+            }
+            catch (Exception exception) {
+                _myschool.AddLogMessage(new LogEintrag
+                    { Eintragsdatum = DateTime.Now, Nachricht = exception.Message, Warnstufe = "Fehler" });
+            }
+        }
+        else appSettings = new AppSettings();
+
+        SetTheme(appSettings.Theme);
+        switch (appSettings.Theme) {
+            case SchulDB.Theme.Dark:
+                rbD.IsChecked = true;
+                rbL.IsChecked = false;
+                break;
+            case SchulDB.Theme.Light:
+                rbD.IsChecked = false;
+                rbL.IsChecked = true;
+                break;
+            default:
+                return;
+        }
+    }
+
+    private void RegenerateLoadMenuEntries() {
+        var menu = mnuLetzteDBs;
+        if (menu == null) return;
+        if (appSettings.LastFiles.Count == 0) {
+            menu.IsEnabled = false;
+            return;
+        }
+
+        var menus = new List<MenuItem>();
+        foreach (var entry in appSettings.LastFiles.Select(fileentry => new MenuItem {
+                     Header = fileentry
+                 })) {
+            entry.Click += MnuRecentFileEntry_OnClick;
+            menus.Add(entry);
+        }
+
+        menu.ItemsSource = null;
+        menu.Items.Clear();
+        menu.ItemsSource = menus;
+        menu.IsEnabled = true;
     }
 
     private async Task<IStorageFile?> ShowSaveFileDialog(string dialogtitle,
@@ -397,17 +451,19 @@ public partial class MainWindow : Window {
 
     private async void OnMnuSchoolLoadClick(object? sender, RoutedEventArgs e) {
         try {
+            if (submenuActive) {
+                submenuActive = false;
+                return;
+            }
+
             var extx = new List<FilePickerFileType> {
                 StSFileTypes.DataBaseFile
             };
             var files = await ShowOpenFileDialog("Bitte einen Dateipfad angeben...", extx);
             if (files == null) return;
             var filepath = files.Path.LocalPath;
-            _myschool = new Schuldatenbank(filepath);
-            Title = $"SchildToSchule - {_myschool.GetFilePath()}";
-            LoadSettingsToGUI(_myschool.GetSettings().Result);
-            InitData();
-            SetStatusText();
+            LoadDataBaseFromFile(filepath);
+            submenuActive = false;
         }
         catch (Exception ex) {
             _myschool.AddLogMessage(new LogEintrag {
@@ -415,6 +471,16 @@ public partial class MainWindow : Window {
                 Nachricht = ex.StackTrace ?? "unbekannter Fehler beim laden der Schule"
             });
         }
+    }
+
+    private void LoadDataBaseFromFile(string filepath) {
+        _myschool = new Schuldatenbank(filepath);
+        Title = $"SchildToSchule - {_myschool.GetFilePath()}";
+        LoadSettingsToGUI(_myschool.GetSettings().Result);
+        InitData();
+        SetStatusText();
+        appSettings.AddLastFile(filepath);
+        RegenerateLoadMenuEntries();
     }
 
     private async Task LoadFavos() {
@@ -689,8 +755,24 @@ public partial class MainWindow : Window {
     }
 
     private void OnMnuexitClick(object? sender, RoutedEventArgs e) {
+        var settingspath = new FileInfo(Assembly.GetCallingAssembly().Location).Directory?.FullName +
+                           "\\appsettings.json";
+
+        try {
+            var json_options = new JsonSerializerOptions {
+                WriteIndented = true
+            };
+            var json_settings = JsonSerializer.Serialize(appSettings, json_options);
+            File.WriteAllText(settingspath, json_settings);
+        }
+        catch (Exception exception) {
+            _myschool.AddLogMessage(new LogEintrag
+                { Eintragsdatum = DateTime.Now, Nachricht = exception.Message, Warnstufe = "Fehler" });
+        }
+
         Environment.Exit(0);
     }
+
 
     private async void OnMnuloadfolderClick(object? sender, RoutedEventArgs e) {
         try {
@@ -3181,16 +3263,31 @@ public partial class MainWindow : Window {
     private void Rb_OnClick(object? sender, RoutedEventArgs e) {
         if (sender == null) return;
         if (sender.Equals(rbD)) {
-            Background = _darkBackgroundColor;
-            leftListBox.Background = _darkBackgroundColor;
-            rightListBox.Background = _darkBackgroundColor;
-            lbFehlerliste.Background = _darkBackgroundColor;
+            SetTheme(SchulDB.Theme.Dark);
         }
         else if (sender.Equals(rbL)) {
-            Background = _lightBackgroundColor;
-            leftListBox.Background = _lightBackgroundColor;
-            rightListBox.Background = _lightBackgroundColor;
-            lbFehlerliste.Background = _lightBackgroundColor;
+            SetTheme(SchulDB.Theme.Light);
+        }
+    }
+
+    private void SetTheme(Theme theme) {
+        switch (theme) {
+            case SchulDB.Theme.Dark:
+                Background = _darkBackgroundColor;
+                leftListBox.Background = _darkBackgroundColor;
+                rightListBox.Background = _darkBackgroundColor;
+                lbFehlerliste.Background = _darkBackgroundColor;
+                appSettings.Theme = SchulDB.Theme.Dark;
+                break;
+            case SchulDB.Theme.Light:
+                Background = _lightBackgroundColor;
+                leftListBox.Background = _lightBackgroundColor;
+                rightListBox.Background = _lightBackgroundColor;
+                lbFehlerliste.Background = _lightBackgroundColor;
+                appSettings.Theme = SchulDB.Theme.Light;
+                break;
+            default:
+                return;
         }
     }
 
@@ -4434,5 +4531,12 @@ public partial class MainWindow : Window {
             });
             await _myschool.StopTransaction();
         }
+    }
+
+    private async void MnuRecentFileEntry_OnClick(object? sender, RoutedEventArgs e) {
+        var name = (MenuItem)sender!;
+        if (name.Header?.ToString() == null) return;
+        submenuActive = true;
+        LoadDataBaseFromFile(name.Header.ToString() ?? throw new InvalidOperationException());
     }
 }
