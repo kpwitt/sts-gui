@@ -573,6 +573,41 @@ public class Schuldatenbank : IDisposable {
         }
     }
 
+
+    private Task Addlehrkraft(int id, string vorname, string nachname, string kuerzel, string mail,
+        string fakultas, string favo, string sfavo, string seriennummer, string bemerkung, string passwort) {
+        try {
+            if (GibtEsLehrkraft(id)) return Task.CompletedTask;
+            seriennummer = string.IsNullOrEmpty(seriennummer) ? "" : seriennummer;
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText =
+                "INSERT OR IGNORE INTO lehrkraft (id, nachname, vorname, kuerzel, mail, fakultas, pwtemp, favo, sfavo, seriennummer, bemerkung)" +
+                " VALUES ($id,$nachname,$vorname,$kuerzel,$mail,$fakultas,$pwtemp,$favo,$sfavo,$seriennummer,$bemerkung);";
+            sqliteCmd.Parameters.AddWithValue("$id", id);
+            sqliteCmd.Parameters.AddWithValue("$vorname", vorname);
+            sqliteCmd.Parameters.AddWithValue("$nachname", nachname);
+            sqliteCmd.Parameters.AddWithValue("$kuerzel", kuerzel.ToUpper());
+            sqliteCmd.Parameters.AddWithValue("$mail", mail.ToLower());
+            sqliteCmd.Parameters.AddWithValue("$fakultas", fakultas.TrimEnd(';'));
+            sqliteCmd.Parameters.AddWithValue("$pwtemp", passwort);
+            sqliteCmd.Parameters.AddWithValue("$favo", favo);
+            sqliteCmd.Parameters.AddWithValue("$sfavo", sfavo);
+            sqliteCmd.Parameters.AddWithValue("$seriennummer", seriennummer);
+            sqliteCmd.Parameters.AddWithValue("$bemerkung", bemerkung);
+            sqliteCmd.ExecuteNonQuery();
+            AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now,
+                Nachricht =
+                    $" Lehrkraft {nachname} {vorname} {kuerzel} angelegt",
+                Warnstufe = "Info"
+            });
+            return Task.CompletedTask;
+        }
+        catch (Exception exception) {
+            return Task.FromException(exception);
+        }
+    }
+
     /// <summary>
     /// fügt die Lehrperson hinzu
     /// </summary>
@@ -1010,7 +1045,7 @@ public class Schuldatenbank : IDisposable {
         foreach (var lehrkraft in await importfrom.GetLehrkraftListe()) {
             await Addlehrkraft(Convert.ToInt32(lehrkraft.ID), lehrkraft.Vorname, lehrkraft.Nachname,
                 lehrkraft.Kuerzel, lehrkraft.Mail, lehrkraft.Fakultas, lehrkraft.Favo, lehrkraft.SFavo,
-                lehrkraft.Seriennummer, lehrkraft.Bemerkung);
+                lehrkraft.Seriennummer, lehrkraft.Bemerkung, lehrkraft.Pwttemp);
             foreach (var kurs in await importfrom.GetKurseVonLuL(lehrkraft.ID)) {
                 await AddLtoK(Convert.ToInt32(lehrkraft.ID), kurs.Bezeichnung);
             }
