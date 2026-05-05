@@ -46,6 +46,8 @@ public partial class MainWindow : Window {
     private MenuItem _mnuItemCopyLuLMails;
     private CheckBox _cbZeigeInaktiv;
     private CheckBox _cbZeigeNurBemerkungen;
+    private MenuItem _clearLastEntries;
+    private MenuItem _mnuSeparator;
     private readonly ContextMenu _logListContextMenu = new();
     private int leftLastComboIndex = -1;
     private int rightLastComboIndex = -1;
@@ -115,6 +117,9 @@ public partial class MainWindow : Window {
     }
 
     private void InitGUI() {
+        _mnuSeparator = new MenuItem {
+            Header = "-"
+        };
         _myschool = new Schuldatenbank(":memory:");
         var settings = _myschool.GetSettings().Result;
         tbSettingMailplatzhalter.Text = settings.Mailsuffix;
@@ -307,6 +312,11 @@ public partial class MainWindow : Window {
             lbLogDisplay.Width = FrameSize.Value.Width * 0.75;
             exportScrollViewerFavo.MaxHeight = leftListBox.MaxHeight;
         };
+        _clearLastEntries = new MenuItem {
+            Header = "Datenbankverlauf leeren"
+        };
+        _clearLastEntries.Click += MnuClearLastEntries_Click;
+        
         var settingspath = new FileInfo(Assembly.GetCallingAssembly().Location).Directory?.FullName +
                            "\\appsettings.json";
         if (File.Exists(settingspath)) {
@@ -339,22 +349,30 @@ public partial class MainWindow : Window {
         }
     }
 
+    private void MnuClearLastEntries_Click(object? sender, RoutedEventArgs e) {
+        appSettings.LastFiles.Clear();
+        SaveAppSettingsToFile();
+        RegenerateLoadMenuEntries();
+    }
+
     private void RegenerateLoadMenuEntries() {
         var menu = mnuLetzteDBs;
         if (menu == null) return;
+        var menus = new List<MenuItem>();
         if (appSettings.LastFiles.Count == 0) {
             menu.IsEnabled = false;
-            return;
         }
-
-        var menus = new List<MenuItem>();
-        foreach (var entry in appSettings.LastFiles.Select(fileentry => new MenuItem {
-                     Header = fileentry
-                 })) {
-            entry.Click += MnuRecentFileEntry_OnClick;
-            menus.Add(entry);
+        else {
+            foreach (var entry in appSettings.LastFiles.Select(fileentry => new MenuItem {
+                         Header = fileentry
+                     })) {
+                entry.Click += MnuRecentFileEntry_OnClick;
+                menus.Add(entry);
+            }
+            menu.IsEnabled = true;
         }
-
+        menus.Add(_mnuSeparator);
+        menus.Add(_clearLastEntries);
         menu.ItemsSource = null;
         menu.Items.Clear();
         menu.ItemsSource = menus;
@@ -583,7 +601,8 @@ public partial class MainWindow : Window {
                             break;
                     }
                 }
-
+                
+                SaveAppSettingsToFile();
                 var leftlist = this.GetControl<ListBox>("leftListBox");
                 var rightlist = this.GetControl<ListBox>("rightListBox");
                 ResetItemsSource(leftlist, []);
@@ -755,6 +774,11 @@ public partial class MainWindow : Window {
     }
 
     private void OnMnuexitClick(object? sender, RoutedEventArgs e) {
+        SaveAppSettingsToFile();
+        Environment.Exit(0);
+    }
+
+    private void SaveAppSettingsToFile() {
         var settingspath = new FileInfo(Assembly.GetCallingAssembly().Location).Directory?.FullName +
                            "\\appsettings.json";
 
@@ -769,8 +793,6 @@ public partial class MainWindow : Window {
             _myschool.AddLogMessage(new LogEintrag
                 { Eintragsdatum = DateTime.Now, Nachricht = exception.Message, Warnstufe = "Fehler" });
         }
-
-        Environment.Exit(0);
     }
 
 
