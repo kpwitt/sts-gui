@@ -601,7 +601,8 @@ public partial class MainWindow : Window {
                             break;
                     }
                 }
-
+                
+                SaveAppSettingsToFile();
                 var leftlist = this.GetControl<ListBox>("leftListBox");
                 var rightlist = this.GetControl<ListBox>("rightListBox");
                 ResetItemsSource(leftlist, []);
@@ -773,6 +774,11 @@ public partial class MainWindow : Window {
     }
 
     private void OnMnuexitClick(object? sender, RoutedEventArgs e) {
+        SaveAppSettingsToFile();
+        Environment.Exit(0);
+    }
+
+    private void SaveAppSettingsToFile() {
         var settingspath = new FileInfo(Assembly.GetCallingAssembly().Location).Directory?.FullName +
                            "\\appsettings.json";
 
@@ -787,8 +793,6 @@ public partial class MainWindow : Window {
             _myschool.AddLogMessage(new LogEintrag
                 { Eintragsdatum = DateTime.Now, Nachricht = exception.Message, Warnstufe = "Fehler" });
         }
-
-        Environment.Exit(0);
     }
 
 
