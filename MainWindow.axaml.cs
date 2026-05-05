@@ -47,6 +47,7 @@ public partial class MainWindow : Window {
     private CheckBox _cbZeigeInaktiv;
     private CheckBox _cbZeigeNurBemerkungen;
     private MenuItem _clearLastEntries;
+    private MenuItem _mnuSeparator;
     private readonly ContextMenu _logListContextMenu = new();
     private int leftLastComboIndex = -1;
     private int rightLastComboIndex = -1;
@@ -116,6 +117,9 @@ public partial class MainWindow : Window {
     }
 
     private void InitGUI() {
+        _mnuSeparator = new MenuItem {
+            Header = "-"
+        };
         _myschool = new Schuldatenbank(":memory:");
         var settings = _myschool.GetSettings().Result;
         tbSettingMailplatzhalter.Text = settings.Mailsuffix;
@@ -345,6 +349,12 @@ public partial class MainWindow : Window {
         }
     }
 
+    private void MnuClearLastEntries_Click(object? sender, RoutedEventArgs e) {
+        appSettings.LastFiles.Clear();
+        SaveAppSettingsToFile();
+        RegenerateLoadMenuEntries();
+    }
+
     private void RegenerateLoadMenuEntries() {
         var menu = mnuLetzteDBs;
         if (menu == null) return;
@@ -361,7 +371,7 @@ public partial class MainWindow : Window {
             }
             menu.IsEnabled = true;
         }
-
+        menus.Add(_mnuSeparator);
         menus.Add(_clearLastEntries);
         menu.ItemsSource = null;
         menu.Items.Clear();
