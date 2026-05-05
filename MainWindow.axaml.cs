@@ -46,6 +46,7 @@ public partial class MainWindow : Window {
     private MenuItem _mnuItemCopyLuLMails;
     private CheckBox _cbZeigeInaktiv;
     private CheckBox _cbZeigeNurBemerkungen;
+    private MenuItem _clearLastEntries;
     private readonly ContextMenu _logListContextMenu = new();
     private int leftLastComboIndex = -1;
     private int rightLastComboIndex = -1;
@@ -307,6 +308,11 @@ public partial class MainWindow : Window {
             lbLogDisplay.Width = FrameSize.Value.Width * 0.75;
             exportScrollViewerFavo.MaxHeight = leftListBox.MaxHeight;
         };
+        _clearLastEntries = new MenuItem {
+            Header = "Datenbankverlauf leeren"
+        };
+        _clearLastEntries.Click += MnuClearLastEntries_Click;
+        
         var settingspath = new FileInfo(Assembly.GetCallingAssembly().Location).Directory?.FullName +
                            "\\appsettings.json";
         if (File.Exists(settingspath)) {
@@ -342,19 +348,21 @@ public partial class MainWindow : Window {
     private void RegenerateLoadMenuEntries() {
         var menu = mnuLetzteDBs;
         if (menu == null) return;
+        var menus = new List<MenuItem>();
         if (appSettings.LastFiles.Count == 0) {
             menu.IsEnabled = false;
-            return;
+        }
+        else {
+            foreach (var entry in appSettings.LastFiles.Select(fileentry => new MenuItem {
+                         Header = fileentry
+                     })) {
+                entry.Click += MnuRecentFileEntry_OnClick;
+                menus.Add(entry);
+            }
+            menu.IsEnabled = true;
         }
 
-        var menus = new List<MenuItem>();
-        foreach (var entry in appSettings.LastFiles.Select(fileentry => new MenuItem {
-                     Header = fileentry
-                 })) {
-            entry.Click += MnuRecentFileEntry_OnClick;
-            menus.Add(entry);
-        }
-
+        menus.Add(_clearLastEntries);
         menu.ItemsSource = null;
         menu.Items.Clear();
         menu.ItemsSource = menus;
