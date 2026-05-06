@@ -1848,11 +1848,18 @@ public partial class MainWindow : Window {
                     }
                 }
 
-                var res = await _myschool.ExportToCSV(folderpath, destsys, whattoexport,
-                    cbExportwithPasswort.IsChecked != null && cbExportwithPasswort.IsChecked.Value, "",
-                    expandFiles == 0,
-                    nurMoodleSuffix, kursvorlagen, new ReadOnlyCollection<int>(_myschool.GetSchuelerIDListe().Result),
-                    await _myschool.GetLehrerIDListe(), await _myschool.GetKursBezListe());
+                var ep = new ExportParameters(Folder: folderpath,
+                    TargetSystems: destsys,
+                    WhatToExport: whattoexport,
+                    WithPasswort: cbExportwithPasswort.IsChecked != null && cbExportwithPasswort.IsChecked.Value,
+                    Passwort: "",
+                    ExpandFiles: expandFiles == 0,
+                    NurMoodleSuffix: nurMoodleSuffix,
+                    KursVorlage: kursvorlagen,
+                    SusIdListe: new ReadOnlyCollection<int>(_myschool.GetSchuelerIDListe().Result),
+                    LulIdListe: await _myschool.GetLehrerIDListe(),
+                    KursListe: await _myschool.GetKursBezListe());
+                var res = await _myschool.ExportToCSV(ep);
                 await CheckSuccesfulExport(res);
             }
         }
@@ -2068,10 +2075,18 @@ public partial class MainWindow : Window {
                 if (!tbExportStufenkurse.Text.Contains(';')) {
                     var stufe = tbExportStufenkurse.Text;
                     susidlist.AddRange(_myschool.GetSusAusStufe(stufe).Result.Select(s => s.ID).ToList());
-                    res = await _myschool.ExportToCSV(folderpath, "all", "s", false, "", false, nurMoodleSuffix,
-                        ["", ""], new ReadOnlyCollection<int>([..susidlist]),
-                        new ReadOnlyCollection<int>([]),
-                        new ReadOnlyCollection<string>([]));
+                    var ep = new ExportParameters(Folder: folderpath,
+                        TargetSystems: "all",
+                        WhatToExport: "s",
+                        WithPasswort: cbExportwithPasswort.IsChecked != null && cbExportwithPasswort.IsChecked.Value,
+                        Passwort: "",
+                        ExpandFiles: false,
+                        NurMoodleSuffix: nurMoodleSuffix,
+                        KursVorlage: ["", ""],
+                        SusIdListe: new ReadOnlyCollection<int>([..susidlist]),
+                        LulIdListe: new ReadOnlyCollection<int>([]),
+                        KursListe: new ReadOnlyCollection<string>([]));
+                    res = await _myschool.ExportToCSV(ep);
                 }
                 else {
                     var stufen = tbExportStufenkurse.Text.Split(';');
@@ -2079,10 +2094,18 @@ public partial class MainWindow : Window {
                         susidlist.AddRange(_myschool.GetSusAusStufe(stufe).Result.Select(s => s.ID).ToList());
                     }
 
-                    res = await _myschool.ExportToCSV(folderpath, "all", "s", false, "", false, nurMoodleSuffix,
-                        ["", ""], new ReadOnlyCollection<int>([..susidlist]),
-                        new ReadOnlyCollection<int>([]),
-                        new ReadOnlyCollection<string>([]));
+                    var ep = new ExportParameters(Folder: folderpath,
+                        TargetSystems: "all",
+                        WhatToExport: "s",
+                        WithPasswort: false,
+                        Passwort: "",
+                        ExpandFiles: false,
+                        NurMoodleSuffix: nurMoodleSuffix,
+                        KursVorlage: ["", ""],
+                        SusIdListe: new ReadOnlyCollection<int>([..susidlist]),
+                        LulIdListe: new ReadOnlyCollection<int>([]),
+                        KursListe: new ReadOnlyCollection<string>([]));
+                    res = await _myschool.ExportToCSV(ep);
                 }
 
                 await CheckSuccesfulExport(res);
@@ -2182,10 +2205,20 @@ public partial class MainWindow : Window {
                 if (folder == null) return;
                 var folderpath = folder.Path.LocalPath;
                 var nurMoodleSuffix = cbNurMoodleSuffix.IsChecked is not false;
-                var res = await _myschool.ExportToCSV(folderpath, "all", "s", true, "", false, nurMoodleSuffix,
-                    ["", ""],
-                    new ReadOnlyCollection<int>([.._myschool.GetSusAusStufe("5").Result.Select(s => s.ID).ToList()]),
-                    new ReadOnlyCollection<int>([]), new ReadOnlyCollection<string>([]));
+                var ep = new ExportParameters(Folder: folderpath,
+                    TargetSystems: "all",
+                    WhatToExport: "s",
+                    WithPasswort: true,
+                    Passwort: "",
+                    ExpandFiles: false,
+                    NurMoodleSuffix: nurMoodleSuffix,
+                    KursVorlage: ["", ""],
+                    SusIdListe: new ReadOnlyCollection<int>([
+                        .._myschool.GetSusAusStufe("5").Result.Select(s => s.ID).ToList()
+                    ]),
+                    LulIdListe: new ReadOnlyCollection<int>([]),
+                    KursListe: new ReadOnlyCollection<string>([]));
+                var res = await _myschool.ExportToCSV(ep);
                 await CheckSuccesfulExport(res);
             }
         }
@@ -3176,12 +3209,18 @@ public partial class MainWindow : Window {
                         .ToList()
                         .First()).IsChecked;
                     var nurMoodleSuffix = cbNurMoodleSuffix.IsChecked is not false;
-                    var res = await _myschool.ExportToCSV(folderpath, destsys, whattoexport,
-                        isAnfangsPasswortChecked != null && isAnfangsPasswortChecked.Value, "", expandFiles == 0,
-                        nurMoodleSuffix, kursvorlagen,
-                        new ReadOnlyCollection<int>([..suslist.Select(s => s.ID).Distinct().ToList()]),
-                        new ReadOnlyCollection<int>(lullist.Select(l => l.ID).Distinct().ToList()),
-                        new ReadOnlyCollection<string>(kurslist.Select(k => k.Bezeichnung).Distinct().ToList()));
+                    var ep = new ExportParameters(Folder: folderpath,
+                        TargetSystems: destsys,
+                        WhatToExport: whattoexport,
+                        WithPasswort: isAnfangsPasswortChecked != null && isAnfangsPasswortChecked.Value,
+                        Passwort: "",
+                        ExpandFiles: expandFiles == 0,
+                        NurMoodleSuffix: nurMoodleSuffix,
+                        KursVorlage: kursvorlagen,
+                        SusIdListe: new ReadOnlyCollection<int>([..suslist.Select(s => s.ID).Distinct().ToList()]),
+                        LulIdListe: new ReadOnlyCollection<int>(lullist.Select(l => l.ID).Distinct().ToList()),
+                        KursListe: new ReadOnlyCollection<string>(kurslist.Select(k => k.Bezeichnung).Distinct().ToList()));
+                    var res = await _myschool.ExportToCSV(ep);
                     await CheckSuccesfulExport(res);
                 }
             }
@@ -4327,10 +4366,18 @@ public partial class MainWindow : Window {
             var folder = await ShowOpenFolderDialog("Speichern unter...");
             if (folder == null) return;
             var path = folder.Path.AbsolutePath;
-            var result = await _myschool.ExportToCSV(path, "all", "all", true, "def", false, true, ["", ""],
-                new_sus.AsReadOnly(),
-                new_lul.AsReadOnly(),
-                new List<string>().AsReadOnly());
+            var ep = new ExportParameters(Folder: path,
+                TargetSystems: "all",
+                WhatToExport: "all",
+                WithPasswort: true,
+                Passwort: "",
+                ExpandFiles: false,
+                NurMoodleSuffix: true,
+                KursVorlage: ["", ""],
+                SusIdListe: new_sus.AsReadOnly(),
+                LulIdListe: new_lul.AsReadOnly(),
+                KursListe: new List<string>().AsReadOnly());
+            var result = await _myschool.ExportToCSV(ep);
             if (result != 1) {
                 await ShowCustomErrorMessage("Fehler beim Export der Neuzugänge", "Fehler");
             }
