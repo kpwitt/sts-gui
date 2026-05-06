@@ -3679,11 +3679,8 @@ public class Schuldatenbank : IDisposable {
     /// setzt für den per Bezeichnung angegeben Kurs die Daten neu
     /// </summary>
     /// <param name="bez"></param>
-    /// <param name="fach"></param>
-    /// <param name="klasse"></param>
     /// <param name="stufe"></param>
     /// <param name="suffix"></param>
-    /// <param name="istkurs"></param>
     /// <param name="bemerkung"></param>
     public Task UpdateLKKurs(string bez, string stufe, string suffix, string bemerkung) {
         try {
