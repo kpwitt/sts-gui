@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace SchulDB;
 
@@ -29,3 +30,18 @@ public enum Theme {
     Dark,
     Light
 }
+
+
+public record struct ExportParameters(
+    string Folder,
+    string TargetSystems,
+    string WhatToExport,
+    bool WithPasswort,
+    string Passwort,
+    bool ExpandFiles,
+    bool NurMoodleSuffix,
+    string[] KursVorlage,
+    ReadOnlyCollection<int> SusIdListe,
+    ReadOnlyCollection<int> LulIdListe,
+    ReadOnlyCollection<string> KursListe
+);
