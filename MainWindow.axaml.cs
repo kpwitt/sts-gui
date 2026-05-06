@@ -323,9 +323,7 @@ public partial class MainWindow : Window {
             try {
                 appSettings =
                     JsonSerializer.Deserialize<AppSettings>(File.ReadAllTextAsync(settingspath).Result);
-                if (appSettings.LastFiles.Count > 0) {
-                    RegenerateLoadMenuEntries();
-                }
+                RegenerateLoadMenuEntries();
             }
             catch (Exception exception) {
                 _myschool.AddLogMessage(new LogEintrag
@@ -359,24 +357,22 @@ public partial class MainWindow : Window {
         var menu = mnuLetzteDBs;
         if (menu == null) return;
         var menus = new List<MenuItem>();
-        if (appSettings.LastFiles.Count == 0) {
-            menu.IsEnabled = false;
-        }
-        else {
+        if (appSettings.LastFiles.Count != 0) {
             foreach (var entry in appSettings.LastFiles.Select(fileentry => new MenuItem {
                          Header = fileentry
                      })) {
                 entry.Click += MnuRecentFileEntry_OnClick;
                 menus.Add(entry);
-            }
-            menu.IsEnabled = true;
+            }Dispatcher.UIThread.InvokeAsync(() => { menu.IsEnabled = true; });
         }
+
         menus.Add(_mnuSeparator);
         menus.Add(_clearLastEntries);
-        menu.ItemsSource = null;
-        menu.Items.Clear();
-        menu.ItemsSource = menus;
-        menu.IsEnabled = true;
+        Dispatcher.UIThread.InvokeAsync(() => {
+            menu.ItemsSource = null;
+            menu.Items.Clear();
+            menu.ItemsSource = menus;
+        });
     }
 
     private async Task<IStorageFile?> ShowSaveFileDialog(string dialogtitle,
