@@ -363,7 +363,9 @@ public partial class MainWindow : Window {
                      })) {
                 entry.Click += MnuRecentFileEntry_OnClick;
                 menus.Add(entry);
-            }Dispatcher.UIThread.InvokeAsync(() => { menu.IsEnabled = true; });
+            }
+
+            Dispatcher.UIThread.InvokeAsync(() => { menu.IsEnabled = true; });
         }
 
         menus.Add(_mnuSeparator);
