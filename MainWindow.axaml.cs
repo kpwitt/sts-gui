@@ -1762,6 +1762,7 @@ public partial class MainWindow : Window {
         tbKursStufe.Text = k.Stufe;
         cbKursIstKurs.IsChecked = k.IstKurs;
         tbKursBemerkung.Text = k.Bemerkung;
+        //Todo: switch LKKurs
     }
 
     private async void BtnExport_OnClick(object? sender, RoutedEventArgs e) {
@@ -1870,6 +1871,7 @@ public partial class MainWindow : Window {
     }
 
     private void BtnFehlerSuche_OnClick(object? sender, RoutedEventArgs e) {
+        //Todo: add LKKurs
         try {
             var kursliste = _myschool.GetKursListe().Result;
             var susliste = _myschool.GetSchuelerListe().Result;
@@ -2576,6 +2578,7 @@ public partial class MainWindow : Window {
 
     private async void BtnKurseAdd_OnClick(object? sender, RoutedEventArgs e) {
         try {
+            //Todo: switch LKKurs
             var kursbez = tbKursbezeichnung.Text;
             var lehrkraefte = tbKursLuL.Text;
             var kursfach = tbKursFach.Text;
