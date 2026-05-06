@@ -316,7 +316,7 @@ public partial class MainWindow : Window {
             Header = "Datenbankverlauf leeren"
         };
         _clearLastEntries.Click += MnuClearLastEntries_Click;
-        
+
         var settingspath = new FileInfo(Assembly.GetCallingAssembly().Location).Directory?.FullName +
                            "\\appsettings.json";
         if (File.Exists(settingspath)) {
@@ -601,7 +601,7 @@ public partial class MainWindow : Window {
                             break;
                     }
                 }
-                
+
                 SaveAppSettingsToFile();
                 var leftlist = this.GetControl<ListBox>("leftListBox");
                 var rightlist = this.GetControl<ListBox>("rightListBox");
@@ -3219,7 +3219,8 @@ public partial class MainWindow : Window {
                         KursVorlage: kursvorlagen,
                         SusIdListe: new ReadOnlyCollection<int>([..suslist.Select(s => s.ID).Distinct().ToList()]),
                         LulIdListe: new ReadOnlyCollection<int>(lullist.Select(l => l.ID).Distinct().ToList()),
-                        KursListe: new ReadOnlyCollection<string>(kurslist.Select(k => k.Bezeichnung).Distinct().ToList()));
+                        KursListe: new ReadOnlyCollection<string>(kurslist.Select(k => k.Bezeichnung).Distinct()
+                            .ToList()));
                     var res = await _myschool.ExportToCSV(ep);
                     await CheckSuccesfulExport(res);
                 }
