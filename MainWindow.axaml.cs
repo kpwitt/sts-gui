@@ -4605,4 +4605,14 @@ public partial class MainWindow : Window {
         submenuActive = true;
         LoadDataBaseFromFile(name.Header.ToString() ?? throw new InvalidOperationException());
     }
+
+    private void CbKursIstLKKurs_OnClick(object? sender, RoutedEventArgs e) {
+        cbKursMarkierteSuSEinschreiben.IsEnabled =
+            cbKursSuSdKlasseEinschreiben.IsEnabled = cbKursSuSdStufeEinschreiben.IsEnabled = false;
+    }
+
+    private void CbKursIstKurs_OnClick(object? sender, RoutedEventArgs e) {
+        cbKursMarkierteSuSEinschreiben.IsEnabled =
+            cbKursSuSdKlasseEinschreiben.IsEnabled = cbKursSuSdStufeEinschreiben.IsEnabled = true;
+    }
 }

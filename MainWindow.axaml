@@ -307,7 +307,10 @@
                                                      PlaceholderText="max 512 Zeichen" />
                                         </Grid>
                                         <StackPanel Orientation="Vertical" Grid.Row="1">
-                                            <CheckBox x:Name="cbKursIstKurs">Ist ein Kurs</CheckBox>
+                                            <StackPanel Orientation="Horizontal">
+                                                <RadioButton x:Name="cbKursIstKurs" Click="CbKursIstKurs_OnClick">Ist ein Kurs</RadioButton>
+                                                <RadioButton x:Name="cbKursIstLKKurs" Click="CbKursIstLKKurs_OnClick">Ist ein LKKurs</RadioButton>
+                                            </StackPanel>
                                             <CheckBox x:Name="cbKursMarkierteSuSEinschreiben">Markierte SuS einschreiben</CheckBox>
                                             <CheckBox x:Name="cbKursSuSdKlasseEinschreiben">SuS der Klasse einschreiben</CheckBox>
                                             <CheckBox x:Name="cbKursSuSdStufeEinschreiben">SuS der Stufe einschreiben</CheckBox>
