@@ -19,7 +19,7 @@ namespace SchulDB;
 /// Wrapperklasse zur Verwaltung der SQLite-Datenbank
 /// </summary>
 public class Schuldatenbank : IDisposable {
-    private const string version = "0.73";
+    private const string version = "0.75";
     private readonly string _dbpath;
     private string _logpath;
     private readonly LoggingModule log;
@@ -134,6 +134,32 @@ public class Schuldatenbank : IDisposable {
                                         PRIMARY KEY(lehrerid,kursbez),
                                         FOREIGN KEY(lehrerid) REFERENCES lehrkraft(id),
                                         FOREIGN KEY(kursbez) REFERENCES kurse(bez)
+                                       )
+                                    """;
+            sqliteCmd.ExecuteNonQuery();
+
+            sqliteCmd.CommandText = """
+                                    CREATE TABLE IF NOT EXISTS
+                                        [lkkurse] (
+                                        [bez] NVARCHAR(512) NOT NULL PRIMARY KEY,
+                                        [stufe] NVARCHAR(16) NOT NULL,
+                                        [suffix] NVARCHAR(16) NOT NULL,
+                                        [bemerkung] NVARCHAR(512) NOT NULL DEFAULT ''
+                                       )
+                                    """;
+            sqliteCmd.ExecuteNonQuery();
+
+            sqliteCmd.CommandText = "CREATE INDEX IF NOT EXISTS kindex ON lkkurse(bez);";
+            sqliteCmd.ExecuteNonQuery();
+
+            sqliteCmd.CommandText = """
+                                    CREATE TABLE IF NOT EXISTS
+                                        [lknimmtteil] (
+                                        [lehrerid] INTEGER NOT NULL,
+                                        [kursbez] NVARCHAR(32) NOT NULL,
+                                        PRIMARY KEY(lehrerid,kursbez),
+                                        FOREIGN KEY(lehrerid) REFERENCES lehrkraft(id),
+                                        FOREIGN KEY(kursbez) REFERENCES lkkurse(bez)
                                        )
                                     """;
             sqliteCmd.ExecuteNonQuery();
@@ -527,6 +553,29 @@ public class Schuldatenbank : IDisposable {
     }
 
     /// <summary>
+    /// fügt den Kurs hinzu
+    /// </summary>
+    /// <param name="bez"></param>
+    /// <param name="stufe"></param>
+    /// <param name="suffix"></param>
+    /// <param name="bemerkung"></param>
+    public async Task AddLKKurs(string bez, string stufe, string suffix, string bemerkung) {
+        if (await GibtEsKurs(bez)) return;
+        var sqliteCmd = _sqliteConn.CreateCommand();
+        sqliteCmd.CommandText =
+            "INSERT OR IGNORE INTO lkkurse (bez, stufe, suffix, bemerkung) VALUES ($bez, $stufe, $suffix, $bemerkung);";
+        sqliteCmd.Parameters.AddWithValue("$bez", bez);
+        sqliteCmd.Parameters.AddWithValue("$stufe", stufe);
+        sqliteCmd.Parameters.AddWithValue("$suffix", suffix);
+        sqliteCmd.Parameters.AddWithValue("$bemerkung", bemerkung);
+        sqliteCmd.ExecuteNonQuery();
+        AddLogMessage(new LogEintrag {
+            Eintragsdatum = DateTime.Now, Nachricht = $"Kurs {bez} angelegt",
+            Warnstufe = "Info"
+        });
+    }
+
+    /// <summary>
     /// fügt die Lehrperson hinzu
     /// </summary>
     /// <param name="id"></param>
@@ -704,6 +753,35 @@ public class Schuldatenbank : IDisposable {
         }
 
         var lul = await GetLehrkraft(lid);
+        AddLogMessage(new LogEintrag {
+            Eintragsdatum = DateTime.Now,
+            Nachricht = $"Lehrkraft {lul.Kuerzel} {lid} zu Kurs {kbez} hinzugefügt",
+            Warnstufe = "Info"
+        });
+    }
+
+    /// <summary>
+    /// fügt die angegebene Lehrperson zum angegebene Kurs hinzu
+    /// </summary>
+    /// <param name="lid"></param>
+    /// <param name="kbez"></param>
+    public async Task AddLtoLKK(int lid, string kbez) {
+        if (lid == 0 || string.IsNullOrEmpty(kbez)) return;
+        var kursliste = GetKurseVonLuL(lid).Result.Select(k => k.Bezeichnung).ToList();
+        if (kursliste.Contains(kbez)) return;
+        var lul = await GetLehrkraft(lid);
+        var sqliteCmd = _sqliteConn.CreateCommand();
+        sqliteCmd.CommandText = "INSERT OR IGNORE INTO lknimmtteil (lehrerid, kursbez) VALUES ($lid, $kbez);";
+        sqliteCmd.Parameters.AddWithValue("$lid", lid);
+        sqliteCmd.Parameters.AddWithValue("$kbez", kbez);
+        sqliteCmd.ExecuteNonQuery();
+        sqliteCmd.Parameters.Clear();
+        var kurs = await GetLKKurs(kbez);
+        ausstehende_aenderungen.Add(new Changes {
+            kind = ChangeKind.add, person = ChangePerson.LuL, kurs = kurs,
+            id = lid
+        });
+        if (string.IsNullOrEmpty(kurs.Bezeichnung)) return;
         AddLogMessage(new LogEintrag {
             Eintragsdatum = DateTime.Now,
             Nachricht = $"Lehrkraft {lul.Kuerzel} {lid} zu Kurs {kbez} hinzugefügt",
@@ -1170,8 +1248,10 @@ public class Schuldatenbank : IDisposable {
                 ExportKurse(ref ausgabeMoodleKurse, parameters.KursListe, parameters.KursVorlage);
             }
 
-            if (parameters.WhatToExport.Contains('s') && (parameters.TargetSystems.Contains('a') || parameters.TargetSystems.Contains('m'))) {
-                ExportSuS(ref ausgabeMoodleUser, ref ausgabeMoodleEinschreibungen, ref ausgabeAIXS, parameters.SusIdListe,
+            if (parameters.WhatToExport.Contains('s') &&
+                (parameters.TargetSystems.Contains('a') || parameters.TargetSystems.Contains('m'))) {
+                ExportSuS(ref ausgabeMoodleUser, ref ausgabeMoodleEinschreibungen, ref ausgabeAIXS,
+                    parameters.SusIdListe,
                     parameters.TargetSystems, parameters.WithPasswort, parameters.Passwort, parameters.NurMoodleSuffix);
             }
 
@@ -1179,8 +1259,10 @@ public class Schuldatenbank : IDisposable {
                 ExportEltern(ref ausgabeMoodleUser, ref ausgabeMoodleEinschreibungen, parameters.SusIdListe);
             }
 
-            if (parameters.WhatToExport.Contains('l') && (parameters.TargetSystems.Contains('a') || parameters.TargetSystems.Contains('m'))) {
-                ExportLuL(ref ausgabeMoodleUser, ref ausgabeMoodleEinschreibungen, ref ausgabeAIXL, parameters.LulIdListe,
+            if (parameters.WhatToExport.Contains('l') &&
+                (parameters.TargetSystems.Contains('a') || parameters.TargetSystems.Contains('m'))) {
+                ExportLuL(ref ausgabeMoodleUser, ref ausgabeMoodleEinschreibungen, ref ausgabeAIXL,
+                    parameters.LulIdListe,
                     parameters.TargetSystems, parameters.WithPasswort, parameters.NurMoodleSuffix);
             }
 
@@ -1193,7 +1275,8 @@ public class Schuldatenbank : IDisposable {
             }
 
             if (parameters.TargetSystems.Contains('j')) {
-                ExportJAMF(parameters.SusIdListe, parameters.LulIdListe, parameters.WithPasswort, parameters.Folder, parameters.ExpandFiles);
+                ExportJAMF(parameters.SusIdListe, parameters.LulIdListe, parameters.WithPasswort, parameters.Folder,
+                    parameters.ExpandFiles);
             }
 
             if (parameters.ExpandFiles) {
@@ -1203,7 +1286,8 @@ public class Schuldatenbank : IDisposable {
                             var aixSus = (await File.ReadAllLinesAsync($"{parameters.Folder}/aix_sus.csv")).ToList();
                             aixSus.RemoveAt(0);
                             ausgabeAIXS.AddRange(aixSus);
-                            await File.WriteAllLinesAsync($"{parameters.Folder}/aix_sus.csv", ausgabeAIXS.Distinct().ToList(),
+                            await File.WriteAllLinesAsync($"{parameters.Folder}/aix_sus.csv",
+                                ausgabeAIXS.Distinct().ToList(),
                                 Encoding.UTF8);
                         }
 
@@ -1211,7 +1295,8 @@ public class Schuldatenbank : IDisposable {
                             var aixLul = (await File.ReadAllLinesAsync($"{parameters.Folder}/aix_lul.csv")).ToList();
                             aixLul.RemoveAt(0);
                             ausgabeAIXL.AddRange(aixLul);
-                            await File.WriteAllLinesAsync($"{parameters.Folder}/aix_lul.csv", ausgabeAIXL.Distinct().ToList(),
+                            await File.WriteAllLinesAsync($"{parameters.Folder}/aix_lul.csv",
+                                ausgabeAIXL.Distinct().ToList(),
                                 Encoding.UTF8);
                         }
                     }
@@ -1227,7 +1312,8 @@ public class Schuldatenbank : IDisposable {
                         }
 
                         if (File.Exists($"{parameters.Folder}/mdl_kurse.csv")) {
-                            var mdlKurse = (await File.ReadAllLinesAsync($"{parameters.Folder}/mdl_kurse.csv")).ToList();
+                            var mdlKurse = (await File.ReadAllLinesAsync($"{parameters.Folder}/mdl_kurse.csv"))
+                                .ToList();
                             if (mdlKurse.Count > 0) {
                                 mdlKurse.RemoveAt(0);
                             }
@@ -1239,7 +1325,8 @@ public class Schuldatenbank : IDisposable {
                         }
 
                         if (File.Exists($"{parameters.Folder}/mdl_nutzer.csv")) {
-                            var mdlNutzer = (await File.ReadAllLinesAsync($"{parameters.Folder}/mdl_nutzer.csv")).ToList();
+                            var mdlNutzer =
+                                (await File.ReadAllLinesAsync($"{parameters.Folder}/mdl_nutzer.csv")).ToList();
                             if (mdlNutzer.Count > 0) {
                                 mdlNutzer.RemoveAt(0);
                             }
@@ -1254,7 +1341,8 @@ public class Schuldatenbank : IDisposable {
                     if (parameters.TargetSystems.Contains('i')) {
                         if (File.Exists($"{parameters.Folder}/Lehrerdaten_anschreiben.csv")) {
                             var llgIntern =
-                                (await File.ReadAllLinesAsync($"{parameters.Folder}/Lehrerdaten_anschreiben.csv")).ToList();
+                                (await File.ReadAllLinesAsync($"{parameters.Folder}/Lehrerdaten_anschreiben.csv"))
+                                .ToList();
                             llgIntern.RemoveAt(0);
                             ausgabeIntern.AddRange(llgIntern);
                             await File.WriteAllLinesAsync($"{parameters.Folder}/Lehrerdaten_anschreiben.csv",
@@ -1282,9 +1370,11 @@ public class Schuldatenbank : IDisposable {
                 if (parameters.TargetSystems.Contains('m')) {
                     await File.WriteAllLinesAsync($"{parameters.Folder}/mdl_einschreibungen.csv",
                         ausgabeMoodleEinschreibungen.Distinct().ToList(), Encoding.UTF8);
-                    await File.WriteAllLinesAsync($"{parameters.Folder}/mdl_kurse.csv", ausgabeMoodleKurse.Distinct().ToList(),
+                    await File.WriteAllLinesAsync($"{parameters.Folder}/mdl_kurse.csv",
+                        ausgabeMoodleKurse.Distinct().ToList(),
                         Encoding.UTF8);
-                    await File.WriteAllLinesAsync($"{parameters.Folder}/mdl_nutzer.csv", ausgabeMoodleUser.Distinct().ToList(),
+                    await File.WriteAllLinesAsync($"{parameters.Folder}/mdl_nutzer.csv",
+                        ausgabeMoodleUser.Distinct().ToList(),
                         Encoding.UTF8);
                 }
 
@@ -1477,6 +1567,7 @@ public class Schuldatenbank : IDisposable {
             foreach (var kurs in GetKurseVonLuL(lt.ID).Result) {
                 if (string.IsNullOrEmpty(kurs.Bezeichnung)) continue;
                 if (lt.IstAktiv) {
+                    //ToDo: switch für LKKurs
                     if (kurs.Bezeichnung.Contains("Jahrgangsstufenkonferenz")) {
                         var stufenleitungen = GetOberstufenleitung(kurs.Stufe).Result;
                         var rolle = stufenleitungen.Contains(lt) ||
@@ -1539,7 +1630,7 @@ public class Schuldatenbank : IDisposable {
         foreach (var kurs in kursBez) {
             if (kurs.EndsWith('-')) continue;
             var k = GetKurs(kurs.Split(';')[0]).Result;
-
+            //ToDo: switch für LKKurs
             if (ohne_kursvorlagen) {
                 if (k.Bezeichnung.Contains("Erprobungsstufe") || k.Bezeichnung.Contains("Mittelstufe") ||
                     k.Bezeichnung.Contains("Einführungsphase") || k.Bezeichnung.Contains("Qualifikationsphase")) {
@@ -1788,12 +1879,53 @@ public class Schuldatenbank : IDisposable {
     }
 
     /// <summary>
+    /// gibt den Kurs zur übergebenen Kursbezeichnung zurück
+    /// </summary>
+    /// <param name="kbez"></param>
+    public async Task<Kurs> GetLKKurs(string kbez) {
+        var sqliteCmd = _sqliteConn.CreateCommand();
+        sqliteCmd.CommandText =
+            "SELECT bez,stufe,suffix,bemerkung FROM lkkurse WHERE bez = $kbez;";
+        sqliteCmd.Parameters.AddWithValue("$kbez", kbez);
+        var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
+        Kurs retKurs = new();
+        while (sqliteDatareader.Read()) {
+            retKurs.Bezeichnung = sqliteDatareader.GetString(0);
+            retKurs.Fach = "";
+            retKurs.Klasse = "";
+            retKurs.Stufe = sqliteDatareader.GetString(1);
+            retKurs.Suffix = sqliteDatareader.GetString(2);
+            retKurs.IstKurs = false;
+            retKurs.Art = "";
+            retKurs.Bemerkung = sqliteDatareader.GetString(3);
+            retKurs.IstLKKurs = true;
+        }
+
+        return retKurs;
+    }
+
+    /// <summary>
     /// gibt alle Kursbezeichnungen zurück
     /// </summary>
     public async Task<ReadOnlyCollection<string>> GetKursBezListe() {
         List<string> klist = [];
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText = "SELECT bez FROM kurse;";
+        var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
+        while (sqliteDatareader.Read()) {
+            klist.Add(sqliteDatareader.GetString(0));
+        }
+
+        return new ReadOnlyCollection<string>(klist);
+    }
+
+    /// <summary>
+    /// gibt alle Kursbezeichnungen zurück
+    /// </summary>
+    public async Task<ReadOnlyCollection<string>> GetLKKursBezListe() {
+        List<string> klist = [];
+        var sqliteCmd = _sqliteConn.CreateCommand();
+        sqliteCmd.CommandText = "SELECT bez FROM lkkurse;";
         var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
         while (sqliteDatareader.Read()) {
             klist.Add(sqliteDatareader.GetString(0));
@@ -2567,6 +2699,17 @@ public class Schuldatenbank : IDisposable {
         // return GetKurs(kbez).Result.Bezeichnung == kbez;
     }
 
+    public async Task<bool> GibtEsLKKurs(string kbez) {
+        var sqliteCmd = _sqliteConn.CreateCommand();
+        sqliteCmd.CommandText =
+            "SELECT bez FROM lkkurse WHERE bez = $kbez;";
+        sqliteCmd.Parameters.AddWithValue("$kbez", kbez);
+        var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
+        return sqliteDatareader.HasRows;
+
+        // return GetKurs(kbez).Result.Bezeichnung == kbez;
+    }
+
     /// <summary>
     /// liest die Nutzernamen und AIX-Mailadressen für SuS aus einem Suite-Export ein und updated diese (inkrementell oder gesamt)
     /// </summary>
@@ -2920,6 +3063,28 @@ public class Schuldatenbank : IDisposable {
     }
 
     /// <summary>
+    /// gibt zurück, ob Lehrkraft im LKKurs ist
+    /// </summary>
+    /// <param name="lulid"></param>
+    /// <param name="kursbez"></param>
+    /// <returns></returns>
+    private async Task<bool> IstLuLInLKKurs(int lulid, string kursbez) {
+        var sqliteCmd = _sqliteConn.CreateCommand();
+        sqliteCmd.CommandText =
+            "SELECT lehrerid, kursbez FROM lknimmtteil WHERE kursbez = $kursbez AND lehrerid = $lulid";
+        sqliteCmd.Parameters.AddWithValue("$kursbez", kursbez);
+        sqliteCmd.Parameters.AddWithValue("$lulid", lulid);
+        var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
+        while (sqliteDatareader.Read()) {
+            var return_id = sqliteDatareader.GetInt32(0);
+            var return_kursbez = sqliteDatareader.GetString(1);
+            return return_id == lulid && return_kursbez == kursbez;
+        }
+
+        return false;
+    }
+
+    /// <summary>
     /// gibt zurück, ob SuS im Kurs ist
     /// </summary>
     /// <param name="schuelerid"></param>
@@ -3116,6 +3281,23 @@ public class Schuldatenbank : IDisposable {
         sqliteCmd.ExecuteNonQuery();
         ausstehende_aenderungen.Add(new Changes {
             id = lid, kind = ChangeKind.del, person = ChangePerson.LuL, kurs = await GetKurs(kbez)
+        });
+        AddLogMessage(new LogEintrag {
+            Eintragsdatum = DateTime.Now,
+            Nachricht = $"Lehrkraft mit der ID {lid} aus Kurs {kbez} gelöscht",
+            Warnstufe = "Info"
+        });
+    }
+
+    public async Task RemoveLfromLKK(int lid, string kbez) {
+        if (lid <= 0 || !await GibtEsKurs(kbez)) return;
+        var sqliteCmd = _sqliteConn.CreateCommand();
+        sqliteCmd.CommandText = "DELETE FROM lknimmtteil WHERE lehrerid = $lid AND kursbez = $kbez;";
+        sqliteCmd.Parameters.AddWithValue("$lid", lid);
+        sqliteCmd.Parameters.AddWithValue("$kbez", kbez);
+        sqliteCmd.ExecuteNonQuery();
+        ausstehende_aenderungen.Add(new Changes {
+            id = lid, kind = ChangeKind.del, person = ChangePerson.LuL, kurs = await GetLKKurs(kbez)
         });
         AddLogMessage(new LogEintrag {
             Eintragsdatum = DateTime.Now,
@@ -3484,6 +3666,34 @@ public class Schuldatenbank : IDisposable {
             sqliteCmd.Parameters.AddWithValue("$stufe", stufe);
             sqliteCmd.Parameters.AddWithValue("$suffix", suffix);
             sqliteCmd.Parameters.AddWithValue("$istkurs", istkurs);
+            sqliteCmd.Parameters.AddWithValue("$bemerkung", bemerkung);
+            sqliteCmd.ExecuteNonQuery();
+            return Task.CompletedTask;
+        }
+        catch (Exception exception) {
+            return Task.FromException(exception);
+        }
+    }
+
+    /// <summary>
+    /// setzt für den per Bezeichnung angegeben Kurs die Daten neu
+    /// </summary>
+    /// <param name="bez"></param>
+    /// <param name="fach"></param>
+    /// <param name="klasse"></param>
+    /// <param name="stufe"></param>
+    /// <param name="suffix"></param>
+    /// <param name="istkurs"></param>
+    /// <param name="bemerkung"></param>
+    public Task UpdateLKKurs(string bez, string stufe, string suffix, string bemerkung) {
+        try {
+            if (string.IsNullOrEmpty(bez)) return Task.CompletedTask;
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText =
+                "UPDATE lkkurse SET stufe = $stufe, suffix = $suffix, bemerkung=$bemerkung WHERE bez=$bez;";
+            sqliteCmd.Parameters.AddWithValue("$bez", bez);
+            sqliteCmd.Parameters.AddWithValue("$stufe", stufe);
+            sqliteCmd.Parameters.AddWithValue("$suffix", suffix);
             sqliteCmd.Parameters.AddWithValue("$bemerkung", bemerkung);
             sqliteCmd.ExecuteNonQuery();
             return Task.CompletedTask;

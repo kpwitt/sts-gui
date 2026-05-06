@@ -57,7 +57,8 @@ public record struct Kurs(
     string Suffix,
     bool IstKurs,
     string Art,
-    string Bemerkung);
+    string Bemerkung,
+    bool IstLKKurs = false);
 
 public struct DBEinstellungen {
     public DBEinstellungen() {
