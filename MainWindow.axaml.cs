@@ -1784,7 +1784,7 @@ public partial class MainWindow : Window {
 
             await Dispatcher.UIThread.InvokeAsync(ReadFileTask);
             return;
-
+            //ToDo: switch LKKurs
             async Task ReadFileTask() {
                 var folder = await ShowOpenFolderDialog("Bitte den Ordner mit den Dateien auswählen");
                 if (folder == null) return;
