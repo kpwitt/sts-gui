@@ -1,8 +1,11 @@
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace SchulDB;
 
@@ -64,5 +67,17 @@ public static class Tooling {
         if (followCase) return new Regex("^" + escaped + "$", options);
         options |= RegexOptions.IgnoreCase;
         return new Regex(escaped, options);
+    }
+
+    public static async Task AppendToFile(string filepath, List<string> content) {
+        if (!File.Exists(filepath)) {
+            await WriteToFile(filepath, content);
+            return;
+        }
+        File.AppendAllLinesAsync(filepath, content, Encoding.UTF8);
+    }
+    
+    public static async Task WriteToFile(string filepath, List<string> content) {
+        await File.WriteAllLinesAsync(filepath, content, Encoding.UTF8);
     }
 }
