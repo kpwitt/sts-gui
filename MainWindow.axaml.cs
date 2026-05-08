@@ -2707,6 +2707,7 @@ public partial class MainWindow : Window {
                 source = rightListBox;
             }
             else {
+                await _myschool.RemoveLKK(kursbez);
                 await _myschool.RemoveK(kursbez);
                 return;
             }
@@ -2716,6 +2717,7 @@ public partial class MainWindow : Window {
             await _myschool.StartTransaction();
             foreach (var kurs in tmp_list.Cast<string>()) {
                 if (string.IsNullOrEmpty(kurs)) return;
+                await _myschool.RemoveLKK(kurs);
                 await _myschool.RemoveK(kurs);
             }
 
