@@ -759,7 +759,9 @@ public partial class MainWindow : Window {
 
                 LocalCryptoService.FileDecrypt(inputFilePath, outputFilePath, inputResult);
                 _myschool = new Schuldatenbank(outputFilePath);
+                appSettings.AddLastFile(outputFilePath);
                 await LoadFavos();
+                RegenerateLoadMenuEntries();
                 await ShowCustomInfoMessage("Laden erfolgreich", "Information");
             }
         }
