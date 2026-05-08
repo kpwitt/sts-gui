@@ -770,13 +770,13 @@ public class Schuldatenbank : IDisposable {
         var kursliste = GetKurseVonLuL(lid).Result.Select(k => k.Bezeichnung).ToList();
         if (kursliste.Contains(kbez)) return;
         var lul = await GetLehrkraft(lid);
+        var kurs = await GetLKKurs(kbez);
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText = "INSERT OR IGNORE INTO lknimmtteil (lehrerid, kursbez) VALUES ($lid, $kbez);";
         sqliteCmd.Parameters.AddWithValue("$lid", lid);
         sqliteCmd.Parameters.AddWithValue("$kbez", kbez);
         sqliteCmd.ExecuteNonQuery();
         sqliteCmd.Parameters.Clear();
-        var kurs = await GetLKKurs(kbez);
         ausstehende_aenderungen.Add(new Changes {
             kind = ChangeKind.add, person = ChangePerson.LuL, kurs = kurs,
             id = lid
