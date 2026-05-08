@@ -2748,8 +2748,6 @@ public class Schuldatenbank : IDisposable {
         sqliteCmd.Parameters.AddWithValue("$kbez", kbez);
         var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
         return sqliteDatareader.HasRows;
-
-        // return GetKurs(kbez).Result.Bezeichnung == kbez;
     }
 
     /// <summary>
