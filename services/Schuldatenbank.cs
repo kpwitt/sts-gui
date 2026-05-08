@@ -1963,6 +1963,30 @@ public class Schuldatenbank : IDisposable {
         return new ReadOnlyCollection<Kurs>(kliste);
     }
 
+    public async Task<ReadOnlyCollection<Kurs>> GetLKKursListe() {
+        List<Kurs> kliste = [];
+        var sqliteCmd = _sqliteConn.CreateCommand();
+        sqliteCmd.CommandText = "SELECT bez,stufe,suffix,bemerkung FROM lkkurse;";
+        var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
+        while (sqliteDatareader.Read()) {
+            Kurs retKurs = new() {
+                Bezeichnung = sqliteDatareader.GetString(0),
+                Fach = "",
+                Klasse = "",
+                Stufe = sqliteDatareader.GetString(1),
+                Suffix = sqliteDatareader.GetString(2),
+                IstKurs = false,
+                Bemerkung = sqliteDatareader.GetString(3),
+                Art = "",
+                IstLKKurs = true
+            };
+
+            kliste.Add(retKurs);
+        }
+
+        return new ReadOnlyCollection<Kurs>(kliste);
+    }
+
     /// <summary>
     /// gibt das globale Kurssuffix zurück
     /// </summary>
@@ -2212,6 +2236,24 @@ public class Schuldatenbank : IDisposable {
         List<Lehrkraft> lliste = [];
         var sqliteCmd = _sqliteConn.CreateCommand();
         sqliteCmd.CommandText = "SELECT lehrerid FROM unterrichtet WHERE kursbez = $kbez;";
+        sqliteCmd.Parameters.AddWithValue("$kbez", kbez);
+        var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
+        while (sqliteDatareader.Read()) {
+            lliste.Add(await GetLehrkraft(sqliteDatareader.GetInt32(0)));
+        }
+
+        return new ReadOnlyCollection<Lehrkraft>(lliste);
+    }
+    
+    /// <summary>
+    /// gibt die LuL im Kurs als Liste zurück
+    /// </summary>
+    /// <param name="kbez"></param>
+    /// <returns>Liste der LuL des Kurses</returns>
+    public async Task<ReadOnlyCollection<Lehrkraft>> GetLuLAusLKKurs(string kbez) {
+        List<Lehrkraft> lliste = [];
+        var sqliteCmd = _sqliteConn.CreateCommand();
+        sqliteCmd.CommandText = "SELECT lehrerid FROM lknimmtteil WHERE kursbez = $kbez;";
         sqliteCmd.Parameters.AddWithValue("$kbez", kbez);
         var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
         while (sqliteDatareader.Read()) {
@@ -3213,6 +3255,30 @@ public class Schuldatenbank : IDisposable {
             return Task.FromException(exception);
         }
     }
+    
+    public Task RemoveLKK(string kbez) {
+        try {
+            if (string.IsNullOrEmpty(kbez)) return Task.CompletedTask;
+            var sqliteCmd = _sqliteConn.CreateCommand();
+            sqliteCmd.CommandText = "DELETE FROM lknimmtteil WHERE kursbez = $kbez;";
+            sqliteCmd.Parameters.AddWithValue("$kbez", kbez);
+            sqliteCmd.ExecuteNonQuery();
+            sqliteCmd.Parameters.Clear();
+            sqliteCmd.CommandText = "DELETE FROM lkkurse WHERE bez =$kbez;";
+            sqliteCmd.Parameters.AddWithValue("$kbez", kbez);
+            sqliteCmd.ExecuteNonQuery();
+            sqliteCmd.Parameters.Clear();
+            AddLogMessage(new LogEintrag {
+                Eintragsdatum = DateTime.Now, Nachricht = $"Kurs mit der Bezeichnung {kbez} gelöscht",
+                Warnstufe = "Info"
+            });
+            return Task.CompletedTask;
+        }
+        catch (Exception exception) {
+            return Task.FromException(exception);
+        }
+    }
+
 
     /// <summary>
     /// löscht den angegeben Kurs und alle dazugehörigen Einträge
