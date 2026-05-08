@@ -2479,58 +2479,58 @@ public partial class MainWindow : Window {
             var kursBez = "Jahrgangsstufenkonferenz EF";
             var settingsCache = await _myschool.GetSettings();
             if (!string.IsNullOrEmpty(settingsCache.EFStufenleitung)) {
-                if (!await _myschool.GibtEsKurs(kursBez)) {
-                    await _myschool.AddKurs(kursBez, "-", "EF", "EF", settingsCache.Kurssuffix, 1, "");
+                if (!await _myschool.GibtEsLKKurs(kursBez)) {
+                    await _myschool.AddLKKurs(kursBez, "EF", settingsCache.Kurssuffix, "");
                 }
 
                 foreach (var krz in settingsCache.EFStufenleitung.Split(',')) {
-                    await _myschool.AddLtoK(_myschool.GetLehrkraft(krz).Result.ID, kursBez);
+                    await _myschool.AddLtoLKK(_myschool.GetLehrkraft(krz).Result.ID, kursBez);
                 }
 
                 foreach (var krz in settingsCache.Oberstufenkoordination.Split(',')) {
-                    await _myschool.AddLtoK(_myschool.GetLehrkraft(krz).Result.ID, kursBez);
+                    await _myschool.AddLtoLKK(_myschool.GetLehrkraft(krz).Result.ID, kursBez);
                 }
 
                 foreach (var lid in _myschool.GetLuLAusStufe("EF").Result) {
-                    await _myschool.AddLtoK(lid.ID, kursBez);
+                    await _myschool.AddLtoLKK(lid.ID, kursBez);
                 }
             }
 
             kursBez = "Jahrgangsstufenkonferenz Q1";
             if (!string.IsNullOrEmpty(settingsCache.Q1Stufenleitung)) {
-                if (!await _myschool.GibtEsKurs(kursBez)) {
-                    await _myschool.AddKurs(kursBez, "-", "Q1", "Q1", settingsCache.Kurssuffix, 1, "");
+                if (!await _myschool.GibtEsLKKurs(kursBez)) {
+                    await _myschool.AddLKKurs(kursBez, "Q1", settingsCache.Kurssuffix, "");
                 }
 
                 foreach (var krz in settingsCache.Q1Stufenleitung.Split(',')) {
-                    await _myschool.AddLtoK(_myschool.GetLehrkraft(krz).Result.ID, kursBez);
+                    await _myschool.AddLtoLKK(_myschool.GetLehrkraft(krz).Result.ID, kursBez);
                 }
 
                 foreach (var krz in settingsCache.Oberstufenkoordination.Split(',')) {
-                    await _myschool.AddLtoK(_myschool.GetLehrkraft(krz).Result.ID, kursBez);
+                    await _myschool.AddLtoLKK(_myschool.GetLehrkraft(krz).Result.ID, kursBez);
                 }
 
                 foreach (var lid in _myschool.GetLuLAusStufe("Q1").Result) {
-                    await _myschool.AddLtoK(lid.ID, kursBez);
+                    await _myschool.AddLtoLKK(lid.ID, kursBez);
                 }
             }
 
             kursBez = "Jahrgangsstufenkonferenz Q2";
             if (string.IsNullOrEmpty(settingsCache.Q2Stufenleitung)) return;
-            if (!await _myschool.GibtEsKurs(kursBez)) {
-                await _myschool.AddKurs(kursBez, "-", "Q2", "Q2", settingsCache.Kurssuffix, 1, "");
+            if (!await _myschool.GibtEsLKKurs(kursBez)) {
+                await _myschool.AddLKKurs(kursBez, "Q2", settingsCache.Kurssuffix, "");
             }
 
             foreach (var krz in settingsCache.Q2Stufenleitung.Split(',')) {
-                await _myschool.AddLtoK(_myschool.GetLehrkraft(krz).Result.ID, kursBez);
+                await _myschool.AddLtoLKK(_myschool.GetLehrkraft(krz).Result.ID, kursBez);
             }
 
             foreach (var krz in settingsCache.Oberstufenkoordination.Split(',')) {
-                await _myschool.AddLtoK(_myschool.GetLehrkraft(krz).Result.ID, kursBez);
+                await _myschool.AddLtoLKK(_myschool.GetLehrkraft(krz).Result.ID, kursBez);
             }
 
             foreach (var lid in _myschool.GetLuLAusStufe("Q2").Result) {
-                await _myschool.AddLtoK(lid.ID, kursBez);
+                await _myschool.AddLtoLKK(lid.ID, kursBez);
             }
 
             await _myschool.StopTransaction();
