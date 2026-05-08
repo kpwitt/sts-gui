@@ -2595,62 +2595,92 @@ public partial class MainWindow : Window {
             var kursklasse = tbKursKlasse.Text;
             var kursstufe = tbKursStufe.Text;
             var istKurs = cbKursIstKurs.IsChecked != null && cbKursIstKurs.IsChecked.Value;
+            var istLKKurs = cbKursIstLKKurs.IsChecked != null && cbKursIstLKKurs.IsChecked.Value;
             var kursBemerkung = tbKursBemerkung.Text ?? "";
-            if (string.IsNullOrEmpty(kursbez) || string.IsNullOrEmpty(lehrkraefte) || string.IsNullOrEmpty(kursfach) ||
-                string.IsNullOrEmpty(kursklasse) || string.IsNullOrEmpty(kursstufe)) {
-                await ShowCustomErrorMessage(
-                    "Nicht alle erforderlichen Informationen angegeben!\nStellen Sie sicher, dass Kursbezeichnung, mind. ein Kürzel, das Fach, die Klasse und die Stufe ausgefüllt sind.",
-                    "Fehler");
-                return;
-            }
+            if (!istLKKurs) {
+                if (await _myschool.GibtEsLKKurs(kursbez)) {
+                    await ShowCustomErrorMessage(
+                        "Der Kurs exisitert bereits in der anderen moodle-Instanz, dies wird aktuell nicht unterstützt. Kurs wird nicht angelegt",
+                        "Fehler");
+                    return;
+                }
+                if (string.IsNullOrEmpty(kursbez) || string.IsNullOrEmpty(lehrkraefte) ||
+                    string.IsNullOrEmpty(kursfach) ||
+                    string.IsNullOrEmpty(kursklasse) || string.IsNullOrEmpty(kursstufe)) {
+                    await ShowCustomErrorMessage(
+                        "Nicht alle erforderlichen Informationen angegeben!\nStellen Sie sicher, dass Kursbezeichnung, mind. ein Kürzel, das Fach, die Klasse und die Stufe ausgefüllt sind.",
+                        "Fehler");
+                    return;
+                }
 
-            if (await _myschool.GibtEsKurs(kursbez)) {
-                await _myschool.UpdateKurs(kursbez, kursfach, kursklasse, kursstufe, kurssuffix,
-                    Convert.ToInt32(istKurs), kursBemerkung);
+                if (await _myschool.GibtEsKurs(kursbez)) {
+                    await _myschool.UpdateKurs(kursbez, kursfach, kursklasse, kursstufe, kurssuffix,
+                        Convert.ToInt32(istKurs), kursBemerkung);
+                    List<Lehrkraft> tList = [];
+                    foreach (var lehrkraft in lehrkraefte.Split(',')) {
+                        tList.Add(await _myschool.GetLehrkraft(lehrkraft.Trim()));
+                    }
+
+                    var tListAusKurs = await _myschool.GetLuLAusKurs(kursbez);
+                    foreach (var lehrkraft in tListAusKurs.Where(lehrkraft => !tList.Contains(lehrkraft))) {
+                        await _myschool.RemoveLfromK(lehrkraft, await _myschool.GetKurs(kursbez));
+                    }
+
+                    foreach (var lehrkraft in tList) {
+                        await _myschool.AddLtoK(lehrkraft, await _myschool.GetKurs(kursbez));
+                    }
+                }
+                else {
+                    await _myschool.AddKurs(kursbez, kursfach, kursklasse, kursstufe, kurssuffix,
+                        Convert.ToInt32(istKurs),
+                        kursBemerkung);
+                }
+
+                foreach (var lehrkraft in lehrkraefte.Split(',')) {
+                    await _myschool.AddLtoK(await _myschool.GetLehrkraft(lehrkraft), await _myschool.GetKurs(kursbez));
+                }
+
+                if (cbKursSuSdKlasseEinschreiben.IsChecked != null && cbKursSuSdKlasseEinschreiben.IsChecked.Value) {
+                    foreach (var sus in await _myschool.GetSuSAusKlasse(kursklasse)) {
+                        await _myschool.AddStoK(sus, await _myschool.GetKurs(kursbez));
+                    }
+                }
+
+                if (cbKursSuSdStufeEinschreiben.IsChecked != null && cbKursSuSdStufeEinschreiben.IsChecked.Value) {
+                    foreach (var stufe in kursstufe.Split(',')) {
+                        foreach (var sus in await _myschool.GetSusAusStufe(stufe.Trim())) {
+                            await _myschool.AddStoK(sus, await _myschool.GetKurs(kursbez));
+                        }
+                    }
+                }
+
+                if (cbKursMarkierteSuSEinschreiben.IsChecked != null &&
+                    cbKursMarkierteSuSEinschreiben.IsChecked.Value && leftListBox.SelectedItems != null) {
+                    foreach (var susstring in leftListBox.SelectedItems.Cast<string>()) {
+                        if (string.IsNullOrEmpty(susstring)) continue;
+                        var id = Convert.ToInt32(susstring.Split(';')[1]);
+                        var sus = await _myschool.GetSchueler(id);
+                        await _myschool.AddStoK(sus, await _myschool.GetKurs(kursbez));
+                    }
+                }
+            }
+            else {
+                if (! await _myschool.GibtEsLKKurs(kursbez)) {
+                    await _myschool.AddLKKurs(kursbez, kursstufe, kurssuffix, kursBemerkung);
+                }
+
                 List<Lehrkraft> tList = [];
                 foreach (var lehrkraft in lehrkraefte.Split(',')) {
                     tList.Add(await _myschool.GetLehrkraft(lehrkraft.Trim()));
                 }
 
-                var tListAusKurs = await _myschool.GetLuLAusKurs(kursbez);
+                var tListAusKurs = await _myschool.GetLuLAusLKKurs(kursbez);
                 foreach (var lehrkraft in tListAusKurs.Where(lehrkraft => !tList.Contains(lehrkraft))) {
-                    await _myschool.RemoveLfromK(lehrkraft, await _myschool.GetKurs(kursbez));
+                    await _myschool.RemoveLfromLKK(lehrkraft.ID, kursbez);
                 }
 
                 foreach (var lehrkraft in tList) {
-                    await _myschool.AddLtoK(lehrkraft, await _myschool.GetKurs(kursbez));
-                }
-            }
-            else {
-                await _myschool.AddKurs(kursbez, kursfach, kursklasse, kursstufe, kurssuffix, Convert.ToInt32(istKurs),
-                    kursBemerkung);
-            }
-
-            foreach (var lehrkraft in lehrkraefte.Split(',')) {
-                await _myschool.AddLtoK(await _myschool.GetLehrkraft(lehrkraft), await _myschool.GetKurs(kursbez));
-            }
-
-            if (cbKursSuSdKlasseEinschreiben.IsChecked != null && cbKursSuSdKlasseEinschreiben.IsChecked.Value) {
-                foreach (var sus in await _myschool.GetSuSAusKlasse(kursklasse)) {
-                    await _myschool.AddStoK(sus, await _myschool.GetKurs(kursbez));
-                }
-            }
-
-            if (cbKursSuSdStufeEinschreiben.IsChecked != null && cbKursSuSdStufeEinschreiben.IsChecked.Value) {
-                foreach (var stufe in kursstufe.Split(',')) {
-                    foreach (var sus in await _myschool.GetSusAusStufe(stufe.Trim())) {
-                        await _myschool.AddStoK(sus, await _myschool.GetKurs(kursbez));
-                    }
-                }
-            }
-
-            if (cbKursMarkierteSuSEinschreiben.IsChecked != null &&
-                cbKursMarkierteSuSEinschreiben.IsChecked.Value && leftListBox.SelectedItems != null) {
-                foreach (var susstring in leftListBox.SelectedItems.Cast<string>()) {
-                    if (string.IsNullOrEmpty(susstring)) continue;
-                    var id = Convert.ToInt32(susstring.Split(';')[1]);
-                    var sus = await _myschool.GetSchueler(id);
-                    await _myschool.AddStoK(sus, await _myschool.GetKurs(kursbez));
+                    await _myschool.AddLtoLKK(lehrkraft.ID,kursbez);
                 }
             }
 
