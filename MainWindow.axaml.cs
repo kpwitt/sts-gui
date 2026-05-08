@@ -1756,15 +1756,20 @@ public partial class MainWindow : Window {
     private void LoadKursData(Kurs k) {
         if (string.IsNullOrEmpty(k.Bezeichnung)) return;
         tbKursbezeichnung.Text = k.Bezeichnung;
-        tbKursLuL.Text = _myschool.GetLuLAusKurs(k.Bezeichnung).Result
-            .Aggregate("", (current, lul) => $"{current}{lul.Kuerzel},").TrimEnd(',');
         tbKursFach.Text = k.Fach;
         tbKursSuffix.Text = k.Suffix;
         tbKursKlasse.Text = k.Klasse;
         tbKursStufe.Text = k.Stufe;
         cbKursIstKurs.IsChecked = k.IstKurs;
         tbKursBemerkung.Text = k.Bemerkung;
-        //Todo: switch LKKurs
+        if (k.IstLKKurs) {
+            cbKursIstLKKurs.IsChecked = true;
+            tbKursLuL.Text = _myschool.GetLuLAusLKKurs(k.Bezeichnung).Result .Aggregate("", (current, lul) => $"{current}{lul.Kuerzel},").TrimEnd(',');
+        }
+        else {
+            tbKursLuL.Text = _myschool.GetLuLAusKurs(k.Bezeichnung).Result .Aggregate("", (current, lul) => $"{current}{lul.Kuerzel},").TrimEnd(',');
+            cbKursIstKurs.IsChecked = true;
+        }
     }
 
     private async void BtnExport_OnClick(object? sender, RoutedEventArgs e) {
