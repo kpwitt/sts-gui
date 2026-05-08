@@ -1223,15 +1223,21 @@ public class Schuldatenbank : IDisposable {
             List<string> ausgabeMoodleEinschreibungen = [];
             List<string> ausgabeMoodleKurse = [];
             List<string> ausgabeMoodleUser = [];
+            List<string> ausgabeLKMoodleEinschreibungen = [];
+            List<string> ausgabeLKMoodleKurse = [];
+            List<string> ausgabeLKMoodleUser = [];
             List<string> ausgabeIntern = [
                 "kuerzel;nachname;mail_Adresse;pw_temp"
             ];
+            
+            //ToDo: Nur Header schreiben, alle anderen Export-Methoden appenden nur async
+            //      => keine Refs mehr in den Methoden und somit parallele Ausführung möglich 
 
             var ohne_kursvorlagen = parameters.KursVorlage[0].Equals("") && parameters.KursVorlage[1].Equals("");
             ausgabeMoodleKurse.Add(ohne_kursvorlagen
                 ? "shortname;fullname;idnumber;category_idnumber;format"
                 : "shortname;fullname;idnumber;category_idnumber;format;templatecourse");
-
+            ausgabeLKMoodleKurse[0] = ausgabeMoodleKurse[0];
             if (parameters.WithPasswort) {
                 ausgabeMoodleUser.Add("email;password;username;idnumber;lastname;firstname;cohort1;suspended");
                 ausgabeAIXS.Add(
@@ -1243,6 +1249,8 @@ public class Schuldatenbank : IDisposable {
                 ausgabeAIXS.Add("Vorname;Nachname;Klasse;Referenz-ID;Arbeitsgruppen");
                 ausgabeAIXL.Add("Vorname;Nachname;Referenz-ID;Arbeitsgruppen");
             }
+
+            ausgabeLKMoodleUser[0] = ausgabeMoodleUser[0];
 
             if (parameters.WhatToExport.Contains('k') && parameters.TargetSystems.Contains('m')) {
                 ExportKurse(ref ausgabeMoodleKurse, parameters.KursListe, parameters.KursVorlage);
@@ -1282,74 +1290,31 @@ public class Schuldatenbank : IDisposable {
             if (parameters.ExpandFiles) {
                 try {
                     if (parameters.TargetSystems.Contains('a')) {
-                        if (File.Exists($"{parameters.Folder}/aix_sus.csv")) {
-                            var aixSus = (await File.ReadAllLinesAsync($"{parameters.Folder}/aix_sus.csv")).ToList();
-                            aixSus.RemoveAt(0);
-                            ausgabeAIXS.AddRange(aixSus);
-                            await File.WriteAllLinesAsync($"{parameters.Folder}/aix_sus.csv",
-                                ausgabeAIXS.Distinct().ToList(),
-                                Encoding.UTF8);
-                        }
+                        await Tooling.AppendToFile($"{parameters.Folder}/aix_sus.csv",
+                            ausgabeAIXS[1..].Distinct().ToList());
 
-                        if (File.Exists($"{parameters.Folder}/aix_lul.csv")) {
-                            var aixLul = (await File.ReadAllLinesAsync($"{parameters.Folder}/aix_lul.csv")).ToList();
-                            aixLul.RemoveAt(0);
-                            ausgabeAIXL.AddRange(aixLul);
-                            await File.WriteAllLinesAsync($"{parameters.Folder}/aix_lul.csv",
-                                ausgabeAIXL.Distinct().ToList(),
-                                Encoding.UTF8);
-                        }
+
+                        await Tooling.AppendToFile($"{parameters.Folder}/aix_lul.csv",
+                            ausgabeAIXL[1..].Distinct().ToList());
                     }
 
                     if (parameters.TargetSystems.Contains('m')) {
-                        if (File.Exists($"{parameters.Folder}/mdl_einschreibungen.csv")) {
-                            var mdlEin =
-                                (await File.ReadAllLinesAsync($"{parameters.Folder}/mdl_einschreibungen.csv")).ToList();
-                            ausgabeMoodleKurse.RemoveAt(0);
-                            ausgabeMoodleEinschreibungen.AddRange(mdlEin);
-                            await File.WriteAllLinesAsync($"{parameters.Folder}/mdl_einschreibungen.csv",
-                                ausgabeMoodleEinschreibungen.Distinct().ToList(), Encoding.UTF8);
-                        }
+                        await Tooling.AppendToFile($"{parameters.Folder}/mdl_einschreibungen.csv",
+                            ausgabeMoodleEinschreibungen[1..].Distinct().ToList());
 
-                        if (File.Exists($"{parameters.Folder}/mdl_kurse.csv")) {
-                            var mdlKurse = (await File.ReadAllLinesAsync($"{parameters.Folder}/mdl_kurse.csv"))
-                                .ToList();
-                            if (mdlKurse.Count > 0) {
-                                mdlKurse.RemoveAt(0);
-                            }
+                        await Tooling.AppendToFile($"{parameters.Folder}/mdl_kurse.csv",
+                            ausgabeMoodleKurse[1..].Distinct().ToList());
 
-                            ausgabeMoodleKurse.AddRange(mdlKurse);
-                            await File.WriteAllLinesAsync($"{parameters.Folder}/mdl_kurse.csv",
-                                ausgabeMoodleKurse.Distinct().ToList(),
-                                Encoding.UTF8);
-                        }
-
-                        if (File.Exists($"{parameters.Folder}/mdl_nutzer.csv")) {
-                            var mdlNutzer =
-                                (await File.ReadAllLinesAsync($"{parameters.Folder}/mdl_nutzer.csv")).ToList();
-                            if (mdlNutzer.Count > 0) {
-                                mdlNutzer.RemoveAt(0);
-                            }
-
-                            ausgabeMoodleUser.AddRange(mdlNutzer);
-                            await File.WriteAllLinesAsync($"{parameters.Folder}/mdl_nutzer.csv",
-                                ausgabeMoodleUser.Distinct().ToList(),
-                                Encoding.UTF8);
-                        }
+                        await Tooling.AppendToFile($"{parameters.Folder}/mdl_nutzer.csv",
+                            ausgabeMoodleUser[1..].Distinct().ToList());
                     }
 
                     if (parameters.TargetSystems.Contains('i')) {
-                        if (File.Exists($"{parameters.Folder}/Lehrerdaten_anschreiben.csv")) {
-                            var llgIntern =
-                                (await File.ReadAllLinesAsync($"{parameters.Folder}/Lehrerdaten_anschreiben.csv"))
-                                .ToList();
-                            llgIntern.RemoveAt(0);
-                            ausgabeIntern.AddRange(llgIntern);
-                            await File.WriteAllLinesAsync($"{parameters.Folder}/Lehrerdaten_anschreiben.csv",
-                                ausgabeIntern.Distinct().ToList(), Encoding.UTF8);
-                        }
+                        await Tooling.AppendToFile($"{parameters.Folder}/Lehrerdaten_anschreiben.csv",
+                            ausgabeIntern.Distinct().ToList());
                     }
                 }
+            
 
                 catch (Exception ex) {
 #if DEBUG
@@ -1575,9 +1540,6 @@ public class Schuldatenbank : IDisposable {
                             ? "editingteacher"
                             : "student";
                         ausgabeMoodleEinschreibungen.Add($"add,{rolle},{lt.ID},{kurs.Bezeichnung}{kurs.Suffix}");
-                    }
-                    else if (kurs.IstKurs) {
-                        ausgabeMoodleEinschreibungen.Add($"add,editingteacher,{lt.ID},{kurs.Bezeichnung}{kurs.Suffix}");
                     }
                     else {
                         ausgabeMoodleEinschreibungen.Add($"add,editingteacher,{lt.ID},{kurs.Bezeichnung}{kurs.Suffix}");
@@ -2244,7 +2206,7 @@ public class Schuldatenbank : IDisposable {
 
         return new ReadOnlyCollection<Lehrkraft>(lliste);
     }
-    
+
     /// <summary>
     /// gibt die LuL im Kurs als Liste zurück
     /// </summary>
@@ -3253,7 +3215,7 @@ public class Schuldatenbank : IDisposable {
             return Task.FromException(exception);
         }
     }
-    
+
     public Task RemoveLKK(string kbez) {
         try {
             if (string.IsNullOrEmpty(kbez)) return Task.CompletedTask;
