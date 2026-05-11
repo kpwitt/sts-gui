@@ -1745,6 +1745,7 @@ public partial class MainWindow : Window {
         tbLuLMail.Text = l.Mail;
         tbLuLtmpPwd.Text = l.Pwttemp;
         tbLuLKurse.Text = _myschool.GetKurseVonLuL(l.ID).Result
+            .Aggregate("", (current, kurs) => $"{current}{kurs.Bezeichnung},") + _myschool.GetLKKurseVonLuL(l.ID).Result
             .Aggregate("", (current, kurs) => $"{current}{kurs.Bezeichnung},").TrimEnd(',');
         tbLuLFavo.Text = l.Favo;
         tbLuLSFavo.Text = l.SFavo;
@@ -1764,10 +1765,12 @@ public partial class MainWindow : Window {
         tbKursBemerkung.Text = k.Bemerkung;
         if (k.IstLKKurs) {
             cbKursIstLKKurs.IsChecked = true;
-            tbKursLuL.Text = _myschool.GetLuLAusLKKurs(k.Bezeichnung).Result .Aggregate("", (current, lul) => $"{current}{lul.Kuerzel},").TrimEnd(',');
+            tbKursLuL.Text = _myschool.GetLuLAusLKKurs(k.Bezeichnung).Result
+                .Aggregate("", (current, lul) => $"{current}{lul.Kuerzel},").TrimEnd(',');
         }
         else {
-            tbKursLuL.Text = _myschool.GetLuLAusKurs(k.Bezeichnung).Result .Aggregate("", (current, lul) => $"{current}{lul.Kuerzel},").TrimEnd(',');
+            tbKursLuL.Text = _myschool.GetLuLAusKurs(k.Bezeichnung).Result
+                .Aggregate("", (current, lul) => $"{current}{lul.Kuerzel},").TrimEnd(',');
             cbKursIstKurs.IsChecked = true;
         }
     }
@@ -1784,6 +1787,7 @@ public partial class MainWindow : Window {
 
             await Dispatcher.UIThread.InvokeAsync(ReadFileTask);
             return;
+
             //ToDo: switch LKKurs
             async Task ReadFileTask() {
                 var folder = await ShowOpenFolderDialog("Bitte den Ordner mit den Dateien auswählen");
@@ -2585,8 +2589,8 @@ public partial class MainWindow : Window {
 
     private async void BtnKurseAdd_OnClick(object? sender, RoutedEventArgs e) {
         try {
-            //Todo: switch LKKurs
             var kursbez = tbKursbezeichnung.Text;
+            if (kursbez == null) return;
             var lehrkraefte = tbKursLuL.Text;
             var kursfach = tbKursFach.Text;
             var kurssuffix = string.IsNullOrEmpty(tbKursSuffix.Text)
@@ -2604,6 +2608,7 @@ public partial class MainWindow : Window {
                         "Fehler");
                     return;
                 }
+
                 if (string.IsNullOrEmpty(kursbez) || string.IsNullOrEmpty(lehrkraefte) ||
                     string.IsNullOrEmpty(kursfach) ||
                     string.IsNullOrEmpty(kursklasse) || string.IsNullOrEmpty(kursstufe)) {
@@ -2665,7 +2670,15 @@ public partial class MainWindow : Window {
                 }
             }
             else {
-                if (! await _myschool.GibtEsLKKurs(kursbez)) {
+                if (string.IsNullOrEmpty(kursbez) || string.IsNullOrEmpty(lehrkraefte) ||
+                    string.IsNullOrEmpty(kursstufe)) {
+                    await ShowCustomErrorMessage(
+                        "Nicht alle erforderlichen Informationen angegeben!\nStellen Sie sicher, dass Kursbezeichnung, mind. ein Kürzel und die Stufe ausgefüllt sind.",
+                        "Fehler");
+                    return;
+                }
+
+                if (!await _myschool.GibtEsLKKurs(kursbez)) {
                     await _myschool.AddLKKurs(kursbez, kursstufe, kurssuffix, kursBemerkung);
                 }
 
@@ -2680,7 +2693,7 @@ public partial class MainWindow : Window {
                 }
 
                 foreach (var lehrkraft in tList) {
-                    await _myschool.AddLtoLKK(lehrkraft.ID,kursbez);
+                    await _myschool.AddLtoLKK(lehrkraft.ID, kursbez);
                 }
             }
 
