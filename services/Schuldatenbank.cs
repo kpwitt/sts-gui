@@ -1229,7 +1229,7 @@ public class Schuldatenbank : IDisposable {
             List<string> ausgabeIntern = [
                 "kuerzel;nachname;mail_Adresse;pw_temp"
             ];
-            
+
             //ToDo: Nur Header schreiben, alle anderen Export-Methoden appenden nur async
             //      => keine Refs mehr in den Methoden und somit parallele Ausführung möglich 
 
@@ -1314,7 +1314,7 @@ public class Schuldatenbank : IDisposable {
                             ausgabeIntern.Distinct().ToList());
                     }
                 }
-            
+
 
                 catch (Exception ex) {
 #if DEBUG
@@ -1984,6 +1984,35 @@ public class Schuldatenbank : IDisposable {
                 IstKurs = Convert.ToBoolean(sqliteDatareader.GetInt32(5)),
                 Art = Convert.ToBoolean(sqliteDatareader.GetInt32(5)) ? "PUT" : "PUK",
                 Bemerkung = sqliteDatareader.GetString(6),
+            };
+            kliste.Add(retKurs);
+        }
+
+        return new ReadOnlyCollection<Kurs>(kliste);
+    }
+
+    /// <summary>
+    /// gibt die Kurse der Lehrperson als Liste zurück
+    /// </summary>
+    /// <param name="lulid"></param>
+    /// <returns>String-Liste der Kursbezeichnungen </returns>
+    public async Task<ReadOnlyCollection<Kurs>> GetLKKurseVonLuL(int lulid) {
+        List<Kurs> kliste = [];
+        var sqliteCmd = _sqliteConn.CreateCommand();
+        sqliteCmd.CommandText =
+            "SELECT kursbez,stufe,suffix,bemerkung FROM lknimmtteil JOIN lkkurse ON kursbez=bez WHERE lehrerid = $lulid;";
+        sqliteCmd.Parameters.AddWithValue("lulid", lulid);
+        var sqliteDatareader = await sqliteCmd.ExecuteReaderAsync();
+        while (sqliteDatareader.Read()) {
+            Kurs retKurs = new() {
+                Bezeichnung = sqliteDatareader.GetString(0),
+                Fach = "",
+                Klasse = "",
+                Stufe = sqliteDatareader.GetString(1),
+                Suffix = sqliteDatareader.GetString(2),
+                IstKurs = false,
+                Art = "",
+                Bemerkung = sqliteDatareader.GetString(3),
             };
             kliste.Add(retKurs);
         }
