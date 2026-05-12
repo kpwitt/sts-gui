@@ -1209,7 +1209,7 @@ public class Schuldatenbank : IDisposable {
             }
 
             if (parameters.WhatToExport.Equals("all")) {
-                parameters.WhatToExport = ("ksle");
+                parameters.WhatToExport = "ksle";
             }
 
             if (parameters.WhatToExport.Contains('e')) {
@@ -1219,17 +1219,12 @@ public class Schuldatenbank : IDisposable {
             List<string> ausgabeAIXL = [];
             List<string> ausgabeAIXS = [];
             List<string> ausgabeMoodleKurse = [];
-            List<string> ausgabeMoodleEinschreibungen = [];
             List<string> ausgabeMoodleUser = [];
             List<string> ausgabeLKMoodleKurse = [];
-            List<string> ausgabeLKMoodleEinschreibungen = [];
             List<string> ausgabeLKMoodleUser = [];
             List<string> ausgabeIntern = [
                 "kuerzel;nachname;mail_Adresse;pw_temp"
             ];
-
-            //ToDo: Nur Header schreiben, alle anderen Export-Methoden appenden nur async
-            //      => keine Refs mehr in den Methoden und somit parallele Ausführung möglich 
 
             var ohne_kursvorlagen = parameters.KursVorlage[0].Equals("") && parameters.KursVorlage[1].Equals("");
             ausgabeMoodleKurse.Add(ohne_kursvorlagen
@@ -1258,8 +1253,6 @@ public class Schuldatenbank : IDisposable {
                 }
 
                 if (parameters.TargetSystems.Contains('m')) {
-                    await File.WriteAllLinesAsync($"{parameters.Folder}/mdl_einschreibungen.csv",
-                        ausgabeMoodleEinschreibungen.Distinct().ToList(), Encoding.UTF8);
                     await File.WriteAllLinesAsync($"{parameters.Folder}/mdl_kurse.csv",
                         ausgabeMoodleKurse.Distinct().ToList(),
                         Encoding.UTF8);
@@ -1383,18 +1376,15 @@ public class Schuldatenbank : IDisposable {
     /// <summary>
     /// Fügt die Eltern zum Export hinzu
     /// </summary>
-    /// <param name="ausgabeMoodleUser"></param>
-    /// <param name="ausgabeMoodleEinschreibungen"></param>
-    /// <param name="susids"></param>
+    /// <param name="parameters"></param>
     private void ExportEltern(ExportParameters parameters) {
         // header: email;username;idnumber;lastname;firstname;cohort1
         if (parameters.SusIdListe.Count > 0) return;
         var suffix = GetKursSuffix().Result;
         List<string> ausgabeMoodleUser = [];
         List<string> ausgabeMoodleEinschreibungen = [];
-        foreach (var s in parameters.SusIdListe) {
-            var sus = GetSchueler(s).Result;
-            if (!sus.IstAktiv) continue;
+        var susliste = GetSchuelerListe().Result.Where(s => s.IstAktiv && parameters.SusIdListe.Contains(s.ID));
+        Parallel.ForEach(susliste, (sus, _) => {
             var susmail = sus.Mail.Contains(' ') ? sus.Mail.Split(' ')[0] : sus.Mail;
             var schuelerstufe = Tooling.KlasseToStufe(sus.Klasse);
             switch (sus.Zweitaccount) {
@@ -1453,7 +1443,7 @@ public class Schuldatenbank : IDisposable {
                 ausgabeMoodleEinschreibungen.Add($"add,eltern,E_{sus.ID},{sus.Klasse}KL{suffix}");
                 ausgabeMoodleEinschreibungen.Add($"add,eltern,E_{sus.ID},mittelstufe{suffix}");
             }
-        }
+        });
 
         Tooling.AppendToFile($"{parameters.Folder}/mdl_nutzer.csv", ausgabeMoodleUser);
         Tooling.AppendToFile($"{parameters.Folder}/mdl_einschreibungen.csv", ausgabeMoodleEinschreibungen);
@@ -1462,14 +1452,7 @@ public class Schuldatenbank : IDisposable {
     /// <summary>
     /// Fügt die SuS zum Export hinzu
     /// </summary>
-    /// <param name="ausgabeMoodleUser"></param>
-    /// <param name="ausgabeMoodleEinschreibungen"></param>
-    /// <param name="ausgabeAIXS"></param>
-    /// <param name="susidliste"></param>
-    /// <param name="targets"></param>
-    /// <param name="withPasswort"></param>
-    /// <param name="passwort"></param>
-    /// <param name="nurMoodleSuffix"></param>
+    /// <param name="parameters"></param>
     private void ExportSuS(ExportParameters parameters) {
         if (parameters.SusIdListe.Count > 0) return;
         var suffix = GetKursSuffix().Result;
@@ -1479,8 +1462,8 @@ public class Schuldatenbank : IDisposable {
         if (parameters.TargetSystems != "all" && !parameters.TargetSystems.Contains('m') &&
             !parameters.TargetSystems.Contains('a')) return;
         var blacklist = GetM365Blacklist().Result;
-        foreach (var sus in parameters.SusIdListe) {
-            var s = GetSchueler(sus).Result;
+        var susliste = GetSchuelerListe().Result.Where(s => s.IstAktiv && parameters.SusIdListe.Contains(s.ID));
+        Parallel.ForEach(susliste, (s, _) => {
             var schuelerstufe = Tooling.KlasseToStufe(s.Klasse);
             var kListe = "";
             foreach (var kk in GetKurseVonSuS(s.ID).Result) {
@@ -1531,7 +1514,7 @@ public class Schuldatenbank : IDisposable {
                     ausgabeAIXS.Add($"{s.Vorname};{s.Nachname};{s.Klasse};{s.ID};{kListe}");
                 }
             }
-        }
+        });
 
         Tooling.AppendToFile($"{parameters.Folder}/mdl_nutzer.csv", ausgabeMoodleUser);
         Tooling.AppendToFile($"{parameters.Folder}/mdl_einschreibungen.csv", ausgabeMoodleEinschreibungen);
@@ -1541,57 +1524,53 @@ public class Schuldatenbank : IDisposable {
     /// <summary>
     /// Fügt die Lehrkräfte zum Export hinzu
     /// </summary>
-    /// <param name="ausgabeMoodleUser"></param>
-    /// <param name="ausgabeMoodleEinschreibungen"></param>
-    /// <param name="ausgabeAIXL"></param>
-    /// <param name="lulidliste"></param>
-    /// <param name="targets"></param>
-    /// <param name="withPasswort"></param>
-    /// <param name="nurMoodleSuffix"></param>
+    /// <param name="parameters"></param>
     private void ExportLuL(ExportParameters parameters) {
         if (parameters.LulIdListe.Count == 0) return;
         var suffix = GetKursSuffix().Result;
         List<string> ausgabeAIXL = [];
         List<string> ausgabeMoodleEinschreibungen = [];
         List<string> ausgabeMoodleUser = [];
-        foreach (var l in parameters.LulIdListe) {
-            var lt = GetLehrkraft(l).Result;
-            var kListe = "";
+        List<string> ausgabeMoodleLKEinschreibungen = [];
+        var lulliste = GetLehrkraftListe().Result.Where(l => l.IstAktiv && parameters.LulIdListe.Contains(l.ID));
+        Parallel.ForEach(lulliste, (lt, _) => {
+            var aixkursliste = "";
             var fakultas = lt.Fakultas.Split(',');
             var fak = fakultas.Aggregate("", (current, fa) => $"{current}|^Fako {fa}");
 
             fak += fak.Replace("^", "");
             fak = fak.TrimStart('|');
+
+            //ToDo: switch für LKKurs
             foreach (var kurs in GetKurseVonLuL(lt.ID).Result) {
                 if (string.IsNullOrEmpty(kurs.Bezeichnung)) continue;
-                if (lt.IstAktiv) {
-                    //ToDo: switch für LKKurs
-                    if (kurs.Bezeichnung.Contains("Jahrgangsstufenkonferenz")) {
-                        var stufenleitungen = GetOberstufenleitung(kurs.Stufe).Result;
-                        var rolle = stufenleitungen.Contains(lt) ||
-                                    GetSettings().Result.Oberstufenkoordination.Contains(lt.Kuerzel)
-                            ? "editingteacher"
-                            : "student";
-                        ausgabeMoodleEinschreibungen.Add($"add,{rolle},{lt.ID},{kurs.Bezeichnung}{kurs.Suffix}");
-                    }
-                    else {
-                        ausgabeMoodleEinschreibungen.Add($"add,editingteacher,{lt.ID},{kurs.Bezeichnung}{kurs.Suffix}");
-                    }
+
+                if (kurs.Bezeichnung.Contains("Jahrgangsstufenkonferenz")) {
+                    var stufenleitungen = GetOberstufenleitung(kurs.Stufe).Result;
+                    var rolle = stufenleitungen.Contains(lt) ||
+                                GetSettings().Result.Oberstufenkoordination.Contains(lt.Kuerzel)
+                        ? "editingteacher"
+                        : "student";
+                    ausgabeMoodleEinschreibungen.Add($"add,{rolle},{lt.ID},{kurs.Bezeichnung}{kurs.Suffix}");
+                }
+                else {
+                    ausgabeMoodleEinschreibungen.Add($"add,editingteacher,{lt.ID},{kurs.Bezeichnung}{kurs.Suffix}");
                 }
 
+
                 if (kurs.Bezeichnung.Length > 20) continue;
-                kListe += $"^{kurs.Bezeichnung}{kurs.Suffix}|";
+                aixkursliste += $"^{kurs.Bezeichnung}{kurs.Suffix}|";
             }
 
             ausgabeMoodleEinschreibungen.AddRange(lt.Fakultas.Split(',')
                 .Select(fach => $"add,editingteacher,{lt.ID},FS_{fach}"));
 
-            if (kListe == "^|") {
-                kListe = "";
+            if (aixkursliste == "^|") {
+                aixkursliste = "";
             }
 
-            if (parameters.NurMoodleSuffix && kListe != "") {
-                kListe = kListe.Replace(suffix, "");
+            if (parameters.NurMoodleSuffix && aixkursliste != "") {
+                aixkursliste = aixkursliste.Replace(suffix, "");
             }
 
             if (parameters.WithPasswort) {
@@ -1599,57 +1578,61 @@ public class Schuldatenbank : IDisposable {
                     $"{lt.Mail};{GetTempPasswort(lt.ID).Result};{lt.Kuerzel};{lt.ID};{lt.Nachname};{lt.Vorname};lehrer;{Convert.ToInt32(!lt.IstAktiv)}");
                 if (parameters.TargetSystems.Contains('a') && lt.IstAktiv) {
                     ausgabeAIXL.Add(
-                        $"{lt.Vorname};{lt.Nachname};{lt.ID};{GetTempPasswort(lt.ID).Result};*|{kListe}{fak}");
+                        $"{lt.Vorname};{lt.Nachname};{lt.ID};{GetTempPasswort(lt.ID).Result};*|{aixkursliste}{fak}");
                 }
             }
             else {
                 ausgabeMoodleUser.Add(
                     $"{lt.Mail};{lt.Kuerzel};{lt.ID};{lt.Nachname};{lt.Vorname};lehrer;{Convert.ToInt32(!lt.IstAktiv)}");
                 if (parameters.TargetSystems.Contains('a') && lt.IstAktiv) {
-                    ausgabeAIXL.Add($"{lt.Vorname};{lt.Nachname};{lt.ID};*|{kListe}{fak}");
+                    ausgabeAIXL.Add($"{lt.Vorname};{lt.Nachname};{lt.ID};*|{aixkursliste}{fak}");
                 }
             }
-        }
+        });
 
         Tooling.AppendToFile($"{parameters.Folder}/mdl_nutzer.csv", ausgabeMoodleUser);
+        Tooling.AppendToFile($"{parameters.Folder}/lkmdl_nutzer.csv", ausgabeMoodleUser);
         Tooling.AppendToFile($"{parameters.Folder}/mdl_einschreibungen.csv", ausgabeMoodleEinschreibungen);
+        Tooling.AppendToFile($"{parameters.Folder}/lkmdl_einschreibungen.csv", ausgabeMoodleLKEinschreibungen);
         Tooling.AppendToFile($"{parameters.Folder}/aix_lul.csv", ausgabeAIXL);
     }
 
     /// <summary>
     /// Fügt die Kurse zum Export hinzu
     /// </summary>
-    /// <param name="ausgabeMoodleKurse"></param>
-    /// <param name="kursBez"></param>
-    /// <param name="kursvorlage"></param>
+    /// <param name="parameters"></param>
     private void ExportKurse(ExportParameters parameters) {
         if (parameters.KursListe.Count == 0) return;
         List<string> ausgabeMoodleKurse = [];
+        List<string> ausgabeMoodleLKKurse = [];
         var sekI = erprobungsstufe.Concat(mittelstufe).ToArray();
         var ohne_kursvorlagen = parameters.KursVorlage[0].Equals("") && parameters.KursVorlage[1].Equals("");
-        foreach (var kurs in parameters.KursListe) {
-            if (kurs.EndsWith('-')) continue;
-            var k = GetKurs(kurs.Split(';')[0]).Result;
-            //ToDo: switch für LKKurs
+        List<string>[] x = [ausgabeMoodleKurse, ausgabeMoodleLKKurse];
+        var kursliste =
+            GetKursListe().Result.Where(k => parameters.KursListe.Contains(k.Bezeichnung)).ToList();
+        kursliste.AddRange(
+                GetLKKursListe().Result.Where(k => parameters.KursListe.Contains(k.Bezeichnung)));
+        Parallel.ForEach(kursliste, (k, _) => {
+            var list = k.IstLKKurs ? ausgabeMoodleLKKurse : ausgabeMoodleKurse;
             if (ohne_kursvorlagen) {
                 if (k.Bezeichnung.Contains("Erprobungsstufe") || k.Bezeichnung.Contains("Mittelstufe") ||
                     k.Bezeichnung.Contains("Einführungsphase") || k.Bezeichnung.Contains("Qualifikationsphase")) {
-                    ausgabeMoodleKurse.Add(
+                    list.Add(
                         $"{k.Bezeichnung}{k.Suffix};{k.Bezeichnung} SJ{k.Suffix.Substring(1, 2)}/{k.Suffix.Substring(3, 2)};{k.Bezeichnung}{k.Suffix};SJ{k.Suffix};tiles");
                 }
                 else if (k.Bezeichnung.Contains("konferenz")) {
-                    ausgabeMoodleKurse.Add(
+                    list.Add(
                         $"{k.Bezeichnung}{k.Suffix};{k.Bezeichnung} SJ{k.Suffix.Substring(1, 2)}/{k.Suffix.Substring(3, 2)};{k.Bezeichnung}{k.Suffix};lehrkraefte;tiles");
                 }
 
                 if (k.IstKurs) {
-                    ausgabeMoodleKurse.Add(
+                    list.Add(
                         sekI.Contains(k.Stufe)
                             ? $"{k.Bezeichnung}{k.Suffix};{k.Klasse} {GetLangeFachbezeichnung(k.Fach).Result}-{k.Art.Substring(k.Art.Length - 1, 1)} SJ{k.Suffix.Substring(1, 2)}/{k.Suffix.Substring(3, 2)};{k.Bezeichnung}{k.Suffix};stufe_{k.Stufe}{k.Suffix};tiles"
                             : $"{k.Bezeichnung}{k.Suffix};{k.Klasse} {GetLangeFachbezeichnung(k.Fach).Result}-{k.Art} SJ{k.Suffix.Substring(1, 2)}/{k.Suffix.Substring(3, 2)};{k.Bezeichnung}{k.Suffix};stufe_{k.Stufe}{k.Suffix};tiles");
                 }
                 else {
-                    ausgabeMoodleKurse.Add(
+                    list.Add(
                         $"{k.Bezeichnung}{k.Suffix};{k.Klasse} {GetLangeFachbezeichnung(k.Fach).Result} SJ{k.Suffix.Substring(1, 2)}/{k.Suffix.Substring(3, 2)};{k.Bezeichnung}{k.Suffix};{k.Klasse}{k.Suffix};tiles");
                 }
             }
@@ -1658,28 +1641,29 @@ public class Schuldatenbank : IDisposable {
                     k.Bezeichnung.Contains("KL") ? parameters.KursVorlage[0] : parameters.KursVorlage[1];
                 if (k.Bezeichnung.Contains("Erprobungsstufe") || k.Bezeichnung.Contains("Mittelstufe") ||
                     k.Bezeichnung.Contains("Einführungsphase") || k.Bezeichnung.Contains("Qualifikationsphase")) {
-                    ausgabeMoodleKurse.Add(
+                    list.Add(
                         $"{k.Bezeichnung}{k.Suffix};{k.Bezeichnung} SJ{k.Suffix.Substring(1, 2)}/{k.Suffix.Substring(3, 2)};{k.Bezeichnung}{k.Suffix};SJ{k.Suffix};tiles;{strkursvorlage}");
                 }
                 else if (k.Bezeichnung.Contains("konferenz")) {
-                    ausgabeMoodleKurse.Add(
+                    list.Add(
                         $"{k.Bezeichnung}{k.Suffix};{k.Bezeichnung} SJ{k.Suffix.Substring(1, 2)}/{k.Suffix.Substring(3, 2)};{k.Bezeichnung}{k.Suffix};lehrkraefte;tiles;{strkursvorlage}");
                 }
 
                 if (k.IstKurs) {
-                    ausgabeMoodleKurse.Add(
+                    list.Add(
                         sekI.Contains(k.Stufe)
                             ? $"{k.Bezeichnung}{k.Suffix};{k.Klasse} {GetLangeFachbezeichnung(k.Fach).Result}-{k.Art.Substring(k.Art.Length - 1, 1)} SJ{k.Suffix.Substring(1, 2)}/{k.Suffix.Substring(3, 2)};{k.Bezeichnung}{k.Suffix};stufe_{k.Stufe}{k.Suffix};tiles;{strkursvorlage}"
                             : $"{k.Bezeichnung}{k.Suffix};{k.Klasse} {GetLangeFachbezeichnung(k.Fach).Result}-{k.Art} SJ{k.Suffix.Substring(1, 2)}/{k.Suffix.Substring(3, 2)};{k.Bezeichnung}{k.Suffix};stufe_{k.Stufe}{k.Suffix};tiles;{strkursvorlage}");
                 }
                 else {
-                    ausgabeMoodleKurse.Add(
+                    list.Add(
                         $"{k.Bezeichnung}{k.Suffix};{k.Klasse} {GetLangeFachbezeichnung(k.Fach).Result} SJ{k.Suffix.Substring(1, 2)}/{k.Suffix.Substring(3, 2)};{k.Bezeichnung}{k.Suffix};{k.Klasse}{k.Suffix};tiles;{strkursvorlage}");
                 }
             }
-        }
+        });
 
         Tooling.AppendToFile($"{parameters.Folder}/moodle_kurse.csv", ausgabeMoodleKurse);
+        Tooling.AppendToFile($"{parameters.Folder}/lkmoodle_kurse.csv", ausgabeMoodleLKKurse);
     }
 
     /// <summary>
