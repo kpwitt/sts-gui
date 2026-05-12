@@ -2719,8 +2719,13 @@ public partial class MainWindow : Window {
                 source = rightListBox;
             }
             else {
-                await _myschool.RemoveLKK(kursbez);
-                await _myschool.RemoveK(kursbez);
+                if (_myschool.GibtEsKurs(kursbez).Result) {
+                    await _myschool.RemoveK(kursbez);
+                }
+                else if (_myschool.GibtEsLKKurs(kursbez).Result) {
+                    await _myschool.RemoveLKK(kursbez);
+                }
+
                 return;
             }
 
@@ -2729,8 +2734,12 @@ public partial class MainWindow : Window {
             await _myschool.StartTransaction();
             foreach (var kurs in tmp_list.Cast<string>()) {
                 if (string.IsNullOrEmpty(kurs)) return;
-                await _myschool.RemoveLKK(kurs);
-                await _myschool.RemoveK(kurs);
+                if (_myschool.GibtEsKurs(kursbez).Result) {
+                    await _myschool.RemoveK(kursbez);
+                }
+                else if (_myschool.GibtEsLKKurs(kursbez).Result) {
+                    await _myschool.RemoveLKK(kursbez);
+                }
             }
 
             await _myschool.StopTransaction();
@@ -2863,7 +2872,7 @@ public partial class MainWindow : Window {
                             var regexPattern = Tooling.ToRegex(eingabe, searchFields.GrossKleinschreibung);
                             kliste.AddRange(kcachelist
                                 .Where(k => regexPattern.IsMatch(k.Bezeichnung))
-                                );
+                            );
                         }
                     }
 
