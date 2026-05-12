@@ -1220,8 +1220,6 @@ public class Schuldatenbank : IDisposable {
             List<string> ausgabeAIXS = [];
             List<string> ausgabeMoodleKurse = [];
             List<string> ausgabeMoodleUser = [];
-            List<string> ausgabeLKMoodleKurse = [];
-            List<string> ausgabeLKMoodleUser = [];
             List<string> ausgabeIntern = [
                 "kuerzel;nachname;mail_Adresse;pw_temp"
             ];
@@ -1230,7 +1228,6 @@ public class Schuldatenbank : IDisposable {
             ausgabeMoodleKurse.Add(ohne_kursvorlagen
                 ? "shortname;fullname;idnumber;category_idnumber;format"
                 : "shortname;fullname;idnumber;category_idnumber;format;templatecourse");
-            ausgabeLKMoodleKurse[0] = ausgabeMoodleKurse[0];
             if (parameters.WithPasswort) {
                 ausgabeMoodleUser.Add("email;password;username;idnumber;lastname;firstname;cohort1;suspended");
                 ausgabeAIXS.Add(
@@ -1242,8 +1239,7 @@ public class Schuldatenbank : IDisposable {
                 ausgabeAIXS.Add("Vorname;Nachname;Klasse;Referenz-ID;Arbeitsgruppen");
                 ausgabeAIXL.Add("Vorname;Nachname;Referenz-ID;Arbeitsgruppen");
             }
-
-            ausgabeLKMoodleUser[0] = ausgabeMoodleUser[0];
+            
             if (!parameters.ExpandFiles) {
                 if (parameters.TargetSystems.Contains('a')) {
                     await File.WriteAllLinesAsync($"{parameters.Folder}/aix_sus.csv", ausgabeAIXS.Distinct().ToList(),
@@ -1257,6 +1253,12 @@ public class Schuldatenbank : IDisposable {
                         ausgabeMoodleKurse.Distinct().ToList(),
                         Encoding.UTF8);
                     await File.WriteAllLinesAsync($"{parameters.Folder}/mdl_nutzer.csv",
+                        ausgabeMoodleUser.Distinct().ToList(),
+                        Encoding.UTF8);
+                    await File.WriteAllLinesAsync($"{parameters.Folder}/lkmdl_kurse.csv",
+                        ausgabeMoodleKurse.Distinct().ToList(),
+                        Encoding.UTF8);
+                    await File.WriteAllLinesAsync($"{parameters.Folder}/lkmdl_nutzer.csv",
                         ausgabeMoodleUser.Distinct().ToList(),
                         Encoding.UTF8);
                 }
@@ -1286,82 +1288,9 @@ public class Schuldatenbank : IDisposable {
                 ExportLuL(parameters);
             }
 
-            // noch benötigt?
-            if (parameters.TargetSystems.Contains('i')) {
-                foreach (var l in parameters.LulIdListe) {
-                    var lt = await GetLehrkraft(l);
-                    ausgabeIntern.Add(
-                        $"{lt.Kuerzel};{lt.Nachname};{lt.Mail};{GetTempPasswort(l).Result}");
-                }
-            }
-
             if (parameters.TargetSystems.Contains('j')) {
                 ExportJAMF(parameters);
             }
-
-            /*if (parameters.ExpandFiles) {
-                try {
-                    if (parameters.TargetSystems.Contains('a')) {
-                        await Tooling.AppendToFile($"{parameters.Folder}/aix_sus.csv",
-                            ausgabeAIXS[1..].Distinct().ToList());
-
-
-                        await Tooling.AppendToFile($"{parameters.Folder}/aix_lul.csv",
-                            ausgabeAIXL[1..].Distinct().ToList());
-                    }
-
-                    if (parameters.TargetSystems.Contains('m')) {
-                        await Tooling.AppendToFile($"{parameters.Folder}/mdl_einschreibungen.csv",
-                            ausgabeMoodleEinschreibungen[1..].Distinct().ToList());
-
-                        await Tooling.AppendToFile($"{parameters.Folder}/mdl_kurse.csv",
-                            ausgabeMoodleKurse[1..].Distinct().ToList());
-
-                        await Tooling.AppendToFile($"{parameters.Folder}/mdl_nutzer.csv",
-                            ausgabeMoodleUser[1..].Distinct().ToList());
-                    }
-
-                    if (parameters.TargetSystems.Contains('i')) {
-                        await Tooling.AppendToFile($"{parameters.Folder}/Lehrerdaten_anschreiben.csv",
-                            ausgabeIntern.Distinct().ToList());
-                    }
-                }
-
-
-                catch (Exception ex) {
-#if DEBUG
-                    AddLogMessage(new LogEintrag
-                        { Eintragsdatum = DateTime.Now, Nachricht = ex.Message, Warnstufe = "Debug" });
-#endif
-                    return -1;
-                }
-            }
-            else {
-                if (parameters.TargetSystems.Contains('a')) {
-                    await File.WriteAllLinesAsync($"{parameters.Folder}/aix_sus.csv", ausgabeAIXS.Distinct().ToList(),
-                        Encoding.UTF8);
-                    await File.WriteAllLinesAsync($"{parameters.Folder}/aix_lul.csv", ausgabeAIXL.Distinct().ToList(),
-                        Encoding.UTF8);
-                }
-
-                if (parameters.TargetSystems.Contains('m')) {
-                    await File.WriteAllLinesAsync($"{parameters.Folder}/mdl_einschreibungen.csv",
-                        ausgabeMoodleEinschreibungen.Distinct().ToList(), Encoding.UTF8);
-                    await File.WriteAllLinesAsync($"{parameters.Folder}/mdl_kurse.csv",
-                        ausgabeMoodleKurse.Distinct().ToList(),
-                        Encoding.UTF8);
-                    await File.WriteAllLinesAsync($"{parameters.Folder}/mdl_nutzer.csv",
-                        ausgabeMoodleUser.Distinct().ToList(),
-                        Encoding.UTF8);
-                }
-
-                if (parameters.TargetSystems.Contains('i')) {
-                    await File.WriteAllLinesAsync($"{parameters.Folder}/Lehrerdaten_anschreiben.csv",
-                        ausgabeIntern.Distinct().ToList(),
-                        Encoding.UTF8);
-                }
-            }*/
-
             return 1;
         }
         catch (Exception ex) {
@@ -1454,7 +1383,7 @@ public class Schuldatenbank : IDisposable {
     /// </summary>
     /// <param name="parameters"></param>
     private void ExportSuS(ExportParameters parameters) {
-        if (parameters.SusIdListe.Count > 0) return;
+        if (parameters.SusIdListe.Count == 0) return;
         var suffix = GetKursSuffix().Result;
         List<string> ausgabeMoodleUser = [];
         List<string> ausgabeMoodleEinschreibungen = [];
@@ -1537,12 +1466,20 @@ public class Schuldatenbank : IDisposable {
             var aixkursliste = "";
             var fakultas = lt.Fakultas.Split(',');
             var fak = fakultas.Aggregate("", (current, fa) => $"{current}|^Fako {fa}");
-
             fak += fak.Replace("^", "");
             fak = fak.TrimStart('|');
-
-            //ToDo: switch für LKKurs
+            
             foreach (var kurs in GetKurseVonLuL(lt.ID).Result) {
+                if (string.IsNullOrEmpty(kurs.Bezeichnung)) continue;
+
+                    ausgabeMoodleEinschreibungen.Add($"add,editingteacher,{lt.ID},{kurs.Bezeichnung}{kurs.Suffix}");
+                
+
+
+                if (kurs.Bezeichnung.Length > 20) continue;
+                aixkursliste += $"^{kurs.Bezeichnung}{kurs.Suffix}|";
+            }
+            foreach (var kurs in GetLKKurseVonLuL(lt.ID).Result) {
                 if (string.IsNullOrEmpty(kurs.Bezeichnung)) continue;
 
                 if (kurs.Bezeichnung.Contains("Jahrgangsstufenkonferenz")) {
@@ -1551,18 +1488,14 @@ public class Schuldatenbank : IDisposable {
                                 GetSettings().Result.Oberstufenkoordination.Contains(lt.Kuerzel)
                         ? "editingteacher"
                         : "student";
-                    ausgabeMoodleEinschreibungen.Add($"add,{rolle},{lt.ID},{kurs.Bezeichnung}{kurs.Suffix}");
+                    ausgabeMoodleLKEinschreibungen.Add($"add,{rolle},{lt.ID},{kurs.Bezeichnung}{kurs.Suffix}");
                 }
                 else {
-                    ausgabeMoodleEinschreibungen.Add($"add,editingteacher,{lt.ID},{kurs.Bezeichnung}{kurs.Suffix}");
+                    ausgabeMoodleLKEinschreibungen.Add($"add,editingteacher,{lt.ID},{kurs.Bezeichnung}{kurs.Suffix}");
                 }
-
-
-                if (kurs.Bezeichnung.Length > 20) continue;
-                aixkursliste += $"^{kurs.Bezeichnung}{kurs.Suffix}|";
             }
 
-            ausgabeMoodleEinschreibungen.AddRange(lt.Fakultas.Split(',')
+            ausgabeMoodleLKEinschreibungen.AddRange(lt.Fakultas.Split(',')
                 .Select(fach => $"add,editingteacher,{lt.ID},FS_{fach}"));
 
             if (aixkursliste == "^|") {
@@ -1607,7 +1540,6 @@ public class Schuldatenbank : IDisposable {
         List<string> ausgabeMoodleLKKurse = [];
         var sekI = erprobungsstufe.Concat(mittelstufe).ToArray();
         var ohne_kursvorlagen = parameters.KursVorlage[0].Equals("") && parameters.KursVorlage[1].Equals("");
-        List<string>[] x = [ausgabeMoodleKurse, ausgabeMoodleLKKurse];
         var kursliste =
             GetKursListe().Result.Where(k => parameters.KursListe.Contains(k.Bezeichnung)).ToList();
         kursliste.AddRange(
@@ -1662,18 +1594,13 @@ public class Schuldatenbank : IDisposable {
             }
         });
 
-        Tooling.AppendToFile($"{parameters.Folder}/moodle_kurse.csv", ausgabeMoodleKurse);
-        Tooling.AppendToFile($"{parameters.Folder}/lkmoodle_kurse.csv", ausgabeMoodleLKKurse);
+        Tooling.AppendToFile($"{parameters.Folder}/mdl_kurse.csv", ausgabeMoodleKurse);
+        Tooling.AppendToFile($"{parameters.Folder}/lkmdl_kurse.csv", ausgabeMoodleLKKurse);
     }
 
     /// <summary>
     /// exportiert die angegebenen Nutzer nach JAMF
     /// </summary>
-    /// <param name="susidliste"></param>
-    /// <param name="lulidliste"></param>
-    /// <param name="withPasswort"></param>
-    /// <param name="folder"></param>
-    /// <param name="expand"></param>
     /// <exception cref="NotImplementedException"></exception>
     private async void ExportJAMF(ExportParameters parameters) {
         try {

@@ -1784,7 +1784,6 @@ public partial class MainWindow : Window {
             await Dispatcher.UIThread.InvokeAsync(ReadFileTask);
             return;
 
-            //ToDo: switch LKKurs
             async Task ReadFileTask() {
                 var folder = await ShowOpenFolderDialog("Bitte den Ordner mit den Dateien auswählen");
                 if (folder == null) return;
@@ -1793,6 +1792,8 @@ public partial class MainWindow : Window {
                 if (File.Exists($"{folderpath}/aix_sus.csv") || File.Exists($"{folderpath}/aix_lul.csv") ||
                     File.Exists($"{folderpath}/mdl_einschreibungen.csv") ||
                     File.Exists($"{folderpath}/mdl_kurse.csv") || File.Exists($"{folderpath}/mdl_nutzer.csv") ||
+                    File.Exists($"{folderpath}/lkmdl_einschreibungen.csv") ||
+                    File.Exists($"{folderpath}/lkmdl_kurse.csv") || File.Exists($"{folderpath}/lkmdl_nutzer.csv") ||
                     File.Exists($"{folderpath}/jamf_sus.csv") ||
                     File.Exists($"{folderpath}/jamf_lul.csv") ||
                     File.Exists($"{folderpath}/jamf_teacher_groups.csv")) {
@@ -1854,6 +1855,8 @@ public partial class MainWindow : Window {
                     }
                 }
 
+                var kursliste = _myschool.GetKursBezListe().Result.ToList();
+                kursliste.AddRange(await _myschool.GetLKKursBezListe());
                 var ep = new ExportParameters(Folder: folderpath,
                     TargetSystems: destsys,
                     WhatToExport: whattoexport,
@@ -1864,7 +1867,7 @@ public partial class MainWindow : Window {
                     KursVorlage: kursvorlagen,
                     SusIdListe: new ReadOnlyCollection<int>(_myschool.GetSchuelerIDListe().Result),
                     LulIdListe: await _myschool.GetLehrerIDListe(),
-                    KursListe: await _myschool.GetKursBezListe());
+                    KursListe: kursliste.AsReadOnly());
                 var res = await _myschool.ExportToCSV(ep);
                 await CheckSuccesfulExport(res);
             }
@@ -2850,16 +2853,17 @@ public partial class MainWindow : Window {
                     break;
                 case 2:
                     var kliste = new List<Kurs>();
-                    var kcachelist = _myschool.GetKursListe().Result;
+                    var kcachelist = _myschool.GetKursListe().Result.ToList();
+                    kcachelist.AddRange(_myschool.GetLKKursListe().Result);
                     if (eingabeliste is [""]) {
-                        kliste = kcachelist.ToList();
+                        kliste = kcachelist;
                     }
                     else {
                         foreach (var eingabe in eingabeliste) {
                             var regexPattern = Tooling.ToRegex(eingabe, searchFields.GrossKleinschreibung);
                             kliste.AddRange(kcachelist
                                 .Where(k => regexPattern.IsMatch(k.Bezeichnung))
-                                .ToList());
+                                );
                         }
                     }
 
@@ -3007,22 +3011,24 @@ public partial class MainWindow : Window {
                         break;
                     case 2:
                         var kliste = new List<Kurs>();
-                        ReadOnlyCollection<Kurs> kcachelist;
+                        List<Kurs> kcachelist;
                         switch (cboxDataLeft.SelectedIndex) {
                             case 0:
                                 var id = Convert.ToInt32(leftListBox.SelectedItems[0]!.ToString()!.Split(';')[1]);
-                                kcachelist = _myschool.GetKurseVonSuS(id).Result;
+                                kcachelist = _myschool.GetKurseVonSuS(id).Result.ToList();
                                 break;
                             case 1:
                                 var krz = leftListBox.SelectedItems[0]!.ToString()!.Split(';')[0];
-                                kcachelist = _myschool.GetKurseVonLuL(_myschool.GetLehrkraft(krz).Result.ID).Result;
+                                var lid = _myschool.GetLehrkraft(krz).Result.ID;
+                                kcachelist = _myschool.GetKurseVonLuL(lid).Result.ToList();
+                                kcachelist.AddRange(_myschool.GetLKKurseVonLuL(lid).Result);
                                 break;
                             default:
                                 return;
                         }
 
                         if (eingabeliste is [""]) {
-                            kliste = kcachelist.ToList();
+                            kliste = kcachelist;
                         }
                         else {
                             foreach (var eingabe in eingabeliste) {
