@@ -1545,6 +1545,7 @@ public class Schuldatenbank : IDisposable {
         kursliste.AddRange(
                 GetLKKursListe().Result.Where(k => parameters.KursListe.Contains(k.Bezeichnung)));
         Parallel.ForEach(kursliste, (k, _) => {
+            //ToDo: save string to add in string variable and add to correct list
             var list = k.IstLKKurs ? ausgabeMoodleLKKurse : ausgabeMoodleKurse;
             if (ohne_kursvorlagen) {
                 if (k.Bezeichnung.Contains("Erprobungsstufe") || k.Bezeichnung.Contains("Mittelstufe") ||
