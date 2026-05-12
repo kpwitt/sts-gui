@@ -1239,7 +1239,7 @@ public class Schuldatenbank : IDisposable {
                 ausgabeAIXS.Add("Vorname;Nachname;Klasse;Referenz-ID;Arbeitsgruppen");
                 ausgabeAIXL.Add("Vorname;Nachname;Referenz-ID;Arbeitsgruppen");
             }
-            
+
             if (!parameters.ExpandFiles) {
                 if (parameters.TargetSystems.Contains('a')) {
                     await File.WriteAllLinesAsync($"{parameters.Folder}/aix_sus.csv", ausgabeAIXS.Distinct().ToList(),
@@ -1291,6 +1291,7 @@ public class Schuldatenbank : IDisposable {
             if (parameters.TargetSystems.Contains('j')) {
                 ExportJAMF(parameters);
             }
+
             return 1;
         }
         catch (Exception ex) {
@@ -1468,17 +1469,17 @@ public class Schuldatenbank : IDisposable {
             var fak = fakultas.Aggregate("", (current, fa) => $"{current}|^Fako {fa}");
             fak += fak.Replace("^", "");
             fak = fak.TrimStart('|');
-            
+
             foreach (var kurs in GetKurseVonLuL(lt.ID).Result) {
                 if (string.IsNullOrEmpty(kurs.Bezeichnung)) continue;
 
-                    ausgabeMoodleEinschreibungen.Add($"add,editingteacher,{lt.ID},{kurs.Bezeichnung}{kurs.Suffix}");
-                
+                ausgabeMoodleEinschreibungen.Add($"add,editingteacher,{lt.ID},{kurs.Bezeichnung}{kurs.Suffix}");
 
 
                 if (kurs.Bezeichnung.Length > 20) continue;
                 aixkursliste += $"^{kurs.Bezeichnung}{kurs.Suffix}|";
             }
+
             foreach (var kurs in GetLKKurseVonLuL(lt.ID).Result) {
                 if (string.IsNullOrEmpty(kurs.Bezeichnung)) continue;
 
@@ -1543,7 +1544,7 @@ public class Schuldatenbank : IDisposable {
         var kursliste =
             GetKursListe().Result.Where(k => parameters.KursListe.Contains(k.Bezeichnung)).ToList();
         kursliste.AddRange(
-                GetLKKursListe().Result.Where(k => parameters.KursListe.Contains(k.Bezeichnung)));
+            GetLKKursListe().Result.Where(k => parameters.KursListe.Contains(k.Bezeichnung)));
         Parallel.ForEach(kursliste, (k, _) => {
             //ToDo: save string to add in string variable and add to correct list
             var list = k.IstLKKurs ? ausgabeMoodleLKKurse : ausgabeMoodleKurse;
@@ -3239,6 +3240,10 @@ public class Schuldatenbank : IDisposable {
             if (lid <= 0) return Task.CompletedTask;
             var sqliteCmd = _sqliteConn.CreateCommand();
             sqliteCmd.CommandText = "DELETE FROM unterrichtet WHERE lehrerid = $lid;";
+            sqliteCmd.Parameters.AddWithValue("$lid", lid);
+            sqliteCmd.ExecuteNonQuery();
+            sqliteCmd.Parameters.Clear();
+            sqliteCmd.CommandText = "DELETE FROM lknimmtteil WHERE lehrerid = $lid;";
             sqliteCmd.Parameters.AddWithValue("$lid", lid);
             sqliteCmd.ExecuteNonQuery();
             sqliteCmd.Parameters.Clear();
