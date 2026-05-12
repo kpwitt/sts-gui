@@ -1206,12 +1206,10 @@ public class Schuldatenbank : IDisposable {
         try {
             if (parameters.TargetSystems.Equals("all")) {
                 parameters.TargetSystems = "amij";
-                return await ExportToCSV(parameters);
             }
 
             if (parameters.WhatToExport.Equals("all")) {
                 parameters.WhatToExport = ("ksle");
-                return await ExportToCSV(parameters);
             }
 
             if (parameters.WhatToExport.Contains('e')) {
@@ -1220,11 +1218,11 @@ public class Schuldatenbank : IDisposable {
 
             List<string> ausgabeAIXL = [];
             List<string> ausgabeAIXS = [];
-            List<string> ausgabeMoodleEinschreibungen = [];
             List<string> ausgabeMoodleKurse = [];
+            List<string> ausgabeMoodleEinschreibungen = [];
             List<string> ausgabeMoodleUser = [];
-            List<string> ausgabeLKMoodleEinschreibungen = [];
             List<string> ausgabeLKMoodleKurse = [];
+            List<string> ausgabeLKMoodleEinschreibungen = [];
             List<string> ausgabeLKMoodleUser = [];
             List<string> ausgabeIntern = [
                 "kuerzel;nachname;mail_Adresse;pw_temp"
@@ -1251,29 +1249,51 @@ public class Schuldatenbank : IDisposable {
             }
 
             ausgabeLKMoodleUser[0] = ausgabeMoodleUser[0];
+            if (!parameters.ExpandFiles) {
+                if (parameters.TargetSystems.Contains('a')) {
+                    await File.WriteAllLinesAsync($"{parameters.Folder}/aix_sus.csv", ausgabeAIXS.Distinct().ToList(),
+                        Encoding.UTF8);
+                    await File.WriteAllLinesAsync($"{parameters.Folder}/aix_lul.csv", ausgabeAIXL.Distinct().ToList(),
+                        Encoding.UTF8);
+                }
+
+                if (parameters.TargetSystems.Contains('m')) {
+                    await File.WriteAllLinesAsync($"{parameters.Folder}/mdl_einschreibungen.csv",
+                        ausgabeMoodleEinschreibungen.Distinct().ToList(), Encoding.UTF8);
+                    await File.WriteAllLinesAsync($"{parameters.Folder}/mdl_kurse.csv",
+                        ausgabeMoodleKurse.Distinct().ToList(),
+                        Encoding.UTF8);
+                    await File.WriteAllLinesAsync($"{parameters.Folder}/mdl_nutzer.csv",
+                        ausgabeMoodleUser.Distinct().ToList(),
+                        Encoding.UTF8);
+                }
+
+                if (parameters.TargetSystems.Contains('i')) {
+                    await File.WriteAllLinesAsync($"{parameters.Folder}/Lehrerdaten_anschreiben.csv",
+                        ausgabeIntern.Distinct().ToList(),
+                        Encoding.UTF8);
+                }
+            }
 
             if (parameters.WhatToExport.Contains('k') && parameters.TargetSystems.Contains('m')) {
-                ExportKurse(ref ausgabeMoodleKurse, parameters.KursListe, parameters.KursVorlage);
+                ExportKurse(parameters);
             }
 
             if (parameters.WhatToExport.Contains('s') &&
                 (parameters.TargetSystems.Contains('a') || parameters.TargetSystems.Contains('m'))) {
-                ExportSuS(ref ausgabeMoodleUser, ref ausgabeMoodleEinschreibungen, ref ausgabeAIXS,
-                    parameters.SusIdListe,
-                    parameters.TargetSystems, parameters.WithPasswort, parameters.Passwort, parameters.NurMoodleSuffix);
+                ExportSuS(parameters);
             }
 
             if (parameters.WhatToExport.Contains('e') && parameters.TargetSystems.Contains('m')) {
-                ExportEltern(ref ausgabeMoodleUser, ref ausgabeMoodleEinschreibungen, parameters.SusIdListe);
+                ExportEltern(parameters);
             }
 
             if (parameters.WhatToExport.Contains('l') &&
                 (parameters.TargetSystems.Contains('a') || parameters.TargetSystems.Contains('m'))) {
-                ExportLuL(ref ausgabeMoodleUser, ref ausgabeMoodleEinschreibungen, ref ausgabeAIXL,
-                    parameters.LulIdListe,
-                    parameters.TargetSystems, parameters.WithPasswort, parameters.NurMoodleSuffix);
+                ExportLuL(parameters);
             }
 
+            // noch benötigt?
             if (parameters.TargetSystems.Contains('i')) {
                 foreach (var l in parameters.LulIdListe) {
                     var lt = await GetLehrkraft(l);
@@ -1283,11 +1303,10 @@ public class Schuldatenbank : IDisposable {
             }
 
             if (parameters.TargetSystems.Contains('j')) {
-                ExportJAMF(parameters.SusIdListe, parameters.LulIdListe, parameters.WithPasswort, parameters.Folder,
-                    parameters.ExpandFiles);
+                ExportJAMF(parameters);
             }
 
-            if (parameters.ExpandFiles) {
+            /*if (parameters.ExpandFiles) {
                 try {
                     if (parameters.TargetSystems.Contains('a')) {
                         await Tooling.AppendToFile($"{parameters.Folder}/aix_sus.csv",
@@ -1348,7 +1367,7 @@ public class Schuldatenbank : IDisposable {
                         ausgabeIntern.Distinct().ToList(),
                         Encoding.UTF8);
                 }
-            }
+            }*/
 
             return 1;
         }
@@ -1367,11 +1386,13 @@ public class Schuldatenbank : IDisposable {
     /// <param name="ausgabeMoodleUser"></param>
     /// <param name="ausgabeMoodleEinschreibungen"></param>
     /// <param name="susids"></param>
-    private void ExportEltern(ref List<string> ausgabeMoodleUser, ref List<string> ausgabeMoodleEinschreibungen,
-        ReadOnlyCollection<int> susids) {
+    private void ExportEltern(ExportParameters parameters) {
         // header: email;username;idnumber;lastname;firstname;cohort1
+        if (parameters.SusIdListe.Count > 0) return;
         var suffix = GetKursSuffix().Result;
-        foreach (var s in susids) {
+        List<string> ausgabeMoodleUser = [];
+        List<string> ausgabeMoodleEinschreibungen = [];
+        foreach (var s in parameters.SusIdListe) {
             var sus = GetSchueler(s).Result;
             if (!sus.IstAktiv) continue;
             var susmail = sus.Mail.Contains(' ') ? sus.Mail.Split(' ')[0] : sus.Mail;
@@ -1433,6 +1454,9 @@ public class Schuldatenbank : IDisposable {
                 ausgabeMoodleEinschreibungen.Add($"add,eltern,E_{sus.ID},mittelstufe{suffix}");
             }
         }
+
+        Tooling.AppendToFile($"{parameters.Folder}/mdl_nutzer.csv", ausgabeMoodleUser);
+        Tooling.AppendToFile($"{parameters.Folder}/mdl_einschreibungen.csv", ausgabeMoodleEinschreibungen);
     }
 
     /// <summary>
@@ -1446,13 +1470,16 @@ public class Schuldatenbank : IDisposable {
     /// <param name="withPasswort"></param>
     /// <param name="passwort"></param>
     /// <param name="nurMoodleSuffix"></param>
-    private void ExportSuS(ref List<string> ausgabeMoodleUser, ref List<string> ausgabeMoodleEinschreibungen,
-        ref List<string> ausgabeAIXS, ReadOnlyCollection<int> susidliste,
-        string targets, bool withPasswort, string passwort, bool nurMoodleSuffix) {
+    private void ExportSuS(ExportParameters parameters) {
+        if (parameters.SusIdListe.Count > 0) return;
         var suffix = GetKursSuffix().Result;
-        if (targets != "all" && !targets.Contains('m') && !targets.Contains('a')) return;
+        List<string> ausgabeMoodleUser = [];
+        List<string> ausgabeMoodleEinschreibungen = [];
+        List<string> ausgabeAIXS = [];
+        if (parameters.TargetSystems != "all" && !parameters.TargetSystems.Contains('m') &&
+            !parameters.TargetSystems.Contains('a')) return;
         var blacklist = GetM365Blacklist().Result;
-        foreach (var sus in susidliste) {
+        foreach (var sus in parameters.SusIdListe) {
             var s = GetSchueler(sus).Result;
             var schuelerstufe = Tooling.KlasseToStufe(s.Klasse);
             var kListe = "";
@@ -1482,29 +1509,33 @@ public class Schuldatenbank : IDisposable {
             }
 
             kListe = kListe.TrimEnd('|');
-            if (nurMoodleSuffix) {
+            if (parameters.NurMoodleSuffix) {
                 kListe = kListe.Replace(suffix, "");
             }
 
             var susmail = s.Mail.Contains(' ') ? s.Mail.Split(' ')[0] : s.Mail;
-            if (withPasswort) {
-                var pwd = passwort.Length > 7
-                    ? passwort
+            if (parameters.WithPasswort) {
+                var pwd = parameters.Passwort.Length > 7
+                    ? parameters.Passwort
                     : $"Klasse{s.Klasse}{DateTime.Now.Year}!";
                 ausgabeMoodleUser.Add(
                     $"{susmail};{pwd.Replace(" ", "")};{s.Nutzername};{s.ID};{s.Nachname};{s.Vorname};schueler;{Convert.ToInt32(!s.IstAktiv)}");
-                if (!blacklist.Contains(s.ID) && targets.Contains('a') && s.IstAktiv) {
+                if (!blacklist.Contains(s.ID) && parameters.TargetSystems.Contains('a') && s.IstAktiv) {
                     ausgabeAIXS.Add($"{s.Vorname};{s.Nachname};{s.Klasse};{s.ID};{pwd.Replace(" ", "")};{kListe}");
                 }
             }
             else {
                 ausgabeMoodleUser.Add(
                     $"{susmail};{s.Nutzername};{s.ID};{s.Nachname};{s.Vorname};schueler;{Convert.ToInt32(!s.IstAktiv)}");
-                if (!blacklist.Contains(s.ID) && targets.Contains('a') && s.IstAktiv) {
+                if (!blacklist.Contains(s.ID) && parameters.TargetSystems.Contains('a') && s.IstAktiv) {
                     ausgabeAIXS.Add($"{s.Vorname};{s.Nachname};{s.Klasse};{s.ID};{kListe}");
                 }
             }
         }
+
+        Tooling.AppendToFile($"{parameters.Folder}/mdl_nutzer.csv", ausgabeMoodleUser);
+        Tooling.AppendToFile($"{parameters.Folder}/mdl_einschreibungen.csv", ausgabeMoodleEinschreibungen);
+        Tooling.AppendToFile($"{parameters.Folder}/aix_sus.csv", ausgabeAIXS);
     }
 
     /// <summary>
@@ -1517,11 +1548,13 @@ public class Schuldatenbank : IDisposable {
     /// <param name="targets"></param>
     /// <param name="withPasswort"></param>
     /// <param name="nurMoodleSuffix"></param>
-    private void ExportLuL(ref List<string> ausgabeMoodleUser, ref List<string> ausgabeMoodleEinschreibungen,
-        ref List<string> ausgabeAIXL, ReadOnlyCollection<int> lulidliste,
-        string targets, bool withPasswort, bool nurMoodleSuffix) {
+    private void ExportLuL(ExportParameters parameters) {
+        if (parameters.LulIdListe.Count == 0) return;
         var suffix = GetKursSuffix().Result;
-        foreach (var l in lulidliste) {
+        List<string> ausgabeAIXL = [];
+        List<string> ausgabeMoodleEinschreibungen = [];
+        List<string> ausgabeMoodleUser = [];
+        foreach (var l in parameters.LulIdListe) {
             var lt = GetLehrkraft(l).Result;
             var kListe = "";
             var fakultas = lt.Fakultas.Split(',');
@@ -1557,14 +1590,14 @@ public class Schuldatenbank : IDisposable {
                 kListe = "";
             }
 
-            if (nurMoodleSuffix && kListe != "") {
+            if (parameters.NurMoodleSuffix && kListe != "") {
                 kListe = kListe.Replace(suffix, "");
             }
 
-            if (withPasswort) {
+            if (parameters.WithPasswort) {
                 ausgabeMoodleUser.Add(
                     $"{lt.Mail};{GetTempPasswort(lt.ID).Result};{lt.Kuerzel};{lt.ID};{lt.Nachname};{lt.Vorname};lehrer;{Convert.ToInt32(!lt.IstAktiv)}");
-                if (targets.Contains('a') && lt.IstAktiv) {
+                if (parameters.TargetSystems.Contains('a') && lt.IstAktiv) {
                     ausgabeAIXL.Add(
                         $"{lt.Vorname};{lt.Nachname};{lt.ID};{GetTempPasswort(lt.ID).Result};*|{kListe}{fak}");
                 }
@@ -1572,11 +1605,15 @@ public class Schuldatenbank : IDisposable {
             else {
                 ausgabeMoodleUser.Add(
                     $"{lt.Mail};{lt.Kuerzel};{lt.ID};{lt.Nachname};{lt.Vorname};lehrer;{Convert.ToInt32(!lt.IstAktiv)}");
-                if (targets.Contains('a') && lt.IstAktiv) {
+                if (parameters.TargetSystems.Contains('a') && lt.IstAktiv) {
                     ausgabeAIXL.Add($"{lt.Vorname};{lt.Nachname};{lt.ID};*|{kListe}{fak}");
                 }
             }
         }
+
+        Tooling.AppendToFile($"{parameters.Folder}/mdl_nutzer.csv", ausgabeMoodleUser);
+        Tooling.AppendToFile($"{parameters.Folder}/mdl_einschreibungen.csv", ausgabeMoodleEinschreibungen);
+        Tooling.AppendToFile($"{parameters.Folder}/aix_lul.csv", ausgabeAIXL);
     }
 
     /// <summary>
@@ -1585,11 +1622,12 @@ public class Schuldatenbank : IDisposable {
     /// <param name="ausgabeMoodleKurse"></param>
     /// <param name="kursBez"></param>
     /// <param name="kursvorlage"></param>
-    private void ExportKurse(ref List<string> ausgabeMoodleKurse, ReadOnlyCollection<string> kursBez,
-        string[] kursvorlage) {
+    private void ExportKurse(ExportParameters parameters) {
+        if (parameters.KursListe.Count == 0) return;
+        List<string> ausgabeMoodleKurse = [];
         var sekI = erprobungsstufe.Concat(mittelstufe).ToArray();
-        var ohne_kursvorlagen = kursvorlage[0].Equals("") && kursvorlage[1].Equals("");
-        foreach (var kurs in kursBez) {
+        var ohne_kursvorlagen = parameters.KursVorlage[0].Equals("") && parameters.KursVorlage[1].Equals("");
+        foreach (var kurs in parameters.KursListe) {
             if (kurs.EndsWith('-')) continue;
             var k = GetKurs(kurs.Split(';')[0]).Result;
             //ToDo: switch für LKKurs
@@ -1616,7 +1654,8 @@ public class Schuldatenbank : IDisposable {
                 }
             }
             else {
-                var strkursvorlage = k.Bezeichnung.Contains("KL") ? kursvorlage[0] : kursvorlage[1];
+                var strkursvorlage =
+                    k.Bezeichnung.Contains("KL") ? parameters.KursVorlage[0] : parameters.KursVorlage[1];
                 if (k.Bezeichnung.Contains("Erprobungsstufe") || k.Bezeichnung.Contains("Mittelstufe") ||
                     k.Bezeichnung.Contains("Einführungsphase") || k.Bezeichnung.Contains("Qualifikationsphase")) {
                     ausgabeMoodleKurse.Add(
@@ -1639,6 +1678,8 @@ public class Schuldatenbank : IDisposable {
                 }
             }
         }
+
+        Tooling.AppendToFile($"{parameters.Folder}/moodle_kurse.csv", ausgabeMoodleKurse);
     }
 
     /// <summary>
@@ -1650,8 +1691,7 @@ public class Schuldatenbank : IDisposable {
     /// <param name="folder"></param>
     /// <param name="expand"></param>
     /// <exception cref="NotImplementedException"></exception>
-    private async void ExportJAMF(ReadOnlyCollection<int> susidliste,
-        ReadOnlyCollection<int> lulidliste, bool withPasswort, string folder, bool expand) {
+    private async void ExportJAMF(ExportParameters parameters) {
         try {
             var blacklist = new[] { "Qualifikations", "Einführungs", "KL", "StuBo", "Phase", "stufe", "Jahrgang" };
             var kurs_wl = GetKursBezListe().Result.ToList();
@@ -1662,14 +1702,14 @@ public class Schuldatenbank : IDisposable {
 
             List<string> ausgabeSuSJamf = [
                 "Username;Email;FirstName;LastName;SerialNumber;Groups" +
-                (withPasswort ? ";Password" : "")
+                (parameters.WithPasswort ? ";Password" : "")
             ];
             List<string> ausgabeLuLJamf = [
                 "Username;Email;FirstName;LastName;SerialNumber;Groups;TeacherGroups" +
-                (withPasswort ? ";Password" : "")
+                (parameters.WithPasswort ? ";Password" : "")
             ];
             List<string> ausgabeTeacherGroupsJAMF = ["TeacherGroup;Usernames"];
-            ausgabeSuSJamf.AddRange(from sus_id in susidliste
+            ausgabeSuSJamf.AddRange(from sus_id in parameters.SusIdListe
                 select GetSchueler(sus_id).Result
                 into sus
                 where sus.AllowJAMF
@@ -1679,8 +1719,8 @@ public class Schuldatenbank : IDisposable {
                     .Select(k => k.Bezeichnung).ToList()
                 select string.Join(";", sus.Nutzername, !string.IsNullOrEmpty(sus.Aixmail) ? sus.Aixmail : sus.Mail,
                     sus.Vorname, sus.Nachname, sus.Seriennummer, string.Join(',', kbez_liste),
-                    withPasswort ? $"Klasse{sus.Klasse}{DateTime.Now.Year}!" : ""));
-            ausgabeLuLJamf.AddRange(from lulid in lulidliste
+                    parameters.WithPasswort ? $"Klasse{sus.Klasse}{DateTime.Now.Year}!" : ""));
+            ausgabeLuLJamf.AddRange(from lulid in parameters.LulIdListe
                 let lul = GetLehrkraft(lulid).Result
                 where lul.IstAktiv
                 where lul.Seriennummer != ""
@@ -1692,7 +1732,7 @@ public class Schuldatenbank : IDisposable {
                 select string.Join(";", lul.Kuerzel, lul.Mail, lul.Vorname, lul.Nachname, lul.Seriennummer,
                     "Lehrer-605",
                     string.Join(',', kurse),
-                    withPasswort ? GetTempPasswort(lulid).Result : ""));
+                    parameters.WithPasswort ? GetTempPasswort(lulid).Result : ""));
             foreach (var stufe in Jamfstufen) {
                 var kurse_in_stufe = GetKurseAusStufe(stufe).Result.ToList();
                 kurse_in_stufe.RemoveAll(k => !kurs_wl.Contains(k.Bezeichnung));
@@ -1701,44 +1741,44 @@ public class Schuldatenbank : IDisposable {
                     select $"{kurs.Bezeichnung};" + string.Join(',', lul_aus_kurs.Select(l => l.Kuerzel)));
             }
 
-            if (File.Exists($"{folder}/jamf_sus.csv") && expand) {
+            if (File.Exists($"{parameters.Folder}/jamf_sus.csv") && parameters.ExpandFiles) {
                 var jamf_sus =
-                    (await File.ReadAllLinesAsync($"{folder}/jamf_sus.csv")).ToList();
+                    (await File.ReadAllLinesAsync($"{parameters.Folder}/jamf_sus.csv")).ToList();
                 jamf_sus.RemoveAt(0);
                 ausgabeSuSJamf.AddRange(jamf_sus);
-                await File.WriteAllLinesAsync($"{folder}/jamf_sus.csv",
+                await File.WriteAllLinesAsync($"{parameters.Folder}/jamf_sus.csv",
                     ausgabeSuSJamf.Distinct().ToList(), Encoding.UTF8);
             }
             else {
-                await File.WriteAllLinesAsync($"{folder}/jamf_sus.csv",
+                await File.WriteAllLinesAsync($"{parameters.Folder}/jamf_sus.csv",
                     ausgabeSuSJamf.Distinct().ToList(),
                     Encoding.UTF8);
             }
 
-            if (File.Exists($"{folder}/jamf_lul.csv") && expand) {
+            if (File.Exists($"{parameters.Folder}/jamf_lul.csv") && parameters.ExpandFiles) {
                 var jamf_lul =
-                    (await File.ReadAllLinesAsync($"{folder}/jamf_lul.csv")).ToList();
+                    (await File.ReadAllLinesAsync($"{parameters.Folder}/jamf_lul.csv")).ToList();
                 jamf_lul.RemoveAt(0);
                 ausgabeLuLJamf.AddRange(jamf_lul);
-                await File.WriteAllLinesAsync($"{folder}/jamf_lul.csv",
+                await File.WriteAllLinesAsync($"{parameters.Folder}/jamf_lul.csv",
                     ausgabeLuLJamf.Distinct().ToList(), Encoding.UTF8);
             }
             else {
-                await File.WriteAllLinesAsync($"{folder}/jamf_lul.csv",
+                await File.WriteAllLinesAsync($"{parameters.Folder}/jamf_lul.csv",
                     ausgabeLuLJamf.Distinct().ToList(),
                     Encoding.UTF8);
             }
 
-            if (File.Exists($"{folder}/jamf_teacher_groups.csv") && expand) {
+            if (File.Exists($"{parameters.Folder}/jamf_teacher_groups.csv") && parameters.ExpandFiles) {
                 var teacher_groups =
-                    (await File.ReadAllLinesAsync($"{folder}/jamf_teacher_groups.csv")).ToList();
+                    (await File.ReadAllLinesAsync($"{parameters.Folder}/jamf_teacher_groups.csv")).ToList();
                 teacher_groups.RemoveAt(0);
                 ausgabeTeacherGroupsJAMF.AddRange(teacher_groups);
-                await File.WriteAllLinesAsync($"{folder}/jamf_teacher_groups.csv",
+                await File.WriteAllLinesAsync($"{parameters.Folder}/jamf_teacher_groups.csv",
                     ausgabeTeacherGroupsJAMF.Distinct().ToList(), Encoding.UTF8);
             }
             else {
-                await File.WriteAllLinesAsync($"{folder}/jamf_teacher_groups.csv",
+                await File.WriteAllLinesAsync($"{parameters.Folder}/jamf_teacher_groups.csv",
                     ausgabeTeacherGroupsJAMF.Distinct().ToList(),
                     Encoding.UTF8);
             }
@@ -4181,7 +4221,9 @@ public class Schuldatenbank : IDisposable {
 
         await StopTransaction();
         await File.WriteAllLinesAsync(exportpath + "/mdl_einschreibungen.csv", moodle_einschreibungen);
-        ExportJAMF(susidliste.AsReadOnly(), lulidliste.AsReadOnly(), true, exportpath, false);
+        ExportJAMF(new ExportParameters(exportpath, "j", "slk", true,
+            "", false, false, [], susidliste.AsReadOnly(),
+            lulidliste.AsReadOnly(), []));
         ausstehende_aenderungen.RemoveWhere(ausstehendeAenderungen.Contains);
     }
 

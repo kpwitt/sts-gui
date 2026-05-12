@@ -317,20 +317,7 @@ public partial class MainWindow : Window {
         };
         _clearLastEntries.Click += MnuClearLastEntries_Click;
 
-        var settingspath = new FileInfo(Assembly.GetCallingAssembly().Location).Directory?.FullName +
-                           "\\appsettings.json";
-        if (File.Exists(settingspath)) {
-            try {
-                appSettings =
-                    JsonSerializer.Deserialize<AppSettings>(File.ReadAllTextAsync(settingspath).Result);
-                RegenerateLoadMenuEntries();
-            }
-            catch (Exception exception) {
-                _myschool.AddLogMessage(new LogEintrag
-                    { Eintragsdatum = DateTime.Now, Nachricht = exception.Message, Warnstufe = "Fehler" });
-            }
-        }
-        else appSettings = new AppSettings();
+        appSettings = Tooling.ReadAppSettings();
 
         SetTheme(appSettings.Theme);
         switch (appSettings.Theme) {
@@ -1077,6 +1064,9 @@ public partial class MainWindow : Window {
                     await _myschool.AddStoK(sid, kursbez);
                 }
             }
+
+            await CallLeftTimer();
+            await CallRightTimer();
         }
         catch (Exception ex) {
             _myschool.AddLogMessage(new LogEintrag {
@@ -1116,6 +1106,8 @@ public partial class MainWindow : Window {
             await _myschool.StopTransaction();
             OnLeftDataChanged(true);
             OnRightDataChanged(true);
+            await CallLeftTimer();
+            await CallRightTimer();
             SetStatusText();
         }
         catch (Exception ex) {
@@ -1226,6 +1218,8 @@ public partial class MainWindow : Window {
 
             OnLeftDataChanged(true);
             OnRightDataChanged(true);
+            await CallLeftTimer();
+            await CallRightTimer();
             SetStatusText();
         }
         catch (Exception ex) {
@@ -1264,6 +1258,8 @@ public partial class MainWindow : Window {
             await _myschool.StopTransaction();
             OnLeftDataChanged(true);
             OnRightDataChanged(true);
+            await CallLeftTimer();
+            await CallRightTimer();
             SetStatusText();
         }
         catch (Exception ex) {

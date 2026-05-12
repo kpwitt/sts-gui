@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -69,15 +71,45 @@ public static class Tooling {
         return new Regex(escaped, options);
     }
 
-    public static async Task AppendToFile(string filepath, List<string> content) {
+    public static async Task AppendToFileAsync(string filepath, List<string> content) {
         if (!File.Exists(filepath)) {
-            await WriteToFile(filepath, content);
+            await WriteToFileAsync(filepath, content);
             return;
         }
-        File.AppendAllLinesAsync(filepath, content, Encoding.UTF8);
+        await File.AppendAllLinesAsync(filepath, content, Encoding.UTF8);
     }
     
-    public static async Task WriteToFile(string filepath, List<string> content) {
+    public static async Task WriteToFileAsync(string filepath, List<string> content) {
         await File.WriteAllLinesAsync(filepath, content, Encoding.UTF8);
+    }
+    
+    public static void AppendToFile(string filepath, List<string> content) {
+        if (!File.Exists(filepath)) {
+            WriteToFile(filepath, content);
+            return;
+        }
+        File.AppendAllLines(filepath, content, Encoding.UTF8);
+    }
+    
+    public static void WriteToFile(string filepath, List<string> content) {
+        File.WriteAllLines(filepath, content, Encoding.UTF8);
+    }
+
+    public static AppSettings ReadAppSettings() {
+        var settingspath = new FileInfo(Assembly.GetCallingAssembly().Location).Directory?.FullName +
+                           "\\appsettings.json";
+        AppSettings appSettings;
+        if (File.Exists(settingspath)) {
+            try {
+                appSettings =
+                    JsonSerializer.Deserialize<AppSettings>(File.ReadAllTextAsync(settingspath).Result);
+            }
+            catch (Exception exception) {
+                throw new Exception("Failed to read appsettings.json", exception);
+            }
+        }
+        else appSettings = new AppSettings();
+
+        return appSettings;
     }
 }
