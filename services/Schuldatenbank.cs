@@ -1558,8 +1558,7 @@ public class Schuldatenbank : IDisposable {
                     list.Add(
                         $"{k.Bezeichnung}{k.Suffix};{k.Bezeichnung} SJ{k.Suffix.Substring(1, 2)}/{k.Suffix.Substring(3, 2)};{k.Bezeichnung}{k.Suffix};lehrkraefte;tiles");
                 }
-
-                if (k.IstKurs) {
+                else if (k.IstKurs) {
                     list.Add(
                         sekI.Contains(k.Stufe)
                             ? $"{k.Bezeichnung}{k.Suffix};{k.Klasse} {GetLangeFachbezeichnung(k.Fach).Result}-{k.Art.Substring(k.Art.Length - 1, 1)} SJ{k.Suffix.Substring(1, 2)}/{k.Suffix.Substring(3, 2)};{k.Bezeichnung}{k.Suffix};stufe_{k.Stufe}{k.Suffix};tiles"
@@ -1582,8 +1581,7 @@ public class Schuldatenbank : IDisposable {
                     list.Add(
                         $"{k.Bezeichnung}{k.Suffix};{k.Bezeichnung} SJ{k.Suffix.Substring(1, 2)}/{k.Suffix.Substring(3, 2)};{k.Bezeichnung}{k.Suffix};lehrkraefte;tiles;{strkursvorlage}");
                 }
-
-                if (k.IstKurs) {
+                else if (k.IstKurs) {
                     list.Add(
                         sekI.Contains(k.Stufe)
                             ? $"{k.Bezeichnung}{k.Suffix};{k.Klasse} {GetLangeFachbezeichnung(k.Fach).Result}-{k.Art.Substring(k.Art.Length - 1, 1)} SJ{k.Suffix.Substring(1, 2)}/{k.Suffix.Substring(3, 2)};{k.Bezeichnung}{k.Suffix};stufe_{k.Stufe}{k.Suffix};tiles;{strkursvorlage}"

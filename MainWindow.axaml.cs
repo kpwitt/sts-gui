@@ -1482,6 +1482,9 @@ public partial class MainWindow : Window {
                             var rlist = _myschool.GetKurseVonLuL(lul.ID).Result.Select(k => k.Bezeichnung)
                                 .Distinct()
                                 .ToList();
+                            rlist.AddRange(_myschool.GetLKKurseVonLuL(lul.ID).Result.Select(k => k.Bezeichnung)
+                                .Distinct()
+                                .ToList());
                             rlist.Sort(Comparer<string>.Default);
                             ResetItemsSource(rightListBox, rlist);
                             break;
@@ -1496,7 +1499,8 @@ public partial class MainWindow : Window {
                 }
 
                 if (leftListBox.SelectedItems.Count < 1 || leftListBox.SelectedItems == null || hasComboBoxChanged) {
-                    var klist = _myschool.GetKursListe().Result.Select(k => k.Bezeichnung).Distinct().ToList();
+                    var klist = _myschool.GetKursBezListe().Result.ToList();
+                    klist.AddRange(_myschool.GetLKKursBezListe().Result.ToList());
                     klist.Sort(Comparer<string>.Default);
                     ResetItemsSource(leftListBox, klist);
                     ResetItemsSource(rightListBox, []);
@@ -1504,7 +1508,14 @@ public partial class MainWindow : Window {
                 else {
                     var kurzbez = leftListBox.SelectedItems[0]?.ToString();
                     if (string.IsNullOrEmpty(kurzbez)) return;
-                    var kurs = _myschool.GetKurs(kurzbez).Result;
+                    var kurs = new Kurs();
+                    if (_myschool.GibtEsKurs(kurzbez).Result) {
+                        kurs = _myschool.GetKurs(kurzbez).Result;
+                    }
+                    else if (_myschool.GibtEsLKKurs(kurzbez).Result) {
+                        kurs = _myschool.GetLKKurs(kurzbez).Result;
+                    }
+
                     LoadKursData(kurs);
                     switch (cboxDataRight.SelectedIndex) {
                         case 0: {
@@ -1517,15 +1528,17 @@ public partial class MainWindow : Window {
                         }
                         case 1: {
                             if (string.IsNullOrEmpty(kurs.Bezeichnung)) break;
-                            var rlist = _myschool.GetLuLAusKurs(kurs.Bezeichnung).Result
-                                .Select(l => $"{l.Kuerzel};{l.Nachname},{l.Vorname}").Distinct().ToList();
+                            var rlist = kurs.IstLKKurs
+                                ? _myschool.GetLuLAusLKKurs(kurs.Bezeichnung).Result
+                                    .Select(l => $"{l.Kuerzel};{l.Nachname},{l.Vorname}").Distinct().ToList()
+                                : _myschool.GetLuLAusKurs(kurs.Bezeichnung).Result
+                                    .Select(l => $"{l.Kuerzel};{l.Nachname},{l.Vorname}").Distinct().ToList();
                             rlist.Sort(Comparer<string>.Default);
                             ResetItemsSource(rightListBox, rlist);
                             break;
                         }
                     }
                 }
-
                 break;
         }
     }
@@ -1761,6 +1774,7 @@ public partial class MainWindow : Window {
         tbKursBemerkung.Text = k.Bemerkung;
         if (k.IstLKKurs) {
             cbKursIstLKKurs.IsChecked = true;
+            CbKursIstLKKurs_OnClick(this, new RoutedEventArgs());
             tbKursLuL.Text = _myschool.GetLuLAusLKKurs(k.Bezeichnung).Result
                 .Aggregate("", (current, lul) => $"{current}{lul.Kuerzel},").TrimEnd(',');
         }
@@ -1768,6 +1782,7 @@ public partial class MainWindow : Window {
             tbKursLuL.Text = _myschool.GetLuLAusKurs(k.Bezeichnung).Result
                 .Aggregate("", (current, lul) => $"{current}{lul.Kuerzel},").TrimEnd(',');
             cbKursIstKurs.IsChecked = true;
+            CbKursIstKurs_OnClick(this, new RoutedEventArgs());
         }
     }
 
