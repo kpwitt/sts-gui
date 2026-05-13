@@ -31,7 +31,6 @@ public enum Theme {
     Light
 }
 
-
 public record struct ExportParameters(
     string Folder,
     string TargetSystems,
