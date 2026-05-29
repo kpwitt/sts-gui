@@ -683,7 +683,12 @@ public partial class MainWindow : Window {
 
             async Task SaveEncDbFile() {
                 var extx = new List<FilePickerFileType> { StSFileTypes.EncryptedFile };
-                var files = await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
+                var dbpath = _myschool.GetFilePath();
+                var files = dbpath != ":memory:" && dbpath.EndsWith(".sqlite")
+                    ? await ShowSaveFileDialog("Bitte einen Dateipfad angeben...",
+                        dbpath.Replace("sqlite", "aes"), extx)
+                    : await ShowSaveFileDialog("Bitte einen Dateipfad angeben...", extx);
+
                 if (files == null) return;
                 var filepath = files.Path.LocalPath;
                 var dbPath = _myschool.GetFilePath();
