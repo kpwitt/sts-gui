@@ -96,7 +96,12 @@ public static class Tooling {
     }
 
     public static AppSettings ReadAppSettings() {
-        var settingspath = new FileInfo(Assembly.GetCallingAssembly().Location).Directory?.FullName +
+        var loc = Assembly.GetCallingAssembly().Location;
+        if (loc == "") return new AppSettings();
+        var dInfo = new FileInfo(loc).Directory;
+        if (dInfo == null) return new AppSettings();
+        
+        var settingspath = dInfo.FullName +
                            "\\appsettings.json";
         AppSettings appSettings;
         if (File.Exists(settingspath)) {
