@@ -4381,9 +4381,36 @@ public partial class MainWindow : Window {
 
                     await _myschool.StopTransaction();
                     break;
+                case "Vorname;Nachname;Seriennummer":
+                    iPSFileText.RemoveAt(0);
+                    await _myschool.StartTransaction();
+                    foreach (var line in iPSFileText) {
+                        var split_line = line.Split(';');
+                        var vorname = split_line[0];
+                        var nachname = split_line[1];
+                        var seriennummer = split_line[2];
+                        var suslist = await _myschool.GetSchueler(vorname, nachname);
+                        switch (suslist.Count) {
+                            case > 1:
+                                await ShowCustomErrorMessage($"{vorname} {nachname} ist uneindeutig", "Fehler");
+                                _myschool.AddLogMessage(new LogEintrag("Hinweis", new DateTime(),
+                                    $"{vorname} {nachname} ist uneindeutig"));
+                                continue;
+                            case 0:
+                                await ShowCustomErrorMessage($"{vorname} {nachname} existiert nicht", "Fehler");
+                                _myschool.AddLogMessage(new LogEintrag("Hinweis", new DateTime(),
+                                    $"{vorname} {nachname} existiert nicht"));
+                                break;
+                        }
+                        var sus = suslist[0];
+                        sus.Seriennummer = seriennummer;
+                        _myschool.UpdateSchueler(sus);
+                    }
+                    await _myschool.StopTransaction();
+                    break;
                 default: {
                     await ShowCustomErrorMessage(
-                        "Fehlerhafte Datei, bitte den Header überprüfen, für Schüler:innen Vorname;Nachname;Klasse;Seriennummer, für Lehrkräfte Kürzel;Seriennummer verwenden.",
+                        "Fehlerhafte Datei, bitte den Header überprüfen, für Schüler:innen Vorname;Nachname;(Klasse;)Seriennummer, für Lehrkräfte Kürzel;Seriennummer verwenden.",
                         "Fehler");
                     await _myschool.StopTransaction();
                     return;
