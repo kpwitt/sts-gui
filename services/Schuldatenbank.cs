@@ -701,15 +701,16 @@ public class Schuldatenbank : IDisposable {
     /// </summary>
     /// <param name="eintrag"></param>
     public void AddLogMessage(LogEintrag eintrag) {
+        var nachricht = eintrag.Nachricht.ReplaceLineEndings("  ");
         switch (eintrag.Warnstufe) {
             case "Info":
-                log.Info(eintrag.Nachricht);
+                log.Info(nachricht);
                 break;
             case "Fehler":
-                log.Error(eintrag.Nachricht);
+                log.Error(nachricht);
                 break;
             case "Debug":
-                log.Debug(eintrag.Nachricht);
+                log.Debug(nachricht);
                 break;
         }
     }
