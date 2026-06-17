@@ -14,5 +14,7 @@ jobs:
         with:
           dotnet-version: '10.0.x'
           cache: true
+          permissions:
+            contents: read
       - name: building release
         run: dotnet build -c RELEASE
