@@ -319,7 +319,7 @@ public partial class MainWindow : Window {
 
         appSettings = Tooling.ReadAppSettings();
         RegenerateLoadMenuEntries();
-        
+
         SetTheme(appSettings.Theme);
         switch (appSettings.Theme) {
             case SchulDB.Theme.Dark:
@@ -4403,10 +4403,12 @@ public partial class MainWindow : Window {
                                     $"{vorname} {nachname} existiert nicht"));
                                 break;
                         }
+
                         var sus = suslist[0];
                         sus.Seriennummer = seriennummer;
                         _myschool.UpdateSchueler(sus);
                     }
+
                     await _myschool.StopTransaction();
                     break;
                 default: {
@@ -4735,5 +4737,45 @@ public partial class MainWindow : Window {
     private void CbKursIstKurs_OnClick(object? sender, RoutedEventArgs e) {
         cbKursMarkierteSuSEinschreiben.IsEnabled =
             cbKursSuSdKlasseEinschreiben.IsEnabled = cbKursSuSdStufeEinschreiben.IsEnabled = true;
+    }
+
+    private async void MenuItem_OnClick(object? sender, RoutedEventArgs e) {
+        try {
+            await Dispatcher.UIThread.InvokeAsync(deleteInactiveUsers);
+            return;
+
+            async void deleteInactiveUsers() {
+                try {
+                    var inaktiveSuS = _myschool.GetSchuelerListe().Result.Where(s => !s.IstAktiv).ToList();
+                    var inaktiveLuL = _myschool.GetLehrkraftListe().Result.Where(l => !l.IstAktiv).ToList();
+                    var res = await MessageBoxManager.GetMessageBoxStandard(new MessageBoxStandardParams {
+                        ButtonDefinitions = ButtonEnum.YesNo,
+                        ContentTitle = "WARNUNG",
+                        ContentMessage =
+                            $"Es werden {inaktiveLuL.Count} Lehrkräfte und {inaktiveSuS.Count} Schüler:innen gelöscht. Dies ist nicht umkehrbar. Sind Sie sicher?",
+                        Icon = MsBox.Avalonia.Enums.Icon.Warning,
+                        WindowIcon = _msgBoxWindowIcon
+                    }).ShowAsPopupAsync(this);
+                    if (res != ButtonResult.Yes) return;
+                    await _myschool.StartTransaction();
+                    foreach (var lul in inaktiveLuL) {
+                        await _myschool.RemoveL(lul.ID);
+                    }
+
+                    foreach (var sus in inaktiveSuS) {
+                        await _myschool.RemoveS(sus.ID);
+                    }
+
+                    await _myschool.StopTransaction();
+                }
+                catch (Exception exception) {
+                    _myschool.AddLogMessage(new LogEintrag("Debug", DateTime.Now, "Unbekannter Fehler beim löschen der Inaktiven: "+exception.Message));
+                }
+            
+            }
+        }
+        catch (Exception ex) {
+            _myschool.AddLogMessage(new LogEintrag("Debug", DateTime.Now, "Unbekannter Fehler beim löschen der Inaktiven: "+ex.Message));
+        }
     }
 }
