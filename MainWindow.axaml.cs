@@ -318,7 +318,8 @@ public partial class MainWindow : Window {
         _clearLastEntries.Click += MnuClearLastEntries_Click;
 
         appSettings = Tooling.ReadAppSettings();
-
+        RegenerateLoadMenuEntries();
+        
         SetTheme(appSettings.Theme);
         switch (appSettings.Theme) {
             case SchulDB.Theme.Dark:
