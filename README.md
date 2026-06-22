@@ -6,7 +6,7 @@ StS nimmt den Daten- und Leistungsdatenexport von
 SchILD-NRW ([Schulverwaltungsprogramm von ribeka](https://www.ribeka.com/schild-nrw/)) und formatiert ihn
 für [Moodle](https://moodle.org/), [AixConcept](https://aixconcept.de/)-Systeme und [JAMF](https://www.jamf.com/de/) so
 um, dass Schüler:innen, Lehrkräfte und Kurse in diese Systeme importiert werden können.
-Lizenziert ist es unter der MIT-Lizenz (siehe LICENSE)
+Lizenziert ist es unter der GPL-Lizenz (siehe LICENSE)
 
 ### Features
 
